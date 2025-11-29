@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Other - Mount Aetheria</title>
+<link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
+<style>
+body {
+  margin: 0;
+  padding-top: 60px;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to bottom, #222, #444);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Top Navigation */
+.top-nav {
+  width: 100%;
+  background: #111;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2000;
+  flex-wrap: wrap;
+}
+
+.top-nav a {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 600;
+  font-family: 'Uncial Antiqua', serif;
+  margin: 5px 0;
+}
+
+.top-nav a:hover {
+  color: #ffcc66;
+}
+
+/* Page Title */
+.page-title {
+  font-family: 'Uncial Antiqua', cursive;
+  font-size: 48px;
+  text-align: center;
+  margin: 20px 0;
+}
+
+/* Discussion Board */
+.discussion-container {
+  width: 95%;
+  max-width: 800px;
+  margin: 0 auto;
+  background: #333;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.discussion-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#messages {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #555;
+  padding: 10px;
+  border-radius: 8px;
+  background: #222;
+}
+
+.message {
+  padding: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #555;
+}
+
+.message strong {
+  color: #ffcc66;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #555;
+  background: #111;
+  color: #fff;
+  font-size: 16px;
+}
+
+button {
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  background: #ffcc66;
+  color: #111;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #e6b800;
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="top-nav">
+  <a href="index.html">Home</a>
+  <a href="story.html">Story</a>
+  <a href="tools.html">Tools</a>
+  <a href="characters.html">Character Sheet</a>
+  <a href="discussions.html">Discussion</a>
+</nav>
+
+<!-- Page Title -->
+<div class="page-title">Discussion Board</div>
+
+<!-- Discussion Board -->
+<div class="discussion-container">
+  <h2>Post a Message</h2>
+  <input type="text" id="username" placeholder="Your name">
+  <textarea id="messageInput" placeholder="Write a message..."></textarea>
+  <button onclick="postMessage()">Post</button>
+
+  <div id="messages"></div>
+</div>
+
+<script>
+// Basic front-end discussion board (no server, just for local/demo)
+function postMessage() {
+  const username = document.getElementById('username').value.trim();
+  const message = document.getElementById('messageInput').value.trim();
+  const messagesDiv = document.getElementById('messages');
+
+  if (!username || !message) {
+    alert("Please enter a name and message.");
+    return;
+  }
+
+  const msgDiv = document.createElement('div');
+  msgDiv.classList.add('message');
+  msgDiv.innerHTML = `<strong>${username}:</strong> ${message}`;
+  messagesDiv.appendChild(msgDiv);
+
+  document.getElementById('messageInput').value = '';
+  messagesDiv.scrollTop = messagesDiv.scrollHeight; // scroll to bottom
+}
+</script>
+
+</body>
+</html>

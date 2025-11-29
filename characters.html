@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Character Sheet - Onyx</title>
+<link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to bottom, #222, #444);
+  color: #fff;
+  padding-top: 70px; /* for fixed nav */
+  display: flex;
+  min-height: 100vh;
+}
+
+/* -------------------- NAVIGATION BAR -------------------- */
+.top-nav {
+  width: 100%;
+  background: #111;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2000;
+}
+
+.top-nav a {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 600;
+  font-family: 'Uncial Antiqua', serif;
+}
+
+.top-nav a:hover {
+  color: #ffcc66;
+}
+
+/* -------------------- Tabs Layout -------------------- */
+.tabs-container {
+  display: flex;
+  width: 100%;
+}
+
+/* Left sidebar tabs styled like buttons */
+.tab-menu {
+  display: flex;
+  flex-direction: column;
+  width: 220px;
+  background: #111;
+  padding-top: 20px;
+  gap: 10px;
+}
+
+.tab-menu h3 {
+  color: #ffcc66;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.tab-menu button {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 12px 15px;
+  cursor: pointer;
+  border-radius: 8px;
+  width: 90%;
+  margin: 0 auto;
+  text-align: left;
+  font-weight: bold;
+  font-family: 'Uncial Antiqua', serif;
+  transition: 0.2s;
+}
+
+.tab-menu button:hover,
+.tab-menu button.active {
+  background: #ffcc66;
+  color: #111;
+}
+
+/* Right tab content */
+.tab-content {
+  flex: 1;
+  padding: 20px;
+  display: none;
+  background: #333;
+  border-radius: 10px;
+  margin-left: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.tab-content.active {
+  display: block;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  font-family: 'Uncial Antiqua', serif;
+  letter-spacing: 1px;
+  text-align: center;
+
+}
+
+/* Bio grid and ability table styles */
+.bio-grid {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 10px 20px;
+  align-items: center;
+  max-width: 600px;
+  margin: 0 auto 30px auto;
+  text-align: left; 
+}
+
+.bio-grid label {
+  font-weight: bold;
+  text-align: right;
+}
+
+.bio-grid input {
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: 1px solid #555;
+  background: #222;
+  color: #fff;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ability-table {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  text-align: center;
+  background: #222;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.ability-table th, .ability-table td {
+  border: 1px solid #555;
+  padding: 8px;
+}
+
+.ability-table input {
+  width: 60px;
+  text-align: center;
+  background: #333;
+  color: #fff;
+  border-radius: 4px;
+  border: 1px solid #555;
+  -moz-appearance: textfield;
+}
+
+.ability-table input::-webkit-outer-spin-button,
+.ability-table input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.ability-table .modifier {
+  font-weight: bold;
+  color: #ffcc66;
+}
+
+/* Responsive for mobile */
+@media (max-width: 700px) {
+  body {
+    flex-direction: column;
+    padding-top: 140px;
+  }
+  .tabs-container {
+    flex-direction: column;
+  }
+  .tab-menu {
+    flex-direction: row;
+    width: 100%;
+    overflow-x: auto;
+    border-bottom: 1px solid #555;
+    padding-top: 0;
+    gap: 0;
+  }
+  .tab-menu button {
+    flex: 1;
+    text-align: center;
+    border-radius: 0;
+    border-left: none;
+    border-bottom: 4px solid transparent;
+  }
+  .tab-menu button.active {
+    border-bottom: 4px solid #ffcc66;
+  }
+  .tab-content {
+    margin-left: 0;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="top-nav">
+  <a href="index.html">Home</a>
+  <a href="story.html">Story</a>
+  <a href="tools.html">Tools</a>
+  <a href="characters.html">Character Sheet</a>
+  <a href="discussions.html">Discussion</a>
+</nav>
+
+<div class="tabs-container">
+  <!-- Left tab buttons -->
+  <div class="tab-menu">
+    <h3>Tabs</h3>
+    <button class="tab-btn active" data-tab="character">Character</button>
+    <button class="tab-btn" data-tab="combat">Combat</button>
+    <button class="tab-btn" data-tab="spell">Spell</button>
+    <button class="tab-btn" data-tab="classfeature">Class Feature</button>
+    <button class="tab-btn" data-tab="traits">Traits</button>
+    <button class="tab-btn" data-tab="items">Items</button>
+    <button class="tab-btn" data-tab="skills">Skills</button>
+    <button class="tab-btn" data-tab="notes">Notes</button>
+  </div>
+
+  <!-- Right tab content -->
+  <div class="tab-content active" id="character">
+    <h2>Character Bio</h2>
+    <div class="bio-grid">
+      <label for="charName">Name:</label>
+      <input type="text" id="charName" value="Onyx">
+      <label for="race">Race:</label>
+      <input type="text" id="race" value="Palico">
+      <label for="class">Class:</label>
+      <input type="text" id="class" value="Black Mage">
+      <label for="alignment">Alignment:</label>
+      <input type="text" id="alignment" value="Chaotic Neutral">
+      <label for="size">Size:</label>
+      <input type="text" id="size" value="Small">
+      <label for="senses">Senses:</label>
+      <input type="text" id="senses" value="Can see in low-light vision, Scent">
+      <label for="languages">Languages:</label>
+      <input type="text" id="languages" value="Common, Mithran, Abyssal">
+    </div>
+
+    <h3>Ability Scores</h3>
+    <table class="ability-table">
+      <tr>
+        <th>Ability</th>
+        <th>Total</th>
+        <th>Modifier</th>
+      </tr>
+      <tr>
+        <td>STR</td>
+        <td><input type="number" class="ability-total" value="8"></td>
+        <td class="modifier"></td>
+      </tr>
+      <tr>
+        <td>DEX</td>
+        <td><input type="number" class="ability-total" value="16"></td>
+        <td class="modifier"></td>
+      </tr>
+      <tr>
+        <td>CON</td>
+        <td><input type="number" class="ability-total" value="13"></td>
+        <td class="modifier"></td>
+      </tr>
+      <tr>
+        <td>INT</td>
+        <td><input type="number" class="ability-total" value="17"></td>
+        <td class="modifier"></td>
+      </tr>
+      <tr>
+        <td>WIS</td>
+        <td><input type="number" class="ability-total" value="10"></td>
+        <td class="modifier"></td>
+      </tr>
+      <tr>
+        <td>CHA</td>
+        <td><input type="number" class="ability-total" value="8"></td>
+        <td class="modifier"></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Empty tabs -->
+  <div class="tab-content" id="combat"></div>
+  <div class="tab-content" id="spell"></div>
+  <div class="tab-content" id="classfeature"></div>
+  <div class="tab-content" id="traits"></div>
+  <div class="tab-content" id="items"></div>
+  <div class="tab-content" id="skills"></div>
+  <div class="tab-content" id="notes"></div>
+</div>
+
+<script>
+// Tab switching
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    tabContents.forEach(content => content.classList.remove('active'));
+    const activeTab = document.getElementById(btn.dataset.tab);
+    activeTab.classList.add('active');
+  });
+});
+
+// Ability score modifiers
+document.querySelectorAll('.ability-total').forEach(input => {
+  const modifierCell = input.parentElement.nextElementSibling;
+
+  function updateModifier() {
+    const total = input.value.trim();
+    if (total === '') { 
+      modifierCell.textContent = '';
+    } else {
+      const modifier = Math.floor((Number(total) - 10) / 2);
+      modifierCell.textContent = modifier >= 0 ? `+${modifier}` : modifier;
+    }
+  }
+
+  updateModifier();
+  input.addEventListener('input', updateModifier);
+});
+</script>
+</body>
+</html>
