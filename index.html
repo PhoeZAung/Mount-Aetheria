@@ -3,185 +3,71 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interactive World Map - Mount Aetheria</title>
+<title>Interactive Maps - Mount Aetheria</title>
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#222,#444);display:flex;flex-direction:column;align-items:center;padding-top:70px;min-height:100vh}
+.top-nav{width:100%;background:#111;padding:10px;display:flex;flex-wrap:wrap;justify-content:space-around;position:fixed;top:0;z-index:2000;font-size:16px}
+.top-nav a{color:#fff;text-decoration:none;font:600 16px 'Uncial Antiqua',serif}
+.top-nav a:hover{color:#ffcc66}
+.map-title{font-family:'Uncial Antiqua',cursive;font-size:36px;color:#fff;text-align:center;margin:10px 0;text-shadow:2px 2px 6px #000}
+.tabs{display:flex;flex-wrap:wrap;margin-bottom:5px;justify-content:center;gap:5px}
+.tabs button{padding:6px 12px;background:#111;color:#fff;border:none;cursor:pointer;border-radius:6px;font-family:'Uncial Antiqua',serif;font-size:14px}
+.tabs button.active{background:#ffcc66;color:#111;font-weight:bold}
+.outer-frame{width:95vw;height:60vh;max-height:80vh;background:#222;border-radius:16px;display:flex;justify-content:center;align-items:center;position:relative;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.7)}
+.tab-content{display:none;width:100%;height:100%;position:relative}
+.tab-content.active{display:block}
+.map-container{width:100%;height:100%;position:relative;cursor:grab}
+.map{position:absolute;top:0;left:0;width:100%;height:100%;transform-origin:0 0}
+.map img{width:100%;height:100%;display:block}
+.pin{position:absolute;width:30px;height:30px;transform:translate(-50%,-50%);cursor:pointer;z-index:3}
+.pin img{width:100%;height:100%;object-fit:contain}
+.popup{position:absolute;background:#fff;border:1px solid #666;border-radius:12px;padding:12px 16px;width:220px;max-width:260px;text-align:center;display:none;z-index:5;box-shadow:0 5px 15px rgba(0,0,0,.5);color:#000}
+.popup img{max-width:100%;max-height:120px;width:auto;height:auto;margin:0 auto 6px auto;display:block;border-radius:5px}
+.popup h3{margin:5px 0;font-size:16px}
+.popup p{margin:0;font-size:14px}
+.legend{position:relative;margin:10px auto 30px auto;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;background:#797878;border:1px solid #ccc;border-radius:10px;padding:8px;font-size:12px}
+.legend-item{display:flex;align-items:center;gap:6px}
+.legend-item img{width:40px;height:40px}
+.mobile-tabs{display:none;position:relative;margin-bottom:10px}
+.tab-menu{display:none;flex-direction:column;position:absolute;background:#111;border-radius:6px;padding:5px;top:100%;left:0;z-index:1000}
+.tab-menu button{margin:2px 0;padding:8px 12px;color:#fff;background:#111;border:none;text-align:left;width:150px;cursor:pointer;border-bottom:1px solid #333;font-family:'Uncial Antiqua',serif}
+.tab-menu button:last-child{border-bottom:none}
+.tab-menu button.active{background:#ffcc66;color:#111;font-weight:bold}
 
-/* -------------------- GLOBAL -------------------- */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(to bottom, #222, #444);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  height: 100vh;
-  padding-top: 70px; /* space for nav bar */
+#navMenu, #tabMenu { display: none; }
+#hamburger { display: none; }
+
+@media(max-width:600px){
+  .map-title { font-size:28px }
+  .tabs, .top-nav { display:none }
+  .outer-frame { height:50vh }
+  .pin { width:15px; height:15px; }
+  .popup { width:160px; max-width:180px; padding:10px 12px }
+  .popup img { max-width:150px; max-height:110px }
+  .popup h3 { font-size:14px }
+  .popup p { font-size:12px }
+  .legend { font-size:10px; padding:6px }
+  .legend-item img { width:30px; height:30px }
+  .map-container { overflow:auto; cursor:grab }
+  .map { width:auto; height:auto; min-width:600px; min-height:400px; transform: scale(1.2) translate(-15%, -10%) }
+  #hamburger { display:block; position:fixed; top:10px; left:10px; background:#111; color:#fff; border:none; padding:8px 12px; font-size:20px; cursor:pointer; border-radius:4px; z-index:2000 }
+  #navMenu { display:none; flex-direction:column; background:#111; border-radius:6px; margin-top:5px; position:fixed; top:50px; left:10px; z-index:2000; overflow:hidden }
+  #navMenu a { padding:8px 12px; color:#fff; text-decoration:none; border-bottom:1px solid #333; font-family:'Uncial Antiqua',serif }
+  #navMenu a:last-child { border-bottom:none }
+  #navMenu a:hover { background:#222; color:#ffcc66 }
+  #tabsMenu { display:none; flex-direction:column; background:#111; border-radius:6px; margin-top:5px; position:fixed; top:calc(50px + 40px); left:10px; z-index:2000; overflow:hidden }
+  #tabsMenu button { padding:8px 12px; color:#fff; background:#111; border:none; text-align:left; width:150px; cursor:pointer; border-bottom:1px solid #333; font-family:'Uncial Antiqua',serif }
+  #tabsMenu button:last-child { border-bottom:none }
+  #tabsMenu button.active { background:#ffcc66; color:#111; font-weight:bold }
+  .desktop-tabs { display:none }
+  .mobile-tabs { display:flex; flex-direction:column; align-items:flex-start }
 }
-/* -------------------- NAVIGATION BAR -------------------- */
-.top-nav {
-  width: 100%;
-  background: #111;
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-around; /* evenly spreads links */
-  align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 2000;
-}
-
-
-.top-nav a {
-  color: white;
-  text-decoration: none;
-  font-size: 18px;
-  font-weight: 600;
-  font-family: 'Uncial Antiqua', serif;
-}
-
-.top-nav a:hover {
-  color: #ffcc66;
-}
-
-
-/* Title */
-.map-title {
-  font-family: 'Uncial Antiqua', cursive;
-  font-size: 48px;
-  font-weight: bold;
-  color: #fff;
-  margin-bottom: 15px;
-  text-align: center;
-  text-shadow: 2px 2px 6px #000;
-  user-select: none;
-}
-
-/* Outer frame */
-.outer-frame {
-  width: 80vw;
-  height: 80vh;
-  padding: 30px;
-  background: #222;
-  border-radius: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-  position: relative;
-}
-
-/* Map container */
-.map-container {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  cursor: grab;
-  position: relative;
-}
-
-/* Zoomable map */
-.map {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform-origin: 0 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* Map image */
-.map img {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-/* Pins */
-.pin {
-  position: absolute;
-  width: 40px; /* slightly bigger pins */
-  height: 40px;
-  cursor: pointer;
-  transform: translate(-50%, -50%);
-  transition: transform 0.1s ease;
-  z-index: 3;
-}
-
-/* Popup */
-.popup {
-  position: absolute;
-  background: #fff; 
-  border: 1px solid #666;
-  border-radius: 12px;
-  padding: 12px 16px;
-  width: 220px;
-  max-width: 260px;
-  text-align: center;
-  display: none;
-  z-index: 5;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-  color: #000; 
-}
-
-.popup img {
-  max-width: 220px;   /* maximum width fits the popup nicely */
-  max-height: 150px;  /* maximum height */
-  width: auto;        /* keep natural width */
-  height: auto;       /* keep natural height */
-  border-radius: 8px;
-  margin-bottom: 8px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto; /* center the image */
-}
-
-
-
-.popup h3 {
-  margin: 5px 0;
-  font-size: 16px;
-}
-
-.popup p {
-  margin: 0;
-  font-size: 14px;
-}
-
-/* Legend outside the map, top-left corner */
-.legend {
-  position: absolute;
-  left: -180px; /* outside map */
-  top: 0;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  padding: 20px 25px;
-  font-size: 18px; /* bigger text */
-  color: #000;
-  z-index: 4;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-  cursor: pointer;
-}
-
-.legend-item img {
-  width: 50px; /* much bigger legend icons */
-  height: 50px;
-  margin-right: 12px;
-}
-
 </style>
 </head>
 <body>
 
-  <!-- NAVIGATION BAR -->
+<!-- Desktop nav -->
 <nav class="top-nav">
   <a href="index.html">Home</a>
   <a href="story.html">Story</a>
@@ -190,263 +76,229 @@ body {
   <a href="discussions.html">Discussion</a>
 </nav>
 
+<!-- Mobile hamburger -->
+<div class="navbar">
+  <button id="hamburger">&#9776;</button>
+  <div class="navbar-menu" id="navMenu">
+    <a href="index.html">Home</a>
+    <a href="story.html">Story</a>
+    <a href="tools.html">Tools</a>
+    <a href="characters.html">Character Sheet</a>
+    <a href="discussions.html">Discussion</a>
+  </div>
+</div>
+
 <div class="map-title">Mount Aetheria</div>
 
-<div class="outer-frame">
-  <!-- Legend outside the map, top-left corner -->
-  <div class="legend" id="legend">
-    <div class="legend-item" data-type="kingdom"><img src="icons/kingdom.png" alt=""> Kingdom</div>
-    <div class="legend-item" data-type="town"><img src="icons/town.png" alt=""> Town</div>
-    <div class="legend-item" data-type="landmark"><img src="icons/landmark.png" alt=""> Landmark</div>
-    <div class="legend-item" data-type="event"><img src="icons/event.png" alt=""> Event</div>
-    <div class="legend-item" data-type="Party"><img src="icons/party.png" alt=""> Party</div>
+<!-- Desktop Tabs -->
+<div class="tabs desktop-tabs">
+  <button class="tab-btn active" data-tab="worldmap">World Map</button>
+  <button class="tab-btn" data-tab="darkgrasp">Dark Grasp</button>
+  <button class="tab-btn" data-tab="reanlegacy">Re'an Legacy</button>
+  <button class="tab-btn" data-tab="anothermap">Another Map</button>
+</div>
+
+<!-- Mobile Tabs -->
+<div class="tabs mobile-tabs">
+  <button id="tabHamburger">&#9776; Maps</button>
+  <div id="tabMenu" class="tab-menu">
+    <button class="tab-btn active" data-tab="worldmap">World Map</button>
+    <button class="tab-btn" data-tab="darkgrasp">Dark Grasp</button>
+    <button class="tab-btn" data-tab="reanlegacy">Re'an Legacy</button>
+    <button class="tab-btn" data-tab="anothermap">Another Map</button>
   </div>
+</div>
 
-  <div class="map-container" id="map-container">
-    <div class="map" id="map">
-      <img src="map.png" alt="World Map">
+<div class="outer-frame">
 
-      <!-- Pins -->
-      <div class="pin" data-type="kingdom"
-           data-title="Principality Of Kal'en"
-           data-description="Once under the rule of the Kingdom of Kal'en, separated into the Principality 
-            of Kal'el. Now run by the young prince of Kal'en the kingdom begins anew"
-           data-img="Crest/Kal'en.png"
-           style="left:20%; top:42%;">
-        <img src="icons/kingdom.png" alt="Kingdom">
+  <!-- Tab Contents -->
+  <div class="tab-content active" id="worldmap">
+    <div class="map-container">
+      <div class="map">
+        <img src="map.png" alt="World Map">
       </div>
-
-      <div class="pin" data-type="kingdom"
-           data-title="Grand Duchy of Cothur"
-           data-description="Once under the rule of the Kingdom of Kal’en, the region eventually broke
-            away to form the Grand Duchy of Cothur. After King Kal’en’s death, the nobles of Cothur rejected
-             the authority of his heir, believing the young prince too naïve to govern. Thus, they separated 
-             from the crown, establishing their own independent rule."
-            data-img="Crest/Cothur.png"
-           style="left:24%; top:30%;">
-        <img src="icons/kingdom.png" alt="Kingdom">
-      </div>
-      
-      <div class="pin" data-type="kingdom"
-           data-title="Kingdom of Karph"
-           data-description="The Kingdom of Karph
-           Originally a small merchant city, Karph began 
-           its transformation into a kingdom about three centuries ago,
-            after purchasing the neighboring Kingdom of Park. Through trade 
-            and diplomacy, it grew into one of the richest realms in the
-            region—earning the title “The Kingdom of Gold”"
-           data-img="Crest/Kraph.png"
-           style="left:37%; top:32%;">
-        <img src="icons/kingdom.png" alt="Kingdom">
-      </div>
-
-      <div class="pin" data-type="kingdom"
-           data-title="Kingdom of Risha"
-           data-description="An active military kingdom, Risha holds a 
-           long and storied history tracing back to the legendary
-            lineage of King Arthur. Its rulers and warriors take pride in 
-            upholding the ideals of honor, valor, and chivalry that defined their ancestor’s age."
-           data-img="Crest/Risha.png"
-           style="left:36%; top:53%;">
-        <img src="icons/kingdom.png" alt="Kingdom">
-      </div>
-
-      <div class="pin" data-type="kingdom"
-           data-title="Bror Empire"
-           data-description="A passive yet formidable military empire, the Bror Empire has 
-           endured for over 600 years. Its people revere the Phoenix, a sacred symbol of 
-           rebirth and immortality, which guides their culture, rituals, and governance."
-           data-img="Crest/Bror.png"
-           style="left:20%; top:72%;">
-        <img src="icons/kingdom.png" alt="Kingdom">
-      </div>
-
-      <div class="pin" data-type="kingdom"
-           data-title="Grand Duchy of Park"
-           data-description="Once the independent Kingdom of Park, this realm became the
-            Grand Duchy of Park after a strategic deal with the Kingdom of Karph. Though 
-            its territory and influence were reduced, the duchy remains a strong and respected power in the region."
-           data-img="Crest/Park.png"
-           style="left:41%; top:41%;">
-        <img src="icons/kingdom.png" alt="Kingdom">
-      </div>
-
-      <div class="pin" data-type="kingdom"
-           data-title="Kingdom of Eor"
-           data-description="Also known as the Golden Kingdom for its rapid advancement. 
-           It thrives as a bustling center of
-            culture, trade, and military power, and was renowned above all for its 
-            mastery of the arcane arts."
-           data-img="Crest/Eor.png"
-           style="left:61%; top:63%;">
-        <img src="icons/kingdom.png" alt="Kingdom">
-      </div>
-
-      <div class="pin" data-type="kingdom"
-           data-title="Khasharian Theocracy"
-           data-description="A union of five nations, the Khasharian Theocracy is now 
-           ruled by two High Priests. Though governance is guided by religion, the Knights
-            of the Holy Aspect enforce the law and are feared by all—few dare to challenge their authority."
-           data-img="Crest/Theocracy.png"
-           style="left:62%; top:42%;">
-        <img src="icons/kingdom.png" alt="Kingdom">
-      </div>
-
-      <div class="pin" data-type="kingdom"
-           data-title="Kingdom of Cielb"
-           data-description="A peaceful nation built on vast roads and fertile lands, 
-           the kingdom thrives as a bustling hub of trade, particularly renowned for its aquaculture exports."
-           data-img="Crest/Cielb.png"
-           style="left:65%; top:75%;">
-        <img src="icons/kingdom.png" alt="Kingdom">
-      </div>
-
-      <div class="pin" data-type="kingdom"
-           data-title="Khanate of Batia"
-           data-description="Led by Shiva herself, the Khanate of Batia is a frozen realm ruled by the goddess 
-           and her devoted followers. What began as a small settlement under Shiva’s guidance has grown
-            into a full-fledged kingdom, renowned for its mastery of ancient ice magic and dark, cold sorcery."
-           data-img="Crest/Batia.png"
-           style="left:79%; top:32%;">
-        <img src="icons/kingdom.png" alt="Kingdom">
-      </div>
-
-      <div class="pin" data-type="kingdom"
-           data-title="Principality of Gobtong"
-           data-description="After the massacre of the northern Lizardmen,
-            the human-like animal races of the region felt threatened and united 
-            to form a principality to resist further attacks. Originally 
-            founded by the four strongest races of the time, the nation 
-            has since come under the rule of the lion-kin, who now govern Gobtong
-             with strength and authority."
-           data-img="Crest/Gobtong.png"
-           style="left:80%; top:67%;">
-        <img src="icons/kingdom.png" alt="Kingdom">
-      </div>
-
-      
-
-
-
-      <div class="pin" data-type="town"
-           data-title="Duchy of Maugh"
-           data-description= "Originally part of the Kingdom of Eor,
-            this land was granted to Maugh, the late right-hand man of the king, 
-            in recognition of his loyalty and service. The house has since established 
-            its own legacy while remaining tied to the history of Eor."
-            data-img="Crest/Maugh.png"
-           style="left:50%; top:60%;">
-           
-        <img src="icons/town.png" alt="Town">
-      </div>
-
-      <div class="pin" data-type="town"
-           data-title="Brindle"
-           data-description="Small town located in the Kingdom of Cielb, 
-           Although quiet in appearance, it holds a long history of secrets"
-           style="left:73%; top:57%;">
-        <img src="icons/town.png" alt="Town">
-      </div>
-
-        <div class="pin" data-type="town"
-           data-title="Dustband"
-           data-description="At the border of Eor and Cielb, Dustband are not keen to outsiders,
-            for this reason most avoid going in and out of Dustband" 
-           data-img="Town/Dustband.jpg" 
-           style="left:67%; top: 56%;">
-        <img src="icons/town.png" alt="Town">
-        </div>
-
-        <div class="pin" data-type="town"
-           data-title="Sleetwallow"
-           data-description="Closest town to Eor that is located in Kingdom of Cielb, 
-           bustling with trade, and cheer it hides a dark secrect"
-           data-img="Town/Sleetwallow.jpg" 
-           style="left:66%; top:66%;">
-        <img src="icons/town.png" alt="Town">
-        </div>
-
-
-      <div class="pin" data-type="landmark"
-           data-title="Snowy Mountain"
-           data-description="Non-stop snow strom affects the area. Thoese who Treverse
-           though these plains have discus of ancients ruins with hidden secrets."
-           style="left:26%; top:55%;">
-        <img src="icons/landmark.png" alt="Landmark">
-      </div>
-
-
-      <div class="pin" data-type="landmark"
-           data-title="Rimwin Shallows"
-           data-description="Deep Swamp often avoided by travler, but attract herbalist as it often hold the unique plants"
-           data-img="landmark/Rimwin.jpg"
-           style="left:65%; top:56%;">
-        <img src="icons/landmark.png" alt="Landmark">
-      </div>
-
-      <div class="pin" data-type="event"
-           data-title="Make way to the Golden Kingdom"
-           data-description="Annual festival celebrated in the kingdom square."
-           data-img="icons/event.png" 
-           style="left:61%; top:59%;">
-        <img src="icons/event.png" alt="Event">
-      </div>
-
-      <div class="pin" data-type="party"
-           data-title="You are here"
-           data-description=""
-           style="left:69%; top:57%;">
-        <img src="icons/party.png" alt="Event">
-      </div>
-
-
-      <!-- Popup -->
-      <div id="popup" class="popup"></div>
+      <div class="popup"></div>
     </div>
   </div>
+
+  <div class="tab-content" id="darkgrasp">
+    <div class="map-container">
+      <div class="map">
+        <img src="map.png" alt="Dark Grasp Map">
+      </div>
+      <div class="popup"></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="reanlegacy">
+    <div class="map-container">
+      <div class="map">
+        <img src="map.png" alt="Re'an Legacy Map">
+      </div>
+      <div class="popup"></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="anothermap">
+    <div class="map-container">
+      <div class="map">
+        <img src="map.png" alt="Another Map">
+      </div>
+      <div class="popup"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="legend">
+  <div class="legend-item"><img src="icons/kingdom.png" alt=""> Kingdom</div>
+  <div class="legend-item"><img src="icons/town.png" alt=""> Town</div>
+  <div class="legend-item"><img src="icons/landmark.png" alt=""> Landmark</div>
+  <div class="legend-item"><img src="icons/event.png" alt=""> Event</div>
+  <div class="legend-item"><img src="icons/party.png" alt=""> Party</div>
 </div>
 
 <script src="https://unpkg.com/@panzoom/panzoom/dist/panzoom.min.js"></script>
 <script>
-const mapContainer = document.getElementById('map-container');
-const map = document.getElementById('map');
-const popup = document.getElementById('popup');
-const pins = document.querySelectorAll('.pin');
+// ================== PIN DATA ==================
+const pinData = {
+  worldmap: [
+  {title:"Principality Of Kal'en", desc:"Once under the rule of the Kingdom of Kal'en...", img:"Crest/Kal'en.png", left:"20%", top:"42%", icon:"icons/kingdom.png"},
+  {title:"Principality Of Kal'en", desc:"Once under the rule of the Kingdom of Kal'en, separated into the Principality of Kal'el. Now run by the young prince of Kal'en the kingdom begins anew", img:"Crest/Kal'en.png", left:"20%", top:"42%", icon:"icons/kingdom.png"},
+  {title:"Grand Duchy of Cothur", desc:"Once under the rule of the Kingdom of Kal’en, the region eventually broke away to form the Grand Duchy of Cothur. After King Kal’en’s death, the nobles of Cothur rejected the authority of his heir, believing the young prince too naïve to govern. Thus, they separated from the crown, establishing their own independent rule.", img:"Crest/Cothur.png", left:"24%", top:"30%", icon:"icons/kingdom.png"},
+  {title:"Kingdom of Karph", desc:"Originally a small merchant city, Karph began its transformation into a kingdom about three centuries ago, after purchasing the neighboring Kingdom of Park. Through trade and diplomacy, it grew into one of the richest realms in the region—earning the title 'The Kingdom of Gold'", img:"Crest/Kraph.png", left:"37%", top:"32%", icon:"icons/kingdom.png"},
+  {title:"Kingdom of Risha", desc:"An active military kingdom, Risha holds a long and storied history tracing back to the legendary lineage of King Arthur. Its rulers and warriors take pride in upholding the ideals of honor, valor, and chivalry that defined their ancestor’s age.", img:"Crest/Risha.png", left:"36%", top:"53%", icon:"icons/kingdom.png"},
+  {title:"Bror Empire", desc:"A passive yet formidable military empire, the Bror Empire has endured for over 600 years. Its people revere the Phoenix, a sacred symbol of rebirth and immortality, which guides their culture, rituals, and governance.", img:"Crest/Bror.png", left:"20%", top:"72%", icon:"icons/kingdom.png"},
+  {title:"Grand Duchy of Park", desc:"Once the independent Kingdom of Park, this realm became the Grand Duchy of Park after a strategic deal with the Kingdom of Karph. Though its territory and influence were reduced, the duchy remains a strong and respected power in the region.", img:"Crest/Park.png", left:"41%", top:"41%", icon:"icons/kingdom.png"},
+  {title:"Kingdom of Eor", desc:"Also known as the Golden Kingdom for its rapid advancement. It thrives as a bustling center of culture, trade, and military power, and was renowned above all for its mastery of the arcane arts.", img:"Crest/Eor.png", left:"61%", top:"63%", icon:"icons/kingdom.png"},
+  {title:"Khasharian Theocracy", desc:"A union of five nations, the Khasharian Theocracy is now ruled by two High Priests. Though governance is guided by religion, the Knights of the Holy Aspect enforce the law and are feared by all—few dare to challenge their authority.", img:"Crest/Theocracy.png", left:"62%", top:"42%", icon:"icons/kingdom.png"},
+  {title:"Kingdom of Cielb", desc:"A peaceful nation built on vast roads and fertile lands, the kingdom thrives as a bustling hub of trade, particularly renowned for its aquaculture exports.", img:"Crest/Cielb.png", left:"65%", top:"75%", icon:"icons/kingdom.png"},
+  {title:"Khanate of Batia", desc:"Led by Shiva herself, the Khanate of Batia is a frozen realm ruled by the goddess and her devoted followers. What began as a small settlement under Shiva’s guidance has grown into a full-fledged kingdom, renowned for its mastery of ancient ice magic and dark, cold sorcery.", img:"Crest/Batia.png", left:"79%", top:"32%", icon:"icons/kingdom.png"},
+  {title:"Principality of Gobtong", desc:"After the massacre of the northern Lizardmen, the human-like animal races of the region felt threatened and united to form a principality to resist further attacks. Originally founded by the four strongest races of the time, the nation has since come under the rule of the lion-kin, who now govern Gobtong with strength and authority.", img:"Crest/Gobtong.png", left:"80%", top:"67%", icon:"icons/kingdom.png"},
+  {title:"Duchy of Maugh", desc:"Originally part of the Kingdom of Eor, this land was granted to Maugh, the late right-hand man of the king, in recognition of his loyalty and service. The house has since established its own legacy while remaining tied to the history of Eor.", img:"Crest/Maugh.png", left:"50%", top:"60%", icon:"icons/town.png"},
+  {title:"Brindle", desc:"Small town located in the Kingdom of Cielb. Although quiet in appearance, it holds a long history of secrets.", img:"", left:"73%", top:"57%", icon:"icons/town.png"},
+  {title:"Dustband", desc:"At the border of Eor and Cielb, Dustband are not keen to outsiders, for this reason most avoid going in and out of Dustband.", img:"Town/Dustband.jpg", left:"67%", top:"56%", icon:"icons/town.png"},
+  {title:"Sleetwallow", desc:"Closest town to Eor that is located in Kingdom of Cielb, bustling with trade, and cheer it hides a dark secrect.", img:"Town/Sleetwallow.jpg", left:"66%", top:"66%", icon:"icons/town.png"},
+  {title:"Snowy Mountain", desc:"Non-stop snow storm affects the area. Those who traverse these plains have discovered ancient ruins with hidden secrets.", img:"", left:"26%", top:"55%", icon:"icons/landmark.png"},
+  {title:"Rimwin Shallows", desc:"Deep Swamp often avoided by travelers, but attract herbalists as it often holds unique plants.", img:"landmark/Rimwin.jpg", left:"65%", top:"56%", icon:"icons/landmark.png"},
+  {title:"Make way to the Golden Kingdom", desc:"Annual festival celebrated in the kingdom square.", img:"icons/event.png", left:"61%", top:"59%", icon:"icons/event.png"},
+  {title:"You are here", desc:"", img:"", left:"69%", top:"57%", icon:"icons/party.png"}
+],
+  darkgrasp: [
+    {title:"Fortress of Shadows", desc:"An ancient fortress shrouded in mystery.", img:"Crest/fortress.png", left:"25%", top:"50%", icon:"icons/kingdom.png"}
+  ],
+  reanlegacy: [
+    {title:"Re'an Capital", desc:"The historic capital city of the Re'an legacy.", img:"Crest/rean.png", left:"25%", top:"50%", icon:"icons/kingdom.png"}
+  ],
+  anothermap: [
+    {title:"Northern Outpost", desc:"A strategic outpost in the northern region.", img:"Crest/outpost.png", left:"40%", top:"60%", icon:"icons/kingdom.png"}
+  ]
+};
 
-// Initialize panzoom
-const panzoom = Panzoom(map, { maxScale: 5, minScale: 1, contain: 'outside' });
-mapContainer.addEventListener('wheel', panzoom.zoomWithWheel);
+// ================== GENERATE PINS ==================
+document.querySelectorAll('.tab-content').forEach(tab => {
+  const map = tab.querySelector('.map');
+  const pins = pinData[tab.id] || [];
 
-// Pin click -> popup
-pins.forEach(pin => {
-  pin.addEventListener('click', e => {
-    e.stopPropagation();
-    const title = pin.getAttribute('data-title') || '';
-    const desc = pin.getAttribute('data-description') || '';
-    const img = pin.getAttribute('data-img');
-
-    let html = '';
-    if (img) html += `<img src="${img}" alt="${title}">`;
-    if (title) html += `<h3>${title}</h3>`;
-    if (desc) html += `<p>${desc}</p>`;
-
-    popup.innerHTML = html;
-
-    const rect = pin.getBoundingClientRect();
-    const containerRect = mapContainer.getBoundingClientRect();
-    popup.style.left = rect.left - containerRect.left + mapContainer.scrollLeft + 'px';
-    popup.style.top = rect.top - containerRect.top + mapContainer.scrollTop - popup.offsetHeight - 10 + 'px';
-    popup.style.display = 'block';
+  pins.forEach(p => {
+    const pin = document.createElement('div');
+    pin.className = 'pin';
+    pin.style.left = p.left;
+    pin.style.top = p.top;
+    pin.dataset.title = p.title;
+    pin.dataset.description = p.desc;
+    pin.dataset.img = p.img;
+    pin.innerHTML = `<img src="${p.icon}" alt="">`;
+    map.appendChild(pin);
   });
 });
 
-// Hide popup
-document.addEventListener('click', e => {
-  if (!e.target.classList.contains('pin')) {
-    popup.style.display = 'none';
+// ================== MOBILE PIN ADJUST ==================
+if (window.innerWidth <= 600) {
+  document.querySelectorAll('.pin').forEach(pin => {
+    // Adjust for smaller pin size (desktop 30px → mobile 15px)
+    const offset = 15; // half of the new pin size
+    pin.style.transform = `translate(-50%, -50%)`;
+    // Optional: adjust left/top slightly if needed
+    // pin.style.left = `calc(${pin.style.left} - ${offset}px)`;
+    // pin.style.top = `calc(${pin.style.top} - ${offset}px)`;
+  });
+}
+
+
+// ================== PANZOOM ==================
+document.querySelectorAll('.map').forEach(map => {
+  if (!map.panzoom) {
+    map.panzoom = Panzoom(map, { maxScale: 5, minScale: 1, contain: 'outside' });
+    map.parentElement.addEventListener('wheel', map.panzoom.zoomWithWheel);
   }
 });
-</script>
 
+// ================== TAB SWITCHING ==================
+const tabs = document.querySelectorAll('.tab-btn');
+const contents = document.querySelectorAll('.tab-content');
+tabs.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabs.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    contents.forEach(c => c.classList.remove('active'));
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ================== MOBILE MENU TOGGLE ==================
+document.getElementById('hamburger').addEventListener('click', () => {
+  const menu = document.getElementById('navMenu');
+  menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+});
+
+document.getElementById('tabHamburger').addEventListener('click', () => {
+  const menu = document.getElementById('tabMenu');
+  menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+});
+
+document.querySelectorAll('#tabMenu .tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => document.getElementById('tabMenu').style.display = 'none');
+});
+
+// ================== POPUPS ==================
+document.querySelectorAll('.tab-content').forEach(tab => {
+  const popup = tab.querySelector('.popup');
+  const container = tab.querySelector('.map-container');
+
+  tab.querySelectorAll('.pin').forEach(pin => {
+    pin.addEventListener('click', e => {
+      e.stopPropagation();
+      const title = pin.dataset.title || '';
+      const desc = pin.dataset.description || '';
+      const img = pin.dataset.img || '';
+      popup.innerHTML = (img ? `<img src="${img}" alt="${title}">` : '') +
+                        (title ? `<h3>${title}</h3>` : '') +
+                        (desc ? `<p>${desc}</p>` : '');
+      
+      const rect = pin.getBoundingClientRect();
+      const contRect = container.getBoundingClientRect();
+      let x = rect.left - contRect.left + container.scrollLeft - popup.offsetWidth/2 + rect.width/2;
+      let y = rect.top - contRect.top + container.scrollTop - popup.offsetHeight - 10;
+      if (x < 5) x = 5;
+      if (x + popup.offsetWidth > container.offsetWidth) x = container.offsetWidth - popup.offsetWidth - 5;
+      if (y < 5) y = rect.bottom - contRect.top + container.scrollTop + 10;
+
+      popup.style.left = x + 'px';
+      popup.style.top = y + 'px';
+      popup.style.display = 'block';
+    });
+  });
+});
+
+// Hide popups on click outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.pin')) {
+    document.querySelectorAll('.popup').forEach(p => p.style.display = 'none');
+  }
+});
+
+
+</script>
 </body>
 </html>

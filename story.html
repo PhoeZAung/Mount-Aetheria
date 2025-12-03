@@ -59,6 +59,7 @@ body {
   margin: 10px 0;
 }
 
+
 .sidebar button {
   background: #333;
   color: #fff;
@@ -127,6 +128,14 @@ body {
   padding: 120px 20px 20px 20px; /* top padding for nav */
 }
 
+.small-img {
+    width: 150px; /* adjust size as needed */
+    height: auto;
+    border-radius: 5px; /* optional rounded corners */
+    object-fit: cover; /* keeps aspect ratio without stretching */
+}
+
+
 /* ---------- STORY ENTRIES ---------- */
 .story-entry {
   background: #222;
@@ -142,7 +151,16 @@ body {
   cursor: pointer;
   user-select: none;
   font-family: 'Uncial Antiqua', serif;
+  
 }
+
+.story-entry h4 {
+  padding: 15px;
+  text-align: center;
+  display: none;
+ 
+}
+
 
 .story-entry .content {
   padding: 15px;
@@ -159,6 +177,38 @@ body {
   display: block;
   animation: fadeIn 0.3s ease-in-out;
 }
+
+.image-row {
+    display: flex;
+    justify-content: center; /* center the images */
+    gap: 10px;
+    flex-wrap: wrap; /* allows wrapping for multiple images */
+    margin-bottom: 30px;
+}
+
+/* Single image slightly larger */
+.image-row img:only-child {
+    width: 20%; /* middle ground size */
+    height: auto;
+    border-radius: 5px;
+    object-fit: cover;
+}
+
+/* Two or more images smaller */
+.image-row img:not(:only-child) {
+    width: 30%; /* slightly smaller for multiple images */
+    height: 200px;
+    border-radius: 5px;
+    object-fit: cover;
+}
+
+/* Default image styling for all */
+.image-row img {
+    display: block;
+    margin: 0 auto;
+}
+
+
 
 @keyframes fadeIn {
   from {opacity: 0;}
@@ -183,7 +233,7 @@ body {
   <h3>Tags</h3>
   <button class="tag-btn active" data-tag="all">All</button>
   <button class="tag-btn" data-tag="session">Session</button>
-  <button class="tag-btn" data-tag="player">Player Character</button>
+  <button class="tag-btn" data-tag="player">Lore</button>
   <button class="tag-btn" data-tag="npc">NPC</button>
   <button class="tag-btn" data-tag="event">Event</button>
 
@@ -201,16 +251,43 @@ body {
 
 <!-- MAIN CONTENT -->
 <div class="main-content" id="story-container">
+
   <div class="story-entry" data-tag="session" data-char="kalen">
-    <h3>Session 1: Arrival in Kal'en</h3>
+    <h3>Dark Grasp: Session 1</h3>
     <div class="content">
-      <p>The adventurers arrive at the bustling city of Kal'en...</p>
-      <img src="images/session1.jpg" alt="Session 1">
+      <!-- Section 1 -->
+      <h4>Amidst of Dawn</h4><br>
+      <p>Two unknown adventurers—Astra, a mischievous troublemaker, and Onyx, her reluctant companion—begin their journey on a quiet morning road. After sharing a meager meal at dusk, they're ambushed by a bandit, thrusting them into danger and the start of something far bigger than either expected. In combat, the duo defeated four bandits. The leader released an imp as a last resort, then fled the scene injured.</p>
+
+      <div class="image-row">
+          <img src="Tools/Session 1/Amidst of Dawn.jpg" alt="Scene 1" class="small-img">
+          <img src="Tools/Session 1/Shrine Lake.jpg" alt="Scene 2" class="small-img">
+          <img src="Tools/Session 1/Merchant Market.jpg" alt="Scene 3" class="small-img">
+      </div>
+
+      <!-- Section 2 -->
+      <p><strong>Shrine Lake</strong><br>
+      At sunset, the adventurers found a magical spring in an ancient crater. There, they met Cherrisa, a girl seeking to lift a curse by reaching Eor — the Golden Kingdom. After learning her story, they struck a deal: she’d feed them, and in return, they’d act as her bodyguards. Just then, Onyx heard a mysterious bell and followed it down the road.</p>
+
+      <div class="image-row">
+          <img src="Tools/Session 1/Shrine Lake.jpg" alt="Scene 2" class="small-img">
+          <img src="img5.jpg" alt="Scene 5" class="small-img">
+      </div>
+
+      <!-- Section 3 -->
+      <p><strong>Merchant Market</strong><br>
+      At the bustling market of Risha, filled with colorful stalls and guarded paths, the group wandered through, shopping for food and supplies until their coin ran dry. Before leaving, they slipped away with a beautiful white dress from a clothing stall — unnoticed and unbothered.</p>
+
+      <div class="image-row">
+          <img src="Tools/Session 1/Merchant Market.jpg" alt="Scene 3" class="small-img">
+          <img src="img7.jpg" alt="Scene 7" class="small-img">
+      </div>
+
     </div>
   </div>
 
   <div class="story-entry" data-tag="session" data-char="lira">
-    <h3>Session 1: Lira’s Secret</h3>
+    <h3>Dark Grasp: Session 2</h3>
     <div class="content">
       <p>Lira sneaks into the castle to gather information...</p>
       <img src="images/session2.jpg" alt="Session 2">
