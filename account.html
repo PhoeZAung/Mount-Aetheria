@@ -7,22 +7,37 @@
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
 body { margin: 0; padding-top: 70px; font-family: Arial, sans-serif; background: linear-gradient(to bottom, #222, #444); color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
-.top-nav { width:100%; background:#111; padding:15px 20px; display:flex; justify-content:space-around; align-items:center; position:fixed; top:0; left:0; z-index:2000; flex-wrap:wrap; }
-.top-nav a { color:white; text-decoration:none; font-size:18px; font-weight:600; font-family:'Uncial Antiqua', serif; margin:0 10px; }
-.top-nav a:hover, .top-nav a.active { color:#ffcc66; }
-.container { background: #333; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); margin-top: 20px; }
+
+/* NAV */
+.top-nav{width:100%;background:#111;padding:15px 20px;display:flex;justify-content:space-around;align-items:center;position:fixed;top:0;left:0;z-index:2000}
+.top-nav a{color:#fff;text-decoration:none;font-size:18px;font-weight:600;font-family:'Uncial Antiqua',serif}
+.top-nav a:hover{color:#ffcc66}
+
+/* HAMBURGER */
+#hamburger{display:none;position:fixed;top:15px;left:15px;background:#111;color:#fff;border:none;padding:10px;font-size:24px;cursor:pointer;z-index:2001;border-radius:5px;}
+#navMenu{display:none;flex-direction:column;background:#111;position:fixed;top:60px;left:15px;border-radius:8px;z-index:2000;box-shadow:0 5px 15px rgba(0,0,0,0.8);overflow:hidden;}
+#navMenu a{padding:12px 20px;color:#fff;text-decoration:none;border-bottom:1px solid #333;font-family:'Uncial Antiqua',serif;display:block;}
+
+/* FORM CONTAINER */
+.container { background: #333; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); margin-top: 20px; margin-bottom: 40px; }
 h2 { font-family:'Uncial Antiqua', serif; text-align:center; color:#ffcc66; margin-top:0; }
-.profile-preview { display:flex; flex-direction:column; align-items:center; margin-bottom:20px; position: relative; }
-.profile-preview img { width:120px; height:120px; border-radius:50%; object-fit:cover; border:3px solid #ffcc66; background:#111; margin-bottom:10px; cursor:pointer; transition: opacity 0.3s; }
-.profile-preview img:hover { opacity: 0.8; }
-.profile-hint { font-size: 12px; color: #aaa; margin-bottom: 10px; }
+
+.profile-preview { display:flex; flex-direction:column; align-items:center; margin-bottom:20px; }
+.profile-preview img { width:120px; height:120px; border-radius:50%; object-fit:cover; border:3px solid #ffcc66; background:#111; margin-bottom:10px; cursor:pointer; }
+
 .form-group { margin-bottom:15px; }
 label { display:block; margin-bottom:5px; font-weight:bold; }
 input { width:100%; padding:10px; border-radius:6px; border:1px solid #555; background:#222; color:white; box-sizing:border-box; }
-button { width:100%; padding:12px; background:#ffcc66; color:#111; border:none; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:10px; font-size:16px; }
-button:hover { background:#e6b800; }
-button:disabled { background: #666; cursor: not-allowed; }
-#status { text-align:center; margin-top:15px; min-height:20px; font-weight: bold; }
+
+.action-btn { width:100%; padding:12px; background:#ffcc66; color:#111; border:none; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:10px; font-size:16px; }
+.action-btn:hover { background:#e6b800; }
+.logout-btn { background: #ff4444; color: white; margin-top: 20px; }
+.logout-btn:hover { background: #cc0000; }
+
+@media(max-width:768px){
+  .top-nav{ display:none; }
+  #hamburger{ display:block; }
+}
 </style>
 </head>
 <body>
@@ -33,16 +48,25 @@ button:disabled { background: #666; cursor: not-allowed; }
   <a href="tools.html">Tools</a>
   <a href="characters.html">Character Sheet</a>
   <a href="discussions.html">Discussion</a>
-  <a href="account.html" class="active">My Account</a>
-  <a href="login.html" id="authLink">Login</a>
+  <a href="login.html" id="authLink">Sign In</a>
 </nav>
+
+<button id="hamburger">&#9776;</button>
+<div id="navMenu">
+  <a href="index.html">Home</a>
+  <a href="story.html">Story</a>
+  <a href="tools.html">Tools</a>
+  <a href="characters.html">Character Sheet</a>
+  <a href="discussions.html">Discussion</a>
+  <a href="login.html" id="mobileAuthLink">Sign In</a>
+</div>
 
 <div class="container">
   <h2>My Account</h2>
   
   <div class="profile-preview">
     <img src="https://via.placeholder.com/120?text=Upload" id="profilePic" alt="Profile Picture">
-    <div class="profile-hint">Click image to change</div>
+    <div style="font-size:12px; color:#aaa;">Click image to change</div>
     <input type="file" id="pfpInput" accept="image/*" style="display:none;">
   </div>
   
@@ -51,8 +75,10 @@ button:disabled { background: #666; cursor: not-allowed; }
     <input type="text" id="displayName" placeholder="Enter your display name">
   </div>
   
-  <button id="saveBtn">Save Changes</button>
-  <div id="status"></div>
+  <button id="saveBtn" class="action-btn">Save Changes</button>
+  <div id="status" style="text-align:center; margin-top:10px; font-weight:bold;"></div>
+
+  <button id="logoutBtn" class="action-btn logout-btn">Logout</button>
 </div>
 
 <script type="module">
@@ -83,25 +109,26 @@ const profilePic = document.getElementById('profilePic');
 const pfpInput = document.getElementById('pfpInput');
 const displayNameInput = document.getElementById('displayName');
 const statusDiv = document.getElementById('status');
-const saveBtn = document.getElementById('saveBtn');
-const authLink = document.getElementById('authLink');
 
-// 1. Auth check and Nav update
+// Auth & Nav Logic
 onAuthStateChanged(auth, async (user) => {
-  // Redirect if not logged in
-  if(!user) return window.location.href = "login.html"; 
-  currentUser = user;
+  const link = document.getElementById('authLink');
+  const mLink = document.getElementById('mobileAuthLink');
 
-  // Nav
-  authLink.textContent = "Logout";
-  authLink.href = "#";
-  authLink.addEventListener('click', async (e) => {
-    e.preventDefault();
-    await signOut(auth);
+  if (!user) {
     window.location.href = "login.html";
-  });
+    return;
+  }
+  
+  currentUser = user;
+  
+  // Set Nav to "My Account" (Current Page)
+  const txt = "My Account";
+  const href = "account.html";
+  if(link) { link.textContent = txt; link.href = href; }
+  if(mLink) { mLink.textContent = txt; mLink.href = href; }
 
-  // Load Data: Prioritize Firestore (which has the most recent PFP)
+  // Load Data
   displayNameInput.value = currentUser.displayName || "";
   if(currentUser.photoURL) profilePic.src = currentUser.photoURL;
 
@@ -110,70 +137,68 @@ onAuthStateChanged(auth, async (user) => {
     if(userDoc.exists()){
       const data = userDoc.data();
       if(data.displayName) displayNameInput.value = data.displayName;
-      // Load the pfp URL stored in Firestore (this is the one used by Discussions)
       if(data.pfp) profilePic.src = data.pfp; 
     }
-  } catch(e) { console.error("Error loading user data:", e); }
+  } catch(e) { console.error(e); }
 });
 
-// 2. Select File
+// Hamburger
+document.getElementById('hamburger').addEventListener('click', () => {
+  const m = document.getElementById('navMenu');
+  m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+});
+
+// Logout
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = "login.html";
+});
+
+// File Selection
 profilePic.addEventListener('click', () => pfpInput.click());
 pfpInput.addEventListener('change', e => {
   if(e.target.files[0]){
     selectedFile = e.target.files[0];
-    // Show local preview immediately
     profilePic.src = URL.createObjectURL(selectedFile); 
   }
 });
 
-// 3. Save Changes
-saveBtn.addEventListener('click', async () => {
+// Save Functionality
+document.getElementById('saveBtn').addEventListener('click', async () => {
   if(!currentUser) return;
-  saveBtn.disabled = true;
-  statusDiv.style.color = "#ffcc66";
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
   statusDiv.textContent = "Saving...";
+  statusDiv.style.color = "yellow";
 
   try {
     let finalPfpUrl = currentUser.photoURL;
     const newDisplayName = displayNameInput.value;
     
-    // A. Upload if new file was selected
     if(selectedFile){
-      statusDiv.textContent = "Uploading image...";
-      // Use the user's UID to create a unique folder, and a timestamp for a unique file name
       const storageRef = ref(storage, `users/${currentUser.uid}/profile_${Date.now()}`); 
-      // Upload the file
       const snapshot = await uploadBytes(storageRef, selectedFile);
-      // Get the publicly accessible URL
       finalPfpUrl = await getDownloadURL(snapshot.ref);
     }
-
-    statusDiv.textContent = "Updating profile...";
     
-    // B. Update Firebase Auth Profile (used for basic authentication)
-    await updateProfile(currentUser, { 
-      displayName: newDisplayName, 
-      photoURL: finalPfpUrl 
-    });
-
-    // C. Update Firestore (Crucial for Discussions to see the latest PFP and Name)
+    await updateProfile(currentUser, { displayName: newDisplayName, photoURL: finalPfpUrl });
+    
+    // Sync to Firestore for other users to see
     await setDoc(doc(db, 'users', currentUser.uid), { 
       displayName: newDisplayName, 
-      pfp: finalPfpUrl, // Store PFP URL in a dedicated user document
+      pfp: finalPfpUrl, 
       updatedAt: new Date()
     }, { merge: true });
 
+    statusDiv.textContent = "Profile Updated!";
     statusDiv.style.color = "#4caf50";
-    statusDiv.textContent = "Success! Profile updated.";
-    selectedFile = null; // Clear the selected file after successful upload
+    selectedFile = null;
 
   } catch(e){
-    console.error("Save Error:", e);
+    statusDiv.textContent = "Error: " + e.message;
     statusDiv.style.color = "#ff6666";
-    // Report specific error if possible
-    statusDiv.textContent = "Error: " + (e.code ? e.code.replace('storage/', '') : e.message); 
   } finally {
-    saveBtn.disabled = false;
+    btn.disabled = false;
   }
 });
 </script>

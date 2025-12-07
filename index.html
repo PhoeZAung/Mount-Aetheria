@@ -7,9 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#222,#444);display:flex;flex-direction:column;align-items:center;padding-top:70px;min-height:100vh}
-.top-nav { width: 100%; background: #111; padding: 15px 20px; display: flex; justify-content: space-around; align-items: center; position: fixed; top: 0; left: 0; z-index: 2000; flex-wrap: wrap; }
-.top-nav a { color: white; text-decoration: none; font-size: 18px; font-weight: 600; font-family: 'Uncial Antiqua', serif; margin: 0 10px; }
-.top-nav a:hover, .top-nav a.active { color: #ffcc66; }
+.top-nav{width:100%;background:#111;padding:15px 20px;display:flex;justify-content:space-around;align-items:center;position:fixed;top:0;left:0;z-index:2000}
+.top-nav a{color:#fff;text-decoration:none;font-size:18px;font-weight:600;font-family:'Uncial Antiqua',serif}
+.top-nav a:hover{color:#ffcc66}
 .map-title{font-family:'Uncial Antiqua',cursive;font-size:36px;color:#fff;text-align:center;margin:10px 0;text-shadow:2px 2px 6px #000}
 .tabs{display:flex;flex-wrap:wrap;margin-bottom:5px;justify-content:center;gap:5px}
 .tabs button{padding:6px 12px;background:#111;color:#fff;border:none;cursor:pointer;border-radius:6px;font-family:'Uncial Antiqua',serif;font-size:14px}
@@ -71,8 +71,8 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#222,#444)
   <a href="tools.html">Tools</a>
   <a href="characters.html">Character Sheet</a>
   <a href="discussions.html">Discussion</a>
-  <a href="account.html">My Account</a>
-  <a href="login.html" id="authLink">Login</a>
+  <!-- This link will now dynamically be "Sign In" or "My Account" -->
+  <a href="login.html" id="authLink">Sign In</a>
 </nav>
 
 <div class="navbar">
@@ -83,10 +83,12 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#222,#444)
     <a href="tools.html">Tools</a>
     <a href="characters.html">Character Sheet</a>
     <a href="discussions.html">Discussion</a>
-    <a href="account.html">My Account</a>
-    <a href="login.html" id="mobileAuthLink">Login</a>
+    <!-- Mobile auth link -->
+    <a href="login.html" id="mobileAuthLink">Sign In</a>
   </div>
 </div>
+
+
 
 <div class="map-title">Mount Aetheria</div>
 
@@ -143,43 +145,43 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#222,#444)
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",
-    authDomain: "mount-aetheria.firebaseapp.com",
-    projectId: "mount-aetheria",
-    storageBucket: "mount-aetheria.firebasestorage.app",
-    messagingSenderId: "492855693446",
-    appId: "1:492855693446:web:f9948569254a7220c38107",
-    measurementId: "G-0PF84KDN7L"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",
+  authDomain: "mount-aetheria.firebaseapp.com",
+  projectId: "mount-aetheria",
+  storageBucket: "mount-aetheria.firebasestorage.app",
+  messagingSenderId: "492855693446",
+  appId: "1:492855693446:web:f9948569254a7220c38107",
+  measurementId: "G-0PF84KDN7L"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-  function setupAuthLink(id) {
-    const link = document.getElementById(id);
-    if(!link) return;
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        link.textContent = "Logout";
-        link.href = "#";
-        link.onclick = async (e) => {
-          e.preventDefault();
-          await signOut(auth);
-          window.location.reload();
-        };
-      } else {
-        link.textContent = "Login";
-        link.href = "login.html";
-        link.onclick = null;
-      }
-    });
-  }
-  setupAuthLink('authLink');
-  setupAuthLink('mobileAuthLink');
+function setupAuthLink(id) {
+  const link = document.getElementById(id);
+  if (!link) return;
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in → show "My Account"
+      link.textContent = "My Account";
+      link.href = "account.html";
+    } else {
+      // User not signed in → show "Sign In"
+      link.textContent = "Sign In";
+      link.href = "login.html";
+    }
+  });
+}
+
+// Apply to desktop and mobile links
+setupAuthLink('authLink');
+setupAuthLink('mobileAuthLink');
+
 </script>
 
 <script src="https://unpkg.com/@panzoom/panzoom/dist/panzoom.min.js"></script>

@@ -13,65 +13,101 @@ body {
   background: linear-gradient(to bottom, #222, #444);
   color: #fff;
   min-height: 100vh;
-  display: none; /* hide until auth verified */
+  display: none;
   flex-direction: column;
   align-items: center;
 }
 
-/* Top Navigation */
-.top-nav { width: 100%; background: #111; padding: 15px 20px; display: flex; justify-content: space-around; align-items: center; position: fixed; top: 0; left: 0; z-index: 2000; flex-wrap: wrap; }
-.top-nav a { color: white; text-decoration: none; font-size: 18px; font-weight: 600; font-family: 'Uncial Antiqua', serif; margin: 0 10px; }
-.top-nav a:hover, .top-nav a.active { color: #ffcc66; }
+/* NAV */
+.top-nav{width:100%;background:#111;padding:15px 20px;display:flex;justify-content:space-around;align-items:center;position:fixed;top:0;left:0;z-index:2000}
+.top-nav a{color:#fff;text-decoration:none;font-size:18px;font-weight:600;font-family:'Uncial Antiqua',serif}
+.top-nav a:hover{color:#ffcc66}
 
-/* Layout */
+/* HAMBURGER */
+#hamburger{display:none;position:fixed;top:15px;left:15px;background:#111;color:#fff;border:none;padding:10px;font-size:24px;cursor:pointer;z-index:2001;border-radius:5px;}
+#navMenu{display:none;flex-direction:column;background:#111;position:fixed;top:60px;left:15px;border-radius:8px;z-index:2000;box-shadow:0 5px 15px rgba(0,0,0,0.8);overflow:hidden;}
+#navMenu a{padding:12px 20px;color:#fff;text-decoration:none;border-bottom:1px solid #333;font-family:'Uncial Antiqua',serif;display:block;}
+
+/* LAYOUT */
 .main-container { width: 95%; max-width: 1000px; display: grid; grid-template-columns: 300px 1fr; gap: 20px; margin-bottom: 40px; height: 80vh; }
 .topics-panel { background: #333; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; overflow: hidden; }
 .topics-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #555; padding-bottom: 10px; }
 .topics-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
 
-.topic-item { background: #222; padding: 10px; border-radius: 6px; cursor: pointer; border-left: 3px solid transparent; transition: background 0.2s; position: relative; }
+/* TOPIC ITEM */
+.topic-item { background: #222; padding: 12px; border-radius: 6px; cursor: pointer; border-left: 3px solid transparent; transition: background 0.2s; position: relative; display:flex; justify-content:space-between; align-items:center; }
 .topic-item:hover { background: #444; }
 .topic-item.active { border-left: 3px solid #ffcc66; background: #444; }
-.topic-title { font-weight: bold; font-size: 14px; }
-.topic-meta { font-size: 11px; color: #aaa; margin-top: 4px; }
-.delete-btn { /* Style for the delete button */
-    float: right; 
-    color: #ff6666; 
-    cursor: pointer; 
-    font-size: 16px; 
-    margin-left: 5px;
-    z-index: 10;
-    line-height: 1;
-    font-weight: bold;
-}
+.topic-info { flex: 1; overflow: hidden; }
+.topic-title { font-weight: bold; font-size: 14px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topic-meta { font-size: 11px; color: #aaa; }
+/* Unread Badge Style */
+.unread-badge { background: #ff4444; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; margin-left: 10px; flex-shrink: 0; }
+.delete-btn { color: #ff6666; cursor: pointer; font-size: 16px; margin-left: 10px; font-weight: bold; z-index: 10; flex-shrink: 0; }
 
-/* Chat Panel */
+/* CHAT PANEL */
 .chat-panel { background: #333; border-radius: 12px; padding: 0; display: flex; flex-direction: column; overflow: hidden; }
-.chat-header { background: #222; padding: 15px; border-bottom: 1px solid #444; font-family: 'Uncial Antiqua', serif; font-size: 20px; color: #ffcc66; }
+.chat-header { background: #222; padding: 15px; border-bottom: 1px solid #444; font-family: 'Uncial Antiqua', serif; font-size: 20px; color: #ffcc66; display: flex; align-items: center; gap: 10px; }
 .messages-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
 
 .message { display: flex; gap: 10px; max-width: 80%; align-items: flex-start; }
 .message.self { align-self: flex-end; flex-direction: row-reverse; }
-
 .avatar { width: 40px; height: 40px; border-radius: 50%; background: #000; object-fit: cover; flex-shrink: 0; border: 1px solid #555; }
 .msg-content { background: #444; padding: 10px 15px; border-radius: 12px; border-top-left-radius: 2px; position: relative; }
 .message.self .msg-content { background: #5a4a2a; border-top-left-radius: 12px; border-top-right-radius: 2px; }
-
 .sender-name { font-size: 11px; color: #ffcc66; margin-bottom: 2px; font-weight: bold; }
 .msg-text { font-size: 14px; line-height: 1.4; word-wrap: break-word; }
 
-/* Input Area */
-.input-area { padding: 15px; background: #222; display: flex; gap: 10px; border-top: 1px solid #444; }
+/* INPUT */
+.input-area { padding: 15px; background: #222; display: flex; gap: 10px; border-top: 1px solid #444; position: relative;}
 .input-area input { flex: 1; padding: 12px; border-radius: 20px; border: 1px solid #555; background: #333; color: #fff; outline: none; }
-.input-area input:focus { border-color: #ffcc66; }
-.input-area button { background: #ffcc66; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
-.input-area button:hover { background: #e6b800; }
-.input-area button:disabled { background: #555; cursor: default; }
+.input-area button { background: #ffcc66; color: #000; padding: 10px; font-weight: bold; border: none; cursor: pointer; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+.input-area button:disabled { background: #555; }
 
-@media(max-width: 700px){
-  .main-container { grid-template-columns: 1fr; height: auto; display: block; }
-  .topics-panel { height: 250px; margin-bottom: 20px; }
-  .chat-panel { height: 60vh; }
+/* Mobile Back Button */
+#backBtn { display: none; background: transparent; color: #fff; border: 1px solid #555; border-radius: 4px; padding: 5px 10px; cursor: pointer; }
+
+/* EMOJI PICKER STYLES */
+#emojiPicker {
+    position: absolute;
+    bottom: 60px; /* Above the input area */
+    left: 10px;
+    background: #2b2b2b;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    display: none;
+    z-index: 100;
+}
+.emoji-item {
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    margin: 2px;
+    transition: background 0.1s;
+    border-radius: 4px;
+    line-height: 1;
+}
+.emoji-item:hover {
+    background: #444;
+}
+
+/* Mobile Responsiveness for chat view */
+@media(max-width: 768px){
+  .top-nav { display: none; }
+  #hamburger { display: block; }
+  .main-container { display: block; height: 85vh; position: relative; }
+  .topics-panel { width: 100%; height: 100%; box-sizing: border-box; }
+  .chat-panel { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 10; }
+  
+  .main-container.mobile-chat-active .topics-panel { display: none; }
+  .main-container.mobile-chat-active .chat-panel { display: flex; }
+  #backBtn { display: block; }
+  #emojiPicker {
+    bottom: 80px;
+    left: auto;
+    right: 15px;
+  }
 }
 </style>
 </head>
@@ -83,11 +119,20 @@ body {
   <a href="tools.html">Tools</a>
   <a href="characters.html">Character Sheet</a>
   <a href="discussions.html" class="active">Discussion</a>
-  <a href="account.html">My Account</a>
-  <a href="#" id="logoutBtn">Logout</a>
+  <a href="login.html" id="authLink">Sign In</a>
 </nav>
 
-<div class="main-container">
+<button id="hamburger">&#9776;</button>
+<div id="navMenu">
+  <a href="index.html">Home</a>
+  <a href="story.html">Story</a>
+  <a href="tools.html">Tools</a>
+  <a href="characters.html">Character Sheet</a>
+  <a href="discussions.html" class="active">Discussion</a>
+  <a href="login.html" id="mobileAuthLink">Sign In</a>
+</div>
+
+<div class="main-container" id="mainContainer">
   <div class="topics-panel">
     <div class="topics-header">
       <span style="font-family:'Uncial Antiqua'; font-size:18px;">Topics</span>
@@ -99,26 +144,32 @@ body {
   </div>
 
   <div class="chat-panel">
-    <div class="chat-header" id="chatHeader">Select a Topic</div>
-    <div class="messages-area" id="messagesArea">
-      <div style="text-align:center; color:#777; margin-top:50px;">
-        Join a discussion from the left
-      </div>
+    <div class="chat-header">
+      <button id="backBtn">&larr;</button>
+      <span id="chatHeader">Select a Topic</span>
     </div>
+    <div class="messages-area" id="messagesArea"></div>
     <div class="input-area">
+      <button id="emojiBtn" disabled style="background:#333; color:white; font-size: 20px;">😊</button>
       <input type="text" id="msgInput" placeholder="Type a message..." disabled>
       <button id="sendBtn" disabled>&#10148;</button>
+      <div id="emojiPicker">
+        <span class="emoji-item" data-emoji="😊">😊</span>
+        <span class="emoji-item" data-emoji="😂">😂</span>
+        <span class="emoji-item" data-emoji="👍">👍</span>
+        <span class="emoji-item" data-emoji="🔥">🔥</span>
+        <span class="emoji-item" data-emoji="🤔">🤔</span>
+        <span class="emoji-item" data-emoji="🎉">🎉</span>
+      </div>
     </div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-// UPDATED IMPORTS to include Firestore methods for delete and query
-import { getFirestore, collection, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, collection, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc, query, where, getDocs, updateDoc, increment, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// ----- Firebase Config -----
 const firebaseConfig = {
   apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",
   authDomain: "mount-aetheria.firebaseapp.com",
@@ -133,121 +184,158 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const ADMIN_EMAIL = "phoeaung2076@gmail.com"; // Your Admin Email
-
+const ADMIN_EMAIL = "phoeaung2076@gmail.com"; 
 let currentUser = null;
 let activeTopicId = null;
 
-// 1. Auth check
+// Auth check
 onAuthStateChanged(auth, async (user) => {
+  const link = document.getElementById('authLink');
+  const mLink = document.getElementById('mobileAuthLink');
   if (!user) {
     window.location.href = "login.html";
   } else {
-    // FORCE RELOAD of user profile to ensure we have the latest PFP from Account page
-    await user.reload(); 
     currentUser = auth.currentUser;
-    
+    await user.reload(); 
     document.body.style.display = "flex";
-    
-    // HIDE "New Topic" button for non-admin users
-    if (currentUser.email !== ADMIN_EMAIL) {
+    if(link) { link.textContent = "My Account"; link.href = "account.html"; }
+    if(mLink) { mLink.textContent = "My Account"; mLink.href = "account.html"; }
+    if (currentUser.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
       document.getElementById('createTopicBtn').style.display = 'none';
     }
-    
     loadTopics();
   }
 });
 
-// 2. Logout
-document.getElementById('logoutBtn').addEventListener('click', async () => {
-  await signOut(auth);
-  window.location.href = "login.html";
-});
-
-// 3. Load topics
+// Load Topics (Implements sort by last message, unread tracking, and timeout)
 function loadTopics() {
   const topicsRef = collection(db, 'artifacts', 'default-app-id', 'public', 'data', 'discussions_topics');
-  onSnapshot(topicsRef, snapshot => {
+  // Sort by lastActivity to bring most recent threads to the top (PC and Mobile)
+  const q = query(topicsRef, orderBy('lastActivity', 'desc'));
+
+  onSnapshot(q, snapshot => {
     const list = document.getElementById('topicsList');
     list.innerHTML = "";
     const topics = [];
     snapshot.forEach(doc => topics.push({ id: doc.id, ...doc.data() }));
-    // Sort by newest
-    topics.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    
+    // Sort logic from query handles the primary order
     
     if (topics.length === 0) {
-      list.innerHTML = "<div style='padding:10px; text-align:center; color:#777;'>No topics yet. Create one!</div>";
+      list.innerHTML = "<div style='padding:10px; text-align:center; color:#777;'>No topics yet.</div>";
       return;
     }
     
     topics.forEach(t => {
+      // Calculate Unread with Timeout (24 hours)
+      const localKey = `readCount_${t.id}`;
+      let lastRead = 0;
+      const storedJson = localStorage.getItem(localKey);
+      
+      try {
+        const storedData = JSON.parse(storedJson);
+        const ONE_DAY_MS = 86400000; 
+        
+        if (storedData && storedData.count !== undefined && storedData.timestamp !== undefined) {
+          if (Date.now() - storedData.timestamp > ONE_DAY_MS) {
+            // Unread status expired
+            localStorage.removeItem(localKey);
+          } else {
+            lastRead = storedData.count;
+          }
+        }
+      } catch (e) {
+        localStorage.removeItem(localKey);
+      }
+      
+      const serverCount = t.msgCount || 0;
+      const unread = Math.max(0, serverCount - lastRead); 
+
       const div = document.createElement('div');
       div.className = `topic-item ${activeTopicId === t.id ? 'active' : ''}`;
       
-      let adminControls = '';
-      if (currentUser && currentUser.email === ADMIN_EMAIL) {
-        // Add a delete button only for the admin
-        adminControls = `<span class="delete-btn" data-topic-id="${t.id}">&times;</span>`;
-      }
+      let adminControls = (currentUser && currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) 
+                          ? `<span class="delete-btn" data-topic-id="${t.id}">&times;</span>` : '';
       
-      div.innerHTML = `<div class="topic-title">${escapeHtml(t.title)} ${adminControls}</div>
-                       <div class="topic-meta">by ${escapeHtml(t.creatorName)}</div>`;
+      // Unread badge logic
+      let badgeHtml = unread > 0 ? `<div class="unread-badge">${unread > 99 ? '99+' : unread}</div>` : '';
+
+      div.innerHTML = `
+        <div class="topic-info">
+            <div class="topic-title">${escapeHtml(t.title)}</div>
+            <div class="topic-meta">by ${escapeHtml(t.creatorName)}</div>
+        </div>
+        ${badgeHtml}
+        ${adminControls}
+      `;
       
-      div.onclick = () => selectTopic(t.id, t.title);
+      div.onclick = () => selectTopic(t.id, t.title, serverCount);
       
       const deleteBtn = div.querySelector('.delete-btn');
       if (deleteBtn) {
-          deleteBtn.addEventListener('click', (e) => {
-              e.stopPropagation(); // Prevent selecting the topic
-              deleteTopic(t.id, t.title);
-          });
+          deleteBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteTopic(t.id, t.title); });
       }
-      
       list.appendChild(div);
     });
   });
 }
 
-// 4. Select topic & load messages
-function selectTopic(topicId, title) {
+function getLocalReadCountData(topicId) {
+    const storedJson = localStorage.getItem(`readCount_${topicId}`);
+    try {
+        const data = JSON.parse(storedJson);
+        return data || { count: 0, timestamp: 0 };
+    } catch {
+        return { count: 0, timestamp: 0 };
+    }
+}
+
+function selectTopic(topicId, title, currentServerCount) {
   activeTopicId = topicId;
   document.getElementById('chatHeader').textContent = title;
   document.getElementById('msgInput').disabled = false;
   document.getElementById('sendBtn').disabled = false;
-  document.getElementById('msgInput').focus();
+  document.getElementById('emojiBtn').disabled = false;
   
-  // Highlight active topic visually
-  const items = document.querySelectorAll('.topic-item');
-  items.forEach(i => i.classList.remove('active'));
-  // This logic works by re-running loadTopics to rebuild the list with the 'active' class
-  // For simplicity, we just rely on the next run of onSnapshot or a page reload for the highlight
+  // Mobile Transition
+  document.getElementById('mainContainer').classList.add('mobile-chat-active');
   
+  // Mark as read in LocalStorage with timestamp to clear the badge
+  if(currentServerCount !== undefined) {
+      const dataToStore = JSON.stringify({
+          count: currentServerCount,
+          timestamp: Date.now() 
+      });
+      localStorage.setItem(`readCount_${topicId}`, dataToStore);
+  }
+
   loadMessages(topicId);
 }
 
 let unsubscribeMessages = null;
-
 function loadMessages(topicId) {
   if (unsubscribeMessages) unsubscribeMessages();
-  
   const messagesRef = collection(db, 'artifacts', 'default-app-id', 'public', 'data', 'discussions_messages');
-  // Use a query to filter messages by topicId efficiently
-  const q = query(messagesRef, where("topicId", "==", topicId));
+  // FIX: Added orderBy('createdAt', 'asc') to ensure messages are correctly retrieved and ordered.
+  const q = query(messagesRef, where("topicId", "==", topicId), orderBy('createdAt', 'asc'));
   
   unsubscribeMessages = onSnapshot(q, snapshot => {
     const container = document.getElementById('messagesArea');
     container.innerHTML = "";
-    
     const allMsgs = [];
-    snapshot.forEach(doc => {
-      allMsgs.push({ id: doc.id, ...doc.data() });
-    });
-    
-    // Sort oldest to newest for chat
-    allMsgs.sort((a,b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
-    
+    snapshot.forEach(doc => allMsgs.push({ id: doc.id, ...doc.data() }));
+
+    // Re-update local read count to match actual messages loaded (in case of race conditions)
+    if(allMsgs.length > 0 && activeTopicId === topicId) {
+        const dataToStore = JSON.stringify({
+            count: allMsgs.length,
+            timestamp: Date.now() 
+        });
+        localStorage.setItem(`readCount_${topicId}`, dataToStore);
+    }
+
     if (allMsgs.length === 0) {
-      container.innerHTML = "<div style='text-align:center; color:#555; margin-top:20px;'>No messages yet. Be the first!</div>";
+      container.innerHTML = "<div style='text-align:center; color:#555; margin-top:20px;'>No messages yet.</div>";
       return;
     }
     
@@ -255,24 +343,17 @@ function loadMessages(topicId) {
       const isSelf = msg.senderId === currentUser.uid;
       const div = document.createElement('div');
       div.className = `message ${isSelf ? 'self' : ''}`;
-      
-      // Use a default placeholder if pfp is missing
       const pfp = msg.senderPfp || 'https://via.placeholder.com/40?text=?';
-      
-      div.innerHTML = `<img src="${pfp}" class="avatar" alt="pfp" onerror="this.src='https://via.placeholder.com/40?text=?'">
-                       <div class="msg-content">
-                         <div class="sender-name">${escapeHtml(msg.senderName)}</div>
-                         <div class="msg-text">${escapeHtml(msg.text)}</div>
-                       </div>`;
+      div.innerHTML = `<img src="${pfp}" class="avatar" onerror="this.src='https://via.placeholder.com/40?text=?'">
+                       <div class="msg-content"><div class="sender-name">${escapeHtml(msg.senderName)}</div><div class="msg-text">${escapeHtml(msg.text)}</div></div>`;
       container.appendChild(div);
     });
-    
-    // Auto scroll to bottom
     container.scrollTop = container.scrollHeight;
+    // Re-run topic load to update unread badges, which now uses the newly stored local count
+    loadTopics(); 
   });
 }
 
-// 5. Send message
 document.getElementById('sendBtn').addEventListener('click', sendMessage);
 document.getElementById('msgInput').addEventListener('keypress', (e) => { if(e.key==='Enter') sendMessage(); });
 
@@ -282,80 +363,109 @@ async function sendMessage() {
   if (!text || !activeTopicId) return;
   
   try {
-    // Send with the LATEST profile info
+    // 1. Add Message
     await addDoc(collection(db, 'artifacts', 'default-app-id', 'public', 'data', 'discussions_messages'), {
       topicId: activeTopicId,
       text: text,
       senderId: currentUser.uid,
       senderName: currentUser.displayName || "Anonymous",
-      senderPfp: currentUser.photoURL || "", 
+      senderPfp: currentUser.photoURL || "",
       createdAt: serverTimestamp()
     });
+
+    // 2. Update Topic (Increment count & Set LastActivity)
+    const topicRef = doc(db, 'artifacts', 'default-app-id', 'public', 'data', 'discussions_topics', activeTopicId);
+    await updateDoc(topicRef, {
+        lastActivity: serverTimestamp(),
+        msgCount: increment(1)
+    });
+
     input.value = "";
-  } catch(e) { 
+    
+    // Update local count immediately so I don't see my own message as "unread"
+    const currentData = getLocalReadCountData(activeTopicId);
+    const dataToStore = JSON.stringify({
+        count: currentData.count + 1,
+        timestamp: Date.now() 
+    });
+    localStorage.setItem(`readCount_${activeTopicId}`, dataToStore);
+
+  } catch(e) {
     console.error(e);
-    alert("Failed to send: " + e.message); 
   }
 }
 
-// 6. Delete Topic Function (Admin Only)
 async function deleteTopic(topicId, title) {
-    if (currentUser.email !== ADMIN_EMAIL) return alert("You do not have permission to delete topics.");
-    if (!confirm(`Are you sure you want to delete the topic: "${title}"? This will also delete all associated messages.`)) return;
-
+    if (!confirm(`Delete topic: "${title}"?`)) return;
     try {
-        // 1. Delete all messages associated with the topic
         const messagesRef = collection(db, 'artifacts', 'default-app-id', 'public', 'data', 'discussions_messages');
         const q = query(messagesRef, where("topicId", "==", topicId));
         const messageDocs = await getDocs(q);
-
-        const deletePromises = messageDocs.docs.map(d => deleteDoc(d.ref));
-        await Promise.all(deletePromises);
+        await Promise.all(messageDocs.docs.map(d => deleteDoc(d.ref)));
+        await deleteDoc(doc(db, 'artifacts', 'default-app-id', 'public', 'data', 'discussions_topics', topicId));
         
-        // 2. Delete the topic document
-        const topicDocRef = doc(db, 'artifacts', 'default-app-id', 'public', 'data', 'discussions_topics', topicId);
-        await deleteDoc(topicDocRef);
-        
-        alert(`Topic "${title}" and ${messageDocs.size} messages deleted successfully.`);
-        
-        // Clear chat area if the active topic was deleted
         if (activeTopicId === topicId) {
             activeTopicId = null;
             document.getElementById('chatHeader').textContent = "Select a Topic";
-            document.getElementById('messagesArea').innerHTML = "<div style='text-align:center; color:#777; margin-top:50px;'>Join a discussion from the left</div>";
-            document.getElementById('msgInput').disabled = true;
-            document.getElementById('sendBtn').disabled = true;
+            document.getElementById('messagesArea').innerHTML = "";
+            document.getElementById('mainContainer').classList.remove('mobile-chat-active');
         }
-
-    } catch (e) {
-        console.error("Error deleting topic:", e);
-        alert("Failed to delete topic: " + e.message);
-    }
+    } catch (e) { alert("Error: " + e.message); }
 }
 
+// UI Toggles
+document.getElementById('hamburger').addEventListener('click', () => {
+    const m = document.getElementById('navMenu');
+    m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+});
 
-// Utility to prevent XSS attacks
-function escapeHtml(text) {
-  if (!text) return "";
-  return text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
-}
+document.getElementById('backBtn').addEventListener('click', () => {
+    document.getElementById('mainContainer').classList.remove('mobile-chat-active');
+    activeTopicId = null; // Deselect
+    loadTopics(); // Refresh the list to show any new unread counts
+});
 
 document.getElementById('createTopicBtn').addEventListener('click', async () => {
-  if (currentUser.email !== ADMIN_EMAIL) return alert("You do not have permission to create topics.");
-    
   const title = prompt("Enter new topic title:");
-  if (!title) return;
-
-  try {
-    await addDoc(collection(db, 'artifacts', 'default-app-id', 'public', 'data', 'discussions_topics'), {
-      title: title,
-      creatorName: currentUser.displayName || "Anonymous",
-      createdAt: serverTimestamp()
+  if (title) {
+      await addDoc(collection(db, 'artifacts', 'default-app-id', 'public', 'data', 'discussions_topics'), {
+      title: title, 
+      creatorName: currentUser.displayName || "Anonymous", 
+      createdAt: serverTimestamp(),
+      lastActivity: serverTimestamp(), // Init with current time for sorting
+      msgCount: 0 // Init count
     });
-  } catch(e) {
-    alert("Failed to create topic: " + e.message);
   }
 });
+
+// === EMOJI LOGIC ===
+const emojiBtn = document.getElementById('emojiBtn');
+const emojiPicker = document.getElementById('emojiPicker');
+const msgInput = document.getElementById('msgInput');
+
+emojiBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    emojiPicker.style.display = emojiPicker.style.display === 'flex' ? 'none' : 'flex';
+    emojiPicker.style.flexWrap = 'wrap';
+});
+
+document.querySelectorAll('.emoji-item').forEach(item => {
+    item.addEventListener('click', () => {
+        const emoji = item.dataset.emoji;
+        msgInput.value += emoji;
+        msgInput.focus();
+        emojiPicker.style.display = 'none';
+    });
+});
+
+document.addEventListener('click', (e) => {
+    if (emojiPicker.style.display === 'flex' && e.target !== emojiBtn && !emojiPicker.contains(e.target)) {
+        emojiPicker.style.display = 'none';
+    }
+});
+// END EMOJI LOGIC
+
+function escapeHtml(text) { if (!text) return ""; return text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
 </script>
 </body>
 </html>

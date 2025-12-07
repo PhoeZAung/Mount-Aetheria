@@ -6,17 +6,28 @@
 <title>Character Sheet - Mount Aetheria</title>
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
-body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(to bottom, #222, #444); color: #fff; padding-top: 70px; display: flex; min-height: 100vh; }
-.top-nav { width: 100%; background: #111; padding: 15px 20px; display: flex; justify-content: space-around; align-items: center; position: fixed; top: 0; left: 0; z-index: 2000; flex-wrap: wrap; }
-.top-nav a { color: white; text-decoration: none; font-size: 18px; font-weight: 600; font-family: 'Uncial Antiqua', serif; margin: 0 10px; }
-.top-nav a:hover, .top-nav a.active { color: #ffcc66; }
-.tabs-container { display: flex; width: 100%; }
+body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(to bottom, #222, #444); color: #fff; padding-top: 70px; display: flex; min-height: 100vh; flex-direction: column; }
+
+/* NAV */
+.top-nav{width:100%;background:#111;padding:15px 20px;display:flex;justify-content:space-around;align-items:center;position:fixed;top:0;left:0;z-index:2000}
+.top-nav a{color:#fff;text-decoration:none;font-size:18px;font-weight:600;font-family:'Uncial Antiqua',serif}
+.top-nav a:hover{color:#ffcc66}
+
+/* HAMBURGER */
+#hamburger{display:none;position:fixed;top:15px;left:15px;background:#111;color:#fff;border:none;padding:10px;font-size:24px;cursor:pointer;z-index:2001;border-radius:5px;}
+#navMenu{display:none;flex-direction:column;background:#111;position:fixed;top:60px;left:15px;border-radius:8px;z-index:2000;box-shadow:0 5px 15px rgba(0,0,0,0.8);overflow:hidden;}
+#navMenu a{padding:12px 20px;color:#fff;text-decoration:none;border-bottom:1px solid #333;font-family:'Uncial Antiqua',serif;display:block;}
+
+/* MAIN CONTENT */
+.tabs-container { display: flex; width: 100%; flex: 1; margin-top: 20px; }
 .tab-menu { display: flex; flex-direction: column; width: 220px; background: #111; padding-top: 20px; gap: 10px; flex-shrink: 0; }
 .tab-menu h3 { color: #ffcc66; text-align: center; margin-bottom: 10px; }
 .tab-menu button { background: #333; color: #fff; border: none; padding: 12px 15px; cursor: pointer; border-radius: 8px; width: 90%; margin: 0 auto; text-align: left; font-weight: bold; font-family: 'Uncial Antiqua', serif; transition: 0.2s; }
 .tab-menu button:hover, .tab-menu button.active { background: #ffcc66; color: #111; }
 .tab-content { flex: 1; padding: 20px; display: none; background: #333; border-radius: 10px; margin: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.5); overflow-y: auto; }
 .tab-content.active { display: block; }
+
+/* FORMS */
 h1,h2,h3,h4,h5,h6 { font-family: 'Uncial Antiqua', serif; letter-spacing: 1px; text-align: center; }
 .bio-grid { display: grid; grid-template-columns: 150px 1fr; gap: 10px 20px; align-items: center; max-width: 600px; margin: 0 auto 30px auto; text-align: left; }
 .bio-grid label { font-weight: bold; text-align: right; }
@@ -25,11 +36,24 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Uncial Antiqua', serif; letter-spacing: 1px; t
 .ability-table th, .ability-table td { border: 1px solid #555; padding: 8px; }
 .ability-table input { width: 60px; text-align: center; background: #333; color: #fff; border-radius: 4px; border: 1px solid #555; }
 .ability-table .modifier { font-weight: bold; color: #ffcc66; }
+
 .action-bar { display: flex; justify-content: flex-end; padding: 10px 20px; background: #222; border-top: 1px solid #555; position: fixed; bottom: 0; right: 0; width: 100%; box-sizing: border-box; z-index: 1000; }
 .save-btn { background: #ffcc66; color: #111; border: none; padding: 10px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Uncial Antiqua', serif; font-size: 18px; }
-.save-btn:hover { background: #e6b800; }
 .status-msg { margin-right: 15px; align-self: center; font-weight: bold; }
-@media (max-width: 700px) { body { flex-direction: column; padding-top: 140px; padding-bottom: 60px; } .tabs-container { flex-direction: column; } .tab-menu { flex-direction: row; width: 100%; overflow-x: auto; border-bottom: 1px solid #555; padding-top: 0; gap: 0; } .tab-menu button { flex: 1; text-align: center; border-radius: 0; border-left: none; border-bottom: 4px solid transparent; padding: 10px 5px; font-size: 14px; } .tab-menu button.active { border-bottom: 4px solid #ffcc66; } .tab-content { margin: 0; border-radius: 0; } }
+
+@media (max-width: 768px) {
+  .top-nav { display: none; }
+  #hamburger { display: block; }
+  body { padding-top: 0; }
+  .tabs-container { flex-direction: column; margin-top: 60px; } 
+  .tab-menu { flex-direction: row; width: 100%; overflow-x: auto; border-bottom: 1px solid #555; padding-top: 0; gap: 0; padding-bottom: 5px; } 
+  .tab-menu h3 { display: none; }
+  .tab-menu button { flex: 1; text-align: center; border-radius: 0; border-left: none; border-bottom: 4px solid transparent; padding: 10px 5px; font-size: 14px; min-width: 100px; } 
+  .tab-menu button.active { border-bottom: 4px solid #ffcc66; } 
+  .tab-content { margin: 0; border-radius: 0; padding: 15px; margin-bottom: 60px; /* space for save bar */ } 
+  .bio-grid { grid-template-columns: 1fr; gap: 5px; }
+  .bio-grid label { text-align: left; }
+}
 </style>
 </head>
 <body>
@@ -40,9 +64,18 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Uncial Antiqua', serif; letter-spacing: 1px; t
   <a href="tools.html">Tools</a>
   <a href="characters.html" class="active">Character Sheet</a>
   <a href="discussions.html">Discussion</a>
-  <a href="account.html">My Account</a>
-  <a href="login.html" id="authLink">Login</a>
+  <a href="login.html" id="authLink">Sign In</a>
 </nav>
+
+<button id="hamburger">&#9776;</button>
+<div id="navMenu">
+  <a href="index.html">Home</a>
+  <a href="story.html">Story</a>
+  <a href="tools.html">Tools</a>
+  <a href="characters.html" class="active">Character Sheet</a>
+  <a href="discussions.html">Discussion</a>
+  <a href="login.html" id="mobileAuthLink">Sign In</a>
+</div>
 
 <div class="tabs-container">
   <div class="tab-menu">
@@ -56,30 +89,30 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Uncial Antiqua', serif; letter-spacing: 1px; t
     <h2>Character Bio</h2>
     <div class="bio-grid">
       <label for="charName">Name:</label>
-      <input type="text" id="charName" class="save-field" value="">
+      <input type="text" id="charName" class="save-field">
       <label for="race">Race:</label>
-      <input type="text" id="race" class="save-field" value="">
+      <input type="text" id="race" class="save-field">
       <label for="class">Class:</label>
-      <input type="text" id="class" class="save-field" value="">
+      <input type="text" id="class" class="save-field">
       <label for="alignment">Alignment:</label>
-      <input type="text" id="alignment" class="save-field" value="">
+      <input type="text" id="alignment" class="save-field">
       <label for="size">Size:</label>
-      <input type="text" id="size" class="save-field" value="">
+      <input type="text" id="size" class="save-field">
       <label for="senses">Senses:</label>
-      <input type="text" id="senses" class="save-field" value="">
+      <input type="text" id="senses" class="save-field">
       <label for="languages">Languages:</label>
-      <input type="text" id="languages" class="save-field" value="">
+      <input type="text" id="languages" class="save-field">
     </div>
 
     <h3>Ability Scores</h3>
     <table class="ability-table">
       <tr><th>Ability</th><th>Total</th><th>Modifier</th></tr>
-      <tr><td>STR</td><td><input type="number" class="ability-total save-field" id="str" value=""></td><td class="modifier" id="mod-str">-1</td></tr>
-      <tr><td>DEX</td><td><input type="number" class="ability-total save-field" id="dex" value=""></td><td class="modifier" id="mod-dex">+3</td></tr>
-      <tr><td>CON</td><td><input type="number" class="ability-total save-field" id="con" value=""></td><td class="modifier" id="mod-con">+1</td></tr>
-      <tr><td>INT</td><td><input type="number" class="ability-total save-field" id="int" value=""></td><td class="modifier" id="mod-int">+3</td></tr>
-      <tr><td>WIS</td><td><input type="number" class="ability-total save-field" id="wis" value=""></td><td class="modifier" id="mod-wis">+0</td></tr>
-      <tr><td>CHA</td><td><input type="number" class="ability-total save-field" id="cha" value=""></td><td class="modifier" id="mod-cha">-1</td></tr>
+      <tr><td>STR</td><td><input type="number" class="ability-total save-field" id="str"></td><td class="modifier" id="mod-str"></td></tr>
+      <tr><td>DEX</td><td><input type="number" class="ability-total save-field" id="dex"></td><td class="modifier" id="mod-dex"></td></tr>
+      <tr><td>CON</td><td><input type="number" class="ability-total save-field" id="con"></td><td class="modifier" id="mod-con"></td></tr>
+      <tr><td>INT</td><td><input type="number" class="ability-total save-field" id="int"></td><td class="modifier" id="mod-int"></td></tr>
+      <tr><td>WIS</td><td><input type="number" class="ability-total save-field" id="wis"></td><td class="modifier" id="mod-wis"></td></tr>
+      <tr><td>CHA</td><td><input type="number" class="ability-total save-field" id="cha"></td><td class="modifier" id="mod-cha"></td></tr>
     </table>
   </div>
 
@@ -101,7 +134,7 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Uncial Antiqua', serif; letter-spacing: 1px; t
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -117,75 +150,62 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Uncial Antiqua', serif; letter-spacing: 1px; t
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
-
   let currentUser = null;
 
-  // 1. Auth & Nav
+  // Auth
   onAuthStateChanged(auth, async (user) => {
+    const link = document.getElementById('authLink');
+    const mLink = document.getElementById('mobileAuthLink');
     if (!user) {
-      window.location.href = "login.html";
+       // Optional: Redirect or show login link
+       if(link) { link.textContent = "Sign In"; link.href = "login.html"; }
+       if(mLink) { mLink.textContent = "Sign In"; mLink.href = "login.html"; }
     } else {
       currentUser = user;
       document.getElementById('statusMsg').textContent = "Loading...";
-      
-      // Nav update
-      const link = document.getElementById('authLink');
-      if(link) {
-          link.textContent = "Logout";
-          link.href = "#";
-          link.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await signOut(auth);
-            window.location.href="login.html";
-          });
-      }
+      if(link) { link.textContent = "My Account"; link.href = "account.html"; }
+      if(mLink) { mLink.textContent = "My Account"; mLink.href = "account.html"; }
       await loadCharacterData();
     }
   });
+  
+  // Hamburger
+  document.getElementById('hamburger').addEventListener('click', () => {
+    const m = document.getElementById('navMenu');
+    m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+  });
 
-  // 2. Load Data (Unique per user)
+  // Load Data
   async function loadCharacterData() {
     try {
-      // Path: users/{uid}/sheet/character
       const docRef = doc(db, 'users', currentUser.uid, 'sheet', 'character');
       const snap = await getDoc(docRef);
-
       if (snap.exists()) {
         const data = snap.data();
         document.querySelectorAll('.save-field').forEach(input => {
-          if (data[input.id] !== undefined) {
-            input.value = data[input.id];
-          }
+          if (data[input.id] !== undefined) input.value = data[input.id];
         });
         updateAllModifiers();
         document.getElementById('statusMsg').textContent = "Loaded.";
       } else {
         document.getElementById('statusMsg').textContent = "New Sheet.";
       }
-    } catch (e) {
-      console.error("Load error:", e);
-      document.getElementById('statusMsg').textContent = "Load failed.";
-    }
+    } catch (e) { console.error(e); }
   }
 
-  // 3. Save Data (Unique per user)
+  // Save Data
   document.getElementById('saveBtn').addEventListener('click', async () => {
     if (!currentUser) return;
     const btn = document.getElementById('saveBtn');
     const status = document.getElementById('statusMsg');
-    
     btn.disabled = true;
     status.textContent = "Saving...";
     status.style.color = "#ffcc66";
 
     try {
       const dataToSave = {};
-      document.querySelectorAll('.save-field').forEach(input => {
-        dataToSave[input.id] = input.value;
-      });
-
+      document.querySelectorAll('.save-field').forEach(input => dataToSave[input.id] = input.value);
       await setDoc(doc(db, 'users', currentUser.uid, 'sheet', 'character'), dataToSave);
-      
       status.textContent = "Saved!";
       status.style.color = "#4caf50";
     } catch (e) {
@@ -196,6 +216,7 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Uncial Antiqua', serif; letter-spacing: 1px; t
     }
   });
 
+  // Tabs
   const tabButtons = document.querySelectorAll('.tab-btn');
   const tabContents = document.querySelectorAll('.tab-content');
   tabButtons.forEach(btn => {
@@ -207,6 +228,7 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Uncial Antiqua', serif; letter-spacing: 1px; t
     });
   });
 
+  // Modifiers
   function updateAllModifiers() {
     document.querySelectorAll('.ability-total').forEach(input => {
       const modifierCell = input.parentElement.nextElementSibling;
@@ -219,9 +241,7 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Uncial Antiqua', serif; letter-spacing: 1px; t
       }
     });
   }
-  document.querySelectorAll('.ability-total').forEach(input => {
-    input.addEventListener('input', updateAllModifiers);
-  });
+  document.querySelectorAll('.ability-total').forEach(input => input.addEventListener('input', updateAllModifiers));
   updateAllModifiers();
 </script>
 </body>

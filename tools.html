@@ -6,26 +6,47 @@
 <title>Tools - Mount Aetheria</title>
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
-body { margin: 0; padding-top: 60px; font-family: Arial, sans-serif; background: linear-gradient(to bottom, #222, #444); color: #fff; min-height: 100vh; text-align: center; }
-.top-nav { width: 100%; background: #111; padding: 15px 20px; display: flex; justify-content: space-around; align-items: center; position: fixed; top: 0; left: 0; z-index: 2000; }
-.top-nav a { color: white; text-decoration: none; font-size: 18px; font-weight: 600; font-family: 'Uncial Antiqua', serif; }
-.top-nav a:hover { color: #ffcc66; }
-.tab-buttons { margin: 30px 0 20px 0; }
-.tab-buttons button { background: #333; border: none; color: #fff; padding: 12px 25px; font-size: 18px; font-family: 'Uncial Antiqua', serif; cursor: pointer; margin: 0 5px; border-radius: 8px; transition: background 0.2s; }
-.tab-buttons button.active, .tab-buttons button:hover { background: #555; }
-.tab-content { display: none; max-width: 900px; margin: 0 auto 50px auto; }
-.url-grid { display: flex; justify-content: center; gap: 30px; flex-wrap: nowrap; overflow-x: auto; padding: 10px; }
-.url-card { min-width: 220px; height: 220px; background: #333; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: #fff; font-weight: bold; transition: transform 0.2s, background 0.2s; flex-shrink: 0; }
-.url-card img { width: 80px; height: 80px; margin-bottom: 15px; }
-.url-card:hover { background: #555; transform: translateY(-5px); }
-.calendar { background: #333; padding: 20px; border-radius: 15px; }
-.calendar h2 { font-family: 'Uncial Antiqua', cursive; margin-bottom: 20px; }
-.event { background: #444; margin: 10px 0; padding: 10px; border-radius: 8px; text-align: left; }
-.event span.date { font-weight: bold; margin-right: 10px; }
-.tab-content.active { display: block; }
-.calendar-filters { margin-bottom: 15px; }
-.calendar-filters button { background: #333; border: none; color: #fff; padding: 8px 18px; font-size: 16px; margin: 0 5px; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
-.calendar-filters button.active, .calendar-filters button:hover { background: #555; }
+body{margin:0;padding-top:70px;font-family:Arial,sans-serif;background:linear-gradient(#222,#444);color:#fff;text-align:center;min-height:100vh}
+
+/* NAV */
+.top-nav{width:100%;background:#111;padding:15px 20px;display:flex;justify-content:space-around;align-items:center;position:fixed;top:0;left:0;z-index:2000}
+.top-nav a{color:#fff;text-decoration:none;font-size:18px;font-weight:600;font-family:'Uncial Antiqua',serif}
+.top-nav a:hover{color:#ffcc66}
+
+/* MOBILE NAV */
+#hamburger{display:none;position:fixed;top:15px;left:15px;background:#111;color:#fff;border:none;padding:10px;font-size:24px;cursor:pointer;z-index:2001;border-radius:5px;}
+#navMenu{display:none;flex-direction:column;background:#111;position:fixed;top:60px;left:15px;border-radius:8px;z-index:2000;box-shadow:0 5px 15px rgba(0,0,0,0.8);overflow:hidden;}
+#navMenu a{padding:12px 20px;color:#fff;text-decoration:none;border-bottom:1px solid #333;font-family:'Uncial Antiqua',serif;display:block;}
+
+/* TABS (Now outside hamburger) */
+.tab-buttons{margin:20px auto;display:flex;justify-content:center;gap:10px;flex-wrap:wrap; max-width: 90%;}
+.tab-buttons button{background:#333;border:1px solid #555;color:#fff;padding:10px 30px;font-size:16px;font-family:'Uncial Antiqua',serif;cursor:pointer;border-radius:8px;transition:.2s; flex: 1; max-width: 200px;}
+.tab-buttons button.active{background:#ffcc66; color:#000; font-weight: bold; border-color: #ffcc66;}
+.tab-buttons button:hover{background:#555;}
+
+/* CONTENT */
+.tab-content{display:none;max-width:900px;margin:0 auto 50px auto;text-align:center}
+.tab-content.active{display:block}
+
+.url-grid{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;padding:10px}
+.url-card{width:150px;height:150px;background:#333;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:#fff;font-weight:bold;transition:.2s;font-size:14px}
+.url-card img{width:60px;height:60px;margin-bottom:10px}
+.url-card:hover{background:#555;transform:translateY(-3px)}
+
+.calendar{background:#333;padding:15px;border-radius:12px;text-align:left; max-width:600px; margin:0 auto;}
+.calendar h2{font-family:'Uncial Antiqua',cursive;margin-bottom:15px;font-size:18px}
+.event{background:#444;margin:8px 0;padding:8px;border-radius:6px;font-size:14px}
+.event span.date{font-weight:bold;margin-right:8px; color:#ffcc66;}
+.calendar-filters{margin-bottom:10px;display:flex;gap:5px;flex-wrap:wrap}
+.calendar-filters button{background:#222;border:1px solid #555;color:#fff;padding:6px 12px;font-size:14px;border-radius:6px;cursor:pointer}
+.calendar-filters button.active{background:#ffcc66; color:#000;}
+
+@media(max-width:768px){
+  .top-nav{ display:none; }
+  #hamburger{ display:block; }
+  .url-grid { gap: 10px; }
+  .url-card { width: 45%; height: 120px; }
+}
 </style>
 </head>
 <body>
@@ -36,9 +57,18 @@ body { margin: 0; padding-top: 60px; font-family: Arial, sans-serif; background:
   <a href="tools.html" class="active">Tools</a>
   <a href="characters.html">Character Sheet</a>
   <a href="discussions.html">Discussion</a>
-  <a href="account.html">My Account</a>
-  <a href="login.html" id="authLink">Login</a>
+  <a href="login.html" id="authLink">Sign In</a>
 </nav>
+
+<button id="hamburger">&#9776;</button>
+<div id="navMenu">
+  <a href="index.html">Home</a>
+  <a href="story.html">Story</a>
+  <a href="tools.html" class="active">Tools</a>
+  <a href="characters.html">Character Sheet</a>
+  <a href="discussions.html">Discussion</a>
+  <a href="login.html" id="mobileAuthLink">Sign In</a>
+</div>
 
 <h1>Tools</h1>
 
@@ -50,18 +80,16 @@ body { margin: 0; padding-top: 60px; font-family: Arial, sans-serif; background:
 <div class="tab-content active" id="links">
   <div class="url-grid">
     <a href="https://www.d20pfsrd.com/" target="_blank" class="url-card">
-      <img src="Logo/Pathfinder.png" alt="Pathfinder Logo"> Pathfinder
+      <img src="Logo/Pathfinder.png" alt="Pathfinder" onerror="this.src='https://via.placeholder.com/60'"> Pathfinder
     </a>
     <a href="https://www.finalfantasyd20.com/" target="_blank" class="url-card">
-      <img src="Logo/FFD20.png" alt="FFD20 Logo"> FFD20
+      <img src="Logo/FFD20.png" alt="FFD20" onerror="this.src='https://via.placeholder.com/60'"> FFD20
     </a>
     <a href="https://www.owlbear.rodeo/" target="_blank" class="url-card">
-      <img src="Logo/Owlbear.png" alt="Owlbear Logo"> Owlbear
+      <img src="Logo/Owlbear.png" alt="Owlbear" onerror="this.src='https://via.placeholder.com/60'"> Owlbear
     </a>
-  </div>
-  <div class="url-grid" style="margin-top: 20px;">
     <a href="https://reactive.fugi.tech/" target="_blank" class="url-card">
-      <img src="Logo/Reactive.png" alt="Reactive Logo"> Reactive
+      <img src="Logo/Reactive.png" alt="Reactive" onerror="this.src='https://via.placeholder.com/60'"> Reactive
     </a>
   </div>
 </div>
@@ -71,8 +99,8 @@ body { margin: 0; padding-top: 60px; font-family: Arial, sans-serif; background:
     <h2>Upcoming Events</h2>
     <div class="calendar-filters">
       <button class="calendar-btn active" data-group="groupA">Dark Grasp</button>
-      <button class="calendar-btn" data-group="groupB">Re'an Leagcy</button>
-      <button class="calendar-btn" data-group="group">???</button>
+      <button class="calendar-btn" data-group="groupB">Re'an Legacy</button>
+      <button class="calendar-btn" data-group="groupC">???</button>
     </div>
     <div class="event-group" id="groupA" style="display:block;">
       <div class="event"><span class="date">Dec 28:</span> Christmas Special</div>
@@ -81,75 +109,61 @@ body { margin: 0; padding-top: 60px; font-family: Arial, sans-serif; background:
     <div class="event-group" id="groupB" style="display:none;">
       <div class="event"><span class="date">Dec 20:</span> Plans</div>
     </div>
-    <div class="event-group" id="group" style="display:none;">
-      <div class="event"><span class="date">Dec 29:</span> ??? </div>
+    <div class="event-group" id="groupC" style="display:none;">
+      <div class="event"><span class="date">Dec 29:</span> ???</div>
     </div>
   </div>
 </div>
 
 <script type="module">
-  // Auth Script for Nav Bar
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+const firebaseConfig={apiKey:"AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",authDomain:"mount-aetheria.firebaseapp.com",projectId:"mount-aetheria",storageBucket:"mount-aetheria.firebasestorage.app",messagingSenderId:"492855693446",appId:"1:492855693446:web:f9948569254a7220c38107",measurementId:"G-0PF84KDN7L"};
+const app=initializeApp(firebaseConfig),auth=getAuth(app);
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",
-    authDomain: "mount-aetheria.firebaseapp.com",
-    projectId: "mount-aetheria",
-    storageBucket: "mount-aetheria.firebasestorage.app",
-    messagingSenderId: "492855693446",
-    appId: "1:492855693446:web:f9948569254a7220c38107",
-    measurementId: "G-0PF84KDN7L"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const authLink = document.getElementById('authLink');
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      authLink.textContent = "Logout";
-      authLink.href = "#";
-      authLink.addEventListener('click', async (e) => {
-        e.preventDefault();
-        await signOut(auth);
-        window.location.reload();
-      });
-    } else {
-      authLink.textContent = "Login";
-      authLink.href = "login.html";
-    }
-  });
+onAuthStateChanged(auth, user => {
+  const link = document.getElementById('authLink');
+  const mLink = document.getElementById('mobileAuthLink');
+  if(user){
+     const txt = "My Account";
+     const href = "account.html";
+     link.textContent = txt; link.href = href;
+     mLink.textContent = txt; mLink.href = href;
+  } else {
+     const txt = "Sign In";
+     const href = "login.html";
+     link.textContent = txt; link.href = href;
+     mLink.textContent = txt; mLink.href = href;
+  }
+});
 </script>
 
 <script>
+document.getElementById('hamburger').addEventListener('click', () => {
+  const m = document.getElementById('navMenu');
+  m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+});
+
+// Clean Tab Switching
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        tabButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        tabContents.forEach(c => c.classList.remove('active'));
+        document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+});
+
+// Calendar Filters
 const calendarButtons = document.querySelectorAll('.calendar-btn');
 const eventGroups = document.querySelectorAll('.event-group');
-
-calendarButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    calendarButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const target = btn.dataset.group;
-    eventGroups.forEach(group => {
-      group.id === target ? group.style.display = "block" : group.style.display = "none";
-    });
-  });
-});
-
-const buttons = document.querySelectorAll('.tab-btn');
-const tabs = document.querySelectorAll('.tab-content');
-buttons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    buttons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const target = btn.dataset.tab;
-    tabs.forEach(tab => {
-      if(tab.id === target) { tab.classList.add('active'); } 
-      else { tab.classList.remove('active'); }
-    });
-  });
-});
+calendarButtons.forEach(b => b.addEventListener('click', () => {
+    calendarButtons.forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    eventGroups.forEach(t => t.style.display = (t.id === b.dataset.group ? 'block' : 'none'));
+}));
 </script>
 </body>
 </html>
