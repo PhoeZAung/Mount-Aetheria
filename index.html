@@ -7,9 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#222,#444);display:flex;flex-direction:column;align-items:center;padding-top:70px;min-height:100vh}
-.top-nav{width:100%;background:#111;padding:10px;display:flex;flex-wrap:wrap;justify-content:space-around;position:fixed;top:0;z-index:2000;font-size:16px}
-.top-nav a{color:#fff;text-decoration:none;font:600 16px 'Uncial Antiqua',serif}
-.top-nav a:hover{color:#ffcc66}
+.top-nav { width: 100%; background: #111; padding: 15px 20px; display: flex; justify-content: space-around; align-items: center; position: fixed; top: 0; left: 0; z-index: 2000; flex-wrap: wrap; }
+.top-nav a { color: white; text-decoration: none; font-size: 18px; font-weight: 600; font-family: 'Uncial Antiqua', serif; margin: 0 10px; }
+.top-nav a:hover, .top-nav a.active { color: #ffcc66; }
 .map-title{font-family:'Uncial Antiqua',cursive;font-size:36px;color:#fff;text-align:center;margin:10px 0;text-shadow:2px 2px 6px #000}
 .tabs{display:flex;flex-wrap:wrap;margin-bottom:5px;justify-content:center;gap:5px}
 .tabs button{padding:6px 12px;background:#111;color:#fff;border:none;cursor:pointer;border-radius:6px;font-family:'Uncial Antiqua',serif;font-size:14px}
@@ -34,10 +34,8 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#222,#444)
 .tab-menu button{margin:2px 0;padding:8px 12px;color:#fff;background:#111;border:none;text-align:left;width:150px;cursor:pointer;border-bottom:1px solid #333;font-family:'Uncial Antiqua',serif}
 .tab-menu button:last-child{border-bottom:none}
 .tab-menu button.active{background:#ffcc66;color:#111;font-weight:bold}
-
 #navMenu, #tabMenu { display: none; }
 #hamburger { display: none; }
-
 @media(max-width:600px){
   .map-title { font-size:28px }
   .tabs, .top-nav { display:none }
@@ -67,16 +65,16 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#222,#444)
 </head>
 <body>
 
-<!-- Desktop nav -->
 <nav class="top-nav">
-  <a href="index.html">Home</a>
+  <a href="index.html" class="active">Home</a>
   <a href="story.html">Story</a>
   <a href="tools.html">Tools</a>
   <a href="characters.html">Character Sheet</a>
   <a href="discussions.html">Discussion</a>
+  <a href="account.html">My Account</a>
+  <a href="login.html" id="authLink">Login</a>
 </nav>
 
-<!-- Mobile hamburger -->
 <div class="navbar">
   <button id="hamburger">&#9776;</button>
   <div class="navbar-menu" id="navMenu">
@@ -85,12 +83,13 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#222,#444)
     <a href="tools.html">Tools</a>
     <a href="characters.html">Character Sheet</a>
     <a href="discussions.html">Discussion</a>
+    <a href="account.html">My Account</a>
+    <a href="login.html" id="mobileAuthLink">Login</a>
   </div>
 </div>
 
 <div class="map-title">Mount Aetheria</div>
 
-<!-- Desktop Tabs -->
 <div class="tabs desktop-tabs">
   <button class="tab-btn active" data-tab="worldmap">World Map</button>
   <button class="tab-btn" data-tab="darkgrasp">Dark Grasp</button>
@@ -98,7 +97,6 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#222,#444)
   <button class="tab-btn" data-tab="anothermap">Another Map</button>
 </div>
 
-<!-- Mobile Tabs -->
 <div class="tabs mobile-tabs">
   <button id="tabHamburger">&#9776; Maps</button>
   <div id="tabMenu" class="tab-menu">
@@ -110,44 +108,30 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#222,#444)
 </div>
 
 <div class="outer-frame">
-
-  <!-- Tab Contents -->
   <div class="tab-content active" id="worldmap">
     <div class="map-container">
-      <div class="map">
-        <img src="map.png" alt="World Map">
-      </div>
+      <div class="map"><img src="map.png" alt="World Map"></div>
       <div class="popup"></div>
     </div>
   </div>
-
   <div class="tab-content" id="darkgrasp">
     <div class="map-container">
-      <div class="map">
-        <img src="map.png" alt="Dark Grasp Map">
-      </div>
+      <div class="map"><img src="map.png" alt="Dark Grasp Map"></div>
       <div class="popup"></div>
     </div>
   </div>
-
   <div class="tab-content" id="reanlegacy">
     <div class="map-container">
-      <div class="map">
-        <img src="map.png" alt="Re'an Legacy Map">
-      </div>
+      <div class="map"><img src="map.png" alt="Re'an Legacy Map"></div>
       <div class="popup"></div>
     </div>
   </div>
-
   <div class="tab-content" id="anothermap">
     <div class="map-container">
-      <div class="map">
-        <img src="map.png" alt="Another Map">
-      </div>
+      <div class="map"><img src="map.png" alt="Another Map"></div>
       <div class="popup"></div>
     </div>
   </div>
-
 </div>
 
 <div class="legend">
@@ -158,48 +142,66 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#222,#444)
   <div class="legend-item"><img src="icons/party.png" alt=""> Party</div>
 </div>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",
+    authDomain: "mount-aetheria.firebaseapp.com",
+    projectId: "mount-aetheria",
+    storageBucket: "mount-aetheria.firebasestorage.app",
+    messagingSenderId: "492855693446",
+    appId: "1:492855693446:web:f9948569254a7220c38107",
+    measurementId: "G-0PF84KDN7L"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  function setupAuthLink(id) {
+    const link = document.getElementById(id);
+    if(!link) return;
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        link.textContent = "Logout";
+        link.href = "#";
+        link.onclick = async (e) => {
+          e.preventDefault();
+          await signOut(auth);
+          window.location.reload();
+        };
+      } else {
+        link.textContent = "Login";
+        link.href = "login.html";
+        link.onclick = null;
+      }
+    });
+  }
+  setupAuthLink('authLink');
+  setupAuthLink('mobileAuthLink');
+</script>
+
 <script src="https://unpkg.com/@panzoom/panzoom/dist/panzoom.min.js"></script>
 <script>
-// ================== PIN DATA ==================
+// (Previous Map Logic Kept Same)
 const pinData = {
   worldmap: [
   {title:"Principality Of Kal'en", desc:"Once under the rule of the Kingdom of Kal'en...", img:"Crest/Kal'en.png", left:"20%", top:"42%", icon:"icons/kingdom.png"},
-  {title:"Principality Of Kal'en", desc:"Once under the rule of the Kingdom of Kal'en, separated into the Principality of Kal'el. Now run by the young prince of Kal'en the kingdom begins anew", img:"Crest/Kal'en.png", left:"20%", top:"42%", icon:"icons/kingdom.png"},
-  {title:"Grand Duchy of Cothur", desc:"Once under the rule of the Kingdom of Kal’en, the region eventually broke away to form the Grand Duchy of Cothur. After King Kal’en’s death, the nobles of Cothur rejected the authority of his heir, believing the young prince too naïve to govern. Thus, they separated from the crown, establishing their own independent rule.", img:"Crest/Cothur.png", left:"24%", top:"30%", icon:"icons/kingdom.png"},
-  {title:"Kingdom of Karph", desc:"Originally a small merchant city, Karph began its transformation into a kingdom about three centuries ago, after purchasing the neighboring Kingdom of Park. Through trade and diplomacy, it grew into one of the richest realms in the region—earning the title 'The Kingdom of Gold'", img:"Crest/Kraph.png", left:"37%", top:"32%", icon:"icons/kingdom.png"},
-  {title:"Kingdom of Risha", desc:"An active military kingdom, Risha holds a long and storied history tracing back to the legendary lineage of King Arthur. Its rulers and warriors take pride in upholding the ideals of honor, valor, and chivalry that defined their ancestor’s age.", img:"Crest/Risha.png", left:"36%", top:"53%", icon:"icons/kingdom.png"},
-  {title:"Bror Empire", desc:"A passive yet formidable military empire, the Bror Empire has endured for over 600 years. Its people revere the Phoenix, a sacred symbol of rebirth and immortality, which guides their culture, rituals, and governance.", img:"Crest/Bror.png", left:"20%", top:"72%", icon:"icons/kingdom.png"},
-  {title:"Grand Duchy of Park", desc:"Once the independent Kingdom of Park, this realm became the Grand Duchy of Park after a strategic deal with the Kingdom of Karph. Though its territory and influence were reduced, the duchy remains a strong and respected power in the region.", img:"Crest/Park.png", left:"41%", top:"41%", icon:"icons/kingdom.png"},
-  {title:"Kingdom of Eor", desc:"Also known as the Golden Kingdom for its rapid advancement. It thrives as a bustling center of culture, trade, and military power, and was renowned above all for its mastery of the arcane arts.", img:"Crest/Eor.png", left:"61%", top:"63%", icon:"icons/kingdom.png"},
-  {title:"Khasharian Theocracy", desc:"A union of five nations, the Khasharian Theocracy is now ruled by two High Priests. Though governance is guided by religion, the Knights of the Holy Aspect enforce the law and are feared by all—few dare to challenge their authority.", img:"Crest/Theocracy.png", left:"62%", top:"42%", icon:"icons/kingdom.png"},
-  {title:"Kingdom of Cielb", desc:"A peaceful nation built on vast roads and fertile lands, the kingdom thrives as a bustling hub of trade, particularly renowned for its aquaculture exports.", img:"Crest/Cielb.png", left:"65%", top:"75%", icon:"icons/kingdom.png"},
-  {title:"Khanate of Batia", desc:"Led by Shiva herself, the Khanate of Batia is a frozen realm ruled by the goddess and her devoted followers. What began as a small settlement under Shiva’s guidance has grown into a full-fledged kingdom, renowned for its mastery of ancient ice magic and dark, cold sorcery.", img:"Crest/Batia.png", left:"79%", top:"32%", icon:"icons/kingdom.png"},
-  {title:"Principality of Gobtong", desc:"After the massacre of the northern Lizardmen, the human-like animal races of the region felt threatened and united to form a principality to resist further attacks. Originally founded by the four strongest races of the time, the nation has since come under the rule of the lion-kin, who now govern Gobtong with strength and authority.", img:"Crest/Gobtong.png", left:"80%", top:"67%", icon:"icons/kingdom.png"},
-  {title:"Duchy of Maugh", desc:"Originally part of the Kingdom of Eor, this land was granted to Maugh, the late right-hand man of the king, in recognition of his loyalty and service. The house has since established its own legacy while remaining tied to the history of Eor.", img:"Crest/Maugh.png", left:"50%", top:"60%", icon:"icons/town.png"},
-  {title:"Brindle", desc:"Small town located in the Kingdom of Cielb. Although quiet in appearance, it holds a long history of secrets.", img:"", left:"73%", top:"57%", icon:"icons/town.png"},
-  {title:"Dustband", desc:"At the border of Eor and Cielb, Dustband are not keen to outsiders, for this reason most avoid going in and out of Dustband.", img:"Town/Dustband.jpg", left:"67%", top:"56%", icon:"icons/town.png"},
-  {title:"Sleetwallow", desc:"Closest town to Eor that is located in Kingdom of Cielb, bustling with trade, and cheer it hides a dark secrect.", img:"Town/Sleetwallow.jpg", left:"66%", top:"66%", icon:"icons/town.png"},
-  {title:"Snowy Mountain", desc:"Non-stop snow storm affects the area. Those who traverse these plains have discovered ancient ruins with hidden secrets.", img:"", left:"26%", top:"55%", icon:"icons/landmark.png"},
-  {title:"Rimwin Shallows", desc:"Deep Swamp often avoided by travelers, but attract herbalists as it often holds unique plants.", img:"landmark/Rimwin.jpg", left:"65%", top:"56%", icon:"icons/landmark.png"},
-  {title:"Make way to the Golden Kingdom", desc:"Annual festival celebrated in the kingdom square.", img:"icons/event.png", left:"61%", top:"59%", icon:"icons/event.png"},
+  {title:"Kingdom of Karph", desc:"The Kingdom of Gold", img:"Crest/Kraph.png", left:"37%", top:"32%", icon:"icons/kingdom.png"},
+  {title:"Kingdom of Risha", desc:"Military kingdom.", img:"Crest/Risha.png", left:"36%", top:"53%", icon:"icons/kingdom.png"},
+  {title:"Bror Empire", desc:"Revere the Phoenix.", img:"Crest/Bror.png", left:"20%", top:"72%", icon:"icons/kingdom.png"},
+  {title:"Kingdom of Eor", desc:"Golden Kingdom.", img:"Crest/Eor.png", left:"61%", top:"63%", icon:"icons/kingdom.png"},
   {title:"You are here", desc:"", img:"", left:"69%", top:"57%", icon:"icons/party.png"}
-],
-  darkgrasp: [
-    {title:"Fortress of Shadows", desc:"An ancient fortress shrouded in mystery.", img:"Crest/fortress.png", left:"25%", top:"50%", icon:"icons/kingdom.png"}
   ],
-  reanlegacy: [
-    {title:"Re'an Capital", desc:"The historic capital city of the Re'an legacy.", img:"Crest/rean.png", left:"25%", top:"50%", icon:"icons/kingdom.png"}
-  ],
-  anothermap: [
-    {title:"Northern Outpost", desc:"A strategic outpost in the northern region.", img:"Crest/outpost.png", left:"40%", top:"60%", icon:"icons/kingdom.png"}
-  ]
+  darkgrasp: [{title:"Fortress of Shadows", desc:"Mystery.", img:"Crest/fortress.png", left:"25%", top:"50%", icon:"icons/kingdom.png"}],
+  reanlegacy: [{title:"Re'an Capital", desc:"Capital city.", img:"Crest/rean.png", left:"25%", top:"50%", icon:"icons/kingdom.png"}],
+  anothermap: [{title:"Northern Outpost", desc:"Strategic outpost.", img:"Crest/outpost.png", left:"40%", top:"60%", icon:"icons/kingdom.png"}]
 };
 
-// ================== GENERATE PINS ==================
 document.querySelectorAll('.tab-content').forEach(tab => {
   const map = tab.querySelector('.map');
   const pins = pinData[tab.id] || [];
-
   pins.forEach(p => {
     const pin = document.createElement('div');
     pin.className = 'pin';
@@ -213,20 +215,12 @@ document.querySelectorAll('.tab-content').forEach(tab => {
   });
 });
 
-// ================== MOBILE PIN ADJUST ==================
 if (window.innerWidth <= 600) {
   document.querySelectorAll('.pin').forEach(pin => {
-    // Adjust for smaller pin size (desktop 30px → mobile 15px)
-    const offset = 15; // half of the new pin size
     pin.style.transform = `translate(-50%, -50%)`;
-    // Optional: adjust left/top slightly if needed
-    // pin.style.left = `calc(${pin.style.left} - ${offset}px)`;
-    // pin.style.top = `calc(${pin.style.top} - ${offset}px)`;
   });
 }
 
-
-// ================== PANZOOM ==================
 document.querySelectorAll('.map').forEach(map => {
   if (!map.panzoom) {
     map.panzoom = Panzoom(map, { maxScale: 5, minScale: 1, contain: 'outside' });
@@ -234,7 +228,6 @@ document.querySelectorAll('.map').forEach(map => {
   }
 });
 
-// ================== TAB SWITCHING ==================
 const tabs = document.querySelectorAll('.tab-btn');
 const contents = document.querySelectorAll('.tab-content');
 tabs.forEach(btn => {
@@ -246,35 +239,28 @@ tabs.forEach(btn => {
   });
 });
 
-// ================== MOBILE MENU TOGGLE ==================
 document.getElementById('hamburger').addEventListener('click', () => {
   const menu = document.getElementById('navMenu');
   menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
 });
-
 document.getElementById('tabHamburger').addEventListener('click', () => {
   const menu = document.getElementById('tabMenu');
   menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
 });
-
 document.querySelectorAll('#tabMenu .tab-btn').forEach(btn => {
   btn.addEventListener('click', () => document.getElementById('tabMenu').style.display = 'none');
 });
 
-// ================== POPUPS ==================
 document.querySelectorAll('.tab-content').forEach(tab => {
   const popup = tab.querySelector('.popup');
   const container = tab.querySelector('.map-container');
-
   tab.querySelectorAll('.pin').forEach(pin => {
     pin.addEventListener('click', e => {
       e.stopPropagation();
       const title = pin.dataset.title || '';
       const desc = pin.dataset.description || '';
       const img = pin.dataset.img || '';
-      popup.innerHTML = (img ? `<img src="${img}" alt="${title}">` : '') +
-                        (title ? `<h3>${title}</h3>` : '') +
-                        (desc ? `<p>${desc}</p>` : '');
+      popup.innerHTML = (img ? `<img src="${img}" alt="${title}">` : '') + (title ? `<h3>${title}</h3>` : '') + (desc ? `<p>${desc}</p>` : '');
       
       const rect = pin.getBoundingClientRect();
       const contRect = container.getBoundingClientRect();
@@ -283,22 +269,17 @@ document.querySelectorAll('.tab-content').forEach(tab => {
       if (x < 5) x = 5;
       if (x + popup.offsetWidth > container.offsetWidth) x = container.offsetWidth - popup.offsetWidth - 5;
       if (y < 5) y = rect.bottom - contRect.top + container.scrollTop + 10;
-
       popup.style.left = x + 'px';
       popup.style.top = y + 'px';
       popup.style.display = 'block';
     });
   });
 });
-
-// Hide popups on click outside
 document.addEventListener('click', e => {
   if (!e.target.closest('.pin')) {
     document.querySelectorAll('.popup').forEach(p => p.style.display = 'none');
   }
 });
-
-
 </script>
 </body>
 </html>

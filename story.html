@@ -6,214 +6,26 @@
 <title>Mount Aetheria - Story</title>
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(to bottom, #222, #444);
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-}
-
-/* ---------- TOP NAV ---------- */
-.top-nav {
-  width: 100%;
-  background: #111;
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 2000;
-}
-
-.top-nav a {
-  color: white;
-  text-decoration: none;
-  font-size: 18px;
-  font-weight: 600;
-  font-family: 'Uncial Antiqua', serif;
-}
-
-.top-nav a:hover {
-  color: #ffcc66;
-}
-
-/* ---------- LAYOUT ---------- */
-.sidebar {
-  width: 200px;
-  background: #111;
-  padding-top: 100px; /* leave space for top nav */
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  overflow-y: auto;
-}
-
-/* Sidebar buttons for main tags */
-.sidebar h3 {
-  color: #ffcc66;
-  text-align: center;
-  margin: 10px 0;
-}
-
-
-.sidebar button {
-  background: #333;
-  color: #fff;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-  border-radius: 8px;
-  width: 90%;
-  margin: 0 auto;
-  text-align: left;
-  font-weight: bold;
-}
-
-.sidebar button:hover, .sidebar button.active {
-  background: #ffcc66;
-  color: #111;
-}
-
-/* Important Characters tile */
-.sidebar .important {
-  text-align: center;
-  background: #222;
-  color: #ffcc66;
-  font-weight: bold;
-  padding: 8px 0;
-  border-radius: 8px;
-  margin: 10px 5%;
-  border: 1px solid #ffcc66;
-}
-
-/* Character filter squares under Important Characters */
-.character-filter {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin: 10px 0 20px 0;
-}
-
-.character-filter button {
-  width: 60px;
-  height: 60px;
-  background: #333;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  transition: 0.2s;
-}
-
-.character-filter button:hover, .character-filter button.active {
-  background: #ffcc66;
-  color: #111;
-}
-
-/* Main content area */
-.main-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 120px 20px 20px 20px; /* top padding for nav */
-}
-
-.small-img {
-    width: 150px; /* adjust size as needed */
-    height: auto;
-    border-radius: 5px; /* optional rounded corners */
-    object-fit: cover; /* keeps aspect ratio without stretching */
-}
-
-
-/* ---------- STORY ENTRIES ---------- */
-.story-entry {
-  background: #222;
-  color: #fff;
-  border-radius: 12px;
-  margin-bottom: 15px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-}
-
-.story-entry h3 {
-  margin: 0;
-  padding: 15px;
-  cursor: pointer;
-  user-select: none;
-  font-family: 'Uncial Antiqua', serif;
-  
-}
-
-.story-entry h4 {
-  padding: 15px;
-  text-align: center;
-  display: none;
- 
-}
-
-
-.story-entry .content {
-  padding: 15px;
-  display: none;
-}
-
-.story-entry img {
-  max-width: 100%;
-  border-radius: 8px;
-  margin-top: 10px;
-}
-
-.story-entry .content.show {
-  display: block;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.image-row {
-    display: flex;
-    justify-content: center; /* center the images */
-    gap: 10px;
-    flex-wrap: wrap; /* allows wrapping for multiple images */
-    margin-bottom: 30px;
-}
-
-/* Single image slightly larger */
-.image-row img:only-child {
-    width: 20%; /* middle ground size */
-    height: auto;
-    border-radius: 5px;
-    object-fit: cover;
-}
-
-/* Two or more images smaller */
-.image-row img:not(:only-child) {
-    width: 30%; /* slightly smaller for multiple images */
-    height: 200px;
-    border-radius: 5px;
-    object-fit: cover;
-}
-
-/* Default image styling for all */
-.image-row img {
-    display: block;
-    margin: 0 auto;
-}
-
-
-
-@keyframes fadeIn {
-  from {opacity: 0;}
-  to {opacity: 1;}
-}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(to bottom,#222,#444);display:flex;height:100vh;overflow:hidden}
+.top-nav{width:100%;background:#111;padding:15px 20px;display:flex;justify-content:space-around;align-items:center;position:fixed;top:0;left:0;z-index:2000}
+.top-nav a{color:#fff;text-decoration:none;font-size:18px;font-weight:600;font-family:'Uncial Antiqua',serif}
+.top-nav a:hover{color:#ffcc66}
+.sidebar{width:200px;background:#111;padding-top:120px;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
+.sidebar h3{color:#ffcc66;text-align:center;margin:10px 0}
+.sidebar button{background:#333;color:#fff;border:none;padding:10px;cursor:pointer;border-radius:8px;width:90%;margin:5px auto;text-align:left;font-weight:bold}
+.sidebar button:hover,.sidebar button.active{background:#ffcc66;color:#111}
+.main-content{flex:1;overflow-y:auto;padding:120px 20px 20px 20px}
+.small-img{width:150px;height:auto;border-radius:5px;object-fit:cover}
+.story-entry{background:#222;color:#fff;border-radius:12px;margin-bottom:15px;box-shadow:0 5px 15px rgba(0,0,0,0.5)}
+.story-entry h3{margin:0;padding:15px;cursor:pointer;user-select:none;font-family:'Uncial Antiqua',serif}
+.story-entry h4{padding:15px;text-align:center;display:none}
+.story-entry .content{padding:15px;display:none}
+.story-entry img{max-width:100%;border-radius:8px;margin-top:10px}
+.story-entry .content.show{display:block;animation:fadeIn 0.3s ease-in-out}
+.image-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:30px}
+.image-row img:only-child{width:20%;height:auto}
+.image-row img:not(:only-child){width:30%;height:200px}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 </style>
 </head>
 <body>
@@ -225,135 +37,190 @@ body {
   <a href="tools.html">Tools</a>
   <a href="characters.html">Character Sheet</a>
   <a href="discussions.html">Discussion</a>
+  <a href="account.html">My Account</a>
 </nav>
 
 <!-- LEFT SIDEBAR -->
 <div class="sidebar">
-  <!-- Main tag filter -->
-  <h3>Tags</h3>
-  <button class="tag-btn active" data-tag="all">All</button>
-  <button class="tag-btn" data-tag="session">Session</button>
-  <button class="tag-btn" data-tag="player">Lore</button>
-  <button class="tag-btn" data-tag="npc">NPC</button>
-  <button class="tag-btn" data-tag="event">Event</button>
+  <h3>Stories</h3>
+  <div class="primary-tags"></div>
 
-  <!-- Important Characters Tile -->
-  <div class="important">Important Characters</div>
-
-  <!-- Character filter squares -->
-  <div class="character-filter">
-    <button class="char-btn active" data-char="all">All</button>
-    <button class="char-btn" data-char="kalen">Kal'en</button>
-    <button class="char-btn" data-char="lira">Lira</button>
-    <button class="char-btn" data-char="npc">NPCs</button>
-  </div>
+  <h3>Character</h3>
+  <div class="secondary-tags"></div>
 </div>
 
 <!-- MAIN CONTENT -->
-<div class="main-content" id="story-container">
-
-  <div class="story-entry" data-tag="session" data-char="kalen">
-    <h3>Dark Grasp: Session 1</h3>
-    <div class="content">
-      <!-- Section 1 -->
-      <h4>Amidst of Dawn</h4><br>
-      <p>Two unknown adventurers—Astra, a mischievous troublemaker, and Onyx, her reluctant companion—begin their journey on a quiet morning road. After sharing a meager meal at dusk, they're ambushed by a bandit, thrusting them into danger and the start of something far bigger than either expected. In combat, the duo defeated four bandits. The leader released an imp as a last resort, then fled the scene injured.</p>
-
-      <div class="image-row">
-          <img src="Tools/Session 1/Amidst of Dawn.jpg" alt="Scene 1" class="small-img">
-          <img src="Tools/Session 1/Shrine Lake.jpg" alt="Scene 2" class="small-img">
-          <img src="Tools/Session 1/Merchant Market.jpg" alt="Scene 3" class="small-img">
-      </div>
-
-      <!-- Section 2 -->
-      <p><strong>Shrine Lake</strong><br>
-      At sunset, the adventurers found a magical spring in an ancient crater. There, they met Cherrisa, a girl seeking to lift a curse by reaching Eor — the Golden Kingdom. After learning her story, they struck a deal: she’d feed them, and in return, they’d act as her bodyguards. Just then, Onyx heard a mysterious bell and followed it down the road.</p>
-
-      <div class="image-row">
-          <img src="Tools/Session 1/Shrine Lake.jpg" alt="Scene 2" class="small-img">
-          <img src="img5.jpg" alt="Scene 5" class="small-img">
-      </div>
-
-      <!-- Section 3 -->
-      <p><strong>Merchant Market</strong><br>
-      At the bustling market of Risha, filled with colorful stalls and guarded paths, the group wandered through, shopping for food and supplies until their coin ran dry. Before leaving, they slipped away with a beautiful white dress from a clothing stall — unnoticed and unbothered.</p>
-
-      <div class="image-row">
-          <img src="Tools/Session 1/Merchant Market.jpg" alt="Scene 3" class="small-img">
-          <img src="img7.jpg" alt="Scene 7" class="small-img">
-      </div>
-
-    </div>
-  </div>
-
-  <div class="story-entry" data-tag="session" data-char="lira">
-    <h3>Dark Grasp: Session 2</h3>
-    <div class="content">
-      <p>Lira sneaks into the castle to gather information...</p>
-      <img src="images/session2.jpg" alt="Session 2">
-    </div>
-  </div>
-
-  <div class="story-entry" data-tag="player" data-char="kalen">
-    <h3>Prince Kal'en</h3>
-    <div class="content">
-      <p>Prince Kal'en struggles with the pressures of leadership...</p>
-      <img src="images/prince_kalen.jpg" alt="Prince Kal'en">
-    </div>
-  </div>
-
-  <div class="story-entry" data-tag="event" data-char="npc">
-    <h3>Festival of the Phoenix</h3>
-    <div class="content">
-      <p>The annual festival brings joy and surprises, but hidden plots linger...</p>
-      <img src="images/festival.jpg" alt="Festival">
-    </div>
-  </div>
-</div>
+<div class="main-content" id="story-container"></div>
 
 <script>
-// COLLAPSIBLE ENTRIES
-document.querySelectorAll('.story-entry h3').forEach(title => {
-  title.addEventListener('click', () => {
-    const content = title.nextElementSibling;
-    content.classList.toggle('show');
+// Check for secret code in URL
+const secretUnlocked = window.location.search.includes("code10");
+
+// Default locked message
+let lockedTitle = "Cannot attune";
+let lockedDesc = "Your will is not strong enough to access this data.";
+
+// ===== STORY DATA =====
+const stories = [
+  {primary:"dark-grasp", secondary:"kal'en", title:"Dark Grasp: Session 1", sections:[{subtitle:"Amidst of Dawn", text:"Two unknown adventurers—Astra and Onyx—begin their journey...", images:["Tools/Session 1/Amidst of Dawn.jpg","Tools/Session 1/Shrine Lake.jpg","Tools/Session 1/Merchant Market.jpg"]}]},
+  {primary:"dark-grasp", secondary:"lira", title:"Dark Grasp: Session 2", sections:[{subtitle:"", text:"Lira sneaks into the castle to gather information...", images:["images/session2.jpg"]}]},
+  {primary:"rean-legacy", secondary:"character-a", title:"Re'an Legacy: Chapter 1", sections:[{subtitle:"", text:"The legacy of Re'an begins with secrets unfolding in the ancient temple...", images:["images/rean1.jpg"]}]},
+  {primary:"alissas-revenge", secondary:"alissa", title:"Alissa Revenge: Opening", sections:[{subtitle:"", text:"udduhy...", images:["images/Alissa1.jpg"]}]}
+];
+
+// ===== RENDER PRIMARY BUTTONS =====
+const primaryContainer = document.querySelector(".primary-tags");
+
+function renderPrimaryButtons() {
+  primaryContainer.innerHTML = "";
+
+  const baseButtons = [
+    {label: "All", primary: "all"},
+    {label: "Dark Grasp", primary: "dark-grasp"},
+    {label: "Re'an Legacy", primary: "rean-legacy"}
+  ];
+
+  baseButtons.forEach(b => {
+    const btn = document.createElement("button");
+    btn.classList.add("primary-btn");
+    if(b.primary === "all") btn.classList.add("active");
+    btn.dataset.primary = b.primary;
+    btn.textContent = b.label;
+    primaryContainer.appendChild(btn);
   });
-});
 
-// FILTERING
-const tagButtons = document.querySelectorAll('.tag-btn');
-const charButtons = document.querySelectorAll('.char-btn');
-const entries = document.querySelectorAll('.story-entry');
+  if(secretUnlocked){
+    const btn = document.createElement("button");
+    btn.classList.add("primary-btn");
+    btn.dataset.primary = "alissas-revenge";
+    btn.textContent = "Alissa's Revenge";
+    primaryContainer.appendChild(btn);
+  } else {
+    const btn = document.createElement("button");
+    btn.classList.add("primary-btn");
+    btn.dataset.primary = "???";
+    btn.textContent = "???";
+    primaryContainer.appendChild(btn);
+  }
 
-function filterEntries() {
-  const activeTag = document.querySelector('.tag-btn.active').dataset.tag;
-  const activeChar = document.querySelector('.char-btn.active').dataset.char;
-
-  entries.forEach(entry => {
-    const matchesTag = activeTag === 'all' || entry.dataset.tag === activeTag;
-    const matchesChar = activeChar === 'all' || entry.dataset.char === activeChar;
-
-    entry.style.display = matchesTag && matchesChar ? 'block' : 'none';
+  document.querySelectorAll(".primary-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".primary-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      updateSecondaryButtons(btn.dataset.primary);
+      filterStories();
+    });
   });
 }
 
-// TAG BUTTON CLICK
-tagButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    tagButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    filterEntries();
+// ===== RENDER STORIES =====
+function renderStories(){
+  const container = document.getElementById("story-container");
+  container.innerHTML = "";
+  stories.forEach(story=>{
+
+    // Locked route behaviour
+    if(story.primary === "alissas-revenge" && !secretUnlocked){
+      const hiddenDiv = document.createElement("div");
+      hiddenDiv.classList.add("story-entry");
+      hiddenDiv.innerHTML = `<h3 style="color:red;">${lockedTitle}</h3>
+        <div class="content"><p style="text-align:center;font-size:1.2em;color:#ffcc66;">${lockedDesc}</p></div>`;
+      container.appendChild(hiddenDiv);
+      return;
+    }
+
+    const entry = document.createElement("div");
+    entry.classList.add("story-entry");
+    entry.dataset.primary = story.primary;
+    entry.dataset.char = story.secondary.toLowerCase().replace(/\s/g,"-");
+
+    const h3 = document.createElement("h3");
+    h3.textContent = story.title;
+    entry.appendChild(h3);
+
+    const content = document.createElement("div");
+    content.classList.add("content");
+
+    story.sections.forEach(sec=>{
+      if(sec.subtitle){
+        const h4 = document.createElement("h4");
+        h4.textContent = sec.subtitle;
+        content.appendChild(h4);
+      }
+      const p = document.createElement("p");
+      p.innerHTML = sec.text;
+      content.appendChild(p);
+
+      if(sec.images.length){
+        const row = document.createElement("div");
+        row.classList.add("image-row");
+        sec.images.forEach(img=>{
+          const im = document.createElement("img");
+          im.src = img;
+          im.classList.add("small-img");
+          row.appendChild(im);
+        });
+        content.appendChild(row);
+      }
+    });
+
+    entry.appendChild(content);
+    container.appendChild(entry);
   });
+}
+
+// ===== COLLAPSIBLE =====
+document.addEventListener("click", e=>{
+  if(e.target.matches(".story-entry h3")){
+    const content = e.target.nextElementSibling;
+    content.classList.toggle("show");
+  }
 });
 
-// CHARACTER BUTTON CLICK
-charButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    charButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    filterEntries();
+// ===== SECONDARY BUTTONS =====
+const secondaryContainer = document.querySelector(".secondary-tags");
+
+const secondaryTags = {
+  all: ["All"],
+  "dark-grasp": ["All","Astra","Cherrisa","Onyx","Ravyn","NPC"],
+  "rean-legacy": ["All","Eve","Alexio","NPC"],
+  "alissas-revenge": ["All","Alissa","NPC"],
+};
+
+function updateSecondaryButtons(primaryTag){
+  secondaryContainer.innerHTML="";
+  (secondaryTags[primaryTag]||["All"]).forEach(tag=>{
+    const btn = document.createElement("button");
+    btn.classList.add("secondary-btn");
+    btn.dataset.secondary = tag.toLowerCase().replace(/\s/g,"-");
+    btn.textContent = tag;
+    if(tag==="All") btn.classList.add("active");
+    secondaryContainer.appendChild(btn);
+
+    btn.addEventListener("click",()=>{
+      document.querySelectorAll(".secondary-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      filterStories();
+    });
   });
-});
+}
+
+// ===== FILTER STORIES =====
+function filterStories(){
+  const activePrimary = document.querySelector(".primary-btn.active").dataset.primary;
+  const activeSecondary = document.querySelector(".secondary-btn.active")?.dataset.secondary || "all";
+  document.querySelectorAll(".story-entry").forEach(entry=>{
+    const matchP = activePrimary==="all"||entry.dataset.primary===activePrimary;
+    const matchS = activeSecondary==="all"||entry.dataset.char===activeSecondary;
+    entry.style.display = matchP&&matchS?"block":"none";
+  });
+}
+
+// ===== INIT =====
+renderPrimaryButtons();
+renderStories();
+updateSecondaryButtons("all");
+filterStories();
 </script>
 
 </body>
