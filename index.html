@@ -6,89 +6,86 @@
 <title>Interactive Maps - Mount Aetheria</title>
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#222,#444);display:flex;flex-direction:column;align-items:center;padding-top:70px;min-height:100vh}
-.top-nav{width:100%;background:#111;padding:15px 20px;display:flex;justify-content:space-around;align-items:center;position:fixed;top:0;left:0;z-index:2000}
-.top-nav a{color:#fff;text-decoration:none;font-size:18px;font-weight:600;font-family:'Uncial Antiqua',serif}
-.top-nav a:hover{color:#ffcc66}
-.map-title{font-family:'Uncial Antiqua',cursive;font-size:36px;color:#fff;text-align:center;margin:10px 0;text-shadow:2px 2px 6px #000}
-.tabs{display:flex;flex-wrap:wrap;margin-bottom:5px;justify-content:center;gap:5px}
-.tabs button{padding:6px 12px;background:#111;color:#fff;border:none;cursor:pointer;border-radius:6px;font-family:'Uncial Antiqua',serif;font-size:14px}
-.tabs button.active{background:#ffcc66;color:#111;font-weight:bold}
-.outer-frame{width:95vw;height:60vh;max-height:80vh;background:#222;border-radius:16px;display:flex;justify-content:center;align-items:center;position:relative;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.7)}
-.tab-content{display:none;width:100%;height:100%;position:relative}
-.tab-content.active{display:block}
-.map-container{width:100%;height:100%;position:relative;cursor:grab}
-.map{position:absolute;top:0;left:0;width:100%;height:100%;transform-origin:0 0}
-.map img{width:100%;height:100%;display:block}
-.pin{position:absolute;width:30px;height:30px;transform:translate(-50%,-50%);cursor:pointer;z-index:3}
-.pin img{width:100%;height:100%;object-fit:contain}
-.popup{position:absolute;background:#fff;border:1px solid #666;border-radius:12px;padding:12px 16px;width:220px;max-width:260px;text-align:center;display:none;z-index:5;box-shadow:0 5px 15px rgba(0,0,0,.5);color:#000}
-.popup img{max-width:100%;max-height:120px;width:auto;height:auto;margin:0 auto 6px auto;display:block;border-radius:5px}
-.popup h3{margin:5px 0;font-size:16px}
-.popup p{margin:0;font-size:14px}
-.legend{position:relative;margin:10px auto 30px auto;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;background:#797878;border:1px solid #ccc;border-radius:10px;padding:8px;font-size:12px}
-.legend-item{display:flex;align-items:center;gap:6px}
-.legend-item img{width:40px;height:40px}
-.mobile-tabs{display:none;position:relative;margin-bottom:10px}
-.tab-menu{display:none;flex-direction:column;position:absolute;background:#111;border-radius:6px;padding:5px;top:100%;left:0;z-index:1000}
-.tab-menu button{margin:2px 0;padding:8px 12px;color:#fff;background:#111;border:none;text-align:left;width:150px;cursor:pointer;border-bottom:1px solid #333;font-family:'Uncial Antiqua',serif}
-.tab-menu button:last-child{border-bottom:none}
-.tab-menu button.active{background:#ffcc66;color:#111;font-weight:bold}
-#navMenu, #tabMenu { display: none; }
-#hamburger { display: none; }
-@media(max-width:600px){
-  .map-title { font-size:28px }
-  .tabs, .top-nav { display:none }
-  .outer-frame { height:50vh }
-  .pin { width:15px; height:15px; }
-  .popup { width:160px; max-width:180px; padding:10px 12px }
-  .popup img { max-width:150px; max-height:110px }
-  .popup h3 { font-size:14px }
-  .popup p { font-size:12px }
-  .legend { font-size:10px; padding:6px }
-  .legend-item img { width:30px; height:30px }
-  .map-container { overflow:auto; cursor:grab }
-  .map { width:auto; height:auto; min-width:600px; min-height:400px; transform: scale(1.2) translate(-15%, -10%) }
-  #hamburger { display:block; position:fixed; top:10px; left:10px; background:#111; color:#fff; border:none; padding:8px 12px; font-size:20px; cursor:pointer; border-radius:4px; z-index:2000 }
-  #navMenu { display:none; flex-direction:column; background:#111; border-radius:6px; margin-top:5px; position:fixed; top:50px; left:10px; z-index:2000; overflow:hidden }
-  #navMenu a { padding:8px 12px; color:#fff; text-decoration:none; border-bottom:1px solid #333; font-family:'Uncial Antiqua',serif }
-  #navMenu a:last-child { border-bottom:none }
-  #navMenu a:hover { background:#222; color:#ffcc66 }
-  #tabsMenu { display:none; flex-direction:column; background:#111; border-radius:6px; margin-top:5px; position:fixed; top:calc(50px + 40px); left:10px; z-index:2000; overflow:hidden }
-  #tabsMenu button { padding:8px 12px; color:#fff; background:#111; border:none; text-align:left; width:150px; cursor:pointer; border-bottom:1px solid #333; font-family:'Uncial Antiqua',serif }
-  #tabsMenu button:last-child { border-bottom:none }
-  #tabsMenu button.active { background:#ffcc66; color:#111; font-weight:bold }
-  .desktop-tabs { display:none }
-  .mobile-tabs { display:flex; flex-direction:column; align-items:flex-start }
+/* --- THEME --- */
+:root { --bg: #1a1a1a; --panel: #252525; --border: #333; --accent: #ffcc66; --text: #ddd; }
+body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding-top: 60px; min-height: 100vh; }
+
+/* --- NAV --- */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; height: 50px; background: #000; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
+.nav-brand { font-family: 'Uncial Antiqua'; color: var(--accent); font-size: 18px; text-decoration: none; }
+.nav-links { display: flex; gap: 20px; }
+.nav-links a { color: #888; text-decoration: none; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif; }
+.nav-links a:hover, .nav-links a.active { color: #fff; }
+#hamburgerBtn { display: none; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 0; }
+#mobileMenu { display: none; position: fixed; top: 50px; left: 0; width: 100%; background: #111; border-bottom: 1px solid var(--accent); flex-direction: column; z-index: 1999; }
+#mobileMenu.show { display: flex; }
+#mobileMenu a { padding: 15px 20px; color: #fff; text-decoration: none; border-bottom: 1px solid #333; font-family: 'Uncial Antiqua'; }
+
+/* --- MAP STYLES --- */
+.map-title { font-family: 'Uncial Antiqua', cursive; font-size: 32px; color: var(--accent); text-align: center; margin: 15px 0; text-shadow: 2px 2px 6px #000; }
+
+.tabs { display: flex; flex-wrap: wrap; margin-bottom: 10px; justify-content: center; gap: 5px; }
+.tab-btn { padding: 8px 16px; background: #111; color: #888; border: 1px solid var(--border); cursor: pointer; border-radius: 6px; font-family: 'Uncial Antiqua', serif; font-size: 14px; transition: 0.2s; }
+.tab-btn:hover { background: #333; }
+.tab-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; }
+
+.outer-frame { width: 95vw; height: 65vh; max-height: 80vh; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+
+.tab-content { display: none; width: 100%; height: 100%; position: relative; }
+.tab-content.active { display: block; }
+.map-container { width: 100%; height: 100%; position: relative; cursor: grab; }
+.map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform-origin: 0 0; }
+.map img { width: 100%; height: 100%; display: block; }
+
+.pin { position: absolute; width: 30px; height: 30px; transform: translate(-50%,-50%); cursor: pointer; z-index: 3; filter: drop-shadow(0 0 5px #000); }
+.pin img { width: 100%; height: 100%; object-fit: contain; }
+
+.popup { position: absolute; background: rgba(20, 20, 20, 0.95); border: 1px solid var(--accent); border-radius: 8px; padding: 12px; width: 220px; text-align: center; display: none; z-index: 5; box-shadow: 0 5px 15px rgba(0,0,0,0.8); color: #ddd; backdrop-filter: blur(5px); }
+.popup h3 { font-family: 'Uncial Antiqua'; color: var(--accent); margin: 5px 0; }
+.popup p { font-size: 13px; color: #ccc; margin: 0; }
+.popup img { border: 1px solid #444; margin-bottom: 5px; max-width: 100%; }
+
+.legend { margin: 15px auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; background: #111; border: 1px solid var(--border); border-radius: 8px; padding: 10px 20px; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #aaa; }
+.legend-item img { width: 24px; height: 24px; }
+
+/* Mobile Map Controls */
+.mobile-tabs { display: none; }
+.tab-menu { display: none; flex-direction: column; position: absolute; background: #111; border: 1px solid var(--accent); border-radius: 6px; padding: 5px; top: 100%; left: 0; z-index: 1000; box-shadow: 0 5px 15px #000; }
+.tab-menu button { margin: 2px 0; padding: 10px; color: #fff; background: none; border: none; text-align: left; width: 160px; border-bottom: 1px solid #333; }
+.tab-menu button.active { color: var(--accent); }
+
+@media(max-width:768px){
+  .nav-links { display: none; }
+  #hamburgerBtn { display: block; }
+  .desktop-tabs { display: none; }
+  .mobile-tabs { display: flex; position: relative; margin-bottom: 10px; z-index: 100; }
+  .outer-frame { height: 50vh; }
+  .map { width: auto; height: auto; min-width: 600px; min-height: 400px; transform: scale(1.2) translate(-15%, -10%); }
 }
 </style>
 </head>
 <body>
 
 <nav class="top-nav">
-  <a href="index.html" class="active">Home</a>
+  <button id="hamburgerBtn" onclick="document.getElementById('mobileMenu').classList.toggle('show')">&#9776;</button>
+  <a href="index.html" class="nav-brand">Mount Aetheria</a>
+  <div class="nav-links">
+    <a href="story.html">Story</a>
+    <a href="tools.html">Tools</a>
+    <a href="characters.html">Sheet</a>
+    <a href="discussions.html">Discussion</a>
+    <a href="signin.html" id="authLink">Sign In</a>
+  </div>
+</nav>
+
+<div id="mobileMenu">
   <a href="story.html">Story</a>
   <a href="tools.html">Tools</a>
   <a href="characters.html">Character Sheet</a>
   <a href="discussions.html">Discussion</a>
-  <!-- This link will now dynamically be "Sign In" or "My Account" -->
-  <a href="login.html" id="authLink">Sign In</a>
-</nav>
-
-<div class="navbar">
-  <button id="hamburger">&#9776;</button>
-  <div class="navbar-menu" id="navMenu">
-    <a href="index.html">Home</a>
-    <a href="story.html">Story</a>
-    <a href="tools.html">Tools</a>
-    <a href="characters.html">Character Sheet</a>
-    <a href="discussions.html">Discussion</a>
-    <!-- Mobile auth link -->
-    <a href="login.html" id="mobileAuthLink">Sign In</a>
-  </div>
+  <a href="signin.html" id="mobileAuthLink">Sign In</a>
 </div>
-
-
 
 <div class="map-title">Mount Aetheria</div>
 
@@ -102,13 +99,13 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#222,#444)
 </div>
 
 <div class="tabs mobile-tabs">
-  <button id="tabHamburger">&#9776; Maps</button>
+  <button id="tabHamburger" class="tab-btn" style="width:200px; display:flex; justify-content:space-between;">Select Map <span>&#9662;</span></button>
   <div id="tabMenu" class="tab-menu">
     <button class="tab-btn active" data-tab="worldmap">World Map</button>
     <button class="tab-btn" data-tab="darkgrasp">Dark Grasp</button>
     <button class="tab-btn" data-tab="raenlegacy">Ra'en Legacy</button>
     <button class="tab-btn" data-tab="scourgefall">Scourgefall</button>
-    <button class="tab-btn" data-tab="Unknown">Unknown</button>
+    <button class="tab-btn" data-tab="unknown">Unknown</button>
     <button class="tab-btn" data-tab="???">???</button>
   </div>
 </div>
@@ -164,15 +161,7 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#222,#444)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",
-  authDomain: "mount-aetheria.firebaseapp.com",
-  projectId: "mount-aetheria",
-  storageBucket: "mount-aetheria.firebasestorage.app",
-  messagingSenderId: "492855693446",
-  appId: "1:492855693446:web:f9948569254a7220c38107",
-  measurementId: "G-0PF84KDN7L"
-};
+const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", authDomain: "mount-aetheria.firebaseapp.com", projectId: "mount-aetheria", storageBucket: "mount-aetheria.firebasestorage.app", messagingSenderId: "492855693446", appId: "1:492855693446:web:f9948569254a7220c38107", measurementId: "G-0PF84KDN7L" };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -180,29 +169,17 @@ const auth = getAuth(app);
 function setupAuthLink(id) {
   const link = document.getElementById(id);
   if (!link) return;
-
   onAuthStateChanged(auth, (user) => {
-    if (user) {
-      // User is signed in → show "My Account"
-      link.textContent = "My Account";
-      link.href = "account.html";
-    } else {
-      // User not signed in → show "Sign In"
-      link.textContent = "Sign In";
-      link.href = "login.html";
-    }
+    if (user) { link.textContent = "My Account"; link.href = "account.html"; } 
+    else { link.textContent = "Sign In"; link.href = "signin.html"; }
   });
 }
-
-// Apply to desktop and mobile links
 setupAuthLink('authLink');
 setupAuthLink('mobileAuthLink');
-
 </script>
 
 <script src="https://unpkg.com/@panzoom/panzoom/dist/panzoom.min.js"></script>
 <script>
-// (Previous Map Logic Kept Same)
 const pinData = {
   worldmap: [
   {title:"Principality Of Kal'en", desc:"Once under the rule of the Kingdom of Kal'en...", img:"Crest/Kal'en.png", left:"20%", top:"42%", icon:"icons/kingdom.png"},
@@ -213,8 +190,7 @@ const pinData = {
   {title:"You are here", desc:"", img:"", left:"69%", top:"57%", icon:"icons/party.png"}
   ],
   darkgrasp: [{title:"Fortress of Shadows", desc:"Mystery.", img:"Crest/fortress.png", left:"25%", top:"50%", icon:"icons/kingdom.png"}],
-  reanlegacy: [{title:"Re'an Capital", desc:"Capital city.", img:"Crest/rean.png", left:"25%", top:"50%", icon:"icons/kingdom.png"}],
-  anothermap: [{title:"Northern Outpost", desc:"Strategic outpost.", img:"Crest/outpost.png", left:"40%", top:"60%", icon:"icons/kingdom.png"}]
+  raenlegacy: [{title:"Re'an Capital", desc:"Capital city.", img:"Crest/rean.png", left:"25%", top:"50%", icon:"icons/kingdom.png"}]
 };
 
 document.querySelectorAll('.tab-content').forEach(tab => {
@@ -233,12 +209,6 @@ document.querySelectorAll('.tab-content').forEach(tab => {
   });
 });
 
-if (window.innerWidth <= 600) {
-  document.querySelectorAll('.pin').forEach(pin => {
-    pin.style.transform = `translate(-50%, -50%)`;
-  });
-}
-
 document.querySelectorAll('.map').forEach(map => {
   if (!map.panzoom) {
     map.panzoom = Panzoom(map, { maxScale: 5, minScale: 1, contain: 'outside' });
@@ -249,24 +219,20 @@ document.querySelectorAll('.map').forEach(map => {
 const tabs = document.querySelectorAll('.tab-btn');
 const contents = document.querySelectorAll('.tab-content');
 tabs.forEach(btn => {
+  if(btn.id === 'tabHamburger') return;
   btn.addEventListener('click', () => {
     tabs.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     contents.forEach(c => c.classList.remove('active'));
     document.getElementById(btn.dataset.tab).classList.add('active');
+    document.getElementById('tabHamburger').innerHTML = btn.textContent + ' <span>&#9662;</span>';
+    document.getElementById('tabMenu').style.display = 'none';
   });
 });
 
-document.getElementById('hamburger').addEventListener('click', () => {
-  const menu = document.getElementById('navMenu');
-  menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-});
 document.getElementById('tabHamburger').addEventListener('click', () => {
-  const menu = document.getElementById('tabMenu');
-  menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-});
-document.querySelectorAll('#tabMenu .tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => document.getElementById('tabMenu').style.display = 'none');
+  const m = document.getElementById('tabMenu');
+  m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
 });
 
 document.querySelectorAll('.tab-content').forEach(tab => {
@@ -293,10 +259,9 @@ document.querySelectorAll('.tab-content').forEach(tab => {
     });
   });
 });
+
 document.addEventListener('click', e => {
-  if (!e.target.closest('.pin')) {
-    document.querySelectorAll('.popup').forEach(p => p.style.display = 'none');
-  }
+  if (!e.target.closest('.pin')) document.querySelectorAll('.popup').forEach(p => p.style.display = 'none');
 });
 </script>
 </body>

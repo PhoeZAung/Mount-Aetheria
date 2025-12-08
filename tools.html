@@ -6,44 +6,49 @@
 <title>Tools - Mount Aetheria</title>
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
-body{margin:0;padding-top:70px;font-family:Arial,sans-serif;background:linear-gradient(#222,#444);color:#fff;text-align:center;min-height:100vh}
+/* --- THEME --- */
+:root { --bg: #1a1a1a; --panel: #252525; --border: #333; --accent: #ffcc66; --text: #ddd; }
+body { margin: 0; padding-top: 70px; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); text-align: center; min-height: 100vh; }
 
-/* NAV */
-.top-nav{width:100%;background:#111;padding:15px 20px;display:flex;justify-content:space-around;align-items:center;position:fixed;top:0;left:0;z-index:2000}
-.top-nav a{color:#fff;text-decoration:none;font-size:18px;font-weight:600;font-family:'Uncial Antiqua',serif}
-.top-nav a:hover{color:#ffcc66}
+/* --- NAV --- */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; height: 50px; background: #000; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
+.nav-brand { font-family: 'Uncial Antiqua'; color: var(--accent); font-size: 18px; text-decoration: none; }
+.nav-links { display: flex; gap: 20px; }
+.nav-links a { color: #888; text-decoration: none; font-size: 14px; font-weight: bold; }
+.nav-links a:hover, .nav-links a.active { color: #fff; }
+#hamburgerBtn { display: none; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 0; }
+#mobileMenu { display: none; position: fixed; top: 50px; left: 0; width: 100%; background: #111; border-bottom: 1px solid var(--accent); flex-direction: column; z-index: 1999; }
+#mobileMenu.show { display: flex; }
+#mobileMenu a { padding: 15px 20px; color: #fff; text-decoration: none; border-bottom: 1px solid #333; font-family: 'Uncial Antiqua'; }
 
-/* MOBILE NAV */
-#hamburger{display:none;position:fixed;top:15px;left:15px;background:#111;color:#fff;border:none;padding:10px;font-size:24px;cursor:pointer;z-index:2001;border-radius:5px;}
-#navMenu{display:none;flex-direction:column;background:#111;position:fixed;top:60px;left:15px;border-radius:8px;z-index:2000;box-shadow:0 5px 15px rgba(0,0,0,0.8);overflow:hidden;}
-#navMenu a{padding:12px 20px;color:#fff;text-decoration:none;border-bottom:1px solid #333;font-family:'Uncial Antiqua',serif;display:block;}
+h1 { color: var(--accent); font-family: 'Uncial Antiqua'; }
 
-/* TABS (Now outside hamburger) */
-.tab-buttons{margin:20px auto;display:flex;justify-content:center;gap:10px;flex-wrap:wrap; max-width: 90%;}
-.tab-buttons button{background:#333;border:1px solid #555;color:#fff;padding:10px 30px;font-size:16px;font-family:'Uncial Antiqua',serif;cursor:pointer;border-radius:8px;transition:.2s; flex: 1; max-width: 200px;}
-.tab-buttons button.active{background:#ffcc66; color:#000; font-weight: bold; border-color: #ffcc66;}
-.tab-buttons button:hover{background:#555;}
+/* TABS */
+.tab-buttons { margin: 20px auto; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; max-width: 90%; }
+.tab-buttons button { background: #333; border: 1px solid #555; color: #fff; padding: 10px 30px; font-size: 16px; font-family: 'Uncial Antiqua', serif; cursor: pointer; border-radius: 8px; transition: .2s; flex: 1; max-width: 200px; }
+.tab-buttons button.active { background: var(--accent); color: #000; font-weight: bold; border-color: var(--accent); }
+.tab-buttons button:hover { background: #444; }
 
 /* CONTENT */
-.tab-content{display:none;max-width:900px;margin:0 auto 50px auto;text-align:center}
-.tab-content.active{display:block}
+.tab-content { display: none; max-width: 900px; margin: 0 auto 50px auto; text-align: center; }
+.tab-content.active { display: block; }
 
-.url-grid{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;padding:10px}
-.url-card{width:150px;height:150px;background:#333;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:#fff;font-weight:bold;transition:.2s;font-size:14px}
-.url-card img{width:60px;height:60px;margin-bottom:10px}
-.url-card:hover{background:#555;transform:translateY(-3px)}
+.url-grid { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; padding: 10px; }
+.url-card { width: 150px; height: 150px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: #fff; font-weight: bold; transition: .2s; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+.url-card img { width: 60px; height: 60px; margin-bottom: 10px; }
+.url-card:hover { background: #333; transform: translateY(-3px); border-color: var(--accent); }
 
-.calendar{background:#333;padding:15px;border-radius:12px;text-align:left; max-width:600px; margin:0 auto;}
-.calendar h2{font-family:'Uncial Antiqua',cursive;margin-bottom:15px;font-size:18px}
-.event{background:#444;margin:8px 0;padding:8px;border-radius:6px;font-size:14px}
-.event span.date{font-weight:bold;margin-right:8px; color:#ffcc66;}
-.calendar-filters{margin-bottom:10px;display:flex;gap:5px;flex-wrap:wrap}
-.calendar-filters button{background:#222;border:1px solid #555;color:#fff;padding:6px 12px;font-size:14px;border-radius:6px;cursor:pointer}
-.calendar-filters button.active{background:#ffcc66; color:#000;}
+.calendar { background: var(--panel); padding: 15px; border-radius: 12px; text-align: left; max-width: 600px; margin: 0 auto; border: 1px solid var(--border); }
+.calendar h2 { font-family: 'Uncial Antiqua', cursive; margin-bottom: 15px; font-size: 18px; color: var(--accent); }
+.event { background: #333; margin: 8px 0; padding: 8px; border-radius: 6px; font-size: 14px; }
+.event span.date { font-weight: bold; margin-right: 8px; color: var(--accent); }
+.calendar-filters { margin-bottom: 10px; display: flex; gap: 5px; flex-wrap: wrap; }
+.calendar-filters button { background: #222; border: 1px solid #555; color: #fff; padding: 6px 12px; font-size: 14px; border-radius: 6px; cursor: pointer; }
+.calendar-filters button.active { background: var(--accent); color: #000; font-weight: bold; }
 
 @media(max-width:768px){
-  .top-nav{ display:none; }
-  #hamburger{ display:block; }
+  .nav-links { display: none; }
+  #hamburgerBtn { display: block; }
   .url-grid { gap: 10px; }
   .url-card { width: 45%; height: 120px; }
 }
@@ -52,22 +57,23 @@ body{margin:0;padding-top:70px;font-family:Arial,sans-serif;background:linear-gr
 <body>
 
 <nav class="top-nav">
-  <a href="index.html">Home</a>
-  <a href="story.html">Story</a>
-  <a href="tools.html" class="active">Tools</a>
-  <a href="characters.html">Character Sheet</a>
-  <a href="discussions.html">Discussion</a>
-  <a href="login.html" id="authLink">Sign In</a>
+  <button id="hamburgerBtn" onclick="document.getElementById('mobileMenu').classList.toggle('show')">&#9776;</button>
+  <a href="index.html" class="nav-brand">Mount Aetheria</a>
+  <div class="nav-links">
+    <a href="story.html">Story</a>
+    <a href="tools.html" class="active" style="color:var(--accent)">Tools</a>
+    <a href="characters.html">Sheet</a>
+    <a href="discussions.html">Discussion</a>
+    <a href="signin.html" id="authLink">Sign In</a>
+  </div>
 </nav>
 
-<button id="hamburger">&#9776;</button>
-<div id="navMenu">
-  <a href="index.html">Home</a>
+<div id="mobileMenu">
   <a href="story.html">Story</a>
-  <a href="tools.html" class="active">Tools</a>
+  <a href="tools.html" style="color:var(--accent)">Tools</a>
   <a href="characters.html">Character Sheet</a>
   <a href="discussions.html">Discussion</a>
-  <a href="login.html" id="mobileAuthLink">Sign In</a>
+  <a href="signin.html" id="mobileAuthLink">Sign In</a>
 </div>
 
 <h1>Tools</h1>
@@ -117,15 +123,12 @@ body{margin:0;padding-top:70px;font-family:Arial,sans-serif;background:linear-gr
     <div class="event-group" id="groupC" style="display:none;">
       <div class="event"><span class="date">Dec 29:</span> ???</div>
     </div>
-
     <div class="event-group" id="groupD" style="display:none;">
       <div class="event"><span class="date">Dec 29:</span> ???</div>
     </div>
-
     <div class="event-group" id="groupE" style="display:none;">
       <div class="event"><span class="date">Dec 29:</span> ???</div>
     </div>
-
   </div>
 </div>
 
@@ -139,13 +142,11 @@ onAuthStateChanged(auth, user => {
   const link = document.getElementById('authLink');
   const mLink = document.getElementById('mobileAuthLink');
   if(user){
-     const txt = "My Account";
-     const href = "account.html";
+     const txt = "My Account"; const href = "account.html";
      link.textContent = txt; link.href = href;
      mLink.textContent = txt; mLink.href = href;
   } else {
-     const txt = "Sign In";
-     const href = "login.html";
+     const txt = "Sign In"; const href = "signin.html";
      link.textContent = txt; link.href = href;
      mLink.textContent = txt; mLink.href = href;
   }
@@ -153,12 +154,6 @@ onAuthStateChanged(auth, user => {
 </script>
 
 <script>
-document.getElementById('hamburger').addEventListener('click', () => {
-  const m = document.getElementById('navMenu');
-  m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-});
-
-// Clean Tab Switching
 const tabButtons = document.querySelectorAll('.tab-btn');
 const tabContents = document.querySelectorAll('.tab-content');
 tabButtons.forEach(btn => {
@@ -169,8 +164,6 @@ tabButtons.forEach(btn => {
         document.getElementById(btn.dataset.tab).classList.add('active');
     });
 });
-
-// Calendar Filters
 const calendarButtons = document.querySelectorAll('.calendar-btn');
 const eventGroups = document.querySelectorAll('.event-group');
 calendarButtons.forEach(b => b.addEventListener('click', () => {

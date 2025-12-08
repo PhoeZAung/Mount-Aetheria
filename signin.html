@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In - Mount Aetheria</title>
+<link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
+<style>
+:root { --bg: #1a1a1a; --panel: #252525; --border: #333; --accent: #ffcc66; --text: #ddd; --input-bg: #111; }
+body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; height: 100vh; }
+
+.container { background: var(--panel); padding: 40px; border-radius: 12px; width: 100%; max-width: 350px; text-align: center; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+h2 { font-family: 'Uncial Antiqua', serif; color: var(--accent); margin-bottom: 30px; margin-top: 0; }
+input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid var(--border); background: var(--input-bg); color: #fff; box-sizing: border-box; }
+input:focus { border-color: var(--accent); outline: none; }
+
+button { width: 100%; padding: 12px; margin-top: 15px; background: var(--accent); color: #111; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+button:hover { background: #e6b800; }
+
+.secondary-btn { background: #333; color: #fff; margin-top: 10px; border: 1px solid var(--border); }
+.secondary-btn:hover { background: #444; }
+
+/* Custom style for the Forgot Password link/button */
+.forgot-pass { 
+    display: block; 
+    margin-top: 10px; 
+    font-size: 14px; 
+    color: #aaa; /* Default color */
+    text-decoration: underline; 
+    cursor: pointer; 
+    border: none; 
+    background: none; 
+    width: 100%;
+    text-align: center; 
+    padding: 0;
+    transition: none; /* Disable all transitions */
+}
+/* Explicitly neutralize the hover effect */
+.forgot-pass:hover { 
+    color: #aaa; 
+    text-decoration: underline; 
+    background: none;
+}
+
+#message { margin-top: 20px; font-size: 14px; min-height: 20px; }
+.switch-link { margin-top: 20px; font-size: 12px; color: #888; }
+.switch-link a { color: var(--accent); text-decoration: none; font-weight: bold; }
+
+/* Transition containers for the in-page switch */
+#loginForm, #forgotForm {
+    transition: opacity 0.3s ease-in-out;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Mount Aetheria</h2>
+  
+  <div id="loginForm">
+    <input type="email" id="email" placeholder="Email Address">
+    <input type="password" id="password" placeholder="Password">
+    
+    <button id="loginBtn">Sign In</button>
+    <button id="googleLoginBtn" class="secondary-btn">Sign In with Google</button>
+    
+    <button id="forgotBtn" class="forgot-pass">Forgot Password?</button>
+  </div>
+
+  <div id="forgotForm" style="display: none;">
+    <p style="font-size: 14px; margin-top: 5px; color: #ccc;">Enter your email to receive a password reset link.</p>
+    <input type="email" id="resetEmail" placeholder="Email Address">
+    
+    <button id="sendResetBtn">Send Reset Link</button>
+    <button id="backToLoginBtn" class="secondary-btn">Back to Sign In</button>
+  </div>
+
+  <div id="message"></div>
+  
+  <div class="switch-link">
+    Don't have an account? <a href="signup.html">Create one here</a>
+    <br><br>
+    <a href="index.html" style="color:#666;">Back to Map</a>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+  const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", authDomain: "mount-aetheria.firebaseapp.com", projectId: "mount-aetheria", storageBucket: "mount-aetheria.firebasestorage.app", messagingSenderId: "492855693446", appId: "1:492855693446:web:f9948569254a7220c38107", measurementId: "G-0PF84KDN7L" };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const googleProvider = new GoogleAuthProvider();
+
+  const msg = document.getElementById("message");
+  const loginForm = document.getElementById("loginForm");
+  const forgotForm = document.getElementById("forgotForm");
+  const resetEmailInput = document.getElementById("resetEmail");
+
+  // --- View Transitions ---
+  function showForgotForm() {
+    // Copy main email input to reset form input for convenience
+    resetEmailInput.value = document.getElementById("email").value; 
+    loginForm.style.display = 'none';
+    forgotForm.style.display = 'block';
+    msg.textContent = ''; // Clear previous messages
+  }
+
+  function showLoginForm() {
+    forgotForm.style.display = 'none';
+    loginForm.style.display = 'block';
+    msg.textContent = ''; // Clear previous messages
+  }
+
+  // --- Firebase Auth Logic ---
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) window.location.href = "index.html";
+  });
+
+  // Sign In Button
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    msg.textContent = "Signing in..."; msg.style.color = "#aaa";
+    try {
+      await signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value);
+    } catch (err) {
+      msg.style.color = "#ff6666"; msg.textContent = "Error: " + err.message;
+    }
+  });
+
+  // Google Sign In Button
+  document.getElementById("googleLoginBtn").addEventListener("click", async () => {
+    try { await signInWithPopup(auth, googleProvider); } 
+    catch (err) { msg.style.color = "#ff6666"; msg.textContent = "Error: " + err.message; }
+  });
+
+  // Forgot Password Link -> SHOW FORGOT FORM
+  document.getElementById("forgotBtn").addEventListener("click", showForgotForm);
+
+  // Back to Sign In Button
+  document.getElementById("backToLoginBtn").addEventListener("click", showLoginForm);
+
+  // Send Reset Link Button -> FIREBASE RESET
+  document.getElementById("sendResetBtn").addEventListener("click", async () => {
+    const email = resetEmailInput.value.trim();
+
+    if(!email) { 
+        msg.style.color = "#ff6666"; msg.textContent = "Please enter an email address."; 
+        return; 
+    }
+    
+    msg.textContent = "Sending reset link..."; msg.style.color = "#aaa";
+
+    try {
+        await sendPasswordResetEmail(auth, email);
+        msg.style.color = "#4caf50"; 
+        msg.textContent = `Password reset email successfully sent to ${email}! Please check your inbox and your spam/junk folder.`;
+    } catch(err) {
+        msg.style.color = "#ff6666"; 
+        msg.textContent = "Error sending reset link: " + err.message;
+    }
+  });
+</script>
+</body>
+</html>

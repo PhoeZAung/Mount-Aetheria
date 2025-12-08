@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account - Mount Aetheria</title>
+<link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
+<style>
+:root { --bg: #1a1a1a; --panel: #252525; --border: #333; --accent: #ffcc66; --text: #ddd; --input-bg: #111; }
+body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; height: 100vh; }
+
+.container { background: var(--panel); padding: 40px; border-radius: 12px; width: 100%; max-width: 350px; text-align: center; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+h2 { font-family: 'Uncial Antiqua', serif; color: var(--accent); margin-bottom: 30px; margin-top: 0; }
+input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid var(--border); background: var(--input-bg); color: #fff; box-sizing: border-box; }
+input:focus { border-color: var(--accent); outline: none; }
+
+button { width: 100%; padding: 12px; margin-top: 15px; background: var(--accent); color: #111; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+button:hover { background: #e6b800; }
+
+.secondary-btn { background: #333; color: #fff; margin-top: 10px; border: 1px solid var(--border); }
+.secondary-btn:hover { background: #444; }
+
+#message { margin-top: 20px; font-size: 14px; min-height: 20px; }
+.switch-link { margin-top: 20px; font-size: 12px; color: #888; }
+.switch-link a { color: var(--accent); text-decoration: none; font-weight: bold; }
+
+/* Setup Steps */
+#step2 { display: none; }
+.profile-preview { width: 100px; height: 100px; border-radius: 50%; background: #000; border: 2px solid var(--accent); object-fit: cover; margin-bottom: 10px; cursor: pointer; }
+.upload-label { font-size: 12px; color: #aaa; margin-bottom: 15px; display: block; cursor: pointer; }
+.upload-label:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="container">
+  
+  <div id="step1">
+    <h2>Join the Adventure</h2>
+    <input type="email" id="email" placeholder="Email Address">
+    <input type="password" id="password" placeholder="Password">
+    <input type="password" id="confirmPassword" placeholder="Confirm Password">
+    
+    <button id="signupBtn">Create Account</button>
+    <button id="googleSignupBtn" class="secondary-btn">Sign Up with Google</button>
+    
+    <div class="switch-link">
+      Already have an account? <a href="signin.html">Sign In here</a>
+      <br><br>
+      <a href="index.html" style="color:#666;">Back to Map</a>
+    </div>
+  </div>
+
+  <div id="step2">
+    <h2>Setup Profile</h2>
+    <p style="font-size:12px; color:#aaa; margin-bottom:20px;">Your account is created. Setup your adventurer identity.</p>
+    
+    <img id="pfpPreview" class="profile-preview" src="" alt="Profile">
+    <label for="pfpInput" class="upload-label">Click to Upload Photo (Optional)</label>
+    <input type="file" id="pfpInput" accept="image/*" style="display:none;">
+
+    <input type="text" id="displayName" placeholder="Display Name (Required)">
+    
+    <button id="completeBtn">Complete Setup</button>
+    <div style="font-size:11px; color:#666; margin-top:10px;">If you leave now, your account will not be saved.</div>
+  </div>
+
+  <div id="message"></div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+  const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", authDomain: "mount-aetheria.firebaseapp.com", projectId: "mount-aetheria", storageBucket: "mount-aetheria.firebasestorage.app", messagingSenderId: "492855693446", appId: "1:492855693446:web:f9948569254a7220c38107", measurementId: "G-0PF84KDN7L" };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+  const googleProvider = new GoogleAuthProvider();
+  const msg = document.getElementById("message");
+
+  // Default Black/Gold Silhouette (Base64 to avoid external deps)
+  const defaultPfp = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffcc66'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E";
+  
+  document.getElementById('pfpPreview').src = defaultPfp;
+  
+  let currentUser = null;
+  let fileToUpload = null;
+
+  // Watch Auth State
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // Check if profile exists in DB
+      const snap = await getDoc(doc(db, "users", user.uid));
+      if(snap.exists()) {
+          // Already fully setup
+          window.location.href = "index.html";
+      } else {
+          // Auth exists, but DB does not -> Show Step 2
+          currentUser = user;
+          document.getElementById('step1').style.display = 'none';
+          document.getElementById('step2').style.display = 'block';
+          // Pre-fill display name if Google provided it
+          if(user.displayName) document.getElementById('displayName').value = user.displayName;
+      }
+    }
+  });
+
+  // --- STEP 1: SIGN UP ---
+  
+  document.getElementById("signupBtn").addEventListener("click", async () => {
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
+    const confirm = document.getElementById("confirmPassword").value;
+
+    if(pass !== confirm) { msg.style.color="#ff6666"; msg.textContent = "Passwords do not match."; return; }
+
+    msg.textContent = "Creating account..."; msg.style.color = "#aaa";
+    try {
+      await createUserWithEmailAndPassword(auth, email, pass);
+      // Auth observer triggers Step 2
+    } catch (err) {
+      msg.style.color = "#ff6666"; msg.textContent = "Error: " + err.message;
+    }
+  });
+
+  document.getElementById("googleSignupBtn").addEventListener("click", async () => {
+      try { await signInWithPopup(auth, googleProvider); }
+      catch(err) { msg.style.color = "#ff6666"; msg.textContent = "Error: " + err.message; }
+  });
+
+  // --- STEP 2: PROFILE SETUP ---
+
+  // Image Preview Logic
+  document.getElementById('pfpInput').addEventListener('change', (e) => {
+      if(e.target.files[0]) {
+          fileToUpload = e.target.files[0];
+          document.getElementById('pfpPreview').src = URL.createObjectURL(fileToUpload);
+      }
+  });
+  
+  document.getElementById('pfpPreview').addEventListener('click', () => {
+      document.getElementById('pfpInput').click();
+  });
+
+  document.getElementById("completeBtn").addEventListener("click", async () => {
+      const displayName = document.getElementById('displayName').value.trim();
+      if(!displayName) {
+          msg.style.color = "#ff6666"; msg.textContent = "Display Name is required."; return;
+      }
+
+      const btn = document.getElementById('completeBtn');
+      btn.disabled = true;
+      btn.textContent = "Finalizing...";
+
+      try {
+          let photoURL = defaultPfp;
+
+          // 1. Upload Image if selected
+          if(fileToUpload) {
+              const storageRef = ref(storage, `users/${currentUser.uid}/profile_${Date.now()}`);
+              const snapshot = await uploadBytes(storageRef, fileToUpload);
+              photoURL = await getDownloadURL(snapshot.ref);
+          } else if (currentUser.photoURL) {
+              // Use Google photo if available and no new file selected
+              photoURL = currentUser.photoURL;
+          }
+
+          // 2. Update Auth Profile
+          await updateProfile(currentUser, { displayName: displayName, photoURL: photoURL });
+
+          // 3. Create Firestore Doc (This validates the account exists for the app)
+          await setDoc(doc(db, "users", currentUser.uid), {
+              email: currentUser.email,
+              displayName: displayName,
+              pfp: photoURL,
+              createdAt: new Date(),
+              uid: currentUser.uid
+          });
+
+          // 4. Done
+          window.location.href = "index.html";
+
+      } catch (err) {
+          console.error(err);
+          msg.style.color = "#ff6666"; msg.textContent = "Error saving profile: " + err.message;
+          btn.disabled = false;
+          btn.textContent = "Complete Setup";
+      }
+  });
+
+</script>
+</body>
+</html>

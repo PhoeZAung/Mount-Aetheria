@@ -6,59 +6,64 @@
 <title>My Account - Mount Aetheria</title>
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
-body { margin: 0; padding-top: 70px; font-family: Arial, sans-serif; background: linear-gradient(to bottom, #222, #444); color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+/* --- THEME --- */
+:root { --bg: #1a1a1a; --panel: #252525; --border: #333; --accent: #ffcc66; --text: #ddd; --input-bg: #111; }
+body { margin: 0; padding-top: 70px; font-family: sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
 
-/* NAV */
-.top-nav{width:100%;background:#111;padding:15px 20px;display:flex;justify-content:space-around;align-items:center;position:fixed;top:0;left:0;z-index:2000}
-.top-nav a{color:#fff;text-decoration:none;font-size:18px;font-weight:600;font-family:'Uncial Antiqua',serif}
-.top-nav a:hover{color:#ffcc66}
-
-/* HAMBURGER */
-#hamburger{display:none;position:fixed;top:15px;left:15px;background:#111;color:#fff;border:none;padding:10px;font-size:24px;cursor:pointer;z-index:2001;border-radius:5px;}
-#navMenu{display:none;flex-direction:column;background:#111;position:fixed;top:60px;left:15px;border-radius:8px;z-index:2000;box-shadow:0 5px 15px rgba(0,0,0,0.8);overflow:hidden;}
-#navMenu a{padding:12px 20px;color:#fff;text-decoration:none;border-bottom:1px solid #333;font-family:'Uncial Antiqua',serif;display:block;}
+/* --- NAV --- */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; height: 50px; background: #000; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
+.nav-brand { font-family: 'Uncial Antiqua'; color: var(--accent); font-size: 18px; text-decoration: none; }
+.nav-links { display: flex; gap: 20px; }
+.nav-links a { color: #888; text-decoration: none; font-size: 14px; font-weight: bold; }
+.nav-links a:hover, .nav-links a.active { color: #fff; }
+#hamburgerBtn { display: none; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 0; }
+#mobileMenu { display: none; position: fixed; top: 50px; left: 0; width: 100%; background: #111; border-bottom: 1px solid var(--accent); flex-direction: column; z-index: 1999; }
+#mobileMenu.show { display: flex; }
+#mobileMenu a { padding: 15px 20px; color: #fff; text-decoration: none; border-bottom: 1px solid #333; font-family: 'Uncial Antiqua'; }
 
 /* FORM CONTAINER */
-.container { background: #333; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); margin-top: 20px; margin-bottom: 40px; }
-h2 { font-family:'Uncial Antiqua', serif; text-align:center; color:#ffcc66; margin-top:0; }
+.container { background: var(--panel); padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); margin-top: 20px; margin-bottom: 40px; border: 1px solid var(--border); }
+h2 { font-family:'Uncial Antiqua', serif; text-align:center; color: var(--accent); margin-top:0; }
 
 .profile-preview { display:flex; flex-direction:column; align-items:center; margin-bottom:20px; }
-.profile-preview img { width:120px; height:120px; border-radius:50%; object-fit:cover; border:3px solid #ffcc66; background:#111; margin-bottom:10px; cursor:pointer; }
+.profile-preview img { width:120px; height:120px; border-radius:50%; object-fit:cover; border:3px solid var(--accent); background: #000; margin-bottom:10px; cursor:pointer; }
 
 .form-group { margin-bottom:15px; }
-label { display:block; margin-bottom:5px; font-weight:bold; }
-input { width:100%; padding:10px; border-radius:6px; border:1px solid #555; background:#222; color:white; box-sizing:border-box; }
+label { display:block; margin-bottom:5px; font-weight:bold; color: #aaa; font-size: 14px; }
+input { width:100%; padding:10px; border-radius:6px; border:1px solid var(--border); background: var(--input-bg); color:white; box-sizing:border-box; }
+input:focus { border-color: var(--accent); outline: none; }
 
-.action-btn { width:100%; padding:12px; background:#ffcc66; color:#111; border:none; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:10px; font-size:16px; }
-.action-btn:hover { background:#e6b800; }
+.action-btn { width:100%; padding:12px; background: var(--accent); color:#111; border:none; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:10px; font-size:16px; transition: 0.2s; }
+.action-btn:hover { background: #e6b800; }
 .logout-btn { background: #ff4444; color: white; margin-top: 20px; }
 .logout-btn:hover { background: #cc0000; }
 
 @media(max-width:768px){
-  .top-nav{ display:none; }
-  #hamburger{ display:block; }
+  .nav-links { display: none; }
+  #hamburgerBtn { display: block; }
 }
 </style>
 </head>
 <body>
 
 <nav class="top-nav">
-  <a href="index.html">Home</a>
-  <a href="story.html">Story</a>
-  <a href="tools.html">Tools</a>
-  <a href="characters.html">Character Sheet</a>
-  <a href="discussions.html">Discussion</a>
-  <a href="login.html" id="authLink">Sign In</a>
+  <button id="hamburgerBtn" onclick="document.getElementById('mobileMenu').classList.toggle('show')">&#9776;</button>
+  <a href="index.html" class="nav-brand">Mount Aetheria</a>
+  <div class="nav-links">
+    <a href="story.html">Story</a>
+    <a href="tools.html">Tools</a>
+    <a href="characters.html">Sheet</a>
+    <a href="discussions.html">Discussion</a>
+    <a href="account.html" id="authLink" class="active" style="color:var(--accent)">My Account</a>
+  </div>
 </nav>
 
-<button id="hamburger">&#9776;</button>
-<div id="navMenu">
-  <a href="index.html">Home</a>
+<div id="mobileMenu">
   <a href="story.html">Story</a>
   <a href="tools.html">Tools</a>
   <a href="characters.html">Character Sheet</a>
   <a href="discussions.html">Discussion</a>
-  <a href="login.html" id="mobileAuthLink">Sign In</a>
+  <a href="account.html" id="mobileAuthLink" style="color:var(--accent)">My Account</a>
 </div>
 
 <div class="container">
@@ -80,9 +85,8 @@ input { width:100%; padding:10px; border-radius:6px; border:1px solid #555; back
 
   <button id="logoutBtn" class="action-btn logout-btn">Logout</button>
 
-  <!-- Admin Link (Visible only to admin) -->
   <div id="adminLinkContainer" style="display:none; margin-top:30px; text-align:center;">
-    <a href="admin.html" id="adminLink" style="color:#ffcc66; font-weight:bold; font-size:18px; text-decoration:none;">Go to Admin Panel</a>
+    <a href="admin.html" id="adminLink" style="color:var(--accent); font-weight:bold; font-size:18px; text-decoration:none;">Go to Admin Panel</a>
   </div>
 </div>
 
@@ -92,15 +96,7 @@ import { getAuth, onAuthStateChanged, updateProfile, signOut } from "https://www
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",
-  authDomain: "mount-aetheria.firebaseapp.com",
-  projectId: "mount-aetheria",
-  storageBucket: "mount-aetheria.firebasestorage.app",
-  messagingSenderId: "492855693446",
-  appId: "1:492855693446:web:f9948569254a7220c38107",
-  measurementId: "G-0PF84KDN7L"
-};
+const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", authDomain: "mount-aetheria.firebaseapp.com", projectId: "mount-aetheria", storageBucket: "mount-aetheria.firebasestorage.app", messagingSenderId: "492855693446", appId: "1:492855693446:web:f9948569254a7220c38107", measurementId: "G-0PF84KDN7L" };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -109,37 +105,21 @@ const storage = getStorage(app);
 
 let currentUser = null;
 let selectedFile = null;
-
 const profilePic = document.getElementById('profilePic');
 const pfpInput = document.getElementById('pfpInput');
 const displayNameInput = document.getElementById('displayName');
 const statusDiv = document.getElementById('status');
 const adminLinkContainer = document.getElementById('adminLinkContainer');
+const ADMIN_UID = "U7uyfcMtULSLJvXD0HzJaiMIeGE3";
 
-const ADMIN_UID = "U7uyfcMtULSLJvXD0HzJaiMIeGE3"; // your admin UID
-
-// Auth & Nav Logic
 onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-  
+  if (!user) { window.location.href = "signin.html"; return; }
   currentUser = user;
-
-  // Show admin link only for admin UID
-  if(user.uid === ADMIN_UID){
-      adminLinkContainer.style.display = 'block';
-  }
-
-  const link = document.getElementById('authLink');
-  const mLink = document.getElementById('mobileAuthLink');
-  const txt = "My Account";
-  const href = "account.html";
-  if(link) { link.textContent = txt; link.href = href; }
-  if(mLink) { mLink.textContent = txt; mLink.href = href; }
-
-  // Load user data
+  if(user.uid === ADMIN_UID) adminLinkContainer.style.display = 'block';
+  
+  // Updating Nav Links based on Auth state logic in Nav is redundant here since we are ALREADY on account page
+  // But good for consistency if copied elsewhere
+  
   displayNameInput.value = currentUser.displayName || "";
   if(currentUser.photoURL) profilePic.src = currentUser.photoURL;
 
@@ -153,19 +133,8 @@ onAuthStateChanged(auth, async (user) => {
   } catch(e) { console.error(e); }
 });
 
-// Hamburger
-document.getElementById('hamburger').addEventListener('click', () => {
-  const m = document.getElementById('navMenu');
-  m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-});
+document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); window.location.href = "signin.html"; });
 
-// Logout
-document.getElementById('logoutBtn').addEventListener('click', async () => {
-    await signOut(auth);
-    window.location.href = "login.html";
-});
-
-// File Selection
 profilePic.addEventListener('click', () => pfpInput.click());
 pfpInput.addEventListener('change', e => {
   if(e.target.files[0]){
@@ -174,41 +143,24 @@ pfpInput.addEventListener('change', e => {
   }
 });
 
-// Save Profile
 document.getElementById('saveBtn').addEventListener('click', async () => {
   if(!currentUser) return;
   const btn = document.getElementById('saveBtn');
   btn.disabled = true;
-  statusDiv.textContent = "Saving...";
-  statusDiv.style.color = "yellow";
-
+  statusDiv.textContent = "Saving..."; statusDiv.style.color = "yellow";
   try {
     let finalPfpUrl = currentUser.photoURL;
     const newDisplayName = displayNameInput.value;
-    
     if(selectedFile){
       const storageRef = ref(storage, `users/${currentUser.uid}/profile_${Date.now()}`); 
       const snapshot = await uploadBytes(storageRef, selectedFile);
       finalPfpUrl = await getDownloadURL(snapshot.ref);
     }
-    
     await updateProfile(currentUser, { displayName: newDisplayName, photoURL: finalPfpUrl });
-    await setDoc(doc(db, 'users', currentUser.uid), { 
-      displayName: newDisplayName, 
-      pfp: finalPfpUrl, 
-      updatedAt: new Date()
-    }, { merge: true });
-
-    statusDiv.textContent = "Profile Updated!";
-    statusDiv.style.color = "#4caf50";
-    selectedFile = null;
-
-  } catch(e){
-    statusDiv.textContent = "Error: " + e.message;
-    statusDiv.style.color = "#ff6666";
-  } finally {
-    btn.disabled = false;
-  }
+    await setDoc(doc(db, 'users', currentUser.uid), { displayName: newDisplayName, pfp: finalPfpUrl, updatedAt: new Date() }, { merge: true });
+    statusDiv.textContent = "Profile Updated!"; statusDiv.style.color = "#4caf50"; selectedFile = null;
+  } catch(e){ statusDiv.textContent = "Error: " + e.message; statusDiv.style.color = "#ff6666"; } 
+  finally { btn.disabled = false; }
 });
 </script>
 </body>

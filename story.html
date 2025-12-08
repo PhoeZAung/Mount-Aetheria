@@ -6,99 +6,97 @@
 <title>Mount Aetheria - Story</title>
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(to bottom,#222,#444);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+/* --- THEME --- */
+:root { --bg: #1a1a1a; --panel: #252525; --border: #333; --accent: #ffcc66; --text: #ddd; }
+body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; padding-top: 50px; }
 
-/* NAV STYLES */
-.top-nav{width:100%;background:#111;padding:15px 20px;display:flex;justify-content:space-around;align-items:center;position:fixed;top:0;left:0;z-index:2000;}
-.top-nav a{color:#fff;text-decoration:none;font-size:18px;font-weight:600;font-family:'Uncial Antiqua',serif}
-.top-nav a:hover{color:#ffcc66}
-#hamburger{display:none;position:fixed;top:15px;left:15px;background:#111;color:#fff;border:none;padding:10px;font-size:24px;cursor:pointer;z-index:2001;border-radius:5px;}
-#navMenu{display:none;flex-direction:column;background:#111;position:fixed;top:60px;left:15px;border-radius:8px;z-index:2000;box-shadow:0 5px 15px rgba(0,0,0,0.8);overflow:hidden;}
-#navMenu a{padding:12px 20px;color:#fff;text-decoration:none;border-bottom:1px solid #333;font-family:'Uncial Antiqua',serif;display:block;}
+/* --- NAV --- */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; height: 50px; background: #000; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
+.nav-brand { font-family: 'Uncial Antiqua'; color: var(--accent); font-size: 18px; text-decoration: none; }
+.nav-links { display: flex; gap: 20px; }
+.nav-links a { color: #888; text-decoration: none; font-size: 14px; font-weight: bold; }
+.nav-links a:hover, .nav-links a.active { color: #fff; }
+#hamburgerBtn { display: none; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 0; }
+#mobileMenu { display: none; position: fixed; top: 50px; left: 0; width: 100%; background: #111; border-bottom: 1px solid var(--accent); flex-direction: column; z-index: 1999; }
+#mobileMenu.show { display: flex; }
+#mobileMenu a { padding: 15px 20px; color: #fff; text-decoration: none; border-bottom: 1px solid #333; font-family: 'Uncial Antiqua'; }
 
 /* LAYOUT */
-.content-wrapper { display: flex; height: 100%; padding-top: 60px; }
-.sidebar{width:220px;background:#181818;padding:20px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;border-right:1px solid #333;}
-.sidebar h3{color:#ffcc66;text-align:center;margin:10px 0;font-family:'Uncial Antiqua',serif;position:relative;}
+.content-wrapper { display: flex; height: 100%; }
+.sidebar { width: 220px; background: #000; padding: 20px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; border-right: 1px solid var(--border); flex-shrink: 0; }
+.sidebar h3 { color: var(--accent); text-align: center; margin: 10px 0; font-family: 'Uncial Antiqua', serif; font-size: 16px; }
 
-/* FILTERS */
-.filter-btn{background:#333;color:#fff;border:none;padding:10px;cursor:pointer;border-radius:8px;width:100%;margin-bottom:5px;text-align:left;font-weight:bold;transition:0.2s;}
-.filter-btn:hover,.filter-btn.active{background:#ffcc66;color:#111;}
+/* FILTERS (Desktop) */
+.filter-btn { background: #333; color: #fff; border: 1px solid #444; padding: 10px; cursor: pointer; border-radius: 6px; width: 100%; margin-bottom: 5px; text-align: left; font-weight: bold; transition: 0.2s; }
+.filter-btn:hover, .filter-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
-/* Mobile Header for Primary Tags */
-.mobile-primary-header { display: none; justify-content: center; align-items: center; gap: 10px; margin-bottom: 5px; width: 100%; position: relative;}
-#primaryHamburger { background:#111; color:#ffcc66; border:1px solid #333; padding:5px 10px; font-size:18px; cursor:pointer; border-radius:5px; }
-#currentPrimaryLabel { font-family: 'Uncial Antiqua', serif; color: #ffcc66; font-size: 18px; }
-
-#secondary-tags { display: flex; flex-direction: column; gap: 5px; }
+/* MOBILE FILTERS (Hidden by default on desktop) */
+.mobile-controls { display: none; background: #111; padding: 10px; border-bottom: 1px solid var(--border); flex-direction: column; gap: 10px; }
+.mobile-primary-dropdown { width: 100%; padding: 10px; background: #222; color: var(--accent); border: 1px solid var(--border); border-radius: 6px; font-family: 'Uncial Antiqua', serif; font-size: 16px; }
+.mobile-secondary-scroll { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
+.mobile-secondary-scroll::-webkit-scrollbar { height: 4px; }
+.mobile-secondary-scroll::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+.pill-btn { white-space: nowrap; padding: 6px 12px; background: #333; border: 1px solid #444; border-radius: 20px; color: #ddd; font-size: 12px; font-weight: bold; cursor: pointer; }
+.pill-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
 /* MAIN CONTENT */
-.main-content{flex:1;overflow-y:auto;padding:20px;}
+.main-content { flex: 1; overflow-y: auto; padding: 20px; background: var(--bg); }
 .controls-bar { display: flex; justify-content: flex-end; margin-bottom: 15px; }
-.sort-select { padding: 8px; background: #333; color: white; border: 1px solid #555; border-radius: 4px; }
+.sort-select { padding: 8px; background: #000; color: white; border: 1px solid #444; border-radius: 4px; }
 
 /* STORY CARD */
-.story-entry{background:#2b2b2b;color:#fff;border-radius:12px;margin-bottom:15px;box-shadow:0 5px 15px rgba(0,0,0,0.5);border:1px solid #444; cursor: pointer; transition: transform 0.2s;}
-.story-entry:hover { transform: translateY(-3px); border-color: #ffcc66; }
-.story-header { padding:15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;}
-.story-title { font-family:'Uncial Antiqua',serif; color:#ffcc66; font-size: 18px; margin: 0; }
+.story-entry { background: var(--panel); color: #fff; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 1px solid var(--border); cursor: pointer; transition: transform 0.2s; }
+.story-entry:hover { transform: translateY(-3px); border-color: var(--accent); }
+.story-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.story-title { font-family: 'Uncial Antiqua', serif; color: var(--accent); font-size: 18px; margin: 0; }
 .story-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; justify-content: flex-end; }
-.story-cat { font-size:12px; color:#888; }
-.sec-tag { font-size:11px; background:#444; padding:2px 6px; border-radius:4px; }
+.story-cat { font-size: 12px; color: #888; }
+.sec-tag { font-size: 11px; background: #444; padding: 2px 6px; border-radius: 4px; }
 
-/* MODAL POPUP */
+/* MODAL */
 #storyModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-.modal-content { background: #222; width: 90%; max-width: 800px; max-height: 90vh; border-radius: 12px; border: 1px solid #ffcc66; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 30px rgba(0,0,0,0.8); position: relative; }
-.modal-header { padding: 15px; background: #111; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
-.modal-header h2 { margin: 0; font-family: 'Uncial Antiqua', serif; color: #ffcc66; font-size: 20px; }
-.close-btn { background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; font-weight: bold; line-height: 1; }
+.modal-content { background: var(--panel); width: 90%; max-width: 800px; max-height: 90vh; border-radius: 12px; border: 1px solid var(--accent); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+.modal-header { padding: 15px; background: #000; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h2 { margin: 0; font-family: 'Uncial Antiqua', serif; color: var(--accent); font-size: 20px; }
+.close-btn { background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; }
 .modal-body { padding: 20px; overflow-y: auto; color: #ddd; font-size: 16px; line-height: 1.6; }
 .modal-images { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
 .modal-images img { max-height: 150px; border-radius: 6px; cursor: pointer; border: 1px solid #555; }
 
 /* ADMIN FORM */
-#adminPanel { display: none; background: #333; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ffcc66; }
-#adminPanel input, #adminPanel textarea, #adminPanel select { width: 100%; margin-bottom: 10px; padding: 8px; background: #222; color: white; border: 1px solid #555; box-sizing: border-box; }
-#adminPanel button { background: #ffcc66; color: #000; padding: 10px; font-weight: bold; border: none; cursor: pointer; width: 100%; }
+#adminPanel { display: none; background: #333; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid var(--accent); }
+#adminPanel input, #adminPanel textarea, #adminPanel select { width: 100%; margin-bottom: 10px; padding: 8px; background: #111; color: white; border: 1px solid #555; box-sizing: border-box; }
+#adminPanel button { background: var(--accent); color: #000; padding: 10px; font-weight: bold; border: none; cursor: pointer; width: 100%; }
 
 @media(max-width:768px){
-  .top-nav { display: none; }
-  #hamburger { display: block; }
-  .content-wrapper { flex-direction: column; padding-top: 50px; }
-  .sidebar { width: 100%; padding: 10px 15px; border-right: none; border-bottom: 1px solid #333; flex-shrink: 0; box-sizing: border-box;}
-  .sidebar h3.desktop-only-header { display: none; }
-  
-  .mobile-primary-header { display: flex; }
-  #primary-tags { display:none; flex-direction:column; margin-top: 10px; text-align: center; }
-  #primary-tags.show { display:flex; }
-  
-  #secondary-tags { flex-direction: row; flex-wrap: wrap; justify-content: center; margin-top: 5px; }
-  .filter-btn[data-type="secondary"] { width: auto; font-size: 11px; padding: 4px 8px; margin-bottom: 0; }
-  
-  .main-content { padding: 10px; }
-  .story-title { font-size: 16px; }
+  .nav-links { display: none; }
+  #hamburgerBtn { display: block; }
+  .sidebar { display: none; } /* Hide Sidebar on mobile */
+  .mobile-controls { display: flex; } /* Show Mobile Controls */
+  .content-wrapper { flex-direction: column; }
 }
 </style>
 </head>
 <body>
 
 <nav class="top-nav">
-  <a href="index.html">Home</a>
-  <a href="story.html" class="active">Story</a>
-  <a href="tools.html">Tools</a>
-  <a href="characters.html">Character Sheet</a>
-  <a href="discussions.html">Discussion</a>
-  <a href="login.html" id="authLink">Sign In</a>
+  <button id="hamburgerBtn" onclick="document.getElementById('mobileMenu').classList.toggle('show')">&#9776;</button>
+  <a href="index.html" class="nav-brand">Mount Aetheria</a>
+  <div class="nav-links">
+    <a href="story.html" class="active" style="color:var(--accent)">Story</a>
+    <a href="tools.html">Tools</a>
+    <a href="characters.html">Sheet</a>
+    <a href="discussions.html">Discussion</a>
+    <a href="signin.html" id="authLink">Sign In</a>
+  </div>
 </nav>
 
-<button id="hamburger">&#9776;</button>
-<div id="navMenu">
-  <a href="index.html">Home</a>
-  <a href="story.html" class="active">Story</a>
+<div id="mobileMenu">
+  <a href="story.html" style="color:var(--accent)">Story</a>
   <a href="tools.html">Tools</a>
   <a href="characters.html">Character Sheet</a>
   <a href="discussions.html">Discussion</a>
-  <a href="login.html" id="mobileAuthLink">Sign In</a>
+  <a href="signin.html" id="mobileAuthLink">Sign In</a>
 </div>
 
 <div id="storyModal">
@@ -115,14 +113,23 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(to bottom,
   </div>
 </div>
 
+<div class="mobile-controls">
+  <select id="mobilePrimarySelect" class="mobile-primary-dropdown">
+    <option value="all">All Stories</option>
+    <option value="mount-aetheria">Mount Aetheria</option>
+    <option value="dark-grasp">Dark Grasp</option>
+    <option value="rean-legacy">Ra'en Legacy</option>
+    <option value="scourgefall">Scourgefall</option>
+    <option value="unknown">Unknown</option>
+    <option value="veil-of-alissa">Veil of Alissa</option>
+  </select>
+  <div id="mobileSecondaryContainer" class="mobile-secondary-scroll">
+    </div>
+</div>
+
 <div class="content-wrapper">
   <div class="sidebar">
-    <h3 class="desktop-only-header">Primary Tag</h3>
-    <div class="mobile-primary-header">
-      <button id="primaryHamburger">&#9776;</button>
-      <span id="currentPrimaryLabel">All</span>
-    </div>
-
+    <h3>Primary Tag</h3>
     <div id="primary-tags">
         <button class="filter-btn active" data-type="primary" data-filter="all" data-label="All">All</button>
         <button class="filter-btn" data-type="primary" data-filter="mount-aetheria" data-label="Mount Aetheria">Mount Aetheria</button>
@@ -133,7 +140,7 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(to bottom,
         <button class="filter-btn" data-type="primary" data-filter="veil-of-alissa" data-label="Veil of Alissa">Veil of Alissa</button>
     </div>
 
-    <h3 class="desktop-only-header" style="margin-top:20px;">Secondary Tag</h3>
+    <h3>Secondary Tag</h3>
     <div id="secondary-tags"></div>
 
     <div id="adminControls" style="margin-top:20px; border-top:1px solid #555; padding-top:10px; display:none;">
@@ -158,7 +165,7 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(to bottom,
       <label style="display:block; margin-bottom:5px; font-weight:bold;">Upload Images (Max 5):</label>
       <input type="file" id="imageInput" multiple accept="image/*">
       <button id="submitStoryBtn">Publish Story</button>
-      <div id="uploadStatus" style="text-align:center; margin-top:5px; color:#ffcc66;"></div>
+      <div id="uploadStatus" style="text-align:center; margin-top:5px; color:var(--accent);"></div>
     </div>
 
     <div class="controls-bar">
@@ -182,66 +189,79 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, serverTimestamp, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",
-  authDomain: "mount-aetheria.firebaseapp.com",
-  projectId: "mount-aetheria",
-  storageBucket: "mount-aetheria.firebasestorage.app",
-  messagingSenderId: "492855693446",
-  appId: "1:492855693446:web:f9948569254a7220c38107",
-  measurementId: "G-0PF84KDN7L"
-};
+const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", authDomain: "mount-aetheria.firebaseapp.com", projectId: "mount-aetheria", storageBucket: "mount-aetheria.firebasestorage.app", messagingSenderId: "492855693446", appId: "1:492855693446:web:f9948569254a7220c38107", measurementId: "G-0PF84KDN7L" };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
-
 const ADMIN_ID = "U7uyfcMtULSLJvXD0HzJaiMIeGE3"; 
+
 let currentPrimary = "all";
 let currentSecondary = "all";
 let allStories = [];
 let currentUser = null;
 let editingStoryId = null;
+const urlParams = new URLSearchParams(window.location.search);
+const hasCode10 = urlParams.get('code10') !== null;
 
+// Auth Logic
 onAuthStateChanged(auth, user => {
   currentUser = user;
   const link = document.getElementById('authLink');
   const mLink = document.getElementById('mobileAuthLink');
   
   if(user){
-     const txt = "My Account";
-     const href = "account.html";
+     const txt = "My Account"; const href = "account.html";
      if(link) { link.textContent = txt; link.href = href; }
      if(mLink) { mLink.textContent = txt; mLink.href = href; }
      if(user.uid === ADMIN_ID || user.email === "phoeaung2076@gmail.com") {
          document.getElementById('adminControls').style.display = "block";
      }
   } else {
-     const txt = "Sign In";
-     const href = "login.html";
+     const txt = "Sign In"; const href = "signin.html";
      if(link) { link.textContent = txt; link.href = href; }
      if(mLink) { mLink.textContent = txt; mLink.href = href; }
   }
 });
 
-document.getElementById('primaryHamburger').addEventListener('click', () => {
-    document.getElementById('primary-tags').classList.toggle('show');
-});
+// Update Veil text if not Code10
+if(!hasCode10) {
+    const opt = document.querySelector('option[value="veil-of-alissa"]');
+    if(opt) opt.textContent = "???";
+    const btn = document.querySelector('.filter-btn[data-filter="veil-of-alissa"]');
+    if(btn) btn.textContent = "???";
+}
 
-document.querySelectorAll('.filter-btn[data-type="primary"]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn[data-type="primary"]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentPrimary = btn.dataset.filter;
-    currentSecondary = 'all'; 
-    document.getElementById('currentPrimaryLabel').textContent = btn.dataset.label || btn.textContent;
-    document.getElementById('primary-tags').classList.remove('show');
+// --- FILTER LOGIC (Desktop & Mobile Unified) ---
+function setPrimaryFilter(val) {
+    currentPrimary = val;
+    currentSecondary = 'all';
+    
+    // Update Desktop UI
+    document.querySelectorAll('.filter-btn[data-type="primary"]').forEach(b => {
+        if(b.dataset.filter === val) b.classList.add('active');
+        else b.classList.remove('active');
+    });
+
+    // Update Mobile UI
+    document.getElementById('mobilePrimarySelect').value = val;
+
     updateSecondaryTags();
     renderStories();
-  });
+}
+
+// Desktop Clicks
+document.querySelectorAll('.filter-btn[data-type="primary"]').forEach(btn => {
+  btn.addEventListener('click', () => setPrimaryFilter(btn.dataset.filter));
 });
 
+// Mobile Changes
+document.getElementById('mobilePrimarySelect').addEventListener('change', (e) => {
+    setPrimaryFilter(e.target.value);
+});
+
+// --- ADMIN LOGIC ---
 document.getElementById('toggleAdminBtn').addEventListener('click', () => {
     const panel = document.getElementById('adminPanel');
     panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
@@ -273,29 +293,14 @@ document.getElementById('submitStoryBtn').addEventListener('click', async () => 
                 imageUrls.push(url);
             }
         }
-
         if(editingStoryId){
             const storyRef = doc(db, 'artifacts', 'default-app-id', 'public', 'data', 'stories', editingStoryId);
-            await updateDoc(storyRef,{
-                title,
-                category: cat,
-                secondaryTags,
-                content: text,
-                ...(imageUrls.length>0 && { images: imageUrls })
-            });
+            await updateDoc(storyRef,{ title, category: cat, secondaryTags, content: text, ...(imageUrls.length>0 && { images: imageUrls }) });
             alert("Story Updated!");
         } else {
-            await addDoc(collection(db, 'artifacts', 'default-app-id', 'public', 'data', 'stories'), {
-                title,
-                category: cat,
-                secondaryTags,
-                content: text,
-                images: imageUrls,
-                createdAt: serverTimestamp()
-            });
+            await addDoc(collection(db, 'artifacts', 'default-app-id', 'public', 'data', 'stories'), { title, category: cat, secondaryTags, content: text, images: imageUrls, createdAt: serverTimestamp() });
             alert("Story Published!");
         }
-
         document.getElementById('newTitle').value = "";
         document.getElementById('newText').value = "";
         document.getElementById('newSecondaryTag').value = "";
@@ -304,13 +309,8 @@ document.getElementById('submitStoryBtn').addEventListener('click', async () => 
         editingStoryId = null;
         status.textContent = "";
 
-    } catch(e) {
-        console.error(e);
-        alert("Error: " + e.message);
-        status.textContent = "Error occurred.";
-    } finally {
-        document.getElementById('submitStoryBtn').disabled = false;
-    }
+    } catch(e) { console.error(e); alert("Error: " + e.message); status.textContent = "Error occurred."; } 
+    finally { document.getElementById('submitStoryBtn').disabled = false; }
 });
 
 const storiesRef = collection(db, 'artifacts', 'default-app-id', 'public', 'data', 'stories');
@@ -334,7 +334,6 @@ function renderStories() {
         const timeB = b.createdAt?.seconds || 0;
         const titleA = (a.title || "").toLowerCase();
         const titleB = (b.title || "").toLowerCase();
-
         if(sortVal === 'newest') return timeB - timeA;
         if(sortVal === 'oldest') return timeA - timeB;
         if(sortVal === 'az') return titleA.localeCompare(titleB);
@@ -342,43 +341,38 @@ function renderStories() {
         return 0;
     });
 
-    if(displayList.length === 0){
-        container.innerHTML = "<div style='text-align:center; padding:20px;'>No stories found.</div>";
-        return;
-    }
+    if(displayList.length === 0){ container.innerHTML = "<div style='text-align:center; padding:20px;'>No stories found.</div>"; return; }
 
     displayList.forEach(story => {
-        if(currentPrimary !== 'all' && story.category !== currentPrimary) return;
-        if(currentSecondary !== 'all' && (!story.secondaryTags || !story.secondaryTags.map(t=>t.toLowerCase()).includes(currentSecondary.toLowerCase()))) return;
+    if(currentPrimary !== 'all' && story.category !== currentPrimary) return;
+    if(currentSecondary !== 'all' && (!story.secondaryTags || !story.secondaryTags.map(t=>t.toLowerCase()).includes(currentSecondary.toLowerCase()))) return;
 
-        const entry = document.createElement('div');
-        entry.className = 'story-entry';
+    const entry = document.createElement('div');
+    entry.className = 'story-entry';
+    let title = story.title;
+    let secTagHtml = "";
+    const isVeil = story.category === 'veil-of-alissa';
+    if(isVeil && !hasCode10) title = 'Can Not Attune';
 
-        let secTagHtml = "";
-        if(story.secondaryTags && story.secondaryTags.length>0){
-            const sortedTags = story.secondaryTags.sort((a,b)=>a.toLowerCase().localeCompare(b.toLowerCase()));
-            secTagHtml = sortedTags.map(tag => `<span class="sec-tag">${tag}</span>`).join('');
-        }
+    if(story.secondaryTags && story.secondaryTags.length>0){
+        const sortedTags = story.secondaryTags.sort((a,b)=>a.toLowerCase().localeCompare(b.toLowerCase()));
+        secTagHtml = sortedTags.map(tag => {
+            if(tag.toLowerCase().includes('veil-of-alissa') && !hasCode10) return `<span class="sec-tag" style="color:red">???</span>`;
+            return `<span class="sec-tag">${tag}</span>`;
+        }).join('');
+    }
+    entry.innerHTML = `<div class="story-header"><div class="story-title" style="${isVeil && !hasCode10 ? 'color:red;' : ''}">${title}</div><div class="story-meta">${secTagHtml}<span class="story-cat" style="${isVeil && !hasCode10 ? 'color:red;' : ''}">${isVeil && !hasCode10 ? '???' : story.category}</span></div></div>`;
 
-        entry.innerHTML = `
-            <div class="story-header">
-                <div class="story-title">${story.title}</div>
-                <div class="story-meta">
-                   ${secTagHtml}
-                   <span class="story-cat">${story.category}</span>
-                </div>
-            </div>
-        `;
-
-        entry.addEventListener('click', () => openModal(story));
-        container.appendChild(entry);
+    entry.addEventListener('click', () => {
+        if(isVeil && !hasCode10) alert('Your will cannot attune to this knowledge.');
+        else openModal(story);
     });
-}
+    container.appendChild(entry);
+});}
 
 function openModal(story) {
     document.getElementById('modalTitle').textContent = story.title;
     document.getElementById('modalText').innerHTML = story.content.replace(/\n/g,'<br>');
-    
     const imgContainer = document.getElementById('modalImages');
     imgContainer.innerHTML = "";
     if(story.images && story.images.length > 0){
@@ -389,8 +383,6 @@ function openModal(story) {
             imgContainer.appendChild(img);
         });
     }
-
-    // Admin controls inside modal
     const adminDiv = document.getElementById('modalAdmin');
     adminDiv.innerHTML = "";
     if(currentUser && (currentUser.uid === ADMIN_ID || currentUser.email === "phoeaung2076@gmail.com")){
@@ -408,57 +400,51 @@ function openModal(story) {
              document.getElementById('adminPanel').querySelector('h3').textContent = "Edit Story Entry";
              window.scrollTo(0,0);
          };
-
          const delBtn = document.createElement('button');
          delBtn.textContent = "Delete Story";
          delBtn.style.cssText = "background:#ff6666;color:#111;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:bold;";
-         delBtn.onclick = async () => {
-             if(confirm("Delete this story?")) {
-                 await deleteDoc(doc(db,'artifacts','default-app-id','public','data','stories',story.id));
-                 document.getElementById('storyModal').style.display = 'none';
-             }
-         };
-         
-         adminDiv.appendChild(editBtn);
-         adminDiv.appendChild(delBtn);
+         delBtn.onclick = async () => { if(confirm("Delete this story?")) { await deleteDoc(doc(db,'artifacts','default-app-id','public','data','stories',story.id)); document.getElementById('storyModal').style.display = 'none'; } };
+         adminDiv.appendChild(editBtn); adminDiv.appendChild(delBtn);
     }
-
     document.getElementById('storyModal').style.display = 'flex';
 }
 
-function updateSecondaryTags(){
-    const container = document.getElementById('secondary-tags');
-    const tagsSet = new Set();
-    allStories.forEach(s => {
-        if(currentPrimary==='all' || s.category===currentPrimary){
-            if(s.secondaryTags) s.secondaryTags.forEach(t => tagsSet.add(t));
-        }
-    });
-    const sortedTags = Array.from(tagsSet).sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+function updateSecondaryTags() {
+    const desktopContainer = document.getElementById('secondary-tags');
+    const mobileContainer = document.getElementById('mobileSecondaryContainer');
     
-    let html = `<button class="filter-btn ${currentSecondary==='all'?'active':''}" data-type="secondary" data-filter="all">All</button>`;
-    sortedTags.forEach(tag => {
-        const isActive = currentSecondary.toLowerCase()===tag.toLowerCase()?'active':'';
-        html += `<button class="filter-btn ${isActive}" data-type="secondary" data-filter="${tag}">${tag}</button>`;
-    });
-    container.innerHTML = html;
+    const tagsSet = new Set();
+    allStories.forEach(s => { if (currentPrimary === 'all' || s.category === currentPrimary) { if (s.secondaryTags) s.secondaryTags.forEach(t => tagsSet.add(t)); } });
+    let tags = Array.from(tagsSet);
+    const priorityOrder = ['Session', 'NPC', 'EVENT'];
+    const priorityTags = []; const otherTags = [];
+    tags.forEach(t => { const index = priorityOrder.indexOf(t); if(index !== -1) priorityTags[index] = t; else otherTags.push(t); });
+    const finalTags = [...priorityTags.filter(Boolean), ...otherTags.sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()))];
 
-    container.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.onclick = () => {
-            currentSecondary = btn.dataset.filter;
-            container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            renderStories();
-        };
+    // Build Desktop HTML
+    let desktopHtml = `<button class="filter-btn ${currentSecondary==='all'?'active':''}" onclick="setSec('all')">All</button>`;
+    
+    // Build Mobile HTML
+    let mobileHtml = `<button class="pill-btn ${currentSecondary==='all'?'active':''}" onclick="setSec('all')">All</button>`;
+
+    finalTags.forEach(tag => {
+        const isActive = currentSecondary.toLowerCase() === tag.toLowerCase() ? 'active' : '';
+        desktopHtml += `<button class="filter-btn ${isActive}" onclick="setSec('${tag}')">${tag}</button>`;
+        mobileHtml += `<button class="pill-btn ${isActive}" onclick="setSec('${tag}')">${tag}</button>`;
     });
+
+    desktopContainer.innerHTML = desktopHtml;
+    mobileContainer.innerHTML = mobileHtml;
 }
 
-document.getElementById('sortSelect').addEventListener('change', renderStories);
+// Global function to handle Secondary clicks from both Desktop and Mobile HTML
+window.setSec = (tag) => {
+    currentSecondary = tag;
+    updateSecondaryTags();
+    renderStories();
+};
 
-document.getElementById('hamburger').addEventListener('click', () => {
-    const m = document.getElementById('navMenu');
-    m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-});
+document.getElementById('sortSelect').addEventListener('change', renderStories);
 </script>
 </body>
 </html>
