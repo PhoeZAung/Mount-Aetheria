@@ -79,6 +79,11 @@ input { width:100%; padding:10px; border-radius:6px; border:1px solid #555; back
   <div id="status" style="text-align:center; margin-top:10px; font-weight:bold;"></div>
 
   <button id="logoutBtn" class="action-btn logout-btn">Logout</button>
+
+  <!-- Admin Link (Visible only to admin) -->
+  <div id="adminLinkContainer" style="display:none; margin-top:30px; text-align:center;">
+    <a href="admin.html" id="adminLink" style="color:#ffcc66; font-weight:bold; font-size:18px; text-decoration:none;">Go to Admin Panel</a>
+  </div>
 </div>
 
 <script type="module">
@@ -109,26 +114,32 @@ const profilePic = document.getElementById('profilePic');
 const pfpInput = document.getElementById('pfpInput');
 const displayNameInput = document.getElementById('displayName');
 const statusDiv = document.getElementById('status');
+const adminLinkContainer = document.getElementById('adminLinkContainer');
+
+const ADMIN_UID = "U7uyfcMtULSLJvXD0HzJaiMIeGE3"; // your admin UID
 
 // Auth & Nav Logic
 onAuthStateChanged(auth, async (user) => {
-  const link = document.getElementById('authLink');
-  const mLink = document.getElementById('mobileAuthLink');
-
   if (!user) {
     window.location.href = "login.html";
     return;
   }
   
   currentUser = user;
-  
-  // Set Nav to "My Account" (Current Page)
+
+  // Show admin link only for admin UID
+  if(user.uid === ADMIN_UID){
+      adminLinkContainer.style.display = 'block';
+  }
+
+  const link = document.getElementById('authLink');
+  const mLink = document.getElementById('mobileAuthLink');
   const txt = "My Account";
   const href = "account.html";
   if(link) { link.textContent = txt; link.href = href; }
   if(mLink) { mLink.textContent = txt; mLink.href = href; }
 
-  // Load Data
+  // Load user data
   displayNameInput.value = currentUser.displayName || "";
   if(currentUser.photoURL) profilePic.src = currentUser.photoURL;
 
@@ -163,7 +174,7 @@ pfpInput.addEventListener('change', e => {
   }
 });
 
-// Save Functionality
+// Save Profile
 document.getElementById('saveBtn').addEventListener('click', async () => {
   if(!currentUser) return;
   const btn = document.getElementById('saveBtn');
@@ -182,8 +193,6 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     }
     
     await updateProfile(currentUser, { displayName: newDisplayName, photoURL: finalPfpUrl });
-    
-    // Sync to Firestore for other users to see
     await setDoc(doc(db, 'users', currentUser.uid), { 
       displayName: newDisplayName, 
       pfp: finalPfpUrl, 

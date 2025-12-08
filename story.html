@@ -9,7 +9,7 @@
 body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(to bottom,#222,#444);display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
 /* NAV STYLES */
-.top-nav{width:100%;background:#111;padding:15px 20px;display:flex;justify-content:space-around;align-items:center;position:fixed;top:0;left:0;z-index:2000}
+.top-nav{width:100%;background:#111;padding:15px 20px;display:flex;justify-content:space-around;align-items:center;position:fixed;top:0;left:0;z-index:2000;}
 .top-nav a{color:#fff;text-decoration:none;font-size:18px;font-weight:600;font-family:'Uncial Antiqua',serif}
 .top-nav a:hover{color:#ffcc66}
 #hamburger{display:none;position:fixed;top:15px;left:15px;background:#111;color:#fff;border:none;padding:10px;font-size:24px;cursor:pointer;z-index:2001;border-radius:5px;}
@@ -26,7 +26,7 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(to bottom,
 .filter-btn:hover,.filter-btn.active{background:#ffcc66;color:#111;}
 
 /* Mobile Header for Primary Tags */
-.mobile-primary-header { display: none; justify-content: center; align-items: center; gap: 10px; margin-bottom: 5px; width: 100%; position: relative; }
+.mobile-primary-header { display: none; justify-content: center; align-items: center; gap: 10px; margin-bottom: 5px; width: 100%; position: relative;}
 #primaryHamburger { background:#111; color:#ffcc66; border:1px solid #333; padding:5px 10px; font-size:18px; cursor:pointer; border-radius:5px; }
 #currentPrimaryLabel { font-family: 'Uncial Antiqua', serif; color: #ffcc66; font-size: 18px; }
 
@@ -125,9 +125,9 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(to bottom,
 
     <div id="primary-tags">
         <button class="filter-btn active" data-type="primary" data-filter="all" data-label="All">All</button>
-        <button class="filter-btn" data-type="primary" data-filter="dark-grasp" data-label="Dark Grasp">Dark Grasp</button>
         <button class="filter-btn" data-type="primary" data-filter="mount-aetheria" data-label="Mount Aetheria">Mount Aetheria</button>
-        <button class="filter-btn" data-type="primary" data-filter="rean-legacy" data-label="Re'an Legacy">Re'an Legacy</button>
+        <button class="filter-btn" data-type="primary" data-filter="dark-grasp" data-label="Dark Grasp">Dark Grasp</button>
+        <button class="filter-btn" data-type="primary" data-filter="rean-legacy" data-label="Ra'en Legacy">Ra'en Legacy</button>
         <button class="filter-btn" data-type="primary" data-filter="scourgefall" data-label="Scourgefall">Scourgefall</button>
         <button class="filter-btn" data-type="primary" data-filter="unknown" data-label="Unknown">Unknown</button>
         <button class="filter-btn" data-type="primary" data-filter="veil-of-alissa" data-label="Veil of Alissa">Veil of Alissa</button>
@@ -146,12 +146,12 @@ body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(to bottom,
       <h3 style="margin-top:0; font-family:'Uncial Antiqua'">Create / Edit Story Entry</h3>
       <input type="text" id="newTitle" placeholder="Story Title">
       <select id="newCategory">
+          <option value="mount-aetheria">Mount Aetheria</option>
           <option value="dark-grasp">Dark Grasp</option>
-          <option value="rean-legacy">Re'an Legacy</option>
+          <option value="rean-legacy">Ra'en Legacy</option>
           <option value="veil-of-alissa">Veil of Alissa</option>
           <option value="scourgefall">Scourgefall</option>
           <option value="unknown">Unknown</option>
-          <option value="mount-aetheria">Mount Aetheria</option>
       </select>
       <input type="text" id="newSecondaryTag" placeholder="Secondary Tag (comma separated)">
       <textarea id="newText" rows="5" placeholder="Story Content..."></textarea>
