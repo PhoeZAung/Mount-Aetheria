@@ -6,19 +6,15 @@
 <title>Admin — Master Editor</title>
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
-  /* --- ADMIN LAYOUT STYLES --- */
   :root { --bg:#111; --panel:#222; --muted:#aaa; --accent:#ffcc66; --good:#4caf50; --bad:#ff6666; }
   body { margin:0; font-family:Arial,Helvetica,sans-serif; background:#0b0b0b; color:#fff; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
   
-  /* Header */
   header { height:50px; background:var(--panel); display:flex; align-items:center; padding:0 18px; border-bottom:1px solid #333; flex-shrink:0; justify-content: space-between;}
-  header h1 { font-family:'Uncial Antiqua',serif; color:var(--accent); margin:0; font-size:20px; }
+  header h1 { font-family:'Uncial Antiqua',serif; color:var(--accent); margin:0; font-size:20px; cursor: pointer; text-decoration: none; }
 
-  /* Main Layout */
-  #layout { display:flex; flex:1; overflow:hidden; }
+  #layout { display:flex; flex:1; overflow:hidden; position: relative; }
   
-  /* Sidebar (User List) */
-  #sidebar { width:250px; background:#181818; border-right:1px solid #333; display:flex; flex-direction:column; flex-shrink:0; }
+  #sidebar { width:250px; background:#181818; border-right:1px solid #333; display:flex; flex-direction:column; flex-shrink:0; transition: transform 0.3s ease; }
   #userSearch { background:#000; border:none; border-bottom:1px solid #333; color:#fff; padding:15px; width:100%; box-sizing:border-box; outline:none; }
   #usersList { flex:1; overflow-y:auto; }
   .userItem { padding:10px 15px; cursor:pointer; border-bottom:1px solid #222; transition:0.2s; }
@@ -27,28 +23,25 @@
   .userItem .uName { font-weight:bold; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .userItem .uMeta { font-size:11px; opacity:0.7; }
 
-  /* Editor Area (Right Side) */
   #editorArea { flex:1; display:flex; flex-direction:column; background:#111; position:relative; overflow:hidden; }
   #emptyState { display:flex; align-items:center; justify-content:center; height:100%; color:#444; font-family:'Uncial Antiqua'; font-size:24px; }
+  #backBtnMobile { display: none; background: #333; color: #fff; border: none; padding: 10px; text-align: left; font-weight: bold; cursor: pointer; border-bottom: 1px solid #444; }
   
-  /* --- COPIED CHARACTER SHEET STYLES (Scoped to #sheetContainer) --- */
   #sheetContainer { flex:1; overflow-y:auto; padding:20px; display:none; }
   #sheetContainer.active { display:block; }
 
-  /* Re-using styles from characters.html but adapted for the container */
-  .tabs-container { display: flex; width: 100%; max-width: 1000px; margin: 0 auto; gap:20px; }
-  .tab-menu { display: flex; flex-direction: column; width: 160px; background: #1a1a1a; padding: 10px; gap: 5px; border-radius:8px; height:fit-content; }
-  .tab-menu button { background: #333; color: #fff; border: none; padding: 10px; cursor: pointer; border-radius: 4px; text-align: left; font-family: 'Uncial Antiqua', serif; }
+  .tabs-container { display: flex; width: 100%; max-width: 1000px; margin: 0 auto; gap:20px; flex-direction: column; }
+  .tab-menu { display: flex; flex-wrap: wrap; width: 100%; background: #1a1a1a; padding: 10px; gap: 5px; border-radius:8px; box-sizing: border-box; }
+  .tab-menu button { background: #333; color: #fff; border: none; padding: 10px; cursor: pointer; border-radius: 4px; text-align: left; font-family: 'Uncial Antiqua', serif; flex: 1; min-width: 80px; text-align: center; }
   .tab-menu button:hover, .tab-menu button.active { background: var(--accent); color: #000; }
   
-  .tab-content { flex: 1; display: none; background: #222; padding: 20px; border-radius: 8px; border:1px solid #333; }
+  .tab-content { flex: 1; display: none; background: #222; padding: 20px; border-radius: 8px; border:1px solid #333; margin-top: 10px; }
   .tab-content.active { display: block; animation: fadeIn 0.3s; }
 
   h2, h3, h4 { font-family: 'Uncial Antiqua', serif; color: var(--accent); margin-top:0; }
   input, textarea, select { background: #111; border: 1px solid #444; color: #fff; padding: 6px; border-radius: 4px; width:100%; box-sizing:border-box; }
   input:focus, textarea:focus { border-color: var(--accent); outline: none; }
   
-  /* Grid & Tables */
   .bio-grid { display: grid; grid-template-columns: 100px 1fr; gap: 10px; align-items: center; margin-bottom: 20px; }
   .bio-grid label { text-align: right; color: #888; font-size:12px; font-weight:bold; }
   
@@ -56,49 +49,54 @@
   .ability-table th, .ability-table td { border: 1px solid #444; padding: 5px; }
   .modifier { color: var(--accent); font-weight: bold; }
 
-  /* Combat Headers */
   .combat-header { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; background: #181818; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
   .stat-group { display: flex; flex-direction: column; align-items: center; }
   .stat-group label { font-size: 11px; color: var(--accent); margin-bottom: 4px; }
   .stat-row { display:flex; align-items:center; gap:5px; }
 
-  /* Sub Tabs */
-  .sub-nav { display: flex; gap:10px; border-bottom: 1px solid #444; margin-bottom: 15px; padding-bottom:5px; }
-  .sub-tab-btn { background: none; border: none; color: #888; cursor: pointer; font-family:'Uncial Antiqua'; font-size:14px; }
+  .sub-nav { display: flex; gap:10px; border-bottom: 1px solid #444; margin-bottom: 15px; padding-bottom:5px; overflow-x: auto; }
+  .sub-tab-btn { background: none; border: none; color: #888; cursor: pointer; font-family:'Uncial Antiqua'; font-size:14px; white-space: nowrap; }
   .sub-tab-btn.active { color: var(--accent); text-decoration: underline; }
   .sub-content { display: none; }
   .sub-content.active { display: block; }
 
-  /* Lists (Details/Summary) */
   details { background: #181818; border: 1px solid #333; border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
   details summary { padding: 8px 12px; cursor: pointer; background: #252525; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
   details[open] summary { border-bottom: 1px solid #333; }
   .details-content { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
   
-  /* Buttons */
   .btn-add { width:100%; background:var(--accent); color:#000; border:none; padding:8px; font-weight:bold; cursor:pointer; border-radius:4px; margin-top:10px; }
   .btn-remove { background:#ff4444; color:#fff; border:none; padding:2px 6px; border-radius:2px; cursor:pointer; font-size:10px; }
   
-  /* Skills */
   .skills-table { width:100%; border-collapse:collapse; font-size:13px; }
   .skills-table th { text-align:left; color:var(--accent); border-bottom:1px solid #444; padding:5px; }
   .skills-table td { padding:4px; border-bottom:1px solid #333; }
   .skill-disabled { opacity:0.5; }
 
-  /* Items */
   .item-preview { width:40px; height:40px; border:1px solid #444; background:#000; object-fit:cover; }
 
   @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 
-  /* Admin Status Bar */
-  #adminBar { position:absolute; bottom:0; left:0; right:0; background:var(--accent); color:#000; padding:5px 10px; font-size:12px; font-weight:bold; display:flex; justify-content:space-between; }
+  #adminBar { position:absolute; bottom:0; left:0; right:0; background:var(--accent); color:#000; padding:5px 10px; font-size:12px; font-weight:bold; display:flex; justify-content:space-between; z-index: 100; }
+
+  @media(max-width:768px){
+    #sidebar { width: 100%; position: absolute; z-index: 10; height: 100%; }
+    #editorArea { width: 100%; position: absolute; z-index: 20; height: 100%; transform: translateX(100%); transition: transform 0.3s ease; background: #000; }
+    
+    body.show-editor #sidebar { transform: translateX(-20%); opacity: 0; }
+    body.show-editor #editorArea { transform: translateX(0); }
+    #backBtnMobile { display: block; }
+    
+    .tabs-container { padding: 0; }
+    .bio-grid { grid-template-columns: 80px 1fr; }
+  }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Mount Aetheria — Admin Console</h1>
-  <div style="font-size:12px; color:#888;">Logged in as Admin</div>
+  <h1 onclick="window.location.href='index.html'">Mount Aetheria</h1>
+  <div style="font-size:12px; color:#888;">Admin</div>
 </header>
 
 <div id="layout">
@@ -108,16 +106,18 @@
   </div>
 
   <div id="editorArea">
+    <button id="backBtnMobile" onclick="closeMobileEditor()">← Back to User List</button>
+    
     <div id="emptyState">Select a user to edit their sheet</div>
     
     <div id="sheetContainer">
       <div class="tabs-container">
         <div class="tab-menu">
-          <button class="tab-btn active" data-tab="character">Character</button>
-          <button class="tab-btn" data-tab="combat">Combat</button>
-          <button class="tab-btn" data-tab="skills">Skills</button>
-          <button class="tab-btn" data-tab="items">Items</button>
-          <button class="tab-btn" data-tab="notes">Notes</button>
+          <button class="tab-btn active" data-tab="character">Bio</button>
+          <button class="tab-btn" data-tab="combat">Cmbt</button>
+          <button class="tab-btn" data-tab="skills">Skill</button>
+          <button class="tab-btn" data-tab="items">Item</button>
+          <button class="tab-btn" data-tab="notes">Note</button>
         </div>
 
         <div class="tab-content active" id="character">
@@ -156,7 +156,7 @@
             <button class="sub-tab-btn active" data-sub="offense">Offense</button>
             <button class="sub-tab-btn" data-sub="defense">Defense</button>
             <button class="sub-tab-btn" data-sub="spells">Spells</button>
-            <button class="sub-tab-btn" data-sub="feats">Feats/Abils</button>
+            <button class="sub-tab-btn" data-sub="feats">Feats</button>
           </div>
 
           <div id="offense" class="sub-content active">
@@ -234,7 +234,12 @@
             <textarea id="notesArea" class="save-field" style="height:400px; font-family:sans-serif;"></textarea>
         </div>
 
-      </div> </div> <div id="adminBar">
+      </div> 
+      
+      <div style="height:40px;"></div>
+    </div> 
+    
+    <div id="adminBar">
       <span id="statusText">Ready</span>
       <span id="targetUserUID">No User Selected</span>
     </div>
@@ -246,7 +251,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebas
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, getDocs, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// --- CONFIG ---
 const firebaseConfig = {
   apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",
   authDomain: "mount-aetheria.firebaseapp.com",
@@ -259,19 +263,16 @@ const firebaseConfig = {
 const ADMIN_UID = "U7uyfcMtULSLJvXD0HzJaiMIeGE3";
 const ADMIN_EMAIL = "phoeaung2076@gmail.com";
 
-// --- INIT ---
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// --- GLOBAL STATE ---
 let allUsers = [];
 let selectedUserUid = null;
-let unsubscribeSheet = null; // To stop listening when switching users
+let unsubscribeSheet = null;
 let saveTimeout = null;
-let isInternalUpdate = false; // Prevent write loops
+let isInternalUpdate = false;
 
-// --- SKILLS DB ---
 const SKILLS_DB = [
     {name: "Acrobatics", stat: "dex", trained: false}, {name: "Appraise", stat: "int", trained: false},
     {name: "Bluff", stat: "cha", trained: false}, {name: "Climb", stat: "str", trained: false},
@@ -288,7 +289,6 @@ const SKILLS_DB = [
     {name: "Swim", stat: "str", trained: false}, {name: "Use Magic Device", stat: "cha", trained: true}
 ];
 
-// --- AUTH ---
 onAuthStateChanged(auth, async (user) => {
   if(!user) { window.location.href="login.html"; return; }
   if(user.uid !== ADMIN_UID && user.email !== ADMIN_EMAIL) {
@@ -298,7 +298,10 @@ onAuthStateChanged(auth, async (user) => {
   loadUserList();
 });
 
-// --- USER LIST ---
+window.closeMobileEditor = () => {
+    document.body.classList.remove('show-editor');
+};
+
 async function loadUserList(){
     const listEl = document.getElementById('usersList');
     listEl.innerHTML = '<div style="padding:15px">Fetching users...</div>';
@@ -339,9 +342,7 @@ document.getElementById('userSearch').addEventListener('input', (e)=>{
     renderUserList(filtered);
 });
 
-// --- SELECT USER ---
 function selectUser(uid, el){
-    // UI Highlight
     document.querySelectorAll('.userItem').forEach(d => d.classList.remove('selected'));
     if(el) el.classList.add('selected');
 
@@ -351,28 +352,27 @@ function selectUser(uid, el){
     document.getElementById('sheetContainer').style.display = 'block';
     document.getElementById('sheetContainer').classList.add('active');
 
-    // Init Logic
+    document.body.classList.add('show-editor');
+
     initSkillsTable();
     startListening(uid);
 }
 
-// --- REAL-TIME LISTENER ---
 function startListening(uid){
     if(unsubscribeSheet) unsubscribeSheet();
     
-    const docRef = doc(db, 'users', uid, 'sheet', 'character'); // Correct Singular Path
+    const docRef = doc(db, 'users', uid, 'sheet', 'character');
     
     document.getElementById('statusText').textContent = "Syncing...";
     
     unsubscribeSheet = onSnapshot(docRef, (docSnap) => {
         if(docSnap.exists()){
-            isInternalUpdate = true; // Don't trigger save loops
+            isInternalUpdate = true;
             populateSheet(docSnap.data());
             isInternalUpdate = false;
             document.getElementById('statusText').textContent = "Synced";
             document.getElementById('statusText').style.color = "#4caf50";
         } else {
-            // New Sheet
             document.getElementById('statusText').textContent = "No Sheet Data (Empty)";
         }
     }, (err) => {
@@ -382,14 +382,11 @@ function startListening(uid){
     });
 }
 
-// --- POPULATE UI ---
 function populateSheet(data){
-    // 1. Static Fields
     document.querySelectorAll('.save-field').forEach(el => {
         if(data[el.id] !== undefined) el.value = data[el.id];
     });
 
-    // 2. Dynamic Lists (Clear and Rebuild)
     document.getElementById('weaponList').innerHTML='';
     if(data.weapons) data.weapons.forEach(w => addWeaponRow(w));
 
@@ -408,7 +405,6 @@ function populateSheet(data){
     document.getElementById('itemList').innerHTML='';
     if(data.items) data.items.forEach(x => addItemRow(x));
 
-    // 3. Skills
     if(data.skills){
         const rows = document.querySelectorAll('.skill-row');
         data.skills.forEach((s, i) => {
@@ -422,20 +418,17 @@ function populateSheet(data){
     updateCalculations();
 }
 
-// --- CALCULATION LOGIC ---
 function getMod(id) {
     const val = document.getElementById(id).value;
     return val ? Math.floor((Number(val)-10)/2) : 0;
 }
 
 function updateCalculations(){
-    // Stats
     ['str','dex','con','int','wis','cha'].forEach(stat => {
         const mod = getMod(stat);
         document.getElementById('mod-'+stat).textContent = (mod>=0?'+':'')+mod;
     });
 
-    // Saves
     const con = getMod('con');
     const dex = getMod('dex');
     const wis = getMod('wis');
@@ -447,7 +440,6 @@ function updateCalculations(){
     document.getElementById('ref_total').textContent = (dex+rB >=0?'+':'')+(dex+rB);
     document.getElementById('will_total').textContent = (wis+wB >=0?'+':'')+(wis+wB);
 
-    // Skills
     document.querySelectorAll('.skill-row').forEach(row => {
         const stat = row.dataset.stat;
         const mod = getMod(stat);
@@ -468,7 +460,6 @@ function updateCalculations(){
     });
 }
 
-// --- SAVING ---
 function triggerSave(){
     if(isInternalUpdate || !selectedUserUid) return;
     
@@ -484,10 +475,8 @@ async function saveData(){
     
     const payload = {};
     
-    // Static
     document.querySelectorAll('.save-field').forEach(el => payload[el.id] = el.value);
 
-    // Skills
     payload.skills = [];
     document.querySelectorAll('.skill-row').forEach(row => {
         payload.skills.push({
@@ -496,10 +485,7 @@ async function saveData(){
         });
     });
 
-    // Lists (Scrapers)
     payload.weapons = scrapeList('weaponList', ['.w-name','.w-atk'], ['name','atk']); 
-    // Note: Complex weapon attributes omitted for brevity, but can be added if needed
-    
     payload.spells = scrapeList('spellList', ['.l-val','.n-val','.k-val','.d-val'], ['lvl','name','link','desc']);
     payload.activeAbilities = scrapeList('activeList', ['.n-val','.u-val','.d-val'], ['name','uses','desc']);
     payload.passiveAbilities = scrapeList('passiveList', ['.n-val','.d-val'], ['name','desc']);
@@ -517,7 +503,6 @@ async function saveData(){
     }
 }
 
-// --- DYNAMIC LIST HELPERS ---
 function scrapeList(id, selectors, keys){
     const list = [];
     document.getElementById(id).querySelectorAll('details').forEach(d => {
@@ -533,17 +518,15 @@ function createRow(containerId, titleFunc, html, data={}){
     div.innerHTML = `<summary>${titleFunc() || 'New Item'}</summary><div class="details-content">${html}<button class="btn-remove">Remove</button></div>`;
     document.getElementById(containerId).appendChild(div);
     
-    // Bind Events
     div.querySelectorAll('input,textarea,select').forEach(i => i.addEventListener('input', () => {
         div.querySelector('summary').textContent = titleFunc() || 'New Item';
         triggerSave();
     }));
     div.querySelector('.btn-remove').onclick = () => { div.remove(); triggerSave(); };
-    div.querySelectorAll('input').forEach(i => i.value = i.getAttribute('value')||''); // Set initial values
+    div.querySelectorAll('input').forEach(i => i.value = i.getAttribute('value')||'');
     return div;
 }
 
-// Specific Row Creators (Simpler versions of Character Sheet logic)
 function addWeaponRow(d={}){ 
     const html = `<input class="w-name" value="${d.name||''}" placeholder="Name"><input class="w-atk" value="${d.atk||''}" placeholder="Attack Mod">`;
     createRow('weaponList', ()=>d.name||document.querySelector('.w-name')?.value, html, d);
@@ -569,7 +552,6 @@ function addItemRow(d={}){
     createRow('itemList', ()=>d.name||'', html, d);
 }
 
-// --- SKILL TABLE BUILDER ---
 function initSkillsTable(){
     const body = document.getElementById('skillsTableBody');
     body.innerHTML = '';
@@ -593,7 +575,6 @@ function initSkillsTable(){
     });
 }
 
-// --- TAB LOGIC ---
 document.querySelectorAll('.tab-btn').forEach(b => b.onclick = (e) => {
     document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
@@ -607,7 +588,6 @@ document.querySelectorAll('.sub-tab-btn').forEach(b => b.onclick = (e) => {
     document.getElementById(e.target.dataset.sub).classList.add('active');
 });
 
-// --- ADD BUTTONS ---
 document.getElementById('btnAddWeapon').onclick = () => addWeaponRow();
 document.getElementById('btnAddSpell').onclick = () => addSpellRow();
 document.getElementById('btnAddActive').onclick = () => addActiveRow();
@@ -615,7 +595,6 @@ document.getElementById('btnAddPassive').onclick = () => addPassiveRow();
 document.getElementById('btnAddFeat').onclick = () => addFeatRow();
 document.getElementById('btnAddItem').onclick = () => addItemRow();
 
-// Global Inputs save trigger
 document.body.addEventListener('input', (e) => {
     if(e.target.classList.contains('save-field') || e.target.classList.contains('calc-stat')) {
         updateCalculations();
