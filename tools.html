@@ -5,10 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tools - Mount Aetheria</title>
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 /* --- THEME --- */
 :root { --bg: #1a1a1a; --panel: #252525; --border: #333; --accent: #ffcc66; --text: #ddd; }
-body { margin: 0; padding-top: 70px; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); text-align: center; min-height: 100vh; }
+*{box-sizing: border-box;}
+body { margin: 0; padding-top: 70px; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
 /* --- NAV --- */
 .top-nav { position: fixed; top: 0; left: 0; right: 0; height: 50px; background: #000; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
@@ -17,11 +19,24 @@ body { margin: 0; padding-top: 70px; font-family: Arial, sans-serif; background:
 .nav-links a { color: #888; text-decoration: none; font-size: 14px; font-weight: bold; }
 .nav-links a:hover, .nav-links a.active { color: #fff; }
 #hamburgerBtn { display: none; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 0; }
-#mobileMenu { display: none; position: fixed; top: 50px; left: 0; width: 100%; background: #111; border-bottom: 1px solid var(--accent); flex-direction: column; z-index: 1999; }
-#mobileMenu.show { display: flex; }
-#mobileMenu a { padding: 15px 20px; color: #fff; text-decoration: none; border-bottom: 1px solid #333; font-family: 'Uncial Antiqua'; }
 
-h1 { color: var(--accent); font-family: 'Uncial Antiqua'; }
+#mobileMenu { 
+  display: none; 
+  position: fixed; top: 50px; left: 0; width: 100%; 
+  background: #111; border-bottom: 1px solid var(--accent); 
+  flex-direction: column; z-index: 1999; 
+  align-items: flex-start; /* Left align */
+}
+#mobileMenu.show { display: flex; }
+#mobileMenu a { 
+  width: 100%; padding: 15px 20px; 
+  color: #fff; text-decoration: none; 
+  border-bottom: 1px solid #333; 
+  font-family: 'Uncial Antiqua'; 
+  text-align: left; 
+}
+
+h1 { color: var(--accent); font-family: 'Uncial Antiqua'; text-align: center; margin-bottom: 30px; }
 
 /* TABS */
 .tab-buttons { margin: 20px auto; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; max-width: 90%; }
@@ -33,24 +48,51 @@ h1 { color: var(--accent); font-family: 'Uncial Antiqua'; }
 .tab-content { display: none; max-width: 900px; margin: 0 auto 50px auto; text-align: center; }
 .tab-content.active { display: block; }
 
+/* URL CARDS */
 .url-grid { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; padding: 10px; }
-.url-card { width: 150px; height: 150px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: #fff; font-weight: bold; transition: .2s; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-.url-card img { width: 60px; height: 60px; margin-bottom: 10px; }
+.url-card { width: 150px; height: 150px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: #fff; font-weight: bold; transition: .2s; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); padding: 10px; }
+.url-card img { width: 100%; height: 60px; object-fit: contain; margin-bottom: 10px; }
 .url-card:hover { background: #333; transform: translateY(-3px); border-color: var(--accent); }
 
-.calendar { background: var(--panel); padding: 15px; border-radius: 12px; text-align: left; max-width: 600px; margin: 0 auto; border: 1px solid var(--border); }
-.calendar h2 { font-family: 'Uncial Antiqua', cursive; margin-bottom: 15px; font-size: 18px; color: var(--accent); }
-.event { background: #333; margin: 8px 0; padding: 8px; border-radius: 6px; font-size: 14px; }
-.event span.date { font-weight: bold; margin-right: 8px; color: var(--accent); }
-.calendar-filters { margin-bottom: 10px; display: flex; gap: 5px; flex-wrap: wrap; }
-.calendar-filters button { background: #222; border: 1px solid #555; color: #fff; padding: 6px 12px; font-size: 14px; border-radius: 6px; cursor: pointer; }
-.calendar-filters button.active { background: var(--accent); color: #000; font-weight: bold; }
+/* CALENDAR */
+.calendar { background: var(--panel); padding: 20px; border-radius: 12px; text-align: left; max-width: 700px; margin: 0 auto; border: 1px solid var(--border); min-height: 300px; }
+.calendar h2 { font-family: 'Uncial Antiqua', cursive; margin-top: 0; margin-bottom: 20px; font-size: 22px; color: var(--accent); text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; }
+.calendar-filters { margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.calendar-btn { background: #222; border: 1px solid #555; color: #ccc; padding: 8px 16px; font-size: 14px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+.calendar-btn.active { background: var(--accent); color: #000; font-weight: bold; border-color: var(--accent); }
+.calendar-btn:hover { border-color: #999; }
 
+/* EVENTS LIST */
+.event-list { display: none; }
+.event-list.active { display: block; }
+.event-item { background: #333; margin: 10px 0; padding: 12px 15px; border-radius: 8px; font-size: 15px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--accent); }
+.event-item .date { font-weight: bold; color: var(--accent); margin-right: 10px; min-width: 80px; }
+.event-item .desc { flex: 1; color: #ddd; }
+.event-item .del-btn { background: none; border: none; color: #e74c3c; cursor: pointer; opacity: 0.7; padding: 5px; margin-left: 10px; font-size: 16px; }
+
+/* ADMIN PANEL */
+#adminPanel { display: none; background: #2a1a1a; padding: 15px; border: 1px solid #633; border-radius: 8px; margin-bottom: 20px; }
+#adminPanel h3 { margin: 0 0 10px 0; color: #eaa; font-size: 16px; }
+.admin-form { display: flex; gap: 10px; flex-wrap: wrap; }
+.admin-form input, .admin-form select { background: #111; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 4px; flex: 1; }
+.admin-form button { background: var(--accent); color: #000; border: none; padding: 8px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; }
+
+.empty-msg { text-align: center; color: #666; font-style: italic; padding: 20px; }
+
+/* MOBILE ADJUSTMENTS */
 @media(max-width:768px){
   .nav-links { display: none; }
   #hamburgerBtn { display: block; }
   .url-grid { gap: 10px; }
-  .url-card { width: 45%; height: 120px; }
+  .url-card { width: 45%; height: 130px; }
+  .admin-form { flex-direction: column; }
+  
+  /* Compact Tabs & Filters for Mobile */
+  .tab-buttons { width: 100%; gap: 5px; padding: 0 10px; }
+  .tab-buttons button { padding: 8px 0; font-size: 14px; width: 48%; max-width: none; flex: initial; }
+  
+  .calendar-filters { gap: 5px; }
+  .calendar-btn { padding: 6px 10px; font-size: 12px; }
 }
 </style>
 </head>
@@ -86,23 +128,41 @@ h1 { color: var(--accent); font-family: 'Uncial Antiqua'; }
 <div class="tab-content active" id="links">
   <div class="url-grid">
     <a href="https://www.d20pfsrd.com/" target="_blank" class="url-card">
-      <img src="Logo/Pathfinder.png" alt="Pathfinder" onerror="this.src='https://via.placeholder.com/60'"> Pathfinder
+      <img src="Logo/Pathfinder.png" alt="Pathfinder" onerror="this.src='https://via.placeholder.com/100x60?text=PF'"> Pathfinder
     </a>
     <a href="https://www.finalfantasyd20.com/" target="_blank" class="url-card">
-      <img src="Logo/FFD20.png" alt="FFD20" onerror="this.src='https://via.placeholder.com/60'"> FFD20
+      <img src="Logo/FFD20.png" alt="FFD20" onerror="this.src='https://via.placeholder.com/100x60?text=FFD20'"> FFD20
     </a>
     <a href="https://www.owlbear.rodeo/" target="_blank" class="url-card">
-      <img src="Logo/Owlbear.png" alt="Owlbear" onerror="this.src='https://via.placeholder.com/60'"> Owlbear
+      <img src="Logo/Owlbear.png" alt="Owlbear" onerror="this.src='https://via.placeholder.com/100x60?text=Owl'"> Owlbear
     </a>
     <a href="https://reactive.fugi.tech/" target="_blank" class="url-card">
-      <img src="Logo/Reactive.png" alt="Reactive" onerror="this.src='https://via.placeholder.com/60'"> Reactive
+      <img src="Logo/Reactive.png" alt="Reactive" onerror="this.src='https://via.placeholder.com/100x60?text=React'"> Reactive
     </a>
   </div>
 </div>
 
 <div class="tab-content" id="calendar">
   <div class="calendar">
+    
+    <div id="adminPanel">
+      <h3><i class="fa-solid fa-hammer"></i> Calendar Admin</h3>
+      <div class="admin-form">
+        <select id="newEvGroup">
+          <option value="groupA">Dark Grasp</option>
+          <option value="groupB">Ra'en Legacy</option>
+          <option value="groupC">Scourgefall</option>
+          <option value="groupD">Unknown</option>
+          <option value="groupE">???</option>
+        </select>
+        <input type="text" id="newEvDate" placeholder="Date (e.g. Dec 25)">
+        <input type="text" id="newEvDesc" placeholder="Description...">
+        <button id="addEvBtn">Add Event</button>
+      </div>
+    </div>
+
     <h2>Upcoming Events</h2>
+    
     <div class="calendar-filters">
       <button class="calendar-btn active" data-group="groupA">Dark Grasp</button>
       <button class="calendar-btn" data-group="groupB">Ra'en Legacy</button>
@@ -111,49 +171,118 @@ h1 { color: var(--accent); font-family: 'Uncial Antiqua'; }
       <button class="calendar-btn" data-group="groupE">???</button>
     </div>
 
-    <div class="event-group" id="groupA" style="display:block;">
-      <div class="event"><span class="date">Dec 28:</span> Christmas Special</div>
-      <div class="event"><span class="date">Jan 11:</span> Session 7</div>
+    <div id="eventsContainer">
+      <div class="event-list active" id="groupA"></div>
+      <div class="event-list" id="groupB"></div>
+      <div class="event-list" id="groupC"></div>
+      <div class="event-list" id="groupD"></div>
+      <div class="event-list" id="groupE"></div>
     </div>
-
-    <div class="event-group" id="groupB" style="display:none;">
-      <div class="event"><span class="date">Dec 20:</span> Plans</div>
-    </div>
-
-    <div class="event-group" id="groupC" style="display:none;">
-      <div class="event"><span class="date">Dec 29:</span> ???</div>
-    </div>
-    <div class="event-group" id="groupD" style="display:none;">
-      <div class="event"><span class="date">Dec 29:</span> ???</div>
-    </div>
-    <div class="event-group" id="groupE" style="display:none;">
-      <div class="event"><span class="date">Dec 29:</span> ???</div>
-    </div>
+    
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-const firebaseConfig={apiKey:"AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",authDomain:"mount-aetheria.firebaseapp.com",projectId:"mount-aetheria",storageBucket:"mount-aetheria.firebasestorage.app",messagingSenderId:"492855693446",appId:"1:492855693446:web:f9948569254a7220c38107",measurementId:"G-0PF84KDN7L"};
-const app=initializeApp(firebaseConfig),auth=getAuth(app);
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+const firebaseConfig={apiKey:"AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",authDomain:"mount-aetheria.firebaseapp.com",projectId:"mount-aetheria",storageBucket:"mount-aetheria.firebasestorage.app",messagingSenderId:"492855693446",appId:"1:492855693446:web:f9948569254a7220c38107",measurementId:"G-0PF84KDN7L"};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+let isAdmin = false;
+
+// AUTH CHECK
 onAuthStateChanged(auth, user => {
   const link = document.getElementById('authLink');
   const mLink = document.getElementById('mobileAuthLink');
+  
   if(user){
      const txt = "My Account"; const href = "account.html";
      link.textContent = txt; link.href = href;
      mLink.textContent = txt; mLink.href = href;
+     
+     // Check Admin
+     if(user.email === "phoeaung2076@gmail.com") {
+        isAdmin = true;
+        document.getElementById('adminPanel').style.display = 'block';
+     }
   } else {
      const txt = "Sign In"; const href = "signin.html";
      link.textContent = txt; link.href = href;
      mLink.textContent = txt; mLink.href = href;
+     isAdmin = false;
+     document.getElementById('adminPanel').style.display = 'none';
   }
+  loadEvents(); 
 });
-</script>
 
-<script>
+// LOAD EVENTS
+async function loadEvents(){
+  const q = query(collection(db, "events"), orderBy("date")); 
+  const snap = await getDocs(q);
+  
+  ['groupA','groupB','groupC','groupD','groupE'].forEach(id => {
+      document.getElementById(id).innerHTML = '';
+  });
+
+  let hasEvents = { groupA:false, groupB:false, groupC:false, groupD:false, groupE:false };
+
+  snap.forEach(d => {
+    const data = d.data();
+    const list = document.getElementById(data.group);
+    if(list){
+      hasEvents[data.group] = true;
+      const el = document.createElement('div');
+      el.className = 'event-item';
+      el.innerHTML = `
+        <span class="date">${data.date}</span>
+        <span class="desc">${data.desc}</span>
+        ${isAdmin ? `<button class="del-btn" data-id="${d.id}"><i class="fa-solid fa-trash"></i></button>` : ''}
+      `;
+      list.appendChild(el);
+    }
+  });
+
+  for(const [gid, has] of Object.entries(hasEvents)){
+      if(!has) {
+          document.getElementById(gid).innerHTML = '<div class="empty-msg">No upcoming events listed.</div>';
+      }
+  }
+
+  if(isAdmin){
+      document.querySelectorAll('.del-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+              if(confirm("Delete this event?")) {
+                  await deleteDoc(doc(db, "events", btn.dataset.id));
+                  loadEvents();
+              }
+          });
+      });
+  }
+}
+
+// ADD EVENT
+document.getElementById('addEvBtn').addEventListener('click', async () => {
+    const group = document.getElementById('newEvGroup').value;
+    const date = document.getElementById('newEvDate').value;
+    const desc = document.getElementById('newEvDesc').value;
+
+    if(!date || !desc) return alert("Please fill in date and description");
+
+    await addDoc(collection(db, "events"), {
+        group, date, desc,
+        createdAt: new Date()
+    });
+    
+    document.getElementById('newEvDate').value = '';
+    document.getElementById('newEvDesc').value = '';
+    loadEvents();
+});
+
+// TABS Logic
 const tabButtons = document.querySelectorAll('.tab-btn');
 const tabContents = document.querySelectorAll('.tab-content');
 tabButtons.forEach(btn => {
@@ -164,13 +293,18 @@ tabButtons.forEach(btn => {
         document.getElementById(btn.dataset.tab).classList.add('active');
     });
 });
-const calendarButtons = document.querySelectorAll('.calendar-btn');
-const eventGroups = document.querySelectorAll('.event-group');
-calendarButtons.forEach(b => b.addEventListener('click', () => {
-    calendarButtons.forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    eventGroups.forEach(t => t.style.display = (t.id === b.dataset.group ? 'block' : 'none'));
-}));
+
+// CALENDAR FILTER Logic
+const calButtons = document.querySelectorAll('.calendar-btn');
+const eventLists = document.querySelectorAll('.event-list');
+calButtons.forEach(b => {
+    b.addEventListener('click', () => {
+        calButtons.forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        eventLists.forEach(l => l.classList.remove('active'));
+        document.getElementById(b.dataset.group).classList.add('active');
+    });
+});
 </script>
 </body>
 </html>

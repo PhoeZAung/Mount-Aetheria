@@ -7,6 +7,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+
+<!-- ===== PWA / APP SUPPORT ===== -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1a1a1a">
+
+<!-- iOS App Support -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Mount Aetheria">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+
+
 <style>
 :root{
   --bg: #1a1a1a;
@@ -50,6 +62,7 @@ body{padding-top:60px; display:flex; flex-direction:column;}
 }
 .map-tabs {
   display:flex; gap:5px; justify-content:center; flex-wrap:wrap; margin-bottom: 10px;
+  
 }
 .map-tab {
   padding: 8px 16px; background:var(--panel); color:#888; border:1px solid var(--border);
@@ -96,7 +109,6 @@ body{padding-top:60px; display:flex; flex-direction:column;}
   border-radius: 4px;
   box-shadow: 0 0 15px rgba(0,0,0,0.5);
   width: 100%;
-  /* Important: Ensure image is centered by default even before JS kicks in */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -189,7 +201,7 @@ body{padding-top:60px; display:flex; flex-direction:column;}
   
   .page-header { padding: 5px; }
   .map-tabs { display:none; flex-direction:column; position:absolute; top:100%; left:0; right:0; z-index:50; }
-  .map-tabs.show { display:flex; }
+  .map-tabs.show { display:flex; background:#111; border-bottom: 1px solid var(--accent);}
   .map-tabs-mobile-btn { display:block; }
 
   .main-layout {
@@ -197,7 +209,7 @@ body{padding-top:60px; display:flex; flex-direction:column;}
     height: auto; 
     padding: 10px;
     gap: 15px;
-    display: block; /* Removing flex on main-layout to prevent weird height collapse */
+    display: block; 
   }
   
   .map-wrapper {
@@ -206,7 +218,6 @@ body{padding-top:60px; display:flex; flex-direction:column;}
     display: block;
   }
 
-  /* Fix for Mobile Map: explicit height */
   .map-viewport {
     height: 50vh; 
     min-height: 400px;
@@ -214,12 +225,10 @@ body{padding-top:60px; display:flex; flex-direction:column;}
     border-radius: 4px;
   }
   
-  /* Zoom controls on mobile move up a bit */
   .zoom-controls { bottom: 20px; right: 10px; }
 
-  /* Legend Fix for Mobile: Flow position */
   .legend {
-    position: relative; /* No longer absolute over the map */
+    position: relative;
     top: auto; bottom: auto; left: auto; right: auto;
     background: #111;
     border: 1px solid #333;
@@ -236,7 +245,6 @@ body{padding-top:60px; display:flex; flex-direction:column;}
     padding: 4px 8px; border-radius: 4px;
   }
 
-  /* Info Panel Overlay */
   .info-sidebar {
     display: none; 
     position: fixed; top: 0; bottom: 0; left: 0; right: 0;
@@ -447,11 +455,9 @@ document.getElementById('mapMenuBtn').addEventListener('click', () => {
 
 function getMinScale() {
   const vpRect = viewport.getBoundingClientRect();
-  // Safe default if image not ready
   const imgW = mapImage.naturalWidth || 2000;
   const imgH = mapImage.naturalHeight || 1500;
   
-  // 'max' ensures we zoom out until the image *covers* the viewport completely (no black bars).
   const scaleX = vpRect.width / imgW;
   const scaleY = vpRect.height / imgH;
   return Math.max(scaleX, scaleY);
@@ -462,7 +468,6 @@ function clampPosition() {
   const imgW = mapImage.naturalWidth * scale;
   const imgH = mapImage.naturalHeight * scale;
 
-  // Center horizontally if image is smaller than viewport (shouldn't happen with minScale cover logic)
   if (imgW < vpRect.width) {
     pointX = (vpRect.width - imgW) / 2;
   } else {
@@ -470,7 +475,6 @@ function clampPosition() {
     if (pointX < vpRect.width - imgW) pointX = vpRect.width - imgW;
   }
 
-  // Center vertically if image is smaller
   if (imgH < vpRect.height) {
     pointY = (vpRect.height - imgH) / 2;
   } else {
@@ -481,7 +485,7 @@ function clampPosition() {
 
 function updateTransform() {
   const minScale = getMinScale();
-  if (scale < minScale) scale = minScale; // Prevent zooming out past coverage
+  if (scale < minScale) scale = minScale; 
   if (scale > 5) scale = 5;
 
   clampPosition();
@@ -495,16 +499,12 @@ function updateTransform() {
 }
 
 function resetView() {
-  // If image isn't loaded or dimensions are 0, try again in next frame
   if(!mapImage.complete || mapImage.naturalWidth === 0) {
     requestAnimationFrame(resetView);
     return;
   }
-
-  // 1. Force Scale to Minimum (Fully Zoomed Out)
   scale = getMinScale();
   
-  // 2. Center the image
   const vpRect = viewport.getBoundingClientRect();
   const imgW = mapImage.naturalWidth * scale;
   const imgH = mapImage.naturalHeight * scale;
@@ -514,15 +514,9 @@ function resetView() {
   updateTransform();
 }
 
-// Ensure layout updates on window resize
-window.addEventListener('resize', () => {
-  updateTransform();
-});
-// Trigger view reset when image loads
+window.addEventListener('resize', () => { updateTransform(); });
 mapImage.onload = resetView;
-// Trigger immediately if already cached
 if(mapImage.complete) resetView();
-
 
 /* CONTROLS */
 viewport.addEventListener('mousedown', (e) => {
@@ -560,7 +554,10 @@ viewport.addEventListener('wheel', (e) => {
   updateTransform();
 }, {passive: false});
 
-let initialDist = 0; let initialScale = 1;
+// --- TOUCH ZOOM FIX ---
+let lastScale = 1;
+let initialDist = 0;
+
 viewport.addEventListener('touchstart', (e) => {
   if(e.touches.length === 1) {
     if(e.target.closest('.pin')) return;
@@ -573,23 +570,48 @@ viewport.addEventListener('touchstart', (e) => {
       e.touches[0].clientX - e.touches[1].clientX,
       e.touches[0].clientY - e.touches[1].clientY
     );
-    initialScale = scale;
+    lastScale = scale; // Capture current scale as baseline for this gesture
   }
 }, {passive: false});
 
 viewport.addEventListener('touchmove', (e) => {
   e.preventDefault();
   if(isDraggingPin) return;
+  
+  // Single finger panning
   if(e.touches.length === 1 && isPanning) {
     pointX = e.touches[0].clientX - startX;
     pointY = e.touches[0].clientY - startY;
     updateTransform();
+    
+  // Two finger zooming (Fixed Logic)
   } else if (e.touches.length === 2) {
     const dist = Math.hypot(
       e.touches[0].clientX - e.touches[1].clientX,
       e.touches[0].clientY - e.touches[1].clientY
     );
-    scale = initialScale * (dist / initialDist);
+    
+    // Calculate new target scale
+    let newScale = lastScale * (dist / initialDist);
+    
+    // Get center of pinch in Client Coords
+    const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+
+    // Convert Client Coords to Viewport Coords
+    const rect = viewport.getBoundingClientRect();
+    const vcx = cx - rect.left;
+    const vcy = cy - rect.top;
+
+    // Calculate the 'ratio' of change between this frame's desired scale and the current state
+    const factor = newScale / scale;
+
+    // Adjust pointX/pointY to "zoom towards" the pinch center
+    // Formula: translate -= (center - translate) * (factor - 1)
+    pointX = vcx - (vcx - pointX) * factor;
+    pointY = vcy - (vcy - pointY) * factor;
+    
+    scale = newScale;
     updateTransform();
   }
 }, {passive: false});
@@ -760,6 +782,13 @@ const mobileMenu = document.getElementById('mobileMenu');
 hamb.addEventListener('click', () => mobileMenu.classList.toggle('show'));
 
 loadPins();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(reg => console.log('Service Worker registered:', reg))
+    .catch(err => console.error('Service Worker failed:', err));
+}
+
 </script>
 </body>
 </html>
