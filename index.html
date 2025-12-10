@@ -8,11 +8,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 
-<!-- ===== PWA / APP SUPPORT ===== -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#1a1a1a">
 
-<!-- iOS App Support -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Mount Aetheria">
@@ -458,6 +456,7 @@ function getMinScale() {
   const imgW = mapImage.naturalWidth || 2000;
   const imgH = mapImage.naturalHeight || 1500;
   
+  // Calculate Min scale to fit perfectly
   const scaleX = vpRect.width / imgW;
   const scaleY = vpRect.height / imgH;
   return Math.max(scaleX, scaleY);
@@ -484,6 +483,7 @@ function clampPosition() {
 }
 
 function updateTransform() {
+  // Ensure we don't go below min scale here just in case, but primary logic is in handlers now
   const minScale = getMinScale();
   if (scale < minScale) scale = minScale; 
   if (scale > 5) scale = 5;
@@ -543,14 +543,26 @@ window.addEventListener('mouseup', () => {
 viewport.addEventListener('wheel', (e) => {
   e.preventDefault();
   const rect = viewport.getBoundingClientRect();
+  
+  // 1. Calculate the 'target' zoom level
+  let newScale = scale;
+  const delta = -e.deltaY;
+  (delta > 0) ? (newScale *= 1.1) : (newScale /= 1.1);
+
+  // 2. Clamp the new scale BEFORE calculating position
+  const minScale = getMinScale();
+  if (newScale < minScale) newScale = minScale;
+  if (newScale > 5) newScale = 5;
+
+  // 3. Calculate position based on the CLAMPED scale
+  // The cursor position relative to the image (0-1 range) remains constant
   const xs = (e.clientX - rect.left - pointX) / scale;
   const ys = (e.clientY - rect.top - pointY) / scale;
-  const delta = -e.deltaY;
+
+  pointX = (e.clientX - rect.left) - xs * newScale;
+  pointY = (e.clientY - rect.top) - ys * newScale;
   
-  (delta > 0) ? (scale *= 1.1) : (scale /= 1.1);
-  
-  pointX = (e.clientX - rect.left) - xs * scale;
-  pointY = (e.clientY - rect.top) - ys * scale;
+  scale = newScale;
   updateTransform();
 }, {passive: false});
 
@@ -570,7 +582,7 @@ viewport.addEventListener('touchstart', (e) => {
       e.touches[0].clientX - e.touches[1].clientX,
       e.touches[0].clientY - e.touches[1].clientY
     );
-    lastScale = scale; // Capture current scale as baseline for this gesture
+    lastScale = scale;
   }
 }, {passive: false});
 
@@ -584,30 +596,31 @@ viewport.addEventListener('touchmove', (e) => {
     pointY = e.touches[0].clientY - startY;
     updateTransform();
     
-  // Two finger zooming (Fixed Logic)
+  // Two finger zooming
   } else if (e.touches.length === 2) {
     const dist = Math.hypot(
       e.touches[0].clientX - e.touches[1].clientX,
       e.touches[0].clientY - e.touches[1].clientY
     );
     
-    // Calculate new target scale
+    // 1. Calculate proposed scale
     let newScale = lastScale * (dist / initialDist);
     
-    // Get center of pinch in Client Coords
+    // 2. Clamp proposed scale BEFORE position calc
+    const minScale = getMinScale();
+    if (newScale < minScale) newScale = minScale;
+    if (newScale > 5) newScale = 5;
+
+    // 3. Calculate position centered on pinch
     const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
     const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-
-    // Convert Client Coords to Viewport Coords
     const rect = viewport.getBoundingClientRect();
     const vcx = cx - rect.left;
     const vcy = cy - rect.top;
 
-    // Calculate the 'ratio' of change between this frame's desired scale and the current state
+    // Use ratio of change from CURRENT scale to NEW clamped scale
     const factor = newScale / scale;
 
-    // Adjust pointX/pointY to "zoom towards" the pinch center
-    // Formula: translate -= (center - translate) * (factor - 1)
     pointX = vcx - (vcx - pointX) * factor;
     pointY = vcy - (vcy - pointY) * factor;
     

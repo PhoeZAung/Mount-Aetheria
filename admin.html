@@ -62,9 +62,21 @@
 
   details { background: #181818; border: 1px solid #333; border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
   details summary { padding: 8px 12px; cursor: pointer; background: #252525; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+  details summary a { color: var(--accent); text-decoration: none; position: relative; z-index: 50; }
+  details summary a:hover { text-decoration: underline; }
   details[open] summary { border-bottom: 1px solid #333; }
   .details-content { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
   
+  /* --- UPDATED ATTRIBUTE ROW STYLING --- */
+  .attr-row { display: flex; gap: 5px; margin-top: 5px; align-items: center; }
+  .attr-row .attr-n { flex: 3; min-width: 0; } /* 30% ratio */
+  .attr-row .attr-v { flex: 7; min-width: 0; } /* 70% ratio */
+  .attr-row .btn-remove { flex: 0 0 auto; width: auto; }
+  
+  .feat-tabs { display: flex; gap: 5px; margin-bottom: 10px; border-bottom: 1px solid #444; }
+  .feat-tab { background: #333; border: none; color: #888; padding: 5px 10px; font-size: 12px; cursor: pointer; border-radius: 4px 4px 0 0; }
+  .feat-tab.active { background: var(--accent); color: #000; }
+
   .btn-add { width:100%; background:var(--accent); color:#000; border:none; padding:8px; font-weight:bold; cursor:pointer; border-radius:4px; margin-top:10px; }
   .btn-remove { background:#ff4444; color:#fff; border:none; padding:2px 6px; border-radius:2px; cursor:pointer; font-size:10px; }
   
@@ -114,7 +126,7 @@
       <div class="tabs-container">
         <div class="tab-menu">
           <button class="tab-btn active" data-tab="character">Bio</button>
-          <button class="tab-btn" data-tab="combat">Cmbt</button>
+          <button class="tab-btn" data-tab="combat">Combat</button>
           <button class="tab-btn" data-tab="skills">Skill</button>
           <button class="tab-btn" data-tab="items">Item</button>
           <button class="tab-btn" data-tab="notes">Note</button>
@@ -162,8 +174,8 @@
           <div id="offense" class="sub-content active">
              <div class="bio-grid" style="grid-template-columns:100px 1fr;">
                 <label>BAB</label><input id="bab" class="save-field">
-                <label>CMB</label><input id="cmb_total" class="save-field">
-                <label>CMD</label><input id="cmd_total" class="save-field">
+                <label>Touch Atk</label><input id="atk_touch" class="save-field">
+                <label>Rng Touch</label><input id="atk_rtouch" class="save-field">
              </div>
              <h3>Weapons</h3>
              <div id="weaponList"></div>
@@ -174,6 +186,7 @@
              <div class="bio-grid">
                 <label>Touch AC</label><input id="ac_touch" class="save-field">
                 <label>Flat-Foot AC</label><input id="ac_flat" class="save-field">
+                <label>CMD</label><input id="cmd_total" class="save-field">
                 <label>DR</label><input id="dr_val" class="save-field">
                 <label>SR</label><input id="sr_val" class="save-field">
              </div>
@@ -193,20 +206,32 @@
           </div>
 
           <div id="feats" class="sub-content">
-             <h3>Active Abilities</h3>
-             <div id="activeList"></div>
-             <button class="btn-add" id="btnAddActive">+ Add Active</button>
+             <div class="feat-tabs">
+                 <button class="feat-tab active" data-feattab="f-active">Active</button>
+                 <button class="feat-tab" data-feattab="f-passive">Passive</button>
+                 <button class="feat-tab" data-feattab="f-feats">Feats</button>
+             </div>
+
+             <div id="f-active" class="feat-cont active">
+                 <h3>Active Abilities</h3>
+                 <div id="activeList"></div>
+                 <button class="btn-add" id="btnAddActive">+ Add Active</button>
+             </div>
              
-             <h3>Passive Abilities</h3>
-             <div id="passiveList"></div>
-             <button class="btn-add" id="btnAddPassive">+ Add Passive</button>
+             <div id="f-passive" class="feat-cont" style="display:none">
+                 <h3>Passive Abilities</h3>
+                 <div id="passiveList"></div>
+                 <button class="btn-add" id="btnAddPassive">+ Add Passive</button>
+             </div>
 
-             <h3>Feats</h3>
-             <div id="featList"></div>
-             <button class="btn-add" id="btnAddFeat">+ Add Feat</button>
-
-             <h3>Proficiencies</h3>
-             <textarea id="proficiencies" class="save-field" style="height:80px"></textarea>
+             <div id="f-feats" class="feat-cont" style="display:none">
+                 <h3>Feats</h3>
+                 <div id="featList"></div>
+                 <button class="btn-add" id="btnAddFeat">+ Add Feat</button>
+                 <br>
+                 <h3>Proficiencies</h3>
+                 <textarea id="proficiencies" class="save-field" style="height:80px"></textarea>
+             </div>
           </div>
         </div>
 
@@ -305,17 +330,12 @@ window.closeMobileEditor = () => {
 async function loadUserList(){
     const listEl = document.getElementById('usersList');
     listEl.innerHTML = '<div style="padding:15px">Fetching users...</div>';
-    
     try {
         const snap = await getDocs(collection(db, 'users'));
         allUsers = [];
         snap.forEach(d => {
             const data = d.data();
-            allUsers.push({
-                uid: d.id,
-                name: data.displayName || data.name || "Unknown",
-                email: data.email || "No Email"
-            });
+            allUsers.push({ uid: d.id, name: data.displayName || data.name || "Unknown", email: data.email || "No Email" });
         });
         allUsers.sort((a,b) => a.name.localeCompare(b.name));
         renderUserList(allUsers);
@@ -325,11 +345,9 @@ async function loadUserList(){
 }
 
 function renderUserList(users){
-    const listEl = document.getElementById('usersList');
-    listEl.innerHTML = '';
+    const listEl = document.getElementById('usersList'); listEl.innerHTML = '';
     users.forEach(u => {
-        const div = document.createElement('div');
-        div.className = 'userItem';
+        const div = document.createElement('div'); div.className = 'userItem';
         div.innerHTML = `<span class="uName">${u.name}</span><span class="uMeta">${u.email}</span>`;
         div.onclick = () => selectUser(u.uid, div);
         listEl.appendChild(div);
@@ -338,33 +356,26 @@ function renderUserList(users){
 
 document.getElementById('userSearch').addEventListener('input', (e)=>{
     const txt = e.target.value.toLowerCase();
-    const filtered = allUsers.filter(u => u.name.toLowerCase().includes(txt) || u.email.toLowerCase().includes(txt));
-    renderUserList(filtered);
+    renderUserList(allUsers.filter(u => u.name.toLowerCase().includes(txt) || u.email.toLowerCase().includes(txt)));
 });
 
 function selectUser(uid, el){
     document.querySelectorAll('.userItem').forEach(d => d.classList.remove('selected'));
     if(el) el.classList.add('selected');
-
     selectedUserUid = uid;
     document.getElementById('targetUserUID').textContent = "Editing: " + uid;
     document.getElementById('emptyState').style.display = 'none';
     document.getElementById('sheetContainer').style.display = 'block';
     document.getElementById('sheetContainer').classList.add('active');
-
     document.body.classList.add('show-editor');
-
     initSkillsTable();
     startListening(uid);
 }
 
 function startListening(uid){
     if(unsubscribeSheet) unsubscribeSheet();
-    
     const docRef = doc(db, 'users', uid, 'sheet', 'character');
-    
     document.getElementById('statusText').textContent = "Syncing...";
-    
     unsubscribeSheet = onSnapshot(docRef, (docSnap) => {
         if(docSnap.exists()){
             isInternalUpdate = true;
@@ -383,27 +394,24 @@ function startListening(uid){
 }
 
 function populateSheet(data){
-    document.querySelectorAll('.save-field').forEach(el => {
-        if(data[el.id] !== undefined) el.value = data[el.id];
-    });
+    document.querySelectorAll('.save-field').forEach(el => { if(data[el.id] !== undefined) el.value = data[el.id]; });
 
-    document.getElementById('weaponList').innerHTML='';
+    const wList = document.getElementById('weaponList'); wList.innerHTML=''; 
     if(data.weapons) data.weapons.forEach(w => addWeaponRow(w));
 
-    document.getElementById('spellList').innerHTML='';
-    if(data.spells) data.spells.forEach(s => addSpellRow(s));
+    const sList = document.getElementById('spellList'); sList.innerHTML='';
+    if(data.spells) {
+         const sortedSpells = data.spells.sort((a,b) => {
+             const map = { "Cantrip": 0, "1st": 1, "2nd": 2, "3rd": 3, "4th": 4, "5th": 5, "6th": 6, "7th": 7, "8th": 8, "9th": 9 };
+             return (map[a.lvl] || 0) - (map[b.lvl] || 0);
+         });
+         sortedSpells.forEach(s => addSpellRow(s));
+    }
 
-    document.getElementById('activeList').innerHTML='';
-    if(data.activeAbilities) data.activeAbilities.forEach(x => addActiveRow(x));
-    
-    document.getElementById('passiveList').innerHTML='';
-    if(data.passiveAbilities) data.passiveAbilities.forEach(x => addPassiveRow(x));
-
-    document.getElementById('featList').innerHTML='';
-    if(data.feats) data.feats.forEach(x => addFeatRow(x));
-    
-    document.getElementById('itemList').innerHTML='';
-    if(data.items) data.items.forEach(x => addItemRow(x));
+    document.getElementById('activeList').innerHTML=''; if(data.activeAbilities) data.activeAbilities.forEach(x => addActiveRow(x));
+    document.getElementById('passiveList').innerHTML=''; if(data.passiveAbilities) data.passiveAbilities.forEach(x => addPassiveRow(x));
+    document.getElementById('featList').innerHTML=''; if(data.feats) data.feats.forEach(x => addFeatRow(x));
+    document.getElementById('itemList').innerHTML=''; if(data.items) data.items.forEach(x => addItemRow(x));
 
     if(data.skills){
         const rows = document.querySelectorAll('.skill-row');
@@ -414,80 +422,55 @@ function populateSheet(data){
             }
         });
     }
-
     updateCalculations();
 }
 
-function getMod(id) {
-    const val = document.getElementById(id).value;
-    return val ? Math.floor((Number(val)-10)/2) : 0;
-}
+function getMod(id) { const val = document.getElementById(id).value; return val ? Math.floor((Number(val)-10)/2) : 0; }
 
 function updateCalculations(){
-    ['str','dex','con','int','wis','cha'].forEach(stat => {
-        const mod = getMod(stat);
-        document.getElementById('mod-'+stat).textContent = (mod>=0?'+':'')+mod;
-    });
+    ['str','dex','con','int','wis','cha'].forEach(stat => { document.getElementById('mod-'+stat).textContent = (getMod(stat)>=0?'+':'')+getMod(stat); });
 
-    const con = getMod('con');
-    const dex = getMod('dex');
-    const wis = getMod('wis');
-    const fB = Number(document.getElementById('fort_bonus').value)||0;
-    const rB = Number(document.getElementById('ref_bonus').value)||0;
-    const wB = Number(document.getElementById('will_bonus').value)||0;
+    const con = getMod('con'), dex = getMod('dex'), wis = getMod('wis');
+    const fB = Number(document.getElementById('fort_bonus').value)||0, rB = Number(document.getElementById('ref_bonus').value)||0, wB = Number(document.getElementById('will_bonus').value)||0;
     
     document.getElementById('fort_total').textContent = (con+fB >=0?'+':'')+(con+fB);
     document.getElementById('ref_total').textContent = (dex+rB >=0?'+':'')+(dex+rB);
     document.getElementById('will_total').textContent = (wis+wB >=0?'+':'')+(wis+wB);
 
     document.querySelectorAll('.skill-row').forEach(row => {
-        const stat = row.dataset.stat;
-        const mod = getMod(stat);
-        const ranks = Number(row.querySelector('.skill-ranks').value)||0;
-        const isCs = row.querySelector('.skill-cs').checked;
-        const csBonus = (isCs && ranks>0) ? 3 : 0;
-        const total = mod + ranks + csBonus;
-        
+        const stat = row.dataset.stat, mod = getMod(stat), ranks = Number(row.querySelector('.skill-ranks').value)||0, isCs = row.querySelector('.skill-cs').checked;
+        const total = mod + ranks + ((isCs && ranks>0) ? 3 : 0);
         row.querySelector('.skill-mod').textContent = mod;
         row.querySelector('.skill-total').textContent = (total>=0?'+':'')+total;
-        
-        if(row.dataset.trained === 'true' && ranks === 0) {
-            row.classList.add('skill-disabled');
-            row.querySelector('.skill-total').textContent = "-";
-        } else {
-            row.classList.remove('skill-disabled');
-        }
+        if(row.dataset.trained === 'true' && ranks === 0) { row.classList.add('skill-disabled'); row.querySelector('.skill-total').textContent = "-"; } else { row.classList.remove('skill-disabled'); }
     });
 }
 
 function triggerSave(){
     if(isInternalUpdate || !selectedUserUid) return;
-    
     document.getElementById('statusText').textContent = "Saving...";
     document.getElementById('statusText').style.color = "yellow";
-    
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(saveData, 1000);
 }
 
 async function saveData(){
     if(!selectedUserUid) return;
-    
     const payload = {};
-    
     document.querySelectorAll('.save-field').forEach(el => payload[el.id] = el.value);
 
     payload.skills = [];
-    document.querySelectorAll('.skill-row').forEach(row => {
-        payload.skills.push({
-            cs: row.querySelector('.skill-cs').checked,
-            lvl: Number(row.querySelector('.skill-ranks').value)||0
-        });
+    document.querySelectorAll('.skill-row').forEach(row => { payload.skills.push({ cs: row.querySelector('.skill-cs').checked, lvl: Number(row.querySelector('.skill-ranks').value)||0 }); });
+
+    payload.weapons = [];
+    document.getElementById('weaponList').querySelectorAll('details').forEach(d => {
+        const attrs = [];
+        d.querySelectorAll('.attr-row').forEach(row => attrs.push({ name: row.querySelector('.attr-n').value, val: row.querySelector('.attr-v').value }));
+        payload.weapons.push({ name: d.querySelector('.w-name').value, mod: d.querySelector('.w-mod').value, attrs: attrs });
     });
 
-    payload.weapons = scrapeList('weaponList', ['.w-name','.w-atk'], ['name','atk']); 
     payload.spells = scrapeList('spellList', ['.l-val','.n-val','.k-val','.d-val'], ['lvl','name','link','desc']);
-    payload.activeAbilities = scrapeList('activeList', ['.n-val','.u-val','.d-val'], ['name','uses','desc']);
+    payload.activeAbilities = scrapeList('activeList', ['.n-val','.u-val','.t-val','.d-val'], ['name','uses','type','desc']);
     payload.passiveAbilities = scrapeList('passiveList', ['.n-val','.d-val'], ['name','desc']);
     payload.feats = scrapeList('featList', ['.n-val','.l-val','.d-val'], ['name','link','desc']);
     payload.items = scrapeList('itemList', ['.n-val','.t-val','.c-val','.d-val','.i-data'], ['name','tags','cost','desc','img']);
@@ -506,8 +489,7 @@ async function saveData(){
 function scrapeList(id, selectors, keys){
     const list = [];
     document.getElementById(id).querySelectorAll('details').forEach(d => {
-        const obj = {};
-        selectors.forEach((sel, i) => obj[keys[i]] = d.querySelector(sel)?.value || '');
+        const obj = {}; selectors.forEach((sel, i) => obj[keys[i]] = d.querySelector(sel)?.value || '');
         list.push(obj);
     });
     return list;
@@ -515,62 +497,74 @@ function scrapeList(id, selectors, keys){
 
 function createRow(containerId, titleFunc, html, data={}){
     const div = document.createElement('details');
-    div.innerHTML = `<summary>${titleFunc() || 'New Item'}</summary><div class="details-content">${html}<button class="btn-remove">Remove</button></div>`;
+    div.innerHTML = `<summary>${titleFunc(data)}</summary><div class="details-content">${html}<button class="btn-remove">Remove</button></div>`;
     document.getElementById(containerId).appendChild(div);
-    
-    div.querySelectorAll('input,textarea,select').forEach(i => i.addEventListener('input', () => {
-        div.querySelector('summary').textContent = titleFunc() || 'New Item';
-        triggerSave();
-    }));
+    div.querySelectorAll('input,textarea,select').forEach(i => i.addEventListener('input', () => { div.querySelector('summary').innerHTML = titleFunc(scrapeRow(div)); triggerSave(); }));
     div.querySelector('.btn-remove').onclick = () => { div.remove(); triggerSave(); };
-    div.querySelectorAll('input').forEach(i => i.value = i.getAttribute('value')||'');
     return div;
 }
 
-function addWeaponRow(d={}){ 
-    const html = `<input class="w-name" value="${d.name||''}" placeholder="Name"><input class="w-atk" value="${d.atk||''}" placeholder="Attack Mod">`;
-    createRow('weaponList', ()=>d.name||document.querySelector('.w-name')?.value, html, d);
-}
-function addSpellRow(d={}){
-    const html = `<select class="l-val"><option ${d.lvl==='1st'?'selected':''}>1st</option><option ${d.lvl==='2nd'?'selected':''}>2nd</option></select><input class="n-val" value="${d.name||''}" placeholder="Name"><input class="k-val" value="${d.link||''}" placeholder="Link"><textarea class="d-val">${d.desc||''}</textarea>`;
-    createRow('spellList', ()=>`[${d.lvl||'?'}] ${d.name||''}`, html, d);
-}
-function addActiveRow(d={}){
-    const html = `<input class="n-val" value="${d.name||''}" placeholder="Name"><input class="u-val" value="${d.uses||''}" placeholder="Uses"><textarea class="d-val">${d.desc||''}</textarea>`;
-    createRow('activeList', ()=>d.name||'', html, d);
-}
-function addPassiveRow(d={}){
-    const html = `<input class="n-val" value="${d.name||''}" placeholder="Name"><textarea class="d-val">${d.desc||''}</textarea>`;
-    createRow('passiveList', ()=>d.name||'', html, d);
-}
-function addFeatRow(d={}){
-    const html = `<input class="n-val" value="${d.name||''}" placeholder="Name"><input class="l-val" value="${d.link||''}" placeholder="Link"><textarea class="d-val">${d.desc||''}</textarea>`;
-    createRow('featList', ()=>d.name||'', html, d);
-}
-function addItemRow(d={}){
-    const html = `<div style="display:flex;gap:10px"><div style="flex:1"><input class="n-val" value="${d.name||''}" placeholder="Name"><input class="t-val" value="${d.tags||''}" placeholder="Tags"><input class="c-val" value="${d.cost||''}" placeholder="Cost"><input type="hidden" class="i-data" value="${d.img||''}"></div><img src="${d.img||''}" class="item-preview"></div><textarea class="d-val">${d.desc||''}</textarea>`;
-    createRow('itemList', ()=>d.name||'', html, d);
+function scrapeRow(el){
+    const d = {};
+    const map = {'.w-name':'name', '.w-mod':'mod', '.n-val':'name', '.l-val':'lvl', '.k-val':'link', '.u-val':'uses', '.t-val':'type'};
+    for(let k in map) d[map[k]] = el.querySelector(k)?.value || '';
+    return d;
 }
 
+function addWeaponRow(d={}){ 
+    let attrHtml = '';
+    if(d.attrs) d.attrs.forEach(a => attrHtml += `<div class="attr-row"><input class="attr-n" value="${a.name}" placeholder="Attr"><input class="attr-v" value="${a.val}" placeholder="Val"><button class="btn-remove" onclick="this.parentElement.remove();triggerSave()">x</button></div>`);
+
+    const html = `
+        <div style="display:flex; gap:10px;">
+            <input class="w-name" value="${d.name||''}" placeholder="Name">
+            <select class="w-mod" style="width:80px">
+                <option ${d.mod==='STR'?'selected':''}>STR</option><option ${d.mod==='DEX'?'selected':''}>DEX</option>
+                <option ${d.mod==='CON'?'selected':''}>CON</option><option ${d.mod==='INT'?'selected':''}>INT</option>
+                <option ${d.mod==='WIS'?'selected':''}>WIS</option><option ${d.mod==='CHA'?'selected':''}>CHA</option>
+            </select>
+        </div>
+        <div class="attr-container">${attrHtml}</div>
+        <button class="btn-add" style="padding:4px; font-size:11px; margin-top:5px;" onclick="addWeaponAttr(this)">+ Attribute</button>
+    `;
+    createRow('weaponList', x => x.name||'New Weapon', html, d);
+}
+window.addWeaponAttr = (btn) => {
+    const div = document.createElement('div'); div.className = 'attr-row';
+    div.innerHTML = `<input class="attr-n" placeholder="Attr"><input class="attr-v" placeholder="Val"><button class="btn-remove" onclick="this.parentElement.remove();triggerSave()">x</button>`;
+    btn.previousElementSibling.appendChild(div);
+    div.querySelectorAll('input').forEach(i => i.addEventListener('input', triggerSave));
+};
+
+const SPELL_LVLS = ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"];
+function addSpellRow(d={}){
+    let opts = ""; SPELL_LVLS.forEach(l => opts += `<option ${d.lvl===l?'selected':''}>${l}</option>`);
+    const summary = (x) => {
+        const nameDisplay = x.link ? `<a href="${x.link}" target="_blank">${x.name||'New Spell'}</a>` : (x.name||'New Spell');
+        return `[${x.lvl||'-'}] ${nameDisplay}`;
+    };
+    const html = `<div style="display:flex;gap:5px"><select class="l-val" style="width:80px">${opts}</select><input class="n-val" value="${d.name||''}" placeholder="Name"></div><input class="k-val" value="${d.link||''}" placeholder="Link"><textarea class="d-val">${d.desc||''}</textarea>`;
+    createRow('spellList', summary, html, d);
+}
+
+const ACTION_TYPES = ["Standard","Move","Swift","Full","Free","Immediate","Reaction"];
+function addActiveRow(d={}){
+    let opts = ""; ACTION_TYPES.forEach(t => opts += `<option ${d.type===t?'selected':''}>${t}</option>`);
+    const summary = (x) => `<span>${x.name||'Ability'}: <small style="color:#aaa">${x.type||'-'}</small></span> <span>${x.uses||''}</span>`;
+    const html = `<input class="n-val" value="${d.name||''}" placeholder="Name"><div style="display:flex;gap:5px;margin-top:5px;"><select class="t-val">${opts}</select><input class="u-val" value="${d.uses||''}" placeholder="Uses"></div><textarea class="d-val">${d.desc||''}</textarea>`;
+    createRow('activeList', summary, html, d);
+}
+
+function addPassiveRow(d={}){ createRow('passiveList', x => x.name||'New Passive', `<input class="n-val" value="${d.name||''}" placeholder="Name"><textarea class="d-val">${d.desc||''}</textarea>`, d); }
+function addFeatRow(d={}){ createRow('featList', x => x.name||'New Feat', `<input class="n-val" value="${d.name||''}" placeholder="Name"><input class="l-val" value="${d.link||''}" placeholder="Link"><textarea class="d-val">${d.desc||''}</textarea>`, d); }
+function addItemRow(d={}){ createRow('itemList', x => x.name||'New Item', `<div style="display:flex;gap:10px"><div style="flex:1"><input class="n-val" value="${d.name||''}" placeholder="Name"><input class="t-val" value="${d.tags||''}" placeholder="Tags"><input class="c-val" value="${d.cost||''}" placeholder="Cost"><input type="hidden" class="i-data" value="${d.img||''}"></div><img src="${d.img||''}" class="item-preview"></div><textarea class="d-val">${d.desc||''}</textarea>`, d); }
+
 function initSkillsTable(){
-    const body = document.getElementById('skillsTableBody');
-    body.innerHTML = '';
+    const body = document.getElementById('skillsTableBody'); body.innerHTML = '';
     SKILLS_DB.forEach(s => {
-        const tr = document.createElement('tr');
-        tr.className = 'skill-row';
-        tr.dataset.stat = s.stat;
-        tr.dataset.trained = s.trained;
-        tr.innerHTML = `
-            <td><input type="checkbox" class="skill-cs"></td>
-            <td>${s.name} <small style="color:#888">(${s.stat})</small></td>
-            <td class="skill-mod">0</td>
-            <td><input type="number" class="skill-ranks" style="width:40px"></td>
-            <td class="skill-total" style="color:var(--accent);font-weight:bold">0</td>
-        `;
-        tr.querySelectorAll('input').forEach(i => i.addEventListener('input', () => {
-            updateCalculations();
-            triggerSave();
-        }));
+        const tr = document.createElement('tr'); tr.className = 'skill-row'; tr.dataset.stat = s.stat; tr.dataset.trained = s.trained;
+        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td>${s.name} <small style="color:#888">(${s.stat})</small></td><td class="skill-mod">0</td><td><input type="number" class="skill-ranks" style="width:40px"></td><td class="skill-total" style="color:var(--accent);font-weight:bold">0</td>`;
+        tr.querySelectorAll('input').forEach(i => i.addEventListener('input', () => { updateCalculations(); triggerSave(); }));
         body.appendChild(tr);
     });
 }
@@ -587,6 +581,12 @@ document.querySelectorAll('.sub-tab-btn').forEach(b => b.onclick = (e) => {
     e.target.classList.add('active');
     document.getElementById(e.target.dataset.sub).classList.add('active');
 });
+document.querySelectorAll('.feat-tab').forEach(b => b.onclick = (e) => {
+    document.querySelectorAll('.feat-tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.feat-cont').forEach(x => x.style.display = 'none');
+    e.target.classList.add('active');
+    document.getElementById(e.target.dataset.feattab).style.display = 'block';
+});
 
 document.getElementById('btnAddWeapon').onclick = () => addWeaponRow();
 document.getElementById('btnAddSpell').onclick = () => addSpellRow();
@@ -595,12 +595,7 @@ document.getElementById('btnAddPassive').onclick = () => addPassiveRow();
 document.getElementById('btnAddFeat').onclick = () => addFeatRow();
 document.getElementById('btnAddItem').onclick = () => addItemRow();
 
-document.body.addEventListener('input', (e) => {
-    if(e.target.classList.contains('save-field') || e.target.classList.contains('calc-stat')) {
-        updateCalculations();
-        triggerSave();
-    }
-});
+document.body.addEventListener('input', (e) => { if(e.target.classList.contains('save-field') || e.target.classList.contains('calc-stat')) { updateCalculations(); triggerSave(); } });
 
 </script>
 </body>

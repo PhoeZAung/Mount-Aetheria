@@ -58,9 +58,23 @@ label { color: #aaa; font-size: 12px; font-weight: bold; margin-bottom: 4px; dis
 /* --- LISTS (Details) --- */
 details { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 8px; overflow: hidden; }
 summary { padding: 10px; background: #2a2a2a; cursor: pointer; font-weight: bold; display: flex; justify-content: space-between; align-items: center; user-select: none; }
+summary a { color: var(--accent); text-decoration: none; position: relative; z-index: 50; }
+summary a:hover { text-decoration: underline; }
 .details-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
 .item-row { display: flex; gap: 10px; align-items: flex-start; }
 .item-img { width: 50px; height: 50px; background: #000; border: 1px solid #444; object-fit: cover; flex-shrink: 0; }
+
+/* --- UPDATED ATTRIBUTE ROW STYLING --- */
+.attr-row { display: flex; gap: 5px; margin-top: 5px; align-items: center; }
+.attr-row .attr-n { flex: 3; min-width: 0; } /* 30% ratio */
+.attr-row .attr-v { flex: 7; min-width: 0; } /* 70% ratio */
+.attr-row input { font-size: 12px; padding: 4px; }
+.attr-row .btn-del { flex: 0 0 auto; width: auto; }
+
+/* --- NESTED FEAT TABS --- */
+.feat-tabs { display: flex; gap: 5px; margin-bottom: 10px; border-bottom: 1px solid #444; }
+.feat-tab { background: #333; border: none; color: #888; padding: 5px 10px; font-size: 12px; cursor: pointer; border-radius: 4px 4px 0 0; }
+.feat-tab.active { background: var(--accent); color: #000; }
 
 /* --- SKILLS TABLE --- */
 .skills-container { background: var(--panel); border-radius: 8px; overflow: hidden; }
@@ -99,7 +113,7 @@ summary { padding: 10px; background: #2a2a2a; cursor: pointer; font-weight: bold
 }
 
 .btn-add { width: 100%; background: var(--accent); border: none; color: #000; padding: 10px; font-weight: bold; margin-top: 10px; border-radius: 4px; cursor: pointer; }
-.btn-del { background: #ff4444; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+.btn-del { background: #ff4444; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor:pointer; }
 .status-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; color: #888; font-size: 11px; padding: 4px 10px; text-align: right; border-top: 1px solid #333; z-index: 2000; display: flex; justify-content: space-between; }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #444; display: inline-block; margin-right: 5px; }
 .status-dot.live { background: #4caf50; box-shadow: 0 0 5px #4caf50; }
@@ -174,21 +188,62 @@ summary { padding: 10px; background: #2a2a2a; cursor: pointer; font-weight: bold
         <button class="sub-btn" onclick="switchSub('feats')">Feats/Abils</button>
     </div>
   </div>
+  
   <div id="offense" class="sub-group active">
     <div class="combat-stats" style="grid-template-columns: 1fr 1fr 1fr;">
         <div class="stat-box"><label>BAB</label><input id="bab" class="live-field"></div>
-        <div class="stat-box"><label>CMB</label><input id="cmb_total" class="live-field"></div>
-        <div class="stat-box"><label>CMD</label><input id="cmd_total" class="live-field"></div>
+        <div class="stat-box"><label>Touch</label><input id="atk_touch" class="live-field"></div>
+        <div class="stat-box"><label>Ranged Touch</label><input id="atk_rtouch" class="live-field"></div>
     </div>
     <h3>Weapons</h3><div id="weaponList"></div><button class="btn-add" onclick="addWeapon()">+ Add Weapon</button>
   </div>
+
   <div id="defense" class="sub-group" style="display:none">
-    <div class="combat-stats"><div class="stat-box"><label>Touch AC</label><input id="ac_touch" class="live-field"></div><div class="stat-box"><label>Flat-Foot</label><input id="ac_flat" class="live-field"></div><div class="stat-box"><label>DR</label><input id="dr_val" class="live-field"></div><div class="stat-box"><label>SR</label><input id="sr_val" class="live-field"></div></div>
+    <div class="combat-stats">
+        <div class="stat-box"><label>Touch AC</label><input id="ac_touch" class="live-field"></div>
+        <div class="stat-box"><label>Flat-Foot</label><input id="ac_flat" class="live-field"></div>
+        <div class="stat-box"><label>CMD</label><input id="cmd_total" class="live-field"></div>
+        <div class="stat-box"><label>DR</label><input id="dr_val" class="live-field"></div>
+        <div class="stat-box"><label>SR</label><input id="sr_val" class="live-field"></div>
+    </div>
     <h3>Saves</h3>
     <div class="combat-stats"><div class="stat-box"><label>Fortitude</label><div class="stat-dual"><input id="fort_bonus" type="number" class="live-field calc-trigger" placeholder="Bonus"><span id="fort_total" style="color:var(--accent); font-weight:bold;">+0</span></div></div><div class="stat-box"><label>Reflex</label><div class="stat-dual"><input id="ref_bonus" type="number" class="live-field calc-trigger" placeholder="Bonus"><span id="ref_total" style="color:var(--accent); font-weight:bold;">+0</span></div></div><div class="stat-box"><label>Will</label><div class="stat-dual"><input id="will_bonus" type="number" class="live-field calc-trigger" placeholder="Bonus"><span id="will_total" style="color:var(--accent); font-weight:bold;">+0</span></div></div></div>
   </div>
-  <div id="spells" class="sub-group" style="display:none"><div class="stat-box" style="margin-bottom:10px;"><label>Spell DC Base</label><input id="spell_dc_base" class="live-field"></div><div id="spellList"></div><button class="btn-add" onclick="addSpell()">+ Add Spell</button></div>
-  <div id="feats" class="sub-group" style="display:none"><h3>Active Abilities</h3><div id="activeList"></div><button class="btn-add" onclick="addActive()">+ Add Active</button><br><br><h3>Passive Abilities</h3><div id="passiveList"></div><button class="btn-add" onclick="addPassive()">+ Add Passive</button><br><br><h3>Feats</h3><div id="featList"></div><button class="btn-add" onclick="addFeat()">+ Add Feat</button><br><br><label>Proficiencies</label><textarea id="proficiencies" class="live-field" style="height:80px"></textarea></div>
+
+  <div id="spells" class="sub-group" style="display:none">
+      <div class="stat-box" style="margin-bottom:10px;"><label>Spell DC Base</label><input id="spell_dc_base" class="live-field"></div>
+      <div id="spellList"></div>
+      <button class="btn-add" onclick="addSpell()">+ Add Spell</button>
+  </div>
+
+  <div id="feats" class="sub-group" style="display:none">
+      <div class="feat-tabs">
+          <button class="feat-tab active" onclick="switchFeatTab('f-active')">Active</button>
+          <button class="feat-tab" onclick="switchFeatTab('f-passive')">Passive</button>
+          <button class="feat-tab" onclick="switchFeatTab('f-feats')">Feats</button>
+      </div>
+
+      <div id="f-active" class="feat-content active">
+          <h3>Active Abilities</h3>
+          <div id="activeList"></div>
+          <button class="btn-add" onclick="addActive()">+ Add Active</button>
+      </div>
+
+      <div id="f-passive" class="feat-content" style="display:none">
+          <h3>Passive Abilities</h3>
+          <div id="passiveList"></div>
+          <button class="btn-add" onclick="addPassive()">+ Add Passive</button>
+      </div>
+
+      <div id="f-feats" class="feat-content" style="display:none">
+          <h3>Feats</h3>
+          <div id="featList"></div>
+          <button class="btn-add" onclick="addFeat()">+ Add Feat</button>
+          <br><br>
+          <label>Proficiencies</label>
+          <textarea id="proficiencies" class="live-field" style="height:80px"></textarea>
+      </div>
+  </div>
 </div>
 
 <div id="skills" class="tab-content">
@@ -224,6 +279,7 @@ let isRemoteUpdate = false;
 // UI HELPERS
 window.switchTab = (id) => { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); event.target.classList.add('active'); document.getElementById(id).classList.add('active'); };
 window.switchSub = (id) => { document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.sub-group').forEach(c => c.style.display = 'none'); event.target.classList.add('active'); document.getElementById(id).style.display = 'block'; document.getElementById('subNav').classList.remove('show'); };
+window.switchFeatTab = (id) => { document.querySelectorAll('.feat-tab').forEach(b => b.classList.remove('active')); document.querySelectorAll('.feat-content').forEach(c => c.style.display = 'none'); event.target.classList.add('active'); document.getElementById(id).style.display = 'block'; };
 window.toggleSubMenu = () => { document.getElementById('subNav').classList.toggle('show'); };
 
 onAuthStateChanged(auth, (user) => {
@@ -254,14 +310,27 @@ function startSync() {
 
 function populate(data) {
     document.querySelectorAll('.live-field').forEach(el => { if(document.activeElement !== el && data[el.id] !== undefined) el.value = data[el.id]; });
+    
     if(!document.activeElement?.closest('.sub-group, #items')) {
-        document.getElementById('weaponList').innerHTML = ''; if(data.weapons) data.weapons.forEach(w => addWeapon(w));
-        document.getElementById('spellList').innerHTML = ''; if(data.spells) data.spells.forEach(s => addSpell(s));
+        const wList = document.getElementById('weaponList'); wList.innerHTML = ''; 
+        if(data.weapons) data.weapons.forEach(w => addWeapon(w));
+
+        const sList = document.getElementById('spellList'); sList.innerHTML = ''; 
+        if(data.spells) {
+            // Sort Spells: Cantrip(0) -> 1 -> 9
+            const sortedSpells = data.spells.sort((a,b) => {
+                const map = { "Cantrip": 0, "1st": 1, "2nd": 2, "3rd": 3, "4th": 4, "5th": 5, "6th": 6, "7th": 7, "8th": 8, "9th": 9 };
+                return (map[a.lvl] || 0) - (map[b.lvl] || 0);
+            });
+            sortedSpells.forEach(s => addSpell(s));
+        }
+
         document.getElementById('activeList').innerHTML = ''; if(data.activeAbilities) data.activeAbilities.forEach(a => addActive(a));
         document.getElementById('passiveList').innerHTML = ''; if(data.passiveAbilities) data.passiveAbilities.forEach(a => addPassive(a));
         document.getElementById('featList').innerHTML = ''; if(data.feats) data.feats.forEach(f => addFeat(f));
         document.getElementById('itemList').innerHTML = ''; if(data.items) data.items.forEach(i => addItem(i));
     }
+    
     if(data.skills) {
         const rows = document.querySelectorAll('#skillsTableBody tr');
         data.skills.forEach((s, i) => { if(rows[i] && document.activeElement !== rows[i].querySelector('input')) { rows[i].querySelector('.skill-cs').checked = s.cs; rows[i].querySelector('.skill-ranks').value = s.lvl; } });
@@ -276,14 +345,30 @@ function save() {
     saveTimeout = setTimeout(async () => {
         const payload = {};
         document.querySelectorAll('.live-field').forEach(el => payload[el.id] = el.value);
-        payload.weapons = scrape('weaponList', ['.w-name','.w-atk'], ['name','atk']);
+        
+        // Custom Scrape for Weapons with attributes
+        payload.weapons = [];
+        document.getElementById('weaponList').querySelectorAll('details').forEach(d => {
+            const attrs = [];
+            d.querySelectorAll('.attr-row').forEach(row => {
+                attrs.push({ name: row.querySelector('.attr-n').value, val: row.querySelector('.attr-v').value });
+            });
+            payload.weapons.push({
+                name: d.querySelector('.w-name').value,
+                mod: d.querySelector('.w-mod').value,
+                attrs: attrs
+            });
+        });
+
         payload.spells = scrape('spellList', ['.n-val','.l-val','.k-val','.d-val'], ['name','lvl','link','desc']);
-        payload.activeAbilities = scrape('activeList', ['.n-val','.u-val','.d-val'], ['name','uses','desc']);
+        payload.activeAbilities = scrape('activeList', ['.n-val','.u-val','.t-val','.d-val'], ['name','uses','type','desc']);
         payload.passiveAbilities = scrape('passiveList', ['.n-val','.d-val'], ['name','desc']);
         payload.feats = scrape('featList', ['.n-val','.l-val','.d-val'], ['name','link','desc']);
         payload.items = scrape('itemList', ['.n-val','.t-val','.c-val','.d-val','.i-data'], ['name','tags','cost','desc','img']);
+        
         payload.skills = [];
         document.querySelectorAll('#skillsTableBody tr').forEach(r => { payload.skills.push({ cs: r.querySelector('.skill-cs').checked, lvl: Number(r.querySelector('.skill-ranks').value)||0 }); });
+        
         await setDoc(doc(db,'users',currentUser.uid,'sheet','character'), payload);
         document.getElementById('statusDot').classList.add('live');
     }, 1000);
@@ -295,17 +380,90 @@ function scrape(id, sels, keys) {
     return arr;
 }
 
-function createRow(pid, summary, html, d={}) {
+function createRow(pid, summaryFunc, html, d={}) {
     const el = document.createElement('details');
-    el.innerHTML = `<summary>${summary(d)} <button class="btn-del">x</button></summary><div class="details-body">${html}</div>`;
+    el.innerHTML = `<summary>${summaryFunc(d)} <button class="btn-del">x</button></summary><div class="details-body">${html}</div>`;
     document.getElementById(pid).appendChild(el);
     el.querySelector('.btn-del').onclick = (e) => { e.preventDefault(); el.remove(); save(); };
-    el.querySelectorAll('input, textarea, select').forEach(i => i.addEventListener('input', save));
+    el.querySelectorAll('input, textarea, select').forEach(i => i.addEventListener('input', () => { 
+        el.querySelector('summary').innerHTML = summaryFunc(scrapeRow(el)) + ` <button class="btn-del">x</button>`;
+        el.querySelector('.btn-del').onclick = (e) => { e.preventDefault(); el.remove(); save(); };
+        save(); 
+    }));
+    return el;
 }
 
-window.addWeapon = (d={}) => createRow('weaponList', x => x.name||'New Weapon', `<div class="item-row"><input class="w-name" value="${d.name||''}" placeholder="Name"><input class="w-atk" value="${d.atk||''}" placeholder="Mod" style="width:60px"></div>`, d);
-window.addSpell = (d={}) => createRow('spellList', x => `[${x.lvl||'-'}] ${x.name||'New Spell'}`, `<div class="item-row"><select class="l-val" style="width:70px"><option ${d.lvl==='1st'?'selected':''}>1st</option><option ${d.lvl==='2nd'?'selected':''}>2nd</option><option ${d.lvl==='3rd'?'selected':''}>3rd</option></select><input class="n-val" value="${d.name||''}" placeholder="Name"></div><input class="k-val" value="${d.link||''}" placeholder="Link"><textarea class="d-val">${d.desc||''}</textarea>`, d);
-window.addActive = (d={}) => createRow('activeList', x => x.name||'New Ability', `<input class="n-val" value="${d.name||''}" placeholder="Name"><input class="u-val" value="${d.uses||''}" placeholder="Uses"><textarea class="d-val">${d.desc||''}</textarea>`, d);
+// Helper to scrape data from a live row to update its summary immediately
+function scrapeRow(el){
+    const d = {};
+    const map = {'.w-name':'name', '.w-mod':'mod', '.n-val':'name', '.l-val':'lvl', '.k-val':'link', '.u-val':'uses', '.t-val':'type'};
+    for(let k in map) d[map[k]] = el.querySelector(k)?.value || '';
+    return d;
+}
+
+window.addWeapon = (d={}) => {
+    let attrHtml = '';
+    if(d.attrs) d.attrs.forEach(a => attrHtml += `<div class="attr-row"><input class="attr-n" value="${a.name}" placeholder="Attr"><input class="attr-v" value="${a.val}" placeholder="Val"><button class="btn-del" onclick="this.parentElement.remove();save()">x</button></div>`);
+    
+    const html = `
+      <div class="item-row">
+        <input class="w-name" value="${d.name||''}" placeholder="Weapon Name">
+        <select class="w-mod" style="width:80px">
+          <option ${d.mod==='STR'?'selected':''}>STR</option><option ${d.mod==='DEX'?'selected':''}>DEX</option>
+          <option ${d.mod==='CON'?'selected':''}>CON</option><option ${d.mod==='INT'?'selected':''}>INT</option>
+          <option ${d.mod==='WIS'?'selected':''}>WIS</option><option ${d.mod==='CHA'?'selected':''}>CHA</option>
+        </select>
+      </div>
+      <div class="attr-container">${attrHtml}</div>
+      <button class="btn-add" style="padding:5px; font-size:12px; margin-top:5px;" onclick="addWeaponAttr(this)">+ Add Attribute</button>
+    `;
+    const el = createRow('weaponList', x => x.name||'New Weapon', html, d);
+}
+
+window.addWeaponAttr = (btn) => {
+    const div = document.createElement('div'); div.className = 'attr-row';
+    // REMOVED style="width:60px" so CSS flex rules take over
+    div.innerHTML = `<input class="attr-n" placeholder="Attr"><input class="attr-v" placeholder="Val"><button class="btn-del" onclick="this.parentElement.remove();save()">x</button>`;
+    btn.previousElementSibling.appendChild(div);
+    div.querySelectorAll('input').forEach(i => i.addEventListener('input', save));
+};
+
+const SPELL_LVLS = ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"];
+window.addSpell = (d={}) => {
+    let opts = ""; SPELL_LVLS.forEach(l => opts += `<option ${d.lvl===l?'selected':''}>${l}</option>`);
+    
+    const summary = (x) => {
+        const nameDisplay = x.link ? `<a href="${x.link}" target="_blank">${x.name||'New Spell'}</a>` : (x.name||'New Spell');
+        return `[${x.lvl||'-'}] ${nameDisplay}`;
+    };
+
+    const html = `
+        <div class="item-row">
+            <select class="l-val" style="width:80px">${opts}</select>
+            <input class="n-val" value="${d.name||''}" placeholder="Name">
+        </div>
+        <input class="k-val" value="${d.link||''}" placeholder="Link URL">
+        <textarea class="d-val">${d.desc||''}</textarea>
+    `;
+    createRow('spellList', summary, html, d);
+}
+
+const ACTION_TYPES = ["Standard","Move","Swift","Full","Free","Immediate","Reaction"];
+window.addActive = (d={}) => {
+    let opts = ""; ACTION_TYPES.forEach(t => opts += `<option ${d.type===t?'selected':''}>${t}</option>`);
+    const summary = (x) => `<span>${x.name||'Ability'}: <small style="color:#aaa">${x.type||'-'}</small></span> <span>${x.uses||''}</span>`;
+    
+    const html = `
+        <input class="n-val" value="${d.name||''}" placeholder="Name">
+        <div class="item-row" style="margin-top:5px;">
+             <select class="t-val">${opts}</select>
+             <input class="u-val" value="${d.uses||''}" placeholder="Uses (e.g. 3/day)">
+        </div>
+        <textarea class="d-val">${d.desc||''}</textarea>
+    `;
+    createRow('activeList', summary, html, d);
+}
+
 window.addPassive = (d={}) => createRow('passiveList', x => x.name||'New Passive', `<input class="n-val" value="${d.name||''}" placeholder="Name"><textarea class="d-val">${d.desc||''}</textarea>`, d);
 window.addFeat = (d={}) => createRow('featList', x => x.name||'New Feat', `<input class="n-val" value="${d.name||''}" placeholder="Name"><input class="l-val" value="${d.link||''}" placeholder="Link"><textarea class="d-val">${d.desc||''}</textarea>`, d);
 window.addItem = (d={}) => createRow('itemList', x => x.name||'New Item', `<div class="item-row"><div style="flex:1"><input class="n-val" value="${d.name||''}" placeholder="Name" style="margin-bottom:5px"><input class="t-val" value="${d.tags||''}" placeholder="Tags" style="margin-bottom:5px"><input class="c-val" value="${d.cost||''}" placeholder="Cost"><input type="hidden" class="i-data" value="${d.img||''}"><input type="file" onchange="encodeImg(this)" style="margin-top:5px; font-size:11px;"></div><img src="${d.img||''}" class="item-img"></div><textarea class="d-val">${d.desc||''}</textarea>`, d);
