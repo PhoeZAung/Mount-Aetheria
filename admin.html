@@ -6,7 +6,7 @@
 <title>Admin — Master Editor</title>
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#111; --panel:#222; --muted:#aaa; --accent:#ffcc66; --good:#4caf50; --bad:#ff6666; }
+  :root { --bg:#111; --panel:#222; --muted:#aaa; --accent:#ffcc66; --good:#4caf50; --bad:#ff6666; --input-bg:#111; --border:#333; }
   body { margin:0; font-family:Arial,Helvetica,sans-serif; background:#0b0b0b; color:#fff; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
   
   header { height:50px; background:var(--panel); display:flex; align-items:center; padding:0 18px; border-bottom:1px solid #333; flex-shrink:0; justify-content: space-between;}
@@ -17,11 +17,19 @@
   #sidebar { width:250px; background:#181818; border-right:1px solid #333; display:flex; flex-direction:column; flex-shrink:0; transition: transform 0.3s ease; }
   #userSearch { background:#000; border:none; border-bottom:1px solid #333; color:#fff; padding:15px; width:100%; box-sizing:border-box; outline:none; }
   #usersList { flex:1; overflow-y:auto; }
-  .userItem { padding:10px 15px; cursor:pointer; border-bottom:1px solid #222; transition:0.2s; }
+  
+  /* --- USER LIST STYLES --- */
+  .userItem { padding:10px 15px; cursor:pointer; border-bottom:1px solid #222; transition:0.2s; display:flex; flex-direction: column; }
   .userItem:hover { background:#222; }
   .userItem.selected { background:var(--accent); color:#000; }
   .userItem .uName { font-weight:bold; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .userItem .uMeta { font-size:11px; opacity:0.7; }
+  
+  /* SUMMON ITEM STYLES */
+  .summonItem { padding: 8px 15px 8px 35px; cursor:pointer; border-bottom:1px solid #222; background: #252525; color: #aaa; font-size: 0.95em; position: relative; }
+  .summonItem:before { content:"↳"; position:absolute; left:15px; opacity:0.5; }
+  .summonItem:hover { background: #333; color: #fff; }
+  .summonItem.selected { background: var(--accent); color: #000; }
 
   #editorArea { flex:1; display:flex; flex-direction:column; background:#111; position:relative; overflow:hidden; }
   #emptyState { display:flex; align-items:center; justify-content:center; height:100%; color:#444; font-family:'Uncial Antiqua'; font-size:24px; }
@@ -30,61 +38,58 @@
   #sheetContainer { flex:1; overflow-y:auto; padding:20px; display:none; }
   #sheetContainer.active { display:block; }
 
+  /* --- TABS --- */
   .tabs-container { display: flex; width: 100%; max-width: 1000px; margin: 0 auto; gap:20px; flex-direction: column; }
-  .tab-menu { display: flex; flex-wrap: wrap; width: 100%; background: #1a1a1a; padding: 10px; gap: 5px; border-radius:8px; box-sizing: border-box; }
-  .tab-menu button { background: #333; color: #fff; border: none; padding: 10px; cursor: pointer; border-radius: 4px; text-align: left; font-family: 'Uncial Antiqua', serif; flex: 1; min-width: 80px; text-align: center; }
-  .tab-menu button:hover, .tab-menu button.active { background: var(--accent); color: #000; }
+  .tab-menu { display: flex; flex-wrap: wrap; width: 100%; background: #1a1a1a; padding: 10px; gap: 5px; border-radius:8px; box-sizing: border-box; overflow-x: auto; }
+  .tab-btn { flex: 1; min-width: 80px; background: transparent; border: none; color: #888; padding: 10px; cursor: pointer; font-family: 'Uncial Antiqua', serif; text-align: center; border-bottom: 3px solid transparent; }
+  .tab-btn:hover, .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: #111; }
   
-  .tab-content { flex: 1; display: none; background: #222; padding: 20px; border-radius: 8px; border:1px solid #333; margin-top: 10px; }
+  .tab-content { display: none; padding: 15px; max-width: 800px; margin: 0 auto; }
   .tab-content.active { display: block; animation: fadeIn 0.3s; }
 
-  h2, h3, h4 { font-family: 'Uncial Antiqua', serif; color: var(--accent); margin-top:0; }
-  input, textarea, select { background: #111; border: 1px solid #444; color: #fff; padding: 6px; border-radius: 4px; width:100%; box-sizing:border-box; }
+  h2, h3, h4 { font-family: 'Uncial Antiqua', serif; color: var(--accent); margin-top:0; text-align: center; }
+  
+  /* --- INPUTS --- */
+  input, textarea, select { background: var(--input-bg); border: 1px solid var(--border); color: #fff; padding: 8px; border-radius: 4px; width: 100%; font-size: 14px; box-sizing: border-box; }
   input:focus, textarea:focus { border-color: var(--accent); outline: none; }
+  label { color: #aaa; font-size: 12px; font-weight: bold; margin-bottom: 4px; display: block; }
   
-  .bio-grid { display: grid; grid-template-columns: 100px 1fr; gap: 10px; align-items: center; margin-bottom: 20px; }
-  .bio-grid label { text-align: right; color: #888; font-size:12px; font-weight:bold; }
+  .bio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .bio-item { display: flex; flex-direction: column; }
   
-  .ability-table { width: 100%; max-width: 400px; margin: 0 auto; border-collapse: collapse; text-align: center; }
-  .ability-table th, .ability-table td { border: 1px solid #444; padding: 5px; }
-  .modifier { color: var(--accent); font-weight: bold; }
+  /* --- STATS --- */
+  .combat-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 10px; background: var(--panel); padding: 10px; border-radius: 8px; margin-bottom: 15px; }
+  .stat-box { display: flex; flex-direction: column; align-items: center; }
+  .stat-dual { display: flex; align-items: center; gap: 5px; }
+  .stat-dual input { text-align: center; }
 
-  .combat-header { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; background: #181818; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-  .stat-group { display: flex; flex-direction: column; align-items: center; }
-  .stat-group label { font-size: 11px; color: var(--accent); margin-bottom: 4px; }
-  .stat-row { display:flex; align-items:center; gap:5px; }
+  /* --- SUB TABS --- */
+  .sub-nav-container { margin-bottom: 15px; position: relative; }
+  .sub-nav { display: flex; justify-content: center; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+  .sub-btn { background: none; border: 1px solid transparent; color: #888; padding: 6px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 14px; }
+  .sub-btn.active { background: var(--accent); color: #000; }
+  .sub-group, .sub-sub-group { display: none; }
+  .sub-group.active, .sub-sub-group.active { display: block; }
 
-  .sub-nav { display: flex; gap:10px; border-bottom: 1px solid #444; margin-bottom: 15px; padding-bottom:5px; overflow-x: auto; }
-  .sub-tab-btn { background: none; border: none; color: #888; cursor: pointer; font-family:'Uncial Antiqua'; font-size:14px; white-space: nowrap; }
-  .sub-tab-btn.active { color: var(--accent); text-decoration: underline; }
-  .sub-content { display: none; }
-  .sub-content.active { display: block; }
-
+  /* --- LISTS --- */
   details { background: #181818; border: 1px solid #333; border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
   details summary { padding: 8px 12px; cursor: pointer; background: #252525; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
   details summary a { color: var(--accent); text-decoration: none; position: relative; z-index: 50; }
-  details summary a:hover { text-decoration: underline; }
-  details[open] summary { border-bottom: 1px solid #333; }
   .details-content { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
   
-  /* --- UPDATED ATTRIBUTE ROW STYLING --- */
   .attr-row { display: flex; gap: 5px; margin-top: 5px; align-items: center; }
-  .attr-row .attr-n { flex: 3; min-width: 0; } /* 30% ratio */
-  .attr-row .attr-v { flex: 7; min-width: 0; } /* 70% ratio */
-  .attr-row .btn-remove { flex: 0 0 auto; width: auto; }
+  .attr-row .attr-n { flex: 3; min-width: 0; }
+  .attr-row .attr-v { flex: 7; min-width: 0; }
+  .btn-remove { background:#ff4444; color:#fff; border:none; padding:2px 8px; border-radius:2px; cursor:pointer; font-size:12px; }
   
-  .feat-tabs { display: flex; gap: 5px; margin-bottom: 10px; border-bottom: 1px solid #444; }
-  .feat-tab { background: #333; border: none; color: #888; padding: 5px 10px; font-size: 12px; cursor: pointer; border-radius: 4px 4px 0 0; }
-  .feat-tab.active { background: var(--accent); color: #000; }
-
   .btn-add { width:100%; background:var(--accent); color:#000; border:none; padding:8px; font-weight:bold; cursor:pointer; border-radius:4px; margin-top:10px; }
-  .btn-remove { background:#ff4444; color:#fff; border:none; padding:2px 6px; border-radius:2px; cursor:pointer; font-size:10px; }
   
-  .skills-table { width:100%; border-collapse:collapse; font-size:13px; }
-  .skills-table th { text-align:left; color:var(--accent); border-bottom:1px solid #444; padding:5px; }
+  /* --- SKILLS --- */
+  .skills-table { width:100%; border-collapse:collapse; font-size:13px; text-align: center; }
+  .skills-table th { background: #000; color:var(--accent); border-bottom:1px solid #444; padding:5px; }
   .skills-table td { padding:4px; border-bottom:1px solid #333; }
-  .skill-disabled { opacity:0.5; }
-
+  .skills-table td:nth-child(2) { text-align: left; font-weight: bold; }
+  
   .item-preview { width:40px; height:40px; border:1px solid #444; background:#000; object-fit:cover; }
 
   @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
@@ -99,8 +104,9 @@
     body.show-editor #editorArea { transform: translateX(0); }
     #backBtnMobile { display: block; }
     
-    .tabs-container { padding: 0; }
-    .bio-grid { grid-template-columns: 80px 1fr; }
+    .combat-stats { display: flex; flex-direction: column; }
+    .stat-box { flex-direction: row; justify-content: space-between; border-bottom:1px solid #333; }
+    .stat-box input { width: 50%; }
   }
 </style>
 </head>
@@ -125,142 +131,137 @@
     <div id="sheetContainer">
       <div class="tabs-container">
         <div class="tab-menu">
-          <button class="tab-btn active" data-tab="character">Bio</button>
-          <button class="tab-btn" data-tab="combat">Combat</button>
-          <button class="tab-btn" data-tab="skills">Skill</button>
-          <button class="tab-btn" data-tab="items">Item</button>
-          <button class="tab-btn" data-tab="notes">Note</button>
+          <button class="tab-btn active" id="btn-character" onclick="switchTab('character')">Character</button>
+          <button class="tab-btn" id="btn-combat" onclick="switchTab('combat')">Combat</button>
+          <button class="tab-btn" id="btn-skills" onclick="switchTab('skills')">Skills</button>
+          <button class="tab-btn" id="btn-items" onclick="switchTab('items')">Items</button>
+          <button class="tab-btn" id="btn-notes" onclick="switchTab('notes')">Notes</button>
         </div>
 
         <div class="tab-content active" id="character">
-          <h2>Bio & Stats</h2>
+          <h2 id="sheetTitle">Bio & Stats</h2>
           <div class="bio-grid">
-            <label>Name</label><input type="text" id="charName" class="save-field">
-            <label>Race</label><input type="text" id="race" class="save-field">
-            <label>Class</label><input type="text" id="class" class="save-field">
-            <label>Alignment</label><input type="text" id="alignment" class="save-field">
-            <label>Size</label><input type="text" id="size" class="save-field">
-            <label>Senses</label><input type="text" id="senses" class="save-field">
-            <label>Languages</label><input type="text" id="languages" class="save-field">
+            <div class="bio-item"><label>Name</label><input id="charName" class="save-field"></div>
+            <div class="bio-item"><label>Race</label><input id="race" class="save-field"></div>
+            <div class="bio-item"><label>Class</label><input id="class" class="save-field"></div>
+            <div class="bio-item"><label>Align</label><input id="alignment" class="save-field"></div>
+            <div class="bio-item"><label>Size</label><input id="size" class="save-field"></div>
+            <div class="bio-item"><label>Langs</label><input id="languages" class="save-field"></div>
+            <div class="bio-item" style="grid-column: 1 / -1;"><label>Senses</label><input id="senses" class="save-field"></div>
           </div>
           <h3>Ability Scores</h3>
-          <table class="ability-table">
-            <tr><th>Stat</th><th>Score</th><th>Mod</th></tr>
-            <tr><td>STR</td><td><input type="number" id="str" class="save-field calc-stat"></td><td id="mod-str" class="modifier">+0</td></tr>
-            <tr><td>DEX</td><td><input type="number" id="dex" class="save-field calc-stat"></td><td id="mod-dex" class="modifier">+0</td></tr>
-            <tr><td>CON</td><td><input type="number" id="con" class="save-field calc-stat"></td><td id="mod-con" class="modifier">+0</td></tr>
-            <tr><td>INT</td><td><input type="number" id="int" class="save-field calc-stat"></td><td id="mod-int" class="modifier">+0</td></tr>
-            <tr><td>WIS</td><td><input type="number" id="wis" class="save-field calc-stat"></td><td id="mod-wis" class="modifier">+0</td></tr>
-            <tr><td>CHA</td><td><input type="number" id="cha" class="save-field calc-stat"></td><td id="mod-cha" class="modifier">+0</td></tr>
-          </table>
+          <div style="background:var(--panel); border-radius:8px; overflow:hidden;">
+            <table style="width:100%; border-collapse:collapse; text-align:center;">
+                <tr style="background:#000; color:#888; font-size:12px;"><th>Stat</th><th>Score</th><th>Mod</th></tr>
+                <script>
+                    ['str','dex','con','int','wis','cha'].forEach(s => {
+                        document.write(`<tr style="border-top:1px solid #333;"><td style="font-weight:bold; color:var(--accent); text-transform:uppercase;">${s}</td><td style="padding:8px;"><input type="number" id="${s}" class="save-field calc-trigger" style="text-align:center; background:#111; border:1px solid #444; color:#fff; border-radius:4px;"></td><td id="mod-${s}">+0</td></tr>`);
+                    });
+                </script>
+            </table>
+          </div>
         </div>
 
         <div class="tab-content" id="combat">
-          <div class="combat-header">
-            <div class="stat-group"><label>HP</label><div class="stat-row"><input id="hp_curr" class="save-field" style="width:50px"><input id="hp_max" class="save-field" style="width:50px"></div></div>
-            <div class="stat-group"><label>MP</label><div class="stat-row"><input id="mp_curr" class="save-field" style="width:50px"><input id="mp_max" class="save-field" style="width:50px"></div></div>
-            <div class="stat-group"><label>Speed</label><input id="speed" class="save-field" style="width:60px"></div>
-            <div class="stat-group"><label>AC Total</label><input id="ac_total" class="save-field" style="width:50px"></div>
-            <div class="stat-group"><label>Init Mod</label><input id="init_bonus" class="save-field" style="width:50px"></div>
+          <div class="combat-stats" style="grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));">
+            <div class="stat-box"><label>HP (Cur/Max)</label><div class="stat-dual"><input id="hp_curr" class="save-field" placeholder="Curr"><span style="color:#666">/</span><input id="hp_max" class="save-field" placeholder="Max"></div></div>
+            <div class="stat-box"><label>MP (Cur/Max)</label><div class="stat-dual"><input id="mp_curr" class="save-field" placeholder="Curr"><span style="color:#666">/</span><input id="mp_max" class="save-field" placeholder="Max"></div></div>
+            <div class="stat-box"><label>Speed</label><input id="speed" class="save-field"></div>
+            <div class="stat-box"><label>Init Mod</label><input id="init_bonus" class="save-field"></div>
+            <div class="stat-box"><label>BAB</label><input id="bab" class="save-field"></div>
+            <div class="stat-box"><label>AC Total</label><input id="ac_total" class="save-field"></div>
           </div>
 
-          <div class="sub-nav">
-            <button class="sub-tab-btn active" data-sub="offense">Offense</button>
-            <button class="sub-tab-btn" data-sub="defense">Defense</button>
-            <button class="sub-tab-btn" data-sub="spells">Spells</button>
-            <button class="sub-tab-btn" data-sub="feats">Feats</button>
+          <div class="sub-nav-container">
+            <div class="sub-nav" id="combatSubNav">
+                <button class="sub-btn active" onclick="switchSub('c-general')">General</button>
+                <button class="sub-btn" onclick="switchSub('c-abilities-main')">Abilities</button>
+                <button class="sub-btn" id="spellsSubBtn" onclick="switchSub('c-spells')">Spells</button>
+            </div>
           </div>
 
-          <div id="offense" class="sub-content active">
-             <div class="bio-grid" style="grid-template-columns:100px 1fr;">
-                <label>BAB</label><input id="bab" class="save-field">
-                <label>Touch Atk</label><input id="atk_touch" class="save-field">
-                <label>Rng Touch</label><input id="atk_rtouch" class="save-field">
-             </div>
-             <h3>Weapons</h3>
-             <div id="weaponList"></div>
-             <button class="btn-add" id="btnAddWeapon">+ Add Weapon</button>
+          <div id="c-general" class="sub-group active">
+            <div class="combat-stats" style="grid-template-columns: 1fr 1fr;">
+                <div class="stat-box"><label>CMB</label><input id="cmb" class="save-field"></div>
+                <div class="stat-box"><label>CMD</label><input id="cmd_total" class="save-field"></div>
+            </div>
+            
+            <div style="background:var(--panel); padding:10px; border-radius:8px; margin-bottom:10px;">
+                <label>Resistances / Immunities / DR / SR</label>
+                <textarea id="resistances" class="save-field" style="height:80px;" placeholder="Fire 10, DR 5/Magic..."></textarea>
+            </div>
+            
+            <h3>Saves</h3>
+            <div class="combat-stats">
+                <div class="stat-box"><label>Fortitude</label><div class="stat-dual"><input id="fort_bonus" type="number" class="save-field calc-trigger" placeholder="Bonus"><span id="fort_total" style="color:var(--accent); font-weight:bold;">+0</span></div></div>
+                <div class="stat-box"><label>Reflex</label><div class="stat-dual"><input id="ref_bonus" type="number" class="save-field calc-trigger" placeholder="Bonus"><span id="ref_total" style="color:var(--accent); font-weight:bold;">+0</span></div></div>
+                <div class="stat-box"><label>Will</label><div class="stat-dual"><input id="will_bonus" type="number" class="save-field calc-trigger" placeholder="Bonus"><span id="will_total" style="color:var(--accent); font-weight:bold;">+0</span></div></div>
+            </div>
+            
+            <h3>Weapons</h3>
+            <div id="weaponList"></div><button class="btn-add" id="btnAddWeapon">+ Add Weapon</button>
           </div>
 
-          <div id="defense" class="sub-content">
-             <div class="bio-grid">
-                <label>Touch AC</label><input id="ac_touch" class="save-field">
-                <label>Flat-Foot AC</label><input id="ac_flat" class="save-field">
-                <label>CMD</label><input id="cmd_total" class="save-field">
-                <label>DR</label><input id="dr_val" class="save-field">
-                <label>SR</label><input id="sr_val" class="save-field">
-             </div>
-             <h3>Saves</h3>
-             <table class="ability-table">
-               <tr><th>Save</th><th>Base/Bonus</th><th>Total</th></tr>
-               <tr><td>Fort</td><td><input type="number" id="fort_bonus" class="save-field calc-stat"></td><td id="fort_total" class="modifier">+0</td></tr>
-               <tr><td>Ref</td><td><input type="number" id="ref_bonus" class="save-field calc-stat"></td><td id="ref_total" class="modifier">+0</td></tr>
-               <tr><td>Will</td><td><input type="number" id="will_bonus" class="save-field calc-stat"></td><td id="will_total" class="modifier">+0</td></tr>
-             </table>
+          <div id="c-abilities-main" class="sub-group" style="display:none">
+              <div class="sub-nav-container">
+                <div class="sub-nav" id="abilitiesSubSubNav">
+                    <button class="sub-btn active" onclick="switchSubSub('a-active')">Active</button>
+                    <button class="sub-btn" id="btn-sub-passive" onclick="switchSubSub('a-passive')">Passive</button>
+                    <button class="sub-btn" onclick="switchSubSub('a-feats')">Feats</button>
+                </div>
+              </div>
+              
+              <div id="a-active" class="sub-sub-group active">
+                  <h3>Active Abilities</h3>
+                  <div id="activeList"></div>
+                  <button class="btn-add" id="btnAddActive">+ Add Active</button>
+              </div>
+
+              <div id="a-passive" class="sub-sub-group" style="display:none">
+                  <h3>Passive Abilities</h3>
+                  <div id="passiveList"></div>
+                  <button class="btn-add" id="btnAddPassive">+ Add Passive</button>
+              </div>
+
+              <div id="a-feats" class="sub-sub-group" style="display:none">
+                  <h3>Feats</h3>
+                  <div id="featList"></div>
+                  <button class="btn-add" id="btnAddFeat">+ Add Feat</button>
+                  <br><br>
+                  <label>Proficiencies</label>
+                  <textarea id="proficiencies" class="save-field" style="height:80px"></textarea>
+              </div>
           </div>
 
-          <div id="spells" class="sub-content">
-             <div style="margin-bottom:10px;"><label>DC Base:</label> <input id="spell_dc_base" class="save-field"></div>
+          <div id="c-spells" class="sub-group" style="display:none">
+             <h3>Spells</h3>
+             <div class="stat-box" style="margin-bottom:10px;"><label>Spell DC Base</label><input id="spell_dc_base" class="save-field"></div>
              <div id="spellList"></div>
              <button class="btn-add" id="btnAddSpell">+ Add Spell</button>
-          </div>
-
-          <div id="feats" class="sub-content">
-             <div class="feat-tabs">
-                 <button class="feat-tab active" data-feattab="f-active">Active</button>
-                 <button class="feat-tab" data-feattab="f-passive">Passive</button>
-                 <button class="feat-tab" data-feattab="f-feats">Feats</button>
-             </div>
-
-             <div id="f-active" class="feat-cont active">
-                 <h3>Active Abilities</h3>
-                 <div id="activeList"></div>
-                 <button class="btn-add" id="btnAddActive">+ Add Active</button>
-             </div>
-             
-             <div id="f-passive" class="feat-cont" style="display:none">
-                 <h3>Passive Abilities</h3>
-                 <div id="passiveList"></div>
-                 <button class="btn-add" id="btnAddPassive">+ Add Passive</button>
-             </div>
-
-             <div id="f-feats" class="feat-cont" style="display:none">
-                 <h3>Feats</h3>
-                 <div id="featList"></div>
-                 <button class="btn-add" id="btnAddFeat">+ Add Feat</button>
-                 <br>
-                 <h3>Proficiencies</h3>
-                 <textarea id="proficiencies" class="save-field" style="height:80px"></textarea>
-             </div>
           </div>
         </div>
 
         <div class="tab-content" id="skills">
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <strong>Skills</strong>
-                <span>Unused Points: <input id="skill_points" class="save-field" style="width:50px; display:inline-block;"></span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><span>Unused Pts:</span><input id="skill_points" class="save-field" style="width:60px; text-align:center;"></div>
+            <div class="skills-container">
+                <table class="skills-table">
+                    <thead><tr><th style="width:30px">CS</th><th style="text-align:left;">Skill Name</th><th style="width:40px">Mod</th><th style="width:50px">Ranks</th><th style="width:40px">Tot</th></tr></thead>
+                    <tbody id="skillsTableBody"></tbody>
+                </table>
             </div>
-            <table class="skills-table">
-                <thead><tr><th style="width:30px">CS</th><th>Name</th><th style="width:40px">Mod</th><th style="width:50px">Ranks</th><th style="width:40px">Tot</th></tr></thead>
-                <tbody id="skillsTableBody"></tbody>
-            </table>
         </div>
 
         <div class="tab-content" id="items">
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <div><label>Gil</label><input id="currency_gil" class="save-field"></div>
-                <div><label>Moogle Pts</label><input id="currency_moogle" class="save-field"></div>
-            </div>
+            <div class="combat-stats" style="grid-template-columns: 1fr 1fr;"><div class="stat-box"><label>💰 Gil</label><input id="currency_gil" class="save-field"></div><div class="stat-box"><label>Moogle Pts</label><input id="currency_moogle" class="save-field"></div></div>
             <div id="itemList"></div>
             <button class="btn-add" id="btnAddItem">+ Add Item</button>
         </div>
 
         <div class="tab-content" id="notes">
-            <textarea id="notesArea" class="save-field" style="height:400px; font-family:sans-serif;"></textarea>
+            <textarea id="notesArea" class="save-field" style="height:400px; font-family:sans-serif; line-height:1.5;"></textarea>
         </div>
 
       </div> 
-      
       <div style="height:40px;"></div>
     </div> 
     
@@ -274,17 +275,9 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, getDocs, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",
-  authDomain: "mount-aetheria.firebaseapp.com",
-  projectId: "mount-aetheria",
-  storageBucket: "mount-aetheria.firebasestorage.app",
-  messagingSenderId: "492855693446",
-  appId: "1:492855693446:web:f9948569254a7220c38107",
-  measurementId: "G-0PF84KDN7L"
-};
+const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", authDomain: "mount-aetheria.firebaseapp.com", projectId: "mount-aetheria", storageBucket: "mount-aetheria.firebasestorage.app", messagingSenderId: "492855693446", appId: "1:492855693446:web:f9948569254a7220c38107", measurementId: "G-0PF84KDN7L" };
 const ADMIN_UID = "U7uyfcMtULSLJvXD0HzJaiMIeGE3";
 const ADMIN_EMAIL = "phoeaung2076@gmail.com";
 
@@ -293,26 +286,51 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let allUsers = [];
-let selectedUserUid = null;
+let currentParentUid = null;
+let currentSummonId = null; // Null if main, ID string if summon
+let fullSheetData = {}; // Stores the entire user sheet including summons
 let unsubscribeSheet = null;
 let saveTimeout = null;
 let isInternalUpdate = false;
 
-const SKILLS_DB = [
-    {name: "Acrobatics", stat: "dex", trained: false}, {name: "Appraise", stat: "int", trained: false},
-    {name: "Bluff", stat: "cha", trained: false}, {name: "Climb", stat: "str", trained: false},
-    {name: "Craft (1)", stat: "int", trained: false}, {name: "Craft (2)", stat: "int", trained: false},
-    {name: "Diplomacy", stat: "cha", trained: false}, {name: "Disable Device", stat: "dex", trained: true},
-    {name: "Disguise", stat: "cha", trained: false}, {name: "Escape Artist", stat: "dex", trained: false},
-    {name: "Fly", stat: "dex", trained: false}, {name: "Handle Animal", stat: "cha", trained: true},
-    {name: "Heal", stat: "wis", trained: false}, {name: "Intimidate", stat: "cha", trained: false},
-    {name: "Knw: Arcana", stat: "int", trained: true}, {name: "Knw: Nature", stat: "int", trained: true},
-    {name: "Knw: Local", stat: "int", trained: true}, {name: "Knw: Religion", stat: "int", trained: true},
-    {name: "Perception", stat: "wis", trained: false}, {name: "Ride", stat: "dex", trained: false},
-    {name: "Sense Motive", stat: "wis", trained: false}, {name: "Spellcraft", stat: "int", trained: true},
-    {name: "Stealth", stat: "dex", trained: false}, {name: "Survival", stat: "wis", trained: false},
-    {name: "Swim", stat: "str", trained: false}, {name: "Use Magic Device", stat: "cha", trained: true}
-];
+// UI TABS
+window.switchTab = (id) => { 
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); 
+    const btn = document.getElementById('btn-' + id);
+    if(btn) btn.classList.add('active');
+    document.getElementById(id).classList.add('active'); 
+    
+    // Reset Combat if selected
+    if(id === 'combat') {
+        document.querySelectorAll('#combatSubNav .sub-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('#combatSubNav .sub-btn:first-child').classList.add('active');
+        document.querySelectorAll('#combat .sub-group').forEach(c => c.style.display = 'none');
+        document.getElementById('c-general').style.display = 'block';
+    }
+};
+
+window.switchSub = (id) => { 
+    const container = event.target.parentElement;
+    Array.from(container.children).forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    const parentTab = document.getElementById('combat');
+    parentTab.querySelectorAll('.sub-group').forEach(c => c.style.display = 'none');
+    document.getElementById(id).style.display = 'block';
+};
+
+window.switchSubSub = (id) => {
+    const container = event.target.parentElement;
+    Array.from(container.children).forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    const parent = document.getElementById('c-abilities-main');
+    parent.querySelectorAll('.sub-sub-group').forEach(c => c.style.display = 'none');
+    document.getElementById(id).style.display = 'block'; 
+};
+
+window.closeMobileEditor = () => { document.body.classList.remove('show-editor'); };
+
+const SKILLS_DB = [{n:"Acrobatics",s:"dex"}, {n:"Appraise",s:"int"}, {n:"Bluff",s:"cha"}, {n:"Climb",s:"str"}, {n:"Diplomacy",s:"cha"}, {n:"Disable Device",s:"dex"}, {n:"Disguise",s:"cha"}, {n:"Escape Artist",s:"dex"}, {n:"Fly",s:"dex"}, {n:"Heal",s:"wis"}, {n:"Intimidate",s:"cha"}, {n:"Knw: Arcana",s:"int"}, {n:"Knw: Dungeoneering",s:"int"}, {n:"Knw: Engineering",s:"int"}, {n:"Knw: Geography",s:"int"}, {n:"Knw: History",s:"int"}, {n:"Knw: Local",s:"int"}, {n:"Knw: Nature",s:"int"}, {n:"Knw: Nobility",s:"int"}, {n:"Knw: Planes",s:"int"}, {n:"Knw: Religion",s:"int"}, {n:"Linguistics",s:"int"}, {n:"Perception",s:"wis"}, {n:"Ride",s:"dex"}, {n:"Sense Motive",s:"wis"}, {n:"Sleight of Hand",s:"dex"}, {n:"Spellcraft",s:"int"}, {n:"Stealth",s:"dex"}, {n:"Survival",s:"wis"}, {n:"Swim",s:"str"}, {n:"Use Magic Device",s:"cha"}];
 
 onAuthStateChanged(auth, async (user) => {
   if(!user) { window.location.href="login.html"; return; }
@@ -323,20 +341,33 @@ onAuthStateChanged(auth, async (user) => {
   loadUserList();
 });
 
-window.closeMobileEditor = () => {
-    document.body.classList.remove('show-editor');
-};
-
 async function loadUserList(){
     const listEl = document.getElementById('usersList');
     listEl.innerHTML = '<div style="padding:15px">Fetching users...</div>';
     try {
         const snap = await getDocs(collection(db, 'users'));
         allUsers = [];
-        snap.forEach(d => {
+        // Fetch all user docs
+        for (const d of snap.docs) {
             const data = d.data();
-            allUsers.push({ uid: d.id, name: data.displayName || data.name || "Unknown", email: data.email || "No Email" });
-        });
+            const uid = d.id;
+            const name = data.displayName || data.name || "Unknown";
+            const email = data.email || "No Email";
+            
+            // Fetch sheet summary to check for summons
+            // Note: In a large production app, fetch summons on demand. 
+            // For this scale, pre-fetching is fine for better UX.
+            let summons = [];
+            try {
+                const sheetSnap = await getDoc(doc(db, 'users', uid, 'sheet', 'character'));
+                if(sheetSnap.exists() && sheetSnap.data().summons) {
+                    summons = sheetSnap.data().summons;
+                }
+            } catch(e) { console.log("No sheet for " + name); }
+
+            allUsers.push({ uid, name, email, summons });
+        }
+        
         allUsers.sort((a,b) => a.name.localeCompare(b.name));
         renderUserList(allUsers);
     } catch(e) {
@@ -347,44 +378,73 @@ async function loadUserList(){
 function renderUserList(users){
     const listEl = document.getElementById('usersList'); listEl.innerHTML = '';
     users.forEach(u => {
+        // Main User Item
         const div = document.createElement('div'); div.className = 'userItem';
         div.innerHTML = `<span class="uName">${u.name}</span><span class="uMeta">${u.email}</span>`;
-        div.onclick = () => selectUser(u.uid, div);
+        div.onclick = () => selectUser(u.uid, null, div);
+        div.dataset.uid = u.uid;
         listEl.appendChild(div);
+
+        // Summon Items (Indented)
+        if(u.summons && u.summons.length > 0) {
+            u.summons.forEach(s => {
+                const sDiv = document.createElement('div'); sDiv.className = 'summonItem';
+                sDiv.textContent = s.charName || "Unnamed Summon";
+                sDiv.onclick = (e) => {
+                    e.stopPropagation();
+                    selectUser(u.uid, s.id, sDiv);
+                };
+                listEl.appendChild(sDiv);
+            });
+        }
     });
 }
 
 document.getElementById('userSearch').addEventListener('input', (e)=>{
     const txt = e.target.value.toLowerCase();
-    renderUserList(allUsers.filter(u => u.name.toLowerCase().includes(txt) || u.email.toLowerCase().includes(txt)));
+    const filtered = allUsers.filter(u => u.name.toLowerCase().includes(txt) || u.email.toLowerCase().includes(txt));
+    renderUserList(filtered);
 });
 
-function selectUser(uid, el){
-    document.querySelectorAll('.userItem').forEach(d => d.classList.remove('selected'));
+// SELECT USER (Main or Summon)
+function selectUser(uid, summonId, el){
+    // Highlight UI
+    document.querySelectorAll('.userItem, .summonItem').forEach(d => d.classList.remove('selected'));
     if(el) el.classList.add('selected');
-    selectedUserUid = uid;
-    document.getElementById('targetUserUID').textContent = "Editing: " + uid;
+
+    currentParentUid = uid;
+    currentSummonId = summonId;
+    
+    // Update Admin Bar
+    const typeLabel = summonId ? " (Summon)" : " (Main)";
+    document.getElementById('targetUserUID').textContent = "Editing: " + uid + typeLabel;
+    
     document.getElementById('emptyState').style.display = 'none';
     document.getElementById('sheetContainer').style.display = 'block';
     document.getElementById('sheetContainer').classList.add('active');
     document.body.classList.add('show-editor');
+    
     initSkillsTable();
     startListening(uid);
 }
 
 function startListening(uid){
     if(unsubscribeSheet) unsubscribeSheet();
+    
     const docRef = doc(db, 'users', uid, 'sheet', 'character');
     document.getElementById('statusText').textContent = "Syncing...";
+    
     unsubscribeSheet = onSnapshot(docRef, (docSnap) => {
         if(docSnap.exists()){
+            fullSheetData = docSnap.data(); // Store full data
             isInternalUpdate = true;
-            populateSheet(docSnap.data());
+            populateSheet(); // Logic decides what to show based on currentSummonId
             isInternalUpdate = false;
             document.getElementById('statusText').textContent = "Synced";
             document.getElementById('statusText').style.color = "#4caf50";
         } else {
             document.getElementById('statusText').textContent = "No Sheet Data (Empty)";
+            fullSheetData = {};
         }
     }, (err) => {
         console.error(err);
@@ -393,9 +453,43 @@ function startListening(uid){
     });
 }
 
-function populateSheet(data){
-    document.querySelectorAll('.save-field').forEach(el => { if(data[el.id] !== undefined) el.value = data[el.id]; });
+function populateSheet(){
+    // Determine which data object to display
+    let data = fullSheetData;
+    if (currentSummonId) {
+        if (fullSheetData.summons) {
+            data = fullSheetData.summons.find(s => s.id === currentSummonId) || {};
+        } else {
+            data = {};
+        }
+        
+        // UI Adjustments for Summon
+        document.getElementById('sheetTitle').textContent = "Summon Bio";
+        document.getElementById('btn-skills').style.display = 'none';
+        document.getElementById('btn-items').style.display = 'none';
+        document.getElementById('spellsSubBtn').style.display = 'none'; // Summons usually don't have full spellbooks here
+        document.getElementById('btn-sub-passive').style.display = 'none';
 
+        // Force switch to Character or Combat if on hidden tab
+        const activeTab = document.querySelector('.tab-content.active').id;
+        if(['skills','items','notes'].includes(activeTab)) switchTab('combat');
+
+    } else {
+        // Main Character
+        document.getElementById('sheetTitle').textContent = "Character Bio";
+        document.getElementById('btn-skills').style.display = 'block';
+        document.getElementById('btn-items').style.display = 'block';
+        document.getElementById('spellsSubBtn').style.display = 'block';
+        document.getElementById('btn-sub-passive').style.display = 'block';
+    }
+
+    // Populate Fields
+    document.querySelectorAll('.save-field').forEach(el => { 
+        el.value = "";
+        if(data[el.id] !== undefined) el.value = data[el.id]; 
+    });
+
+    // Populate Arrays
     const wList = document.getElementById('weaponList'); wList.innerHTML=''; 
     if(data.weapons) data.weapons.forEach(w => addWeaponRow(w));
 
@@ -413,8 +507,9 @@ function populateSheet(data){
     document.getElementById('featList').innerHTML=''; if(data.feats) data.feats.forEach(x => addFeatRow(x));
     document.getElementById('itemList').innerHTML=''; if(data.items) data.items.forEach(x => addItemRow(x));
 
-    if(data.skills){
-        const rows = document.querySelectorAll('.skill-row');
+    // Skills (Main Only)
+    if(!currentSummonId && data.skills){
+        const rows = document.querySelectorAll('.skill-row-data');
         data.skills.forEach((s, i) => {
             if(rows[i]){
                 rows[i].querySelector('.skill-cs').checked = s.cs;
@@ -437,17 +532,19 @@ function updateCalculations(){
     document.getElementById('ref_total').textContent = (dex+rB >=0?'+':'')+(dex+rB);
     document.getElementById('will_total').textContent = (wis+wB >=0?'+':'')+(wis+wB);
 
-    document.querySelectorAll('.skill-row').forEach(row => {
-        const stat = row.dataset.stat, mod = getMod(stat), ranks = Number(row.querySelector('.skill-ranks').value)||0, isCs = row.querySelector('.skill-cs').checked;
-        const total = mod + ranks + ((isCs && ranks>0) ? 3 : 0);
-        row.querySelector('.skill-mod').textContent = mod;
-        row.querySelector('.skill-total').textContent = (total>=0?'+':'')+total;
-        if(row.dataset.trained === 'true' && ranks === 0) { row.classList.add('skill-disabled'); row.querySelector('.skill-total').textContent = "-"; } else { row.classList.remove('skill-disabled'); }
-    });
+    // Only calc skills if main char
+    if(!currentSummonId) {
+        document.querySelectorAll('.skill-row-data').forEach(row => {
+            const stat = row.dataset.stat, mod = getMod(stat), ranks = Number(row.querySelector('.skill-ranks').value)||0, isCs = row.querySelector('.skill-cs').checked;
+            const total = mod + ranks + ((isCs && ranks>0) ? 3 : 0);
+            row.querySelector('.skill-mod').textContent = mod;
+            row.querySelector('.skill-total').textContent = (total>=0?'+':'')+total;
+        });
+    }
 }
 
 function triggerSave(){
-    if(isInternalUpdate || !selectedUserUid) return;
+    if(isInternalUpdate || !currentParentUid) return;
     document.getElementById('statusText').textContent = "Saving...";
     document.getElementById('statusText').style.color = "yellow";
     clearTimeout(saveTimeout);
@@ -455,28 +552,63 @@ function triggerSave(){
 }
 
 async function saveData(){
-    if(!selectedUserUid) return;
-    const payload = {};
-    document.querySelectorAll('.save-field').forEach(el => payload[el.id] = el.value);
+    if(!currentParentUid) return;
 
-    payload.skills = [];
-    document.querySelectorAll('.skill-row').forEach(row => { payload.skills.push({ cs: row.querySelector('.skill-cs').checked, lvl: Number(row.querySelector('.skill-ranks').value)||0 }); });
+    // Scrape current form data
+    const currentData = {};
+    document.querySelectorAll('.save-field').forEach(el => currentData[el.id] = el.value);
 
-    payload.weapons = [];
+    // Arrays
+    currentData.weapons = [];
     document.getElementById('weaponList').querySelectorAll('details').forEach(d => {
         const attrs = [];
         d.querySelectorAll('.attr-row').forEach(row => attrs.push({ name: row.querySelector('.attr-n').value, val: row.querySelector('.attr-v').value }));
-        payload.weapons.push({ name: d.querySelector('.w-name').value, mod: d.querySelector('.w-mod').value, attrs: attrs });
+        currentData.weapons.push({ name: d.querySelector('.w-name').value, mod: d.querySelector('.w-mod').value, attrs: attrs });
     });
+    
+    currentData.spells = scrapeList('spellList', ['.l-val','.n-val','.k-val','.d-val'], ['lvl','name','link','desc']);
+    currentData.activeAbilities = scrapeList('activeList', ['.n-val','.u-val','.t-val','.d-val'], ['name','uses','type','desc']);
+    currentData.passiveAbilities = scrapeList('passiveList', ['.n-val','.d-val'], ['name','desc']);
+    currentData.feats = scrapeList('featList', ['.n-val','.l-val','.d-val'], ['name','link','desc']);
+    currentData.items = scrapeList('itemList', ['.n-val','.t-val','.c-val','.d-val','.i-data'], ['name','tags','cost','desc','img']);
 
-    payload.spells = scrapeList('spellList', ['.l-val','.n-val','.k-val','.d-val'], ['lvl','name','link','desc']);
-    payload.activeAbilities = scrapeList('activeList', ['.n-val','.u-val','.t-val','.d-val'], ['name','uses','type','desc']);
-    payload.passiveAbilities = scrapeList('passiveList', ['.n-val','.d-val'], ['name','desc']);
-    payload.feats = scrapeList('featList', ['.n-val','.l-val','.d-val'], ['name','link','desc']);
-    payload.items = scrapeList('itemList', ['.n-val','.t-val','.c-val','.d-val','.i-data'], ['name','tags','cost','desc','img']);
+    if(!currentSummonId) {
+        currentData.skills = [];
+        document.querySelectorAll('.skill-row-data').forEach(row => { 
+            currentData.skills.push({ cs: row.querySelector('.skill-cs').checked, lvl: Number(row.querySelector('.skill-ranks').value)||0 }); 
+        });
+    }
+
+    // CONSTRUCT FINAL PAYLOAD
+    let finalPayload = {};
+    
+    if (currentSummonId) {
+        // We are editing a summon. We need to grab the FULL sheet data,
+        // find the summon in the array, replace it, and save the whole sheet.
+        // We use 'fullSheetData' which is kept up to date by onSnapshot.
+        
+        finalPayload = { ...fullSheetData }; // copy
+        if(!finalPayload.summons) finalPayload.summons = [];
+        
+        const idx = finalPayload.summons.findIndex(s => s.id === currentSummonId);
+        // Ensure ID is preserved
+        currentData.id = currentSummonId; 
+        
+        if(idx > -1) {
+            finalPayload.summons[idx] = currentData;
+        } else {
+            // Should theoretically not happen unless summon was deleted remotely while editing
+            finalPayload.summons.push(currentData);
+        }
+    } else {
+        // Editing Main Character
+        // We preserve the 'summons' array from the full data so we don't overwrite it
+        const existingSummons = fullSheetData.summons || [];
+        finalPayload = { ...currentData, summons: existingSummons };
+    }
 
     try {
-        await setDoc(doc(db, 'users', selectedUserUid, 'sheet', 'character'), payload);
+        await setDoc(doc(db, 'users', currentParentUid, 'sheet', 'character'), finalPayload);
         document.getElementById('statusText').textContent = "Saved";
         document.getElementById('statusText').style.color = "#4caf50";
     } catch(e) {
@@ -497,10 +629,10 @@ function scrapeList(id, selectors, keys){
 
 function createRow(containerId, titleFunc, html, data={}){
     const div = document.createElement('details');
-    div.innerHTML = `<summary>${titleFunc(data)}</summary><div class="details-content">${html}<button class="btn-remove">Remove</button></div>`;
+    div.innerHTML = `<summary>${titleFunc(data)} <button class="btn-remove">x</button></summary><div class="details-content">${html}</div>`;
     document.getElementById(containerId).appendChild(div);
-    div.querySelectorAll('input,textarea,select').forEach(i => i.addEventListener('input', () => { div.querySelector('summary').innerHTML = titleFunc(scrapeRow(div)); triggerSave(); }));
-    div.querySelector('.btn-remove').onclick = () => { div.remove(); triggerSave(); };
+    div.querySelectorAll('input,textarea,select').forEach(i => i.addEventListener('input', () => { div.querySelector('summary').innerHTML = titleFunc(scrapeRow(div)) + ` <button class="btn-remove">x</button>`; triggerSave(); }));
+    div.querySelector('.btn-remove').onclick = (e) => { e.preventDefault(); div.remove(); triggerSave(); };
     return div;
 }
 
@@ -557,36 +689,19 @@ function addActiveRow(d={}){
 
 function addPassiveRow(d={}){ createRow('passiveList', x => x.name||'New Passive', `<input class="n-val" value="${d.name||''}" placeholder="Name"><textarea class="d-val">${d.desc||''}</textarea>`, d); }
 function addFeatRow(d={}){ createRow('featList', x => x.name||'New Feat', `<input class="n-val" value="${d.name||''}" placeholder="Name"><input class="l-val" value="${d.link||''}" placeholder="Link"><textarea class="d-val">${d.desc||''}</textarea>`, d); }
-function addItemRow(d={}){ createRow('itemList', x => x.name||'New Item', `<div style="display:flex;gap:10px"><div style="flex:1"><input class="n-val" value="${d.name||''}" placeholder="Name"><input class="t-val" value="${d.tags||''}" placeholder="Tags"><input class="c-val" value="${d.cost||''}" placeholder="Cost"><input type="hidden" class="i-data" value="${d.img||''}"></div><img src="${d.img||''}" class="item-preview"></div><textarea class="d-val">${d.desc||''}</textarea>`, d); }
+function addItemRow(d={}){ createRow('itemList', x => x.name||'New Item', `<div style="display:flex;gap:10px"><div style="flex:1"><input class="n-val" value="${d.name||''}" placeholder="Name" style="margin-bottom:5px"><input class="t-val" value="${d.tags||''}" placeholder="Tags" style="margin-bottom:5px"><input class="c-val" value="${d.cost||''}" placeholder="Cost"><input type="hidden" class="i-data" value="${d.img||''}"><input type="file" onchange="encodeImg(this)" style="margin-top:5px; font-size:11px;"></div><img src="${d.img||''}" class="item-preview"></div><textarea class="d-val">${d.desc||''}</textarea>`, d); }
+
+window.encodeImg = (inp) => { const f = inp.files[0]; if(f){ const r = new FileReader(); r.onload = e => { const p = inp.parentElement; p.querySelector('.i-data').value = e.target.result; p.nextElementSibling.src = e.target.result; triggerSave(); }; r.readAsDataURL(f); } };
 
 function initSkillsTable(){
     const body = document.getElementById('skillsTableBody'); body.innerHTML = '';
     SKILLS_DB.forEach(s => {
-        const tr = document.createElement('tr'); tr.className = 'skill-row'; tr.dataset.stat = s.stat; tr.dataset.trained = s.trained;
-        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td>${s.name} <small style="color:#888">(${s.stat})</small></td><td class="skill-mod">0</td><td><input type="number" class="skill-ranks" style="width:40px"></td><td class="skill-total" style="color:var(--accent);font-weight:bold">0</td>`;
+        const tr = document.createElement('tr'); tr.className = 'skill-row-data'; tr.dataset.stat = s.s;
+        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td>${s.n} <small style="color:#888">(${s.s})</small></td><td class="skill-mod">0</td><td><input type="number" class="skill-ranks" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent);font-weight:bold">0</td>`;
         tr.querySelectorAll('input').forEach(i => i.addEventListener('input', () => { updateCalculations(); triggerSave(); }));
         body.appendChild(tr);
     });
 }
-
-document.querySelectorAll('.tab-btn').forEach(b => b.onclick = (e) => {
-    document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
-    e.target.classList.add('active');
-    document.getElementById(e.target.dataset.tab).classList.add('active');
-});
-document.querySelectorAll('.sub-tab-btn').forEach(b => b.onclick = (e) => {
-    document.querySelectorAll('.sub-tab-btn').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.sub-content').forEach(x => x.classList.remove('active'));
-    e.target.classList.add('active');
-    document.getElementById(e.target.dataset.sub).classList.add('active');
-});
-document.querySelectorAll('.feat-tab').forEach(b => b.onclick = (e) => {
-    document.querySelectorAll('.feat-tab').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.feat-cont').forEach(x => x.style.display = 'none');
-    e.target.classList.add('active');
-    document.getElementById(e.target.dataset.feattab).style.display = 'block';
-});
 
 document.getElementById('btnAddWeapon').onclick = () => addWeaponRow();
 document.getElementById('btnAddSpell').onclick = () => addSpellRow();
@@ -595,7 +710,12 @@ document.getElementById('btnAddPassive').onclick = () => addPassiveRow();
 document.getElementById('btnAddFeat').onclick = () => addFeatRow();
 document.getElementById('btnAddItem').onclick = () => addItemRow();
 
-document.body.addEventListener('input', (e) => { if(e.target.classList.contains('save-field') || e.target.classList.contains('calc-stat')) { updateCalculations(); triggerSave(); } });
+document.body.addEventListener('input', (e) => { 
+    if(e.target.classList.contains('save-field') || e.target.classList.contains('calc-trigger')) { 
+        updateCalculations(); 
+        triggerSave(); 
+    } 
+});
 
 </script>
 </body>
