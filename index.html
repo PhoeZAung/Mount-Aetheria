@@ -15,7 +15,7 @@
 <style>
 :root{
   --bg: #1a1a1a; --panel: #252525; --border: #333; --accent: #ffcc66; --text: #ddd;
-  --pin-kingdom: #e74c3c; --pin-town: #3498db; --pin-landmark: #2ecc71; --pin-event: #f1c40f; --pin-npc: #9b59b6;
+  --pin-kingdom: #e74c3c; --pin-town: #3498db; --pin-landmark: #2ecc71; --pin-event: #f1c40f; --pin-player: #9b59b6;
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;} 
@@ -79,7 +79,7 @@ body{padding-top:60px; display:flex; flex-direction:column;}
 .pin[data-type="town"] { color: var(--pin-town); }
 .pin[data-type="landmark"] { color: var(--pin-landmark); }
 .pin[data-type="event"] { color: var(--pin-event); }
-.pin[data-type="npc"] { color: var(--pin-npc); }
+.pin[data-type="player"] { color: var(--pin-player); }
 
 #adminBar { display:none; align-items:center; justify-content:center; gap:15px; background:#2a1a1a; border:1px solid #633; color:#eaa; padding:8px; margin-bottom:10px; font-size:0.85em; }
 .edit-form { display:none; flex-direction:column; gap:8px; margin-top:20px; border-top:1px solid #444; padding-top:15px; }
@@ -181,7 +181,7 @@ body{padding-top:60px; display:flex; flex-direction:column;}
   <div class="map-wrapper">
     <div class="map-viewport" id="viewport">
       <div class="map-content" id="mapContent">
-        <img src="map.jpg" alt="Map" class="map-img" id="mapImage">
+        <img src="Maps/map.jpg" alt="Map" class="map-img" id="mapImage">
         <div id="pinsLayer"></div>
       </div>
 
@@ -197,7 +197,7 @@ body{padding-top:60px; display:flex; flex-direction:column;}
       <div class="legend-item"><i class="fa-solid fa-house" style="color:var(--pin-town)"></i> Town</div>
       <div class="legend-item"><i class="fa-solid fa-mountain" style="color:var(--pin-landmark)"></i> Landmark</div>
       <div class="legend-item"><i class="fa-solid fa-scroll" style="color:var(--pin-event)"></i> Event</div>
-      <div class="legend-item"><i class="fa-solid fa-user" style="color:var(--pin-npc)"></i> NPC</div>
+      <div class="legend-item"><i class="fa-solid fa-user" style="color:var(--pin-player)"></i> Player</div>
     </div>
   </div>
 
@@ -225,7 +225,7 @@ body{padding-top:60px; display:flex; flex-direction:column;}
         <option value="town">Town</option>
         <option value="landmark">Landmark</option>
         <option value="event">Event</option>
-        <option value="npc">NPC</option>
+        <option value="player">Player</option>
       </select>
       <textarea id="editDesc" rows="5" placeholder="Description..."></textarea>
       <input type="text" id="editImg" placeholder="Image URL">
@@ -522,7 +522,7 @@ function renderPin(data){
   el.style.top = data.y + '%';
   el.style.transform = `translate(-50%, -100%) scale(${1/scale})`;
   
-  const icons = { kingdom:'fa-chess-rook', town:'fa-house', landmark:'fa-mountain', event:'fa-scroll', npc:'fa-user' };
+  const icons = { kingdom:'fa-chess-rook', town:'fa-house', landmark:'fa-mountain', event:'fa-scroll', player:'fa-user' };
   el.innerHTML = `<i class="fa-solid ${icons[data.type] || 'fa-map-pin'}"></i>`;
   el.dataset.type = data.type;
   
