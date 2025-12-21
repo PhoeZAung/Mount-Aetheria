@@ -23,7 +23,6 @@ body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--t
 #mobileMenu a { padding: 15px 20px; color: #fff; text-decoration: none; border-bottom: 1px solid #333; font-family: 'Uncial Antiqua'; }
 
 /* --- MAIN TABS (Sticky) --- */
-/* Added scrolling for mobile support with many tabs */
 .main-tabs { display: flex; width: 100%; background: #000; border-bottom: 1px solid var(--accent); position: sticky; top: 50px; z-index: 900; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .main-tabs::-webkit-scrollbar { display: none; }
 .tab-btn { flex: 1 0 auto; min-width: 70px; border: none; background: transparent; color: #888; padding: 12px 10px; cursor: pointer; font-family: 'Uncial Antiqua'; font-size: 14px; text-align: center; border-bottom: 3px solid transparent; transition: 0.2s; white-space: nowrap; }
@@ -77,6 +76,8 @@ summary a:hover { text-decoration: underline; }
 #skillsTable th { background: #000; }
 #skillsTable td:nth-child(2) { text-align: left; } 
 #skillsTable input[type="number"] { max-width: 50px; padding: 4px; text-align: center; }
+.trained-untrained { color: #ff4444; transition: color 0.3s; }
+.trained-trained { color: #fff; }
 
 /* --- FLOATING SUMMON MENU --- */
 #summonFab { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--accent); border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.5); align-items: center; justify-content: center; cursor: pointer; z-index: 2500; font-size: 24px; color: #000; font-weight: bold; border: 2px solid #fff; touch-action: none; user-select: none; display: none; }
@@ -87,6 +88,21 @@ summary a:hover { text-decoration: underline; }
 .summon-opt:hover { background: #333; }
 .summon-opt.active { background: var(--accent); color: #000; font-weight: bold; }
 
+/* --- MODAL FOR COLLECTION --- */
+#imageModal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; padding: 10px; }
+#imageModal img { 
+    max-width: 95vw; 
+    max-height: 85vh; 
+    width: auto; 
+    height: auto; 
+    border: 2px solid var(--accent); 
+    border-radius: 4px; 
+    object-fit: contain; 
+}
+#imageModal button { margin-top: 15px; padding: 10px 20px; background: var(--accent); border: none; font-weight: bold; cursor: pointer; border-radius:4px; font-size:16px; }
+
+/* --- ITEM SUMMARY VIEW BUTTON --- */
+.btn-view { background: var(--accent); color: #000; border: none; border-radius: 3px; font-size: 11px; padding: 2px 8px; font-weight: bold; margin-right: 10px; cursor: pointer; }
 
 /* --- MOBILE BREAKPOINTS --- */
 @media (max-width: 600px) {
@@ -203,7 +219,7 @@ summary a:hover { text-decoration: underline; }
     
     <div id="resistancesBox" style="background:var(--panel); padding:10px; border-radius:8px; margin-bottom:10px;">
         <label>Resistances / Immunities / DR / SR</label>
-        <textarea id="resistances" class="live-field" style="height:100px;" placeholder="Fire 10, Cold Immune, DR 5/Magic, SR 15..."></textarea>
+        <textarea id="resistances" class="live-field" style="height:100px;" placeholder=" "></textarea>
     </div>
     
     <h3>Saves</h3>
@@ -267,11 +283,39 @@ summary a:hover { text-decoration: underline; }
   </div>
 </div>
 
-<div id="items" class="tab-content"><div class="combat-stats" style="grid-template-columns: 1fr 1fr;"><div class="stat-box"><label>💰 Gil</label><input id="currency_gil" class="live-field"></div><div class="stat-box"><label>Moogle Pts</label><input id="currency_moogle" class="live-field"></div></div><div id="itemList"></div><button class="btn-add" onclick="addItem()">+ Add Item</button></div>
+<div id="items" class="tab-content">
+  <div class="combat-stats" style="grid-template-columns: 1fr 1fr;"><div class="stat-box"><label>💰 Gil</label><input id="currency_gil" class="live-field"></div><div class="stat-box"><label>Moogle Pts</label><input id="currency_moogle" class="live-field"></div></div>
+  
+  <div style="display:flex; gap:10px; margin-bottom:10px;">
+    <select id="itemFilterTag" onchange="renderItems()" style="flex:1;">
+      <option value="All">All Tags</option>
+      <option value="Weapons">Weapons</option>
+      <option value="Armor">Armor</option>
+      <option value="Gear">Gear</option>
+      <option value="Consumables">Consumables</option>
+      <option value="Magic Items">Magic Items</option>
+      <option value="Collections">Collections</option>
+      <option value="Misc">Misc</option>
+    </select>
+    <select id="itemSort" onchange="renderItems()" style="flex:1;">
+      <option value="recent">Recent</option>
+      <option value="abc">A-Z</option>
+    </select>
+  </div>
+
+  <div id="itemList"></div>
+  <button class="btn-add" onclick="addItem()">+ Add Item</button>
+</div>
+
 <div id="notes" class="tab-content"><textarea id="notesArea" class="live-field" style="height:400px; font-family:sans-serif; line-height:1.5;"></textarea></div>
 
 <div id="summonMenu"></div>
 <div id="summonFab">◎</div>
+
+<div id="imageModal" onclick="this.style.display='none'">
+  <img id="modalImg" src="">
+  <button onclick="document.getElementById('imageModal').style.display='none'">Close</button>
+</div>
 
 <div class="status-bar"><span id="uidDisplay">Loading...</span><div><span class="status-dot" id="statusDot"></span><span id="statusText">Connecting</span></div></div>
 
@@ -290,121 +334,67 @@ let currentUser = null;
 let saveTimeout = null;
 let isRemoteUpdate = false;
 let fullData = { summons: [] }; 
-let currentSummonId = null; // null = main character
+let currentSummonId = null; 
 
-// UI HELPERS
+// --- TAB SWITCHING & PERSISTENCE ---
 
-// Main Tab Switch (Character, Combat, Skills, etc.)
 window.switchTab = (id) => { 
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); 
-    
-    // Find button associated with tab ID for highlighting
-    const btnId = 'btn-' + id;
-    const btn = document.getElementById(btnId);
+    const btn = document.getElementById('btn-' + id);
     if(btn) btn.classList.add('active');
     document.getElementById(id).classList.add('active'); 
-
-    // Reset combat sub-tabs if we switch to the combat tab
-    if (id === 'combat') {
-        // Find the first sub-button in combatSubNav and activate it
-        const firstSubBtn = document.querySelector('#combatSubNav .sub-btn:first-child');
-        if (firstSubBtn) {
-            document.querySelectorAll('#combatSubNav .sub-btn').forEach(b => b.classList.remove('active'));
-            firstSubBtn.classList.add('active');
-            
-            // Show the corresponding content (c-general)
-            document.querySelectorAll('#combat .sub-group').forEach(c => c.style.display = 'none');
-            document.getElementById('c-general').style.display = 'block';
-
-            // Reset nested abilities tab
-            document.querySelectorAll('#abilitiesSubSubNav .sub-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector('#abilitiesSubSubNav .sub-btn:first-child').classList.add('active');
-            document.querySelectorAll('.sub-sub-group').forEach(c => c.style.display = 'none');
-            document.getElementById('a-active').style.display = 'block';
-        }
-    }
 };
 
-// Combat Main Sub-Tab Switch (General, Abilities, Spells)
+// Sub Tabs (Combat General/Abilities/Spells)
 window.switchSub = (id) => { 
-    // Find the container of the clicked button
-    const container = event.target.parentElement;
-    
-    // Remove active from siblings in this specific container
+    const container = document.getElementById('combatSubNav');
     Array.from(container.children).forEach(b => b.classList.remove('active'));
-    // Add active to clicked
-    event.target.classList.add('active');
+    // Find the button that triggers this ID
+    const targetBtn = Array.from(container.children).find(b => b.getAttribute('onclick').includes(id));
+    if(targetBtn) targetBtn.classList.add('active');
     
-    // Hide all sub-groups in the parent tab (#combat)
-    const parentTab = document.getElementById('combat');
-    parentTab.querySelectorAll('.sub-group').forEach(c => c.style.display = 'none');
-    
-    // Show the target
+    document.getElementById('combat').querySelectorAll('.sub-group').forEach(c => c.style.display = 'none');
     document.getElementById(id).style.display = 'block';
+
+    // Persist choice
+    localStorage.setItem('activeCombatSub', id);
 };
 
-// Abilities Nested Sub-Sub-Tab Switch (Active, Passive, Feats)
+// Nested Tabs (Active/Passive/Feats)
 window.switchSubSub = (id) => {
-    // Find the container of the clicked button
-    const container = event.target.parentElement;
-    // Remove active from siblings in this specific container
+    const container = document.getElementById('abilitiesSubSubNav');
     Array.from(container.children).forEach(b => b.classList.remove('active'));
-    // Add active to clicked
-    event.target.classList.add('active');
-    
-    // Hide all sub-sub-groups in the parent sub-group (#c-abilities-main)
-    const parentSubGroup = document.getElementById('c-abilities-main');
-    parentSubGroup.querySelectorAll('.sub-sub-group').forEach(c => c.style.display = 'none');
-    
-    // Show the target
+    const targetBtn = Array.from(container.children).find(b => b.getAttribute('onclick').includes(id));
+    if(targetBtn) targetBtn.classList.add('active');
+
+    document.getElementById('c-abilities-main').querySelectorAll('.sub-sub-group').forEach(c => c.style.display = 'none');
     document.getElementById(id).style.display = 'block'; 
+
+    // Persist choice
+    localStorage.setItem('activeAbilSub', id);
 };
 
-// FAB Logic (Improved Positioning)
+// --- FAB LOGIC ---
 const fab = document.getElementById('summonFab');
 const menu = document.getElementById('summonMenu');
 
 fab.onclick = (e) => {
     if(fab.dataset.dragging === "true") return;
-    
     const rect = fab.getBoundingClientRect();
-    const menuWidth = 200; // From CSS
-    const menuHeight = 250; // Estimated max height
-
-    // 1. Vertical Positioning: Open Up or Down
+    const menuWidth = 200; 
+    const menuHeight = 250;
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
-
-    menu.style.bottom = 'auto'; 
-    menu.style.top = 'auto';
-
-    if (spaceBelow >= menuHeight || spaceBelow > spaceAbove) {
-        // Open downwards (Preferred)
-        menu.style.top = (rect.bottom + 10) + 'px';
-    } else {
-        // Open upwards
-        menu.style.bottom = (window.innerHeight - rect.top + 10) + 'px';
-    }
-
-    // 2. Horizontal Positioning: Open Left or Right
+    menu.style.bottom = 'auto'; menu.style.top = 'auto';
+    if (spaceBelow >= menuHeight || spaceBelow > spaceAbove) { menu.style.top = (rect.bottom + 10) + 'px'; } else { menu.style.bottom = (window.innerHeight - rect.top + 10) + 'px'; }
     const spaceRight = window.innerWidth - rect.right;
-
-    menu.style.left = 'auto';
-    menu.style.right = 'auto';
-
-    if (spaceRight >= menuWidth) {
-        // Open to the right (Enough space)
-        menu.style.left = rect.left + 'px';
-    } else {
-        // Open to the left (Clamp right position to prevent clipping left edge)
+    menu.style.left = 'auto'; menu.style.right = 'auto';
+    if (spaceRight >= menuWidth) { menu.style.left = rect.left + 'px'; } else { 
         let newRight = (window.innerWidth - rect.right);
-        // Ensure menu's left edge is at least 10px from screen edge
         newRight = Math.min(newRight, window.innerWidth - menuWidth - 10);
-        
         menu.style.right = newRight + 'px';
     }
-
     menu.classList.toggle('show');
 };
 
@@ -433,10 +423,7 @@ const onDrag = (e) => {
     let newY = clientY - dragOffset.y;
     newX = Math.max(0, Math.min(window.innerWidth - fab.offsetWidth, newX));
     newY = Math.max(0, Math.min(window.innerHeight - fab.offsetHeight, newY));
-    fab.style.right = 'auto';
-    fab.style.bottom = 'auto';
-    fab.style.left = newX + 'px';
-    fab.style.top = newY + 'px';
+    fab.style.left = newX + 'px'; fab.style.top = newY + 'px';
 };
 const endDrag = () => {
     isDragging = false;
@@ -448,15 +435,14 @@ const endDrag = () => {
 fab.addEventListener('mousedown', startDrag);
 fab.addEventListener('touchstart', startDrag, {passive: false});
 
+// --- AUTH & SYNC ---
 
 onAuthStateChanged(auth, (user) => {
-    const link = document.getElementById('authLink');
-    const mLink = document.getElementById('mobileAuthLink');
     if(user){
         currentUser = user;
         document.getElementById('uidDisplay').textContent = user.email;
-        link.textContent = "My Account"; link.href = "account.html";
-        mLink.textContent = "My Account"; mLink.href = "account.html";
+        document.getElementById('authLink').textContent = "My Account"; document.getElementById('authLink').href = "account.html";
+        document.getElementById('mobileAuthLink').textContent = "My Account"; document.getElementById('mobileAuthLink').href = "account.html";
         initSkills();
         startSync();
     } else {
@@ -467,6 +453,8 @@ onAuthStateChanged(auth, (user) => {
 function startSync() {
     const docRef = doc(db, 'users', currentUser.uid, 'sheet', 'character');
     onSnapshot(docRef, (snap) => {
+        if(snap.metadata.hasPendingWrites) return;
+
         if(snap.exists()) {
             document.getElementById('statusDot').classList.add('live');
             document.getElementById('statusText').textContent = "Live Sync";
@@ -489,63 +477,32 @@ function loadCurrentSheet() {
         data = fullData;
     }
     
-    // Element references
-    const btnSkills = document.getElementById('btn-skills');
-    const btnItems = document.getElementById('btn-items');
-    const spellsSubBtn = document.getElementById('spellsSubBtn');
-    const btnSubPassive = document.getElementById('btn-sub-passive');
-    
-    // --- DISPLAY LOGIC FOR SUMMON VS CHAR ---
-    
-    // Reset Main Tabs to visible (restores 'flex' display)
-    document.querySelectorAll('.tab-btn').forEach(b => b.style.display = ''); 
-    // Reset Sub-tabs to visible
-    document.querySelectorAll('#combatSubNav .sub-btn').forEach(b => b.style.display = 'block');
-    document.querySelectorAll('#abilitiesSubSubNav .sub-btn').forEach(b => b.style.display = 'block');
-
     if(currentSummonId) {
-        // SUMMON SHEET
         document.getElementById('sheetTitle').textContent = "Summoning Sheet";
         document.getElementById('btnAddSummon').style.display = 'none';
         document.getElementById('btnDeleteSummon').style.display = 'block';
         document.getElementById('btnDeleteSummon').onclick = deleteCurrentSummon;
-        
-        // Hide Main Tabs not needed for Summons
-        btnSkills.style.display = 'none';
-        btnItems.style.display = 'none';
-        
-        // Hide Spells sub-tab
-        spellsSubBtn.style.display = 'none';
-        
-        // Abilities Tab: Hide Passive button
-        btnSubPassive.style.display = 'none';
-        
-        // If current tab is one of the hidden tabs, switch to character/combat
+        document.getElementById('btn-skills').style.display = 'none';
+        document.getElementById('btn-items').style.display = 'none';
+        document.getElementById('spellsSubBtn').style.display = 'none';
+        document.getElementById('btn-sub-passive').style.display = 'none';
         const activeTab = document.querySelector('.tab-content.active')?.id;
-        if(activeTab === 'skills' || activeTab === 'items' || activeTab === 'notes' || activeTab === 'character') {
-            document.getElementById('btn-combat').click();
-        }
-
+        if(['skills','items','notes','character'].includes(activeTab)) document.getElementById('btn-combat').click();
     } else {
-        // CHARACTER SHEET
         document.getElementById('sheetTitle').textContent = "Character Sheet";
         document.getElementById('btnAddSummon').style.display = 'block';
         document.getElementById('btnAddSummon').onclick = createNewSummon;
         document.getElementById('btnDeleteSummon').style.display = 'none';
+        document.querySelectorAll('.tab-btn').forEach(b => b.style.display = '');
+        document.getElementById('spellsSubBtn').style.display = 'block';
+        document.getElementById('btn-sub-passive').style.display = 'block';
     }
     
-    // Reset Sub-tab views to default (General & Active) if not already active
-    document.querySelectorAll('#combat .sub-group').forEach(c => c.style.display = 'none');
-    document.getElementById('c-general').style.display = 'block';
-    document.querySelectorAll('#combatSubNav .sub-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector('#combatSubNav .sub-btn:first-child').classList.add('active'); 
+    const savedCombatSub = localStorage.getItem('activeCombatSub') || 'c-general';
+    const savedAbilSub = localStorage.getItem('activeAbilSub') || 'a-active';
+    switchSub(savedCombatSub);
+    switchSubSub(savedAbilSub);
 
-    document.querySelectorAll('#c-abilities-main .sub-sub-group').forEach(c => c.style.display = 'none');
-    document.getElementById('a-active').style.display = 'block';
-    document.querySelectorAll('#abilitiesSubSubNav .sub-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector('#abilitiesSubSubNav .sub-btn:first-child').classList.add('active');
-    
-    // --- POPULATE DATA ---
     ['weaponList', 'spellList', 'activeList', 'passiveList', 'featList', 'itemList'].forEach(id => document.getElementById(id).innerHTML = '');
 
     document.querySelectorAll('.live-field').forEach(el => {
@@ -564,7 +521,8 @@ function loadCurrentSheet() {
     if(data.activeAbilities) data.activeAbilities.forEach(a => addActive(a));
     if(data.passiveAbilities) data.passiveAbilities.forEach(a => addPassive(a));
     if(data.feats) data.feats.forEach(f => addFeat(f));
-    if(data.items) data.items.forEach(i => addItem(i));
+    
+    renderItems(); 
     
     if(data.skills) {
         const rows = document.querySelectorAll('#skillsTableBody tr');
@@ -576,29 +534,16 @@ function loadCurrentSheet() {
 
 function updateSummonMenu() {
     const fab = document.getElementById('summonFab');
-    
-    if(fullData.summons && fullData.summons.length > 0) {
-        fab.style.display = 'flex';
-    } else {
-        fab.style.display = 'none';
-        menu.classList.remove('show');
-    }
-
+    if(fullData.summons && fullData.summons.length > 0) { fab.style.display = 'flex'; } else { fab.style.display = 'none'; menu.classList.remove('show'); }
     const menuEl = document.getElementById('summonMenu');
     menuEl.innerHTML = '';
-    
-    // Main Character Option
     const mainBtn = document.createElement('button');
-    // Ensure the 'active' class is applied for highlighting
     mainBtn.className = `summon-opt ${currentSummonId === null ? 'active' : ''}`;
     mainBtn.textContent = fullData.charName || "Main Character";
     mainBtn.onclick = () => { currentSummonId = null; loadCurrentSheet(); menuEl.classList.remove('show'); };
     menuEl.appendChild(mainBtn);
-    
-    // Summon Options
     fullData.summons.forEach(s => {
         const btn = document.createElement('button');
-        // Ensure the 'active' class is applied for highlighting
         btn.className = `summon-opt ${currentSummonId === s.id ? 'active' : ''}`;
         btn.textContent = s.charName || "Unnamed Summon";
         btn.onclick = () => { currentSummonId = s.id; loadCurrentSheet(); menuEl.classList.remove('show'); };
@@ -626,6 +571,8 @@ window.deleteCurrentSummon = async () => {
     updateSummonMenu();
 }
 
+// --- SAVING ---
+
 function scrapeCurrentSheet() {
     const payload = {};
     document.querySelectorAll('.live-field').forEach(el => payload[el.id] = el.value);
@@ -647,8 +594,14 @@ function scrapeCurrentSheet() {
     payload.activeAbilities = scrape('activeList', ['.n-val','.u-val','.t-val','.d-val'], ['name','uses','type','desc']);
     payload.passiveAbilities = scrape('passiveList', ['.n-val','.d-val'], ['name','desc']);
     payload.feats = scrape('featList', ['.n-val','.l-val','.d-val'], ['name','link','desc']);
-    payload.items = scrape('itemList', ['.n-val','.t-val','.c-val','.d-val','.i-data'], ['name','tags','cost','desc','img']);
     
+    if(currentSummonId) {
+        const s = fullData.summons.find(x => x.id === currentSummonId);
+        payload.items = s.items || [];
+    } else {
+        payload.items = fullData.items || [];
+    }
+
     payload.skills = [];
     document.querySelectorAll('#skillsTableBody tr').forEach(r => { payload.skills.push({ cs: r.querySelector('.skill-cs').checked, lvl: Number(r.querySelector('.skill-ranks').value)||0 }); });
     
@@ -669,7 +622,7 @@ function save(force = false) {
             if(index >= 0) fullData.summons[index] = currentSheetData;
         } else {
             const summonsBackup = fullData.summons;
-            fullData = { ...currentSheetData, summons: summonsBackup };
+            fullData = { ...currentSheetData, summons: summonsBackup, items: fullData.items };
         }
 
         await setDoc(doc(db,'users',currentUser.uid,'sheet','character'), fullData);
@@ -683,6 +636,8 @@ function scrape(id, sels, keys) {
     document.getElementById(id).querySelectorAll('details').forEach(d => { const obj = {}; sels.forEach((s,i) => obj[keys[i]] = d.querySelector(s)?.value || ''); arr.push(obj); });
     return arr;
 }
+
+// --- DYNAMIC ROWS ---
 
 function createRow(pid, summaryFunc, html, d={}) {
     const el = document.createElement('details');
@@ -707,22 +662,16 @@ function scrapeRow(el){
 window.addWeapon = (d={}) => {
     let attrHtml = '';
     if(d.attrs) d.attrs.forEach(a => attrHtml += `<div class="attr-row"><input class="attr-n" value="${a.name}" placeholder="Attr"><input class="attr-v" value="${a.val}" placeholder="Val"><button class="btn-del" onclick="this.parentElement.remove();save()">x</button></div>`);
-    
     const html = `
       <div class="item-row">
         <input class="w-name" value="${d.name||''}" placeholder="Weapon Name">
-        <select class="w-mod" style="width:80px">
-          <option ${d.mod==='STR'?'selected':''}>STR</option><option ${d.mod==='DEX'?'selected':''}>DEX</option>
-          <option ${d.mod==='CON'?'selected':''}>CON</option><option ${d.mod==='INT'?'selected':''}>INT</option>
-          <option ${d.mod==='WIS'?'selected':''}>WIS</option><option ${d.mod==='CHA'?'selected':''}>CHA</option>
-        </select>
+        <select class="w-mod" style="width:80px"><option ${d.mod==='STR'?'selected':''}>STR</option><option ${d.mod==='DEX'?'selected':''}>DEX</option><option ${d.mod==='CON'?'selected':''}>CON</option><option ${d.mod==='INT'?'selected':''}>INT</option><option ${d.mod==='WIS'?'selected':''}>WIS</option><option ${d.mod==='CHA'?'selected':''}>CHA</option></select>
       </div>
       <div class="attr-container">${attrHtml}</div>
       <button class="btn-add" style="padding:5px; font-size:12px; margin-top:5px;" onclick="addWeaponAttr(this)">+ Add Attribute</button>
     `;
-    const el = createRow('weaponList', x => x.name||'New Weapon', html, d);
+    createRow('weaponList', x => x.name||'New Weapon', html, d);
 }
-
 window.addWeaponAttr = (btn) => {
     const div = document.createElement('div'); div.className = 'attr-row';
     div.innerHTML = `<input class="attr-n" placeholder="Attr"><input class="attr-v" placeholder="Val"><button class="btn-del" onclick="this.parentElement.remove();save()">x</button>`;
@@ -733,20 +682,8 @@ window.addWeaponAttr = (btn) => {
 const SPELL_LVLS = ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"];
 window.addSpell = (d={}) => {
     let opts = ""; SPELL_LVLS.forEach(l => opts += `<option ${d.lvl===l?'selected':''}>${l}</option>`);
-    
-    const summary = (x) => {
-        const nameDisplay = x.link ? `<a href="${x.link}" target="_blank">${x.name||'New Spell'}</a>` : (x.name||'New Spell');
-        return `[${x.lvl||'-'}] ${nameDisplay}`;
-    };
-
-    const html = `
-        <div class="item-row">
-            <select class="l-val" style="width:80px">${opts}</select>
-            <input class="n-val" value="${d.name||''}" placeholder="Name">
-        </div>
-        <input class="k-val" value="${d.link||''}" placeholder="Link URL">
-        <textarea class="d-val">${d.desc||''}</textarea>
-    `;
+    const summary = (x) => { const nameDisplay = x.link ? `<a href="${x.link}" target="_blank">${x.name||'New Spell'}</a>` : (x.name||'New Spell'); return `[${x.lvl||'-'}] ${nameDisplay}`; };
+    const html = `<div class="item-row"><select class="l-val" style="width:80px">${opts}</select><input class="n-val" value="${d.name||''}" placeholder="Name"></div><input class="k-val" value="${d.link||''}" placeholder="Link URL"><textarea class="d-val">${d.desc||''}</textarea>`;
     createRow('spellList', summary, html, d);
 }
 
@@ -754,31 +691,132 @@ const ACTION_TYPES = ["Standard","Move","Swift","Full","Free","Immediate","React
 window.addActive = (d={}) => {
     let opts = ""; ACTION_TYPES.forEach(t => opts += `<option ${d.type===t?'selected':''}>${t}</option>`);
     const summary = (x) => `<span>${x.name||'Ability'}: <small style="color:#aaa">${x.type||'-'}</small></span> <span>${x.uses||''}</span>`;
-    
-    const html = `
-        <input class="n-val" value="${d.name||''}" placeholder="Name">
-        <div class="item-row" style="margin-top:5px;">
-             <select class="t-val">${opts}</select>
-             <input class="u-val" value="${d.uses||''}" placeholder="Uses (e.g. 3/day)">
-        </div>
-        <textarea class="d-val">${d.desc||''}</textarea>
-    `;
+    const html = `<input class="n-val" value="${d.name||''}" placeholder="Name"><div class="item-row" style="margin-top:5px;"><select class="t-val">${opts}</select><input class="u-val" value="${d.uses||''}" placeholder="Uses (e.g. 3/day)"></div><textarea class="d-val">${d.desc||''}</textarea>`;
     createRow('activeList', summary, html, d);
 }
 
 window.addPassive = (d={}) => createRow('passiveList', x => x.name||'New Passive', `<input class="n-val" value="${d.name||''}" placeholder="Name"><textarea class="d-val">${d.desc||''}</textarea>`, d);
 window.addFeat = (d={}) => createRow('featList', x => x.name||'New Feat', `<input class="n-val" value="${d.name||''}" placeholder="Name"><input class="l-val" value="${d.link||''}" placeholder="Link"><textarea class="d-val">${d.desc||''}</textarea>`, d);
-window.addItem = (d={}) => createRow('itemList', x => x.name||'New Item', `<div class="item-row"><div style="flex:1"><input class="n-val" value="${d.name||''}" placeholder="Name" style="margin-bottom:5px"><input class="t-val" value="${d.tags||''}" placeholder="Tags" style="margin-bottom:5px"><input class="c-val" value="${d.cost||''}" placeholder="Cost"><input type="hidden" class="i-data" value="${d.img||''}"><input type="file" onchange="encodeImg(this)" style="margin-top:5px; font-size:11px;"></div><img src="${d.img||''}" class="item-img"></div><textarea class="d.desc||''}</textarea>`, d);
 
-window.encodeImg = (inp) => { const f = inp.files[0]; if(f){ const r = new FileReader(); r.onload = e => { const p = inp.parentElement; p.querySelector('.i-data').value = e.target.result; p.nextElementSibling.src = e.target.result; save(); }; r.readAsDataURL(f); } };
+// --- ITEMS OVERHAUL ---
+const ITEM_TAGS = ["Weapons", "Armor", "Gear", "Consumables", "Magic Items", "Misc"];
 
-const SKILLS_DB = [{n:"Acrobatics",s:"dex"}, {n:"Appraise",s:"int"}, {n:"Bluff",s:"cha"}, {n:"Climb",s:"str"}, {n:"Diplomacy",s:"cha"}, {n:"Disable Device",s:"dex"}, {n:"Disguise",s:"cha"}, {n:"Escape Artist",s:"dex"}, {n:"Fly",s:"dex"}, {n:"Heal",s:"wis"}, {n:"Intimidate",s:"cha"}, {n:"Knw: Arcana",s:"int"}, {n:"Knw: Dungeoneering",s:"int"}, {n:"Knw: Engineering",s:"int"}, {n:"Knw: Geography",s:"int"}, {n:"Knw: History",s:"int"}, {n:"Knw: Local",s:"int"}, {n:"Knw: Nature",s:"int"}, {n:"Knw: Nobility",s:"int"}, {n:"Knw: Planes",s:"int"}, {n:"Knw: Religion",s:"int"}, {n:"Linguistics",s:"int"}, {n:"Perception",s:"wis"}, {n:"Ride",s:"dex"}, {n:"Sense Motive",s:"wis"}, {n:"Sleight of Hand",s:"dex"}, {n:"Spellcraft",s:"int"}, {n:"Stealth",s:"dex"}, {n:"Survival",s:"wis"}, {n:"Swim",s:"str"}, {n:"Use Magic Device",s:"cha"}];
+window.addItem = (d={}) => {
+    if(!fullData.items && !currentSummonId) fullData.items = [];
+    let targetArr = currentSummonId ? fullData.summons.find(s=>s.id===currentSummonId).items : fullData.items;
+    if(!targetArr) targetArr = [];
+    
+    if(Object.keys(d).length === 0) {
+        targetArr.push({ name: '', tags: 'Misc', cost: '', desc: '' });
+    }
+    if(currentSummonId) fullData.summons.find(s=>s.id===currentSummonId).items = targetArr;
+    else fullData.items = targetArr;
+    
+    save();
+    renderItems();
+};
+
+window.renderItems = () => {
+    const container = document.getElementById('itemList');
+    container.innerHTML = '';
+    
+    let items = currentSummonId ? (fullData.summons.find(s=>s.id===currentSummonId)?.items || []) : (fullData.items || []);
+    const tagFilter = document.getElementById('itemFilterTag').value;
+    let filtered = items.filter(i => {
+        if(tagFilter === "All") return true;
+        return i.tags === tagFilter;
+    });
+
+    const sortType = document.getElementById('itemSort').value;
+    if(sortType === "abc") {
+        filtered.sort((a,b) => (a.name||"").localeCompare(b.name||""));
+    } else {
+        filtered.reverse();
+    }
+
+    filtered.forEach(item => {
+        const sourceIndex = items.indexOf(item); 
+        const el = document.createElement('details');
+        const isCollection = item.tags === "Collections";
+        
+        // --- SUMMARY WITH VIEW BUTTON ---
+        const viewBtn = (isCollection && item.img) ? `<button class="btn-view" onclick="event.stopPropagation(); viewCollection('${item.img}')">View Collection</button>` : '';
+
+        el.innerHTML = `
+            <summary>
+                <div style="display:flex; align-items:center; overflow:hidden;">
+                    <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.name || 'New Item'} <small style="color:#888; font-weight:normal">(${item.tags})</small></span>
+                </div>
+                <div style="flex-shrink:0;">
+                    ${viewBtn}
+                    <button class="btn-del">x</button>
+                </div>
+            </summary>
+            <div class="details-body">
+                <input class="n-val" value="${item.name||''}" placeholder="Name" style="margin-bottom:5px">
+                <div style="display:flex; gap:5px; margin-bottom:5px;">
+                    ${isCollection ? 
+                        `<input disabled value="Collections" style="flex:1; color:#888">` : 
+                        `<select class="t-val" style="flex:1">
+                            ${ITEM_TAGS.map(t => `<option ${item.tags===t?'selected':''}>${t}</option>`).join('')}
+                         </select>`
+                    }
+                    <input class="c-val" value="${item.cost||''}" placeholder="Cost" style="flex:1">
+                </div>
+                <textarea class="d-val" placeholder="Description">${item.desc||''}</textarea>
+            </div>
+        `;
+
+        container.appendChild(el);
+
+        const updateData = () => {
+             item.name = el.querySelector('.n-val').value;
+             if(!isCollection) item.tags = el.querySelector('.t-val').value;
+             item.cost = el.querySelector('.c-val').value;
+             item.desc = el.querySelector('.d-val').value;
+             
+             // Update Summary
+             const newViewBtn = (isCollection && item.img) ? `<button class="btn-view" onclick="event.stopPropagation(); viewCollection('${item.img}')">View Collection</button>` : '';
+             el.querySelector('summary').innerHTML = `
+                <div style="display:flex; align-items:center; overflow:hidden;">
+                    <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.name || 'New Item'} <small style="color:#888; font-weight:normal">(${item.tags})</small></span>
+                </div>
+                <div style="flex-shrink:0;">
+                    ${newViewBtn}
+                    <button class="btn-del">x</button>
+                </div>
+             `;
+             // Re-bind delete
+             el.querySelector('.btn-del').onclick = (e) => { e.preventDefault(); items.splice(sourceIndex, 1); save(); renderItems(); };
+             save();
+        };
+
+        el.querySelectorAll('input, textarea, select').forEach(i => i.addEventListener('input', updateData));
+        
+        el.querySelector('.btn-del').onclick = (e) => {
+            e.preventDefault();
+            items.splice(sourceIndex, 1); 
+            save();
+            renderItems(); 
+        };
+    });
+};
+
+window.viewCollection = (url) => {
+    document.getElementById('modalImg').src = url;
+    document.getElementById('imageModal').style.display = 'flex';
+};
+
+// --- SKILLS LOGIC ---
+const SKILLS_DB = [{n:"Acrobatics",s:"dex"}, {n:"Appraise",s:"int"}, {n:"Bluff",s:"cha"}, {n:"Climb",s:"str"}, {n:"Diplomacy",s:"cha"}, {n:"Disable Device",s:"dex"}, {n:"Disguise",s:"cha"}, {n:"Escape Artist",s:"dex"}, {n:"Fly",s:"dex"}, {n:"Handle Animal",s:"cha"}, {n:"Heal",s:"wis"}, {n:"Intimidate",s:"cha"}, {n:"Knw: Arcana",s:"int"}, {n:"Knw: Dungeoneering",s:"int"}, {n:"Knw: Engineering",s:"int"}, {n:"Knw: Geography",s:"int"}, {n:"Knw: History",s:"int"}, {n:"Knw: Local",s:"int"}, {n:"Knw: Nature",s:"int"}, {n:"Knw: Nobility",s:"int"}, {n:"Knw: Planes",s:"int"}, {n:"Knw: Religion",s:"int"}, {n:"Linguistics",s:"int"}, {n:"Perception",s:"wis"}, {n:"Profession",s:"wis"}, {n:"Ride",s:"dex"}, {n:"Sense Motive",s:"wis"}, {n:"Sleight of Hand",s:"dex"}, {n:"Spellcraft",s:"int"}, {n:"Stealth",s:"dex"}, {n:"Survival",s:"wis"}, {n:"Swim",s:"str"}, {n:"Use Magic Device",s:"cha"}];
+
+const TRAINED_ONLY_LIST = ["Disable Device", "Handle Animal", "Knw: Arcana", "Knw: Dungeoneering", "Knw: Engineering", "Knw: Geography", "Knw: History", "Knw: Local", "Knw: Nature", "Knw: Nobility", "Knw: Planes", "Knw: Religion", "Linguistics", "Profession", "Use Magic Device"];
 
 function initSkills() {
     const cont = document.getElementById('skillsTableBody'); cont.innerHTML = '';
     SKILLS_DB.forEach(s => {
         const tr = document.createElement('tr'); tr.className = 'skill-row-data'; tr.dataset.stat = s.s;
-        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td style="text-align:left; font-weight:bold;">${s.n} <small style="color:#888; font-weight:normal;">(${s.s})</small></td><td class="skill-mod">0</td><td><input type="number" class="skill-ranks" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent); font-weight:bold;">0</td>`;
+        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td style="text-align:left; font-weight:bold;" class="skill-name-cell">${s.n} <small style="color:#888; font-weight:normal;">(${s.s})</small></td><td class="skill-mod">0</td><td><input type="number" class="skill-ranks" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent); font-weight:bold;">0</td>`;
         cont.appendChild(tr); tr.querySelectorAll('input').forEach(i => i.addEventListener('input', () => { updateCalcs(); save(); }));
     });
 }
@@ -790,9 +828,24 @@ function updateCalcs() {
     const r = (Number(document.getElementById('ref_bonus').value)||0) + dex;
     const w = (Number(document.getElementById('will_bonus').value)||0) + wis;
     document.getElementById('fort_total').textContent = (f>=0?'+':'')+f; document.getElementById('ref_total').textContent = (r>=0?'+':'')+r; document.getElementById('will_total').textContent = (w>=0?'+':'')+w;
+    
     document.querySelectorAll('#skillsTableBody tr').forEach(row => {
         const mod = getMod(row.dataset.stat); const ranks = Number(row.querySelector('.skill-ranks').value)||0; const cs = row.querySelector('.skill-cs').checked;
         const total = mod + ranks + (cs && ranks>0 ? 3 : 0); row.querySelector('.skill-mod').textContent = mod; row.querySelector('.skill-total').textContent = (total>=0?'+':'')+total;
+
+        const skillNameFull = row.querySelector('.skill-name-cell').textContent;
+        const skillName = skillNameFull.split(' (')[0].trim();
+        
+        if(TRAINED_ONLY_LIST.includes(skillName)) {
+            const nameCell = row.querySelector('.skill-name-cell');
+            if(ranks < 1) {
+                nameCell.classList.add('trained-untrained');
+                nameCell.classList.remove('trained-trained');
+            } else {
+                nameCell.classList.remove('trained-untrained');
+                nameCell.classList.add('trained-trained');
+            }
+        }
     });
 }
 document.body.addEventListener('input', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); save(); } });

@@ -2,15 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Tools - Mount Aetheria</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a1a1a">
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 /* --- THEME --- */
 :root { --bg: #1a1a1a; --panel: #252525; --border: #333; --accent: #ffcc66; --text: #ddd; }
 *{box-sizing: border-box;}
-body { margin: 0; padding-top: 70px; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+body { margin: 0; padding-top: 70px; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 20px; }
 
 /* --- NAV --- */
 .top-nav { position: fixed; top: 0; left: 0; right: 0; height: 50px; background: #000; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
@@ -25,7 +29,7 @@ body { margin: 0; padding-top: 70px; font-family: Arial, sans-serif; background:
   position: fixed; top: 50px; left: 0; width: 100%; 
   background: #111; border-bottom: 1px solid var(--accent); 
   flex-direction: column; z-index: 1999; 
-  align-items: flex-start; /* Left align */
+  align-items: flex-start; 
 }
 #mobileMenu.show { display: flex; }
 #mobileMenu a { 
@@ -68,7 +72,11 @@ h1 { color: var(--accent); font-family: 'Uncial Antiqua'; text-align: center; ma
 .event-item { background: #333; margin: 10px 0; padding: 12px 15px; border-radius: 8px; font-size: 15px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--accent); }
 .event-item .date { font-weight: bold; color: var(--accent); margin-right: 10px; min-width: 80px; }
 .event-item .desc { flex: 1; color: #ddd; }
-.event-item .del-btn { background: none; border: none; color: #e74c3c; cursor: pointer; opacity: 0.7; padding: 5px; margin-left: 10px; font-size: 16px; }
+.event-actions { display: flex; gap: 10px; }
+.event-btn-icon { background: none; border: none; cursor: pointer; opacity: 0.7; font-size: 14px; }
+.event-btn-icon:hover { opacity: 1; transform: scale(1.1); }
+.btn-edit { color: #66ccff; }
+.btn-del { color: #ff6666; }
 
 /* ADMIN PANEL */
 #adminPanel { display: none; background: #2a1a1a; padding: 15px; border: 1px solid #633; border-radius: 8px; margin-bottom: 20px; }
@@ -77,26 +85,43 @@ h1 { color: var(--accent); font-family: 'Uncial Antiqua'; text-align: center; ma
 .admin-form input, .admin-form select { background: #111; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 4px; flex: 1; }
 .admin-form button { background: var(--accent); color: #000; border: none; padding: 8px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; }
 
+/* --- CUSTOM MODAL --- */
+.custom-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:3000; justify-content:center; align-items:center; backdrop-filter:blur(3px); }
+.custom-modal-content { background: var(--panel); border: 1px solid var(--accent); padding: 25px; border-radius: 8px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
+.custom-modal-content h3 { color: var(--accent); font-family: 'Uncial Antiqua'; margin-top: 0; }
+.custom-modal-content p { color: #ccc; margin-bottom: 20px; line-height: 1.5; }
+.modal-actions { display: flex; gap: 10px; justify-content: center; }
+.modal-btn { padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; flex: 1; }
+.modal-btn.confirm { background: var(--accent); color: #000; }
+.modal-btn.cancel { background: #444; color: #fff; }
+
 .empty-msg { text-align: center; color: #666; font-style: italic; padding: 20px; }
 
-/* MOBILE ADJUSTMENTS */
 @media(max-width:768px){
   .nav-links { display: none; }
   #hamburgerBtn { display: block; }
   .url-grid { gap: 10px; }
   .url-card { width: 45%; height: 130px; }
   .admin-form { flex-direction: column; }
-  
-  /* Compact Tabs & Filters for Mobile */
   .tab-buttons { width: 100%; gap: 5px; padding: 0 10px; }
   .tab-buttons button { padding: 8px 0; font-size: 14px; width: 48%; max-width: none; flex: initial; }
-  
   .calendar-filters { gap: 5px; }
   .calendar-btn { padding: 6px 10px; font-size: 12px; }
 }
 </style>
 </head>
 <body>
+
+<div id="customModal" class="custom-modal">
+  <div class="custom-modal-content">
+    <h3 id="modalTitle">Confirm</h3>
+    <p id="modalMsg">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="modal-btn confirm" id="modalYesBtn">Yes</button>
+      <button class="modal-btn cancel" id="modalNoBtn">No</button>
+    </div>
+  </div>
+</div>
 
 <nav class="top-nav">
   <button id="hamburgerBtn" onclick="document.getElementById('mobileMenu').classList.toggle('show')">&#9776;</button>
@@ -148,6 +173,7 @@ h1 { color: var(--accent); font-family: 'Uncial Antiqua'; text-align: center; ma
     <div id="adminPanel">
       <h3><i class="fa-solid fa-hammer"></i> Calendar Admin</h3>
       <div class="admin-form">
+        <input type="hidden" id="editingEventId">
         <select id="newEvGroup">
           <option value="groupA">Dark Grasp</option>
           <option value="groupB">Ra'en Legacy</option>
@@ -158,6 +184,7 @@ h1 { color: var(--accent); font-family: 'Uncial Antiqua'; text-align: center; ma
         <input type="text" id="newEvDate" placeholder="Date (e.g. Dec 25)">
         <input type="text" id="newEvDesc" placeholder="Description...">
         <button id="addEvBtn">Add Event</button>
+        <button id="cancelEditBtn" style="display:none; background:#444; color:#fff;">Cancel</button>
       </div>
     </div>
 
@@ -185,7 +212,7 @@ h1 { color: var(--accent); font-family: 'Uncial Antiqua'; text-align: center; ma
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig={apiKey:"AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",authDomain:"mount-aetheria.firebaseapp.com",projectId:"mount-aetheria",storageBucket:"mount-aetheria.firebasestorage.app",messagingSenderId:"492855693446",appId:"1:492855693446:web:f9948569254a7220c38107",measurementId:"G-0PF84KDN7L"};
 const app=initializeApp(firebaseConfig);
@@ -193,6 +220,31 @@ const auth=getAuth(app);
 const db=getFirestore(app);
 
 let isAdmin = false;
+
+// Custom Modal Logic
+const modal = document.getElementById('customModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalMsg = document.getElementById('modalMsg');
+const modalYes = document.getElementById('modalYesBtn');
+const modalNo = document.getElementById('modalNoBtn');
+
+function showConfirm(title, msg, onYes) {
+    modalTitle.textContent = title;
+    modalMsg.textContent = msg;
+    modal.style.display = 'flex';
+    modalYes.onclick = () => { modal.style.display = 'none'; onYes(); };
+    modalNo.onclick = () => { modal.style.display = 'none'; };
+}
+
+function showAlert(title, msg) {
+    modalTitle.textContent = title;
+    modalMsg.textContent = msg;
+    modalYes.style.display = 'none';
+    modalNo.textContent = 'OK';
+    modalNo.style.width = '100%';
+    modal.style.display = 'flex';
+    modalNo.onclick = () => { modal.style.display = 'none'; modalYes.style.display = ''; modalNo.textContent='No'; modalNo.style.width = ''; };
+}
 
 // AUTH CHECK
 onAuthStateChanged(auth, user => {
@@ -204,7 +256,6 @@ onAuthStateChanged(auth, user => {
      link.textContent = txt; link.href = href;
      mLink.textContent = txt; mLink.href = href;
      
-     // Check Admin
      if(user.email === "phoeaung2076@gmail.com") {
         isAdmin = true;
         document.getElementById('adminPanel').style.display = 'block';
@@ -237,10 +288,29 @@ async function loadEvents(){
       hasEvents[data.group] = true;
       const el = document.createElement('div');
       el.className = 'event-item';
+      
+      let adminControls = '';
+      if(isAdmin){
+          // Embed data into button attributes to avoid closure issues
+          adminControls = `
+            <div class="event-actions">
+                <button class="event-btn-icon btn-edit" 
+                    data-id="${d.id}" data-group="${data.group}" data-date="${data.date}" data-desc="${data.desc}">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="event-btn-icon btn-del" data-id="${d.id}">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+          `;
+      }
+
       el.innerHTML = `
-        <span class="date">${data.date}</span>
-        <span class="desc">${data.desc}</span>
-        ${isAdmin ? `<button class="del-btn" data-id="${d.id}"><i class="fa-solid fa-trash"></i></button>` : ''}
+        <div style="display:flex; align-items:center; flex:1;">
+            <span class="date">${data.date}</span>
+            <span class="desc">${data.desc}</span>
+        </div>
+        ${adminControls}
       `;
       list.appendChild(el);
     }
@@ -253,32 +323,63 @@ async function loadEvents(){
   }
 
   if(isAdmin){
-      document.querySelectorAll('.del-btn').forEach(btn => {
-          btn.addEventListener('click', async (e) => {
-              if(confirm("Delete this event?")) {
+      // Attach Delete Listeners
+      document.querySelectorAll('.btn-del').forEach(btn => {
+          btn.addEventListener('click', () => {
+              showConfirm("Delete Event", "Are you sure you want to remove this event?", async () => {
                   await deleteDoc(doc(db, "events", btn.dataset.id));
                   loadEvents();
-              }
+              });
+          });
+      });
+      // Attach Edit Listeners
+      document.querySelectorAll('.btn-edit').forEach(btn => {
+          btn.addEventListener('click', () => {
+              document.getElementById('editingEventId').value = btn.dataset.id;
+              document.getElementById('newEvGroup').value = btn.dataset.group;
+              document.getElementById('newEvDate').value = btn.dataset.date;
+              document.getElementById('newEvDesc').value = btn.dataset.desc;
+              document.getElementById('addEvBtn').textContent = "Update Event";
+              document.getElementById('cancelEditBtn').style.display = "inline-block";
+              window.scrollTo(0,0);
           });
       });
   }
 }
 
-// ADD EVENT
+document.getElementById('cancelEditBtn').addEventListener('click', () => {
+    resetForm();
+});
+
+function resetForm() {
+    document.getElementById('editingEventId').value = '';
+    document.getElementById('newEvDate').value = '';
+    document.getElementById('newEvDesc').value = '';
+    document.getElementById('addEvBtn').textContent = "Add Event";
+    document.getElementById('cancelEditBtn').style.display = "none";
+}
+
+// ADD / UPDATE EVENT
 document.getElementById('addEvBtn').addEventListener('click', async () => {
+    const id = document.getElementById('editingEventId').value;
     const group = document.getElementById('newEvGroup').value;
     const date = document.getElementById('newEvDate').value;
     const desc = document.getElementById('newEvDesc').value;
 
-    if(!date || !desc) return alert("Please fill in date and description");
+    if(!date || !desc) return showAlert("Missing Info", "Please fill in date and description");
 
-    await addDoc(collection(db, "events"), {
-        group, date, desc,
-        createdAt: new Date()
-    });
+    if(id) {
+        // Update
+        await updateDoc(doc(db, "events", id), { group, date, desc });
+    } else {
+        // Add
+        await addDoc(collection(db, "events"), {
+            group, date, desc,
+            createdAt: new Date()
+        });
+    }
     
-    document.getElementById('newEvDate').value = '';
-    document.getElementById('newEvDesc').value = '';
+    resetForm();
     loadEvents();
 });
 

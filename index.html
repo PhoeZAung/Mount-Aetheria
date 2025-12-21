@@ -2,33 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Mount Aetheria - World Map</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a1a1a">
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#1a1a1a">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="Mount Aetheria">
-<link rel="apple-touch-icon" href="/icons/icon-192.png">
-
 
 <style>
 :root{
-  --bg: #1a1a1a;
-  --panel: #252525;
-  --border: #333;
-  --accent: #ffcc66;
-  --text: #ddd;
-  --pin-kingdom: #e74c3c;
-  --pin-town: #3498db;
-  --pin-landmark: #2ecc71;
-  --pin-event: #f1c40f;
-  --pin-npc: #9b59b6;
+  --bg: #1a1a1a; --panel: #252525; --border: #333; --accent: #ffcc66; --text: #ddd;
+  --pin-kingdom: #e74c3c; --pin-town: #3498db; --pin-landmark: #2ecc71; --pin-event: #f1c40f; --pin-npc: #9b59b6;
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;} 
@@ -54,95 +41,30 @@ body{padding-top:60px; display:flex; flex-direction:column;}
 #mobileMenu a { padding:15px 20px; color:#fff; text-decoration:none; border-bottom:1px solid #333; font-family:'Uncial Antiqua'; }
 
 /* --- PAGE HEADER --- */
-.page-header {
-  padding: 10px;
-  text-align: center;
-}
-.map-tabs {
-  display:flex; gap:5px; justify-content:center; flex-wrap:wrap; margin-bottom: 10px;
-  
-}
-.map-tab {
-  padding: 8px 16px; background:var(--panel); color:#888; border:1px solid var(--border);
-  cursor:pointer; font-weight:bold; transition:0.2s; font-size:0.9em;
-}
-.map-tab:hover, .map-tab.active {
-  background:var(--accent); color:#000; border-color:var(--accent);
-}
+.page-header { padding: 10px; text-align: center; }
+.map-tabs { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; margin-bottom: 10px; }
+.map-tab { padding: 8px 16px; background:var(--panel); color:#888; border:1px solid var(--border); cursor:pointer; font-weight:bold; transition:0.2s; font-size:0.9em; }
+.map-tab:hover, .map-tab.active { background:var(--accent); color:#000; border-color:var(--accent); }
 .map-tabs-mobile-btn { display:none; width:100%; padding:10px; margin-bottom:10px; background:var(--panel); color:var(--accent); border:1px solid var(--border); cursor:pointer; font-family:'Uncial Antiqua'; }
 
 /* --- MAIN LAYOUT --- */
-.main-layout {
-  display: flex;
-  flex: 1;
-  width: 100%;
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 10px 20px;
-  gap: 20px;
-  height: calc(100vh - 160px); 
-  min-height: 500px;
-  position: relative;
-  justify-content: space-between;
-}
-
-/* --- MAP WRAPPER (Holds Viewport + Legend) --- */
-.map-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  min-width: 0;
-}
-
-/* --- MAP VIEWPORT --- */
+.main-layout { display: flex; flex: 1; width: 100%; max-width: 1600px; margin: 0 auto; padding: 10px 20px; gap: 20px; height: calc(100vh - 160px); min-height: 500px; position: relative; justify-content: space-between; }
+.map-wrapper { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 0; }
 .map-viewport {
-  flex: 1; 
-  position: relative;
-  border: 2px solid var(--accent);
-  background: #0d0d0d;
-  overflow: hidden; 
-  cursor: grab;
-  touch-action: none;
-  border-radius: 4px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.5);
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex: 1; position: relative; border: 2px solid var(--accent);
+  background: #0d0d0d; overflow: hidden; cursor: grab;
+  touch-action: none; border-radius: 4px; box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  width: 100%; display: flex; align-items: center; justify-content: center;
 }
 .map-viewport:active { cursor: grabbing; }
+.map-content { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; }
+/* Ensure image displays block and retains natural aspect ratio */
+.map-img { display: block; pointer-events: none; user-select: none; width: auto; height: auto; max-width: none; }
 
-.map-content {
-  position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform;
-}
-.map-img { display: block; pointer-events: none; user-select: none; }
-
-/* --- LEGEND (PC) --- */
-.legend {
-  position: absolute; bottom: 0; left: 0; right: 0; 
-  height: 40px;
-  background: rgba(20,20,20,0.9); border-top: 1px solid var(--accent);
-  display: flex; align-items: center; justify-content: center; gap: 20px; 
-  z-index: 90;
-}
+.legend { position: absolute; bottom: 0; left: 0; right: 0; height: 40px; background: rgba(20,20,20,0.9); border-top: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; gap: 20px; z-index: 90; }
 .legend-item { display:flex; align-items:center; gap:6px; font-size:0.8em; color:#ccc; }
 
-/* --- SIDEBAR INFO PANEL (PC) --- */
-.info-sidebar {
-  width: 350px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  display: flex; 
-  flex-direction: column;
-  overflow-y: auto;
-  padding: 20px;
-  border-radius: 4px;
-  box-shadow: -5px 0 15px rgba(0,0,0,0.3);
-  margin-left: auto;
-  flex-shrink: 0; 
-}
-
+.info-sidebar { width: 350px; background: var(--panel); border: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; padding: 20px; border-radius: 4px; box-shadow: -5px 0 15px rgba(0,0,0,0.3); margin-left: auto; flex-shrink: 0; }
 .info-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px; }
 .info-title { font-family:'Uncial Antiqua'; color:var(--accent); margin:0; font-size:1.6em; }
 .close-info { display: none; background:none; border:none; color:#888; cursor:pointer; font-size:1.2em; }
@@ -150,19 +72,7 @@ body{padding-top:60px; display:flex; flex-direction:column;}
 .info-desc { font-size:0.95em; color:#ccc; line-height:1.5; }
 .info-empty-state { text-align: center; color: #666; margin-top: 50px; font-style: italic; }
 
-/* --- PINS --- */
-.pin {
-  position: absolute;
-  width: 30px; height: 30px;
-  transform: translate(-50%, -100%); 
-  transform-origin: bottom center;
-  cursor: pointer;
-  color: #fff;
-  font-size: 24px;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.9);
-  z-index: 10;
-  display:flex; justify-content:center; align-items:center;
-}
+.pin { position: absolute; width: 30px; height: 30px; transform: translate(-50%, -100%); transform-origin: bottom center; cursor: pointer; color: #fff; font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.9); z-index: 10; display:flex; justify-content:center; align-items:center; }
 .pin:hover { z-index:20; color:var(--accent); }
 .pin.dragging { opacity: 0.7; cursor: grabbing; }
 .pin[data-type="kingdom"] { color: var(--pin-kingdom); }
@@ -171,86 +81,38 @@ body{padding-top:60px; display:flex; flex-direction:column;}
 .pin[data-type="event"] { color: var(--pin-event); }
 .pin[data-type="npc"] { color: var(--pin-npc); }
 
-/* --- ADMIN --- */
-#adminBar {
-  display:none; align-items:center; justify-content:center; gap:15px;
-  background:#2a1a1a; border:1px solid #633; color:#eaa; padding:8px; margin-bottom:10px; font-size:0.85em;
-}
+#adminBar { display:none; align-items:center; justify-content:center; gap:15px; background:#2a1a1a; border:1px solid #633; color:#eaa; padding:8px; margin-bottom:10px; font-size:0.85em; }
 .edit-form { display:none; flex-direction:column; gap:8px; margin-top:20px; border-top:1px solid #444; padding-top:15px; }
 .edit-form input, .edit-form textarea, .edit-form select { background:#111; border:1px solid #444; color:#fff; padding:8px; }
 .btn { padding:8px; cursor:pointer; border:none; font-weight:bold; margin-top:5px; border-radius:3px; }
 .btn-save { background:var(--accent); color:#000; }
 .btn-del { background:#a33; color:#fff; }
 
-/* --- ZOOM CONTROLS --- */
-.zoom-controls {
-  position: absolute; bottom: 50px; right: 20px;
-  display: flex; flex-direction: column; gap: 5px; z-index: 100;
-}
-.zoom-btn {
-  width: 36px; height: 36px; background: rgba(0,0,0,0.8); border: 1px solid var(--border);
-  color: #fff; font-size: 16px; cursor: pointer; border-radius: 4px;
-}
+.zoom-controls { position: absolute; bottom: 50px; right: 20px; display: flex; flex-direction: column; gap: 5px; z-index: 100; }
+.zoom-btn { width: 36px; height: 36px; background: rgba(0,0,0,0.8); border: 1px solid var(--border); color: #fff; font-size: 16px; cursor: pointer; border-radius: 4px; }
 .zoom-btn:hover { background: var(--accent); color: #000; }
 
-/* --- MOBILE RESPONSIVE --- */
+/* CONFIRM MODAL */
+.confirm-modal-box { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.9); z-index:6001; justify-content:center; align-items:center; }
+.confirm-modal-inner { background:var(--panel); border:1px solid var(--accent); padding:20px; border-radius:8px; width:300px; text-align:center; }
+.confirm-modal-actions { display:flex; gap:10px; margin-top:20px; justify-content:center; }
+.confirm-btn { flex:1; padding:10px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; }
+.confirm-yes { background:var(--accent); color:#000; }
+.confirm-no { background:#444; color:#fff; }
+
 @media(max-width: 768px) {
   .nav-links{display:none} #hamburgerBtn{display:block}
-  
   .page-header { padding: 5px; }
   .map-tabs { display:none; flex-direction:column; position:absolute; top:100%; left:0; right:0; z-index:50; }
   .map-tabs.show { display:flex; background:#111; border-bottom: 1px solid var(--accent);}
   .map-tabs-mobile-btn { display:block; }
-
-  .main-layout {
-    flex-direction: column;
-    height: auto; 
-    padding: 10px;
-    gap: 15px;
-    display: block; 
-  }
-  
-  .map-wrapper {
-    width: 100%;
-    margin-bottom: 20px;
-    display: block;
-  }
-
-  .map-viewport {
-    height: 50vh; 
-    min-height: 400px;
-    width: 100%;
-    border-radius: 4px;
-  }
-  
+  .main-layout { flex-direction: column; height: auto; padding: 10px; gap: 15px; display: block; }
+  .map-wrapper { width: 100%; margin-bottom: 20px; display: block; }
+  .map-viewport { height: 50vh; min-height: 400px; width: 100%; border-radius: 4px; }
   .zoom-controls { bottom: 20px; right: 10px; }
-
-  .legend {
-    position: relative;
-    top: auto; bottom: auto; left: auto; right: auto;
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 4px;
-    margin-top: 10px;
-    height: auto;
-    padding: 10px;
-    flex-wrap: wrap; 
-    justify-content: center;
-    gap: 10px 15px;
-  }
-  .legend-item {
-    background: #222; border: 1px solid #333;
-    padding: 4px 8px; border-radius: 4px;
-  }
-
-  .info-sidebar {
-    display: none; 
-    position: fixed; top: 0; bottom: 0; left: 0; right: 0;
-    width: 100%; height: 100%;
-    z-index: 3000;
-    margin: 0; border: none;
-    padding-top: 60px; 
-  }
+  .legend { position: relative; top: auto; bottom: auto; left: auto; right: auto; background: #111; border: 1px solid #333; border-radius: 4px; margin-top: 10px; height: auto; padding: 10px; flex-wrap: wrap; justify-content: center; gap: 10px 15px; }
+  .legend-item { background: #222; border: 1px solid #333; padding: 4px 8px; border-radius: 4px; }
+  .info-sidebar { display: none; position: fixed; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 3000; margin: 0; border: none; padding-top: 60px; }
   .info-sidebar.active { display: flex; }
   .close-info { display: block; } 
   .info-empty-state { display: none; }
@@ -259,6 +121,17 @@ body{padding-top:60px; display:flex; flex-direction:column;}
 </head>
 <body>
 
+<div id="confirmModal" class="confirm-modal-box">
+    <div class="confirm-modal-inner">
+        <h3 style="color:var(--accent); margin-top:0; font-family:'Uncial Antiqua'">Confirm Action</h3>
+        <p id="confirmText" style="color:#ccc;">Are you sure?</p>
+        <div class="confirm-modal-actions">
+            <button class="confirm-btn confirm-yes" id="confirmYes">Yes</button>
+            <button class="confirm-btn confirm-no" id="confirmNo">No</button>
+        </div>
+    </div>
+</div>
+
 <nav class="top-nav">
   <button id="hamburgerBtn" aria-label="menu"><i class="fa-solid fa-bars"></i></button>
   <a href="index.html" class="nav-brand">Mount Aetheria</a>
@@ -266,7 +139,7 @@ body{padding-top:60px; display:flex; flex-direction:column;}
     <a href="story.html">Story</a>
     <a href="tools.html">Tools</a>
     <a href="characters.html">Sheet</a>
-    <a href="map.html" class="active">Map</a>
+    <a href="discussions.html">Discussion</a>
     <a href="signin.html" id="authLink">Sign In</a>
   </div>
 </nav>
@@ -275,7 +148,7 @@ body{padding-top:60px; display:flex; flex-direction:column;}
   <a href="story.html">Story</a>
   <a href="tools.html">Tools</a>
   <a href="characters.html">Sheet</a>
-  <a href="map.html">Map</a>
+  <a href="discussions.html">Discussion</a>
   <a href="signin.html" id="mobileAuthLink">Sign In</a>
 </div>
 
@@ -406,6 +279,15 @@ const infoPanel = document.getElementById('infoPanel');
 const emptyState = document.getElementById('emptyState');
 const infoContent = document.getElementById('infoContent');
 
+// Modal Utility
+function showConfirm(msg, onYes) {
+    const m = document.getElementById('confirmModal');
+    document.getElementById('confirmText').textContent = msg;
+    m.style.display = 'flex';
+    document.getElementById('confirmYes').onclick = () => { m.style.display='none'; onYes(); };
+    document.getElementById('confirmNo').onclick = () => { m.style.display='none'; };
+}
+
 /* 1. AUTH & ADMIN */
 onAuthStateChanged(auth, user => {
   currentUser = user;
@@ -453,28 +335,36 @@ document.getElementById('mapMenuBtn').addEventListener('click', () => {
 
 function getMinScale() {
   const vpRect = viewport.getBoundingClientRect();
-  const imgW = mapImage.naturalWidth || 2000;
-  const imgH = mapImage.naturalHeight || 1500;
+  // We assume the map is roughly 2400x2400 if it hasn't loaded yet
+  const imgW = mapImage.naturalWidth || 2400;
+  const imgH = mapImage.naturalHeight || 2400;
   
-  // Calculate Min scale to fit perfectly
   const scaleX = vpRect.width / imgW;
   const scaleY = vpRect.height / imgH;
+  
+  // Use Math.max so we COVER the container (no black bars)
+  // This matches your "previous look" request
   return Math.max(scaleX, scaleY);
 }
 
 function clampPosition() {
   const vpRect = viewport.getBoundingClientRect();
-  const imgW = mapImage.naturalWidth * scale;
-  const imgH = mapImage.naturalHeight * scale;
+  const imgW = (mapImage.naturalWidth || 2400) * scale;
+  const imgH = (mapImage.naturalHeight || 2400) * scale;
 
-  if (imgW < vpRect.width) {
+  // With Cover logic (Math.max), the image is always >= viewport on at least one axis.
+  // We clamp so the user can't pan past the edges into black space.
+
+  if (imgW <= vpRect.width) {
+    // If scaled image width is smaller than viewport (rare in Cover mode unless narrow img), center it
     pointX = (vpRect.width - imgW) / 2;
   } else {
+    // Standard clamping for panning
     if (pointX > 0) pointX = 0;
     if (pointX < vpRect.width - imgW) pointX = vpRect.width - imgW;
   }
 
-  if (imgH < vpRect.height) {
+  if (imgH <= vpRect.height) {
     pointY = (vpRect.height - imgH) / 2;
   } else {
     if (pointY > 0) pointY = 0;
@@ -483,7 +373,6 @@ function clampPosition() {
 }
 
 function updateTransform() {
-  // Ensure we don't go below min scale here just in case, but primary logic is in handlers now
   const minScale = getMinScale();
   if (scale < minScale) scale = minScale; 
   if (scale > 5) scale = 5;
@@ -499,24 +388,22 @@ function updateTransform() {
 }
 
 function resetView() {
-  if(!mapImage.complete || mapImage.naturalWidth === 0) {
-    requestAnimationFrame(resetView);
-    return;
-  }
   scale = getMinScale();
   
   const vpRect = viewport.getBoundingClientRect();
-  const imgW = mapImage.naturalWidth * scale;
-  const imgH = mapImage.naturalHeight * scale;
+  const imgW = (mapImage.naturalWidth || 2400) * scale;
+  const imgH = (mapImage.naturalHeight || 2400) * scale;
+  
+  // Center the image initially (Cover logic usually overflows, so centering is good)
   pointX = (vpRect.width - imgW) / 2;
   pointY = (vpRect.height - imgH) / 2;
   
   updateTransform();
 }
 
-window.addEventListener('resize', () => { updateTransform(); });
+window.addEventListener('resize', () => { resetView(); });
 mapImage.onload = resetView;
-if(mapImage.complete) resetView();
+resetView(); // Call immediately for cached/fast loading
 
 /* CONTROLS */
 viewport.addEventListener('mousedown', (e) => {
@@ -543,19 +430,16 @@ window.addEventListener('mouseup', () => {
 viewport.addEventListener('wheel', (e) => {
   e.preventDefault();
   const rect = viewport.getBoundingClientRect();
-  
-  // 1. Calculate the 'target' zoom level
   let newScale = scale;
   const delta = -e.deltaY;
   (delta > 0) ? (newScale *= 1.1) : (newScale /= 1.1);
 
-  // 2. Clamp the new scale BEFORE calculating position
+  // Constraints
   const minScale = getMinScale();
   if (newScale < minScale) newScale = minScale;
   if (newScale > 5) newScale = 5;
 
-  // 3. Calculate position based on the CLAMPED scale
-  // The cursor position relative to the image (0-1 range) remains constant
+  // Zoom towards mouse pointer logic
   const xs = (e.clientX - rect.left - pointX) / scale;
   const ys = (e.clientY - rect.top - pointY) / scale;
 
@@ -590,35 +474,29 @@ viewport.addEventListener('touchmove', (e) => {
   e.preventDefault();
   if(isDraggingPin) return;
   
-  // Single finger panning
   if(e.touches.length === 1 && isPanning) {
     pointX = e.touches[0].clientX - startX;
     pointY = e.touches[0].clientY - startY;
     updateTransform();
     
-  // Two finger zooming
   } else if (e.touches.length === 2) {
     const dist = Math.hypot(
       e.touches[0].clientX - e.touches[1].clientX,
       e.touches[0].clientY - e.touches[1].clientY
     );
     
-    // 1. Calculate proposed scale
     let newScale = lastScale * (dist / initialDist);
-    
-    // 2. Clamp proposed scale BEFORE position calc
     const minScale = getMinScale();
     if (newScale < minScale) newScale = minScale;
     if (newScale > 5) newScale = 5;
 
-    // 3. Calculate position centered on pinch
+    // Center zoom logic for pinch
     const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
     const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
     const rect = viewport.getBoundingClientRect();
     const vcx = cx - rect.left;
     const vcy = cy - rect.top;
-
-    // Use ratio of change from CURRENT scale to NEW clamped scale
+    
     const factor = newScale / scale;
 
     pointX = vcx - (vcx - pointX) * factor;
@@ -703,7 +581,7 @@ viewport.addEventListener('dblclick', async (e) => {
     const newP = { id:ref.id, mapId:currentMap, x:x.toFixed(2), y:y.toFixed(2), type:'landmark', name:'New', desc:'', img:'' };
     renderPin(newP);
     openEdit(newP);
-  } catch(e) { alert(e.message); }
+  } catch(e) { console.error(e); }
 });
 
 function startPinDrag(e, id, el){
@@ -778,15 +656,15 @@ function openEdit(data){
   const dBtn = document.getElementById('delPinBtn');
   const nD = dBtn.cloneNode(true); dBtn.parentNode.replaceChild(nD, dBtn);
   nD.onclick = async () => {
-    if(confirm("Delete pin?")){
-      await deleteDoc(doc(db, "pins", data.id));
-      if(window.innerWidth < 768) infoPanel.classList.remove('active');
-      else {
-          document.getElementById('adminEditForm').style.display = 'none';
-          emptyState.style.display = 'block';
-      }
-      document.querySelector(`.pin[data-id="${data.id}"]`).remove();
-    }
+    showConfirm("Are you sure you want to delete this pin?", async () => {
+        await deleteDoc(doc(db, "pins", data.id));
+        if(window.innerWidth < 768) infoPanel.classList.remove('active');
+        else {
+            document.getElementById('adminEditForm').style.display = 'none';
+            emptyState.style.display = 'block';
+        }
+        document.querySelector(`.pin[data-id="${data.id}"]`).remove();
+    });
   };
 }
 
@@ -796,12 +674,13 @@ hamb.addEventListener('click', () => mobileMenu.classList.toggle('show'));
 
 loadPins();
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/service-worker.js')
-    .then(reg => console.log('Service Worker registered:', reg))
-    .catch(err => console.error('Service Worker failed:', err));
-}
-
+// Handle internal PWA links on iOS
+document.addEventListener('click', function(e) {
+  if (e.target.tagName === 'A' && e.target.getAttribute('href').startsWith(window.location.origin)) {
+    e.preventDefault();
+    window.location.href = e.target.getAttribute('href');
+  }
+}, false);
 </script>
 </body>
 </html>

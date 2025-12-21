@@ -11,21 +11,19 @@
   
   header { height:50px; background:var(--panel); display:flex; align-items:center; padding:0 18px; border-bottom:1px solid #333; flex-shrink:0; justify-content: space-between;}
   header h1 { font-family:'Uncial Antiqua',serif; color:var(--accent); margin:0; font-size:20px; cursor: pointer; text-decoration: none; }
-
+  
   #layout { display:flex; flex:1; overflow:hidden; position: relative; }
   
   #sidebar { width:250px; background:#181818; border-right:1px solid #333; display:flex; flex-direction:column; flex-shrink:0; transition: transform 0.3s ease; }
   #userSearch { background:#000; border:none; border-bottom:1px solid #333; color:#fff; padding:15px; width:100%; box-sizing:border-box; outline:none; }
   #usersList { flex:1; overflow-y:auto; }
   
-  /* --- USER LIST STYLES --- */
   .userItem { padding:10px 15px; cursor:pointer; border-bottom:1px solid #222; transition:0.2s; display:flex; flex-direction: column; }
   .userItem:hover { background:#222; }
   .userItem.selected { background:var(--accent); color:#000; }
   .userItem .uName { font-weight:bold; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .userItem .uMeta { font-size:11px; opacity:0.7; }
   
-  /* SUMMON ITEM STYLES */
   .summonItem { padding: 8px 15px 8px 35px; cursor:pointer; border-bottom:1px solid #222; background: #252525; color: #aaa; font-size: 0.95em; position: relative; }
   .summonItem:before { content:"↳"; position:absolute; left:15px; opacity:0.5; }
   .summonItem:hover { background: #333; color: #fff; }
@@ -35,21 +33,21 @@
   #emptyState { display:flex; align-items:center; justify-content:center; height:100%; color:#444; font-family:'Uncial Antiqua'; font-size:24px; }
   #backBtnMobile { display: none; background: #333; color: #fff; border: none; padding: 10px; text-align: left; font-weight: bold; cursor: pointer; border-bottom: 1px solid #444; }
   
+  /* --- LAYOUT FIX: MATCH CHARACTER SHEET WIDTH --- */
   #sheetContainer { flex:1; overflow-y:auto; padding:20px; display:none; }
   #sheetContainer.active { display:block; }
 
-  /* --- TABS --- */
-  .tabs-container { display: flex; width: 100%; max-width: 1000px; margin: 0 auto; gap:20px; flex-direction: column; }
+  .tabs-container { display: flex; width: 100%; max-width: 900px; margin: 0 auto; gap:20px; flex-direction: column; }
+  
   .tab-menu { display: flex; flex-wrap: wrap; width: 100%; background: #1a1a1a; padding: 10px; gap: 5px; border-radius:8px; box-sizing: border-box; overflow-x: auto; }
   .tab-btn { flex: 1; min-width: 80px; background: transparent; border: none; color: #888; padding: 10px; cursor: pointer; font-family: 'Uncial Antiqua', serif; text-align: center; border-bottom: 3px solid transparent; }
   .tab-btn:hover, .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: #111; }
   
-  .tab-content { display: none; padding: 15px; max-width: 800px; margin: 0 auto; }
+  .tab-content { display: none; padding: 15px; width: 100%; box-sizing: border-box; }
   .tab-content.active { display: block; animation: fadeIn 0.3s; }
 
   h2, h3, h4 { font-family: 'Uncial Antiqua', serif; color: var(--accent); margin-top:0; text-align: center; }
   
-  /* --- INPUTS --- */
   input, textarea, select { background: var(--input-bg); border: 1px solid var(--border); color: #fff; padding: 8px; border-radius: 4px; width: 100%; font-size: 14px; box-sizing: border-box; }
   input:focus, textarea:focus { border-color: var(--accent); outline: none; }
   label { color: #aaa; font-size: 12px; font-weight: bold; margin-bottom: 4px; display: block; }
@@ -57,13 +55,11 @@
   .bio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .bio-item { display: flex; flex-direction: column; }
   
-  /* --- STATS --- */
   .combat-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 10px; background: var(--panel); padding: 10px; border-radius: 8px; margin-bottom: 15px; }
   .stat-box { display: flex; flex-direction: column; align-items: center; }
   .stat-dual { display: flex; align-items: center; gap: 5px; }
   .stat-dual input { text-align: center; }
 
-  /* --- SUB TABS --- */
   .sub-nav-container { margin-bottom: 15px; position: relative; }
   .sub-nav { display: flex; justify-content: center; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
   .sub-btn { background: none; border: 1px solid transparent; color: #888; padding: 6px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 14px; }
@@ -71,10 +67,8 @@
   .sub-group, .sub-sub-group { display: none; }
   .sub-group.active, .sub-sub-group.active { display: block; }
 
-  /* --- LISTS --- */
   details { background: #181818; border: 1px solid #333; border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
   details summary { padding: 8px 12px; cursor: pointer; background: #252525; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
-  details summary a { color: var(--accent); text-decoration: none; position: relative; z-index: 50; }
   .details-content { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
   
   .attr-row { display: flex; gap: 5px; margin-top: 5px; align-items: center; }
@@ -90,7 +84,11 @@
   .skills-table td { padding:4px; border-bottom:1px solid #333; }
   .skills-table td:nth-child(2) { text-align: left; font-weight: bold; }
   
-  .item-preview { width:40px; height:40px; border:1px solid #444; background:#000; object-fit:cover; }
+  /* Skill Colors */
+  .trained-untrained { color: #ff4444; transition: color 0.3s; }
+  .trained-trained { color: #fff; }
+
+  .item-preview { width:50px; height:50px; border:1px solid #444; background:#000; object-fit:cover; display:none; }
 
   @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 
@@ -287,13 +285,12 @@ const db = getFirestore(app);
 
 let allUsers = [];
 let currentParentUid = null;
-let currentSummonId = null; // Null if main, ID string if summon
-let fullSheetData = {}; // Stores the entire user sheet including summons
+let currentSummonId = null;
+let fullSheetData = {}; 
 let unsubscribeSheet = null;
 let saveTimeout = null;
 let isInternalUpdate = false;
 
-// UI TABS
 window.switchTab = (id) => { 
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); 
@@ -301,36 +298,45 @@ window.switchTab = (id) => {
     if(btn) btn.classList.add('active');
     document.getElementById(id).classList.add('active'); 
     
-    // Reset Combat if selected
-    if(id === 'combat') {
-        document.querySelectorAll('#combatSubNav .sub-btn').forEach(b => b.classList.remove('active'));
-        document.querySelector('#combatSubNav .sub-btn:first-child').classList.add('active');
-        document.querySelectorAll('#combat .sub-group').forEach(c => c.style.display = 'none');
-        document.getElementById('c-general').style.display = 'block';
-    }
+    // Do not auto-reset Combat/Subtabs to avoid frustration, just show the container
 };
 
 window.switchSub = (id) => { 
-    const container = event.target.parentElement;
+    const container = document.getElementById('combatSubNav');
     Array.from(container.children).forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
+    
+    // Find button matching this ID
+    const targetBtn = Array.from(container.children).find(b => b.getAttribute('onclick').includes(id));
+    if(targetBtn) targetBtn.classList.add('active');
+
     const parentTab = document.getElementById('combat');
     parentTab.querySelectorAll('.sub-group').forEach(c => c.style.display = 'none');
     document.getElementById(id).style.display = 'block';
+
+    // Persist
+    localStorage.setItem('adminCombatSub', id);
 };
 
 window.switchSubSub = (id) => {
-    const container = event.target.parentElement;
+    const container = document.getElementById('abilitiesSubSubNav');
     Array.from(container.children).forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
+    
+    const targetBtn = Array.from(container.children).find(b => b.getAttribute('onclick').includes(id));
+    if(targetBtn) targetBtn.classList.add('active');
+
     const parent = document.getElementById('c-abilities-main');
     parent.querySelectorAll('.sub-sub-group').forEach(c => c.style.display = 'none');
     document.getElementById(id).style.display = 'block'; 
+    
+    // Persist
+    localStorage.setItem('adminAbilSub', id);
 };
 
 window.closeMobileEditor = () => { document.body.classList.remove('show-editor'); };
 
-const SKILLS_DB = [{n:"Acrobatics",s:"dex"}, {n:"Appraise",s:"int"}, {n:"Bluff",s:"cha"}, {n:"Climb",s:"str"}, {n:"Diplomacy",s:"cha"}, {n:"Disable Device",s:"dex"}, {n:"Disguise",s:"cha"}, {n:"Escape Artist",s:"dex"}, {n:"Fly",s:"dex"}, {n:"Heal",s:"wis"}, {n:"Intimidate",s:"cha"}, {n:"Knw: Arcana",s:"int"}, {n:"Knw: Dungeoneering",s:"int"}, {n:"Knw: Engineering",s:"int"}, {n:"Knw: Geography",s:"int"}, {n:"Knw: History",s:"int"}, {n:"Knw: Local",s:"int"}, {n:"Knw: Nature",s:"int"}, {n:"Knw: Nobility",s:"int"}, {n:"Knw: Planes",s:"int"}, {n:"Knw: Religion",s:"int"}, {n:"Linguistics",s:"int"}, {n:"Perception",s:"wis"}, {n:"Ride",s:"dex"}, {n:"Sense Motive",s:"wis"}, {n:"Sleight of Hand",s:"dex"}, {n:"Spellcraft",s:"int"}, {n:"Stealth",s:"dex"}, {n:"Survival",s:"wis"}, {n:"Swim",s:"str"}, {n:"Use Magic Device",s:"cha"}];
+const SKILLS_DB = [{n:"Acrobatics",s:"dex"}, {n:"Appraise",s:"int"}, {n:"Bluff",s:"cha"}, {n:"Climb",s:"str"}, {n:"Diplomacy",s:"cha"}, {n:"Disable Device",s:"dex"}, {n:"Disguise",s:"cha"}, {n:"Escape Artist",s:"dex"}, {n:"Fly",s:"dex"}, {n:"Handle Animal",s:"cha"}, {n:"Heal",s:"wis"}, {n:"Intimidate",s:"cha"}, {n:"Knw: Arcana",s:"int"}, {n:"Knw: Dungeoneering",s:"int"}, {n:"Knw: Engineering",s:"int"}, {n:"Knw: Geography",s:"int"}, {n:"Knw: History",s:"int"}, {n:"Knw: Local",s:"int"}, {n:"Knw: Nature",s:"int"}, {n:"Knw: Nobility",s:"int"}, {n:"Knw: Planes",s:"int"}, {n:"Knw: Religion",s:"int"}, {n:"Linguistics",s:"int"}, {n:"Perception",s:"wis"}, {n:"Profession",s:"wis"}, {n:"Ride",s:"dex"}, {n:"Sense Motive",s:"wis"}, {n:"Sleight of Hand",s:"dex"}, {n:"Spellcraft",s:"int"}, {n:"Stealth",s:"dex"}, {n:"Survival",s:"wis"}, {n:"Swim",s:"str"}, {n:"Use Magic Device",s:"cha"}];
+
+const TRAINED_ONLY_LIST = ["Disable Device", "Handle Animal", "Knw: Arcana", "Knw: Dungeoneering", "Knw: Engineering", "Knw: Geography", "Knw: History", "Knw: Local", "Knw: Nature", "Knw: Nobility", "Knw: Planes", "Knw: Religion", "Linguistics", "Profession", "Use Magic Device"];
 
 onAuthStateChanged(auth, async (user) => {
   if(!user) { window.location.href="login.html"; return; }
@@ -347,16 +353,11 @@ async function loadUserList(){
     try {
         const snap = await getDocs(collection(db, 'users'));
         allUsers = [];
-        // Fetch all user docs
         for (const d of snap.docs) {
             const data = d.data();
             const uid = d.id;
             const name = data.displayName || data.name || "Unknown";
             const email = data.email || "No Email";
-            
-            // Fetch sheet summary to check for summons
-            // Note: In a large production app, fetch summons on demand. 
-            // For this scale, pre-fetching is fine for better UX.
             let summons = [];
             try {
                 const sheetSnap = await getDoc(doc(db, 'users', uid, 'sheet', 'character'));
@@ -364,10 +365,8 @@ async function loadUserList(){
                     summons = sheetSnap.data().summons;
                 }
             } catch(e) { console.log("No sheet for " + name); }
-
             allUsers.push({ uid, name, email, summons });
         }
-        
         allUsers.sort((a,b) => a.name.localeCompare(b.name));
         renderUserList(allUsers);
     } catch(e) {
@@ -378,22 +377,16 @@ async function loadUserList(){
 function renderUserList(users){
     const listEl = document.getElementById('usersList'); listEl.innerHTML = '';
     users.forEach(u => {
-        // Main User Item
         const div = document.createElement('div'); div.className = 'userItem';
         div.innerHTML = `<span class="uName">${u.name}</span><span class="uMeta">${u.email}</span>`;
         div.onclick = () => selectUser(u.uid, null, div);
         div.dataset.uid = u.uid;
         listEl.appendChild(div);
-
-        // Summon Items (Indented)
         if(u.summons && u.summons.length > 0) {
             u.summons.forEach(s => {
                 const sDiv = document.createElement('div'); sDiv.className = 'summonItem';
                 sDiv.textContent = s.charName || "Unnamed Summon";
-                sDiv.onclick = (e) => {
-                    e.stopPropagation();
-                    selectUser(u.uid, s.id, sDiv);
-                };
+                sDiv.onclick = (e) => { e.stopPropagation(); selectUser(u.uid, s.id, sDiv); };
                 listEl.appendChild(sDiv);
             });
         }
@@ -406,39 +399,40 @@ document.getElementById('userSearch').addEventListener('input', (e)=>{
     renderUserList(filtered);
 });
 
-// SELECT USER (Main or Summon)
 function selectUser(uid, summonId, el){
-    // Highlight UI
     document.querySelectorAll('.userItem, .summonItem').forEach(d => d.classList.remove('selected'));
     if(el) el.classList.add('selected');
-
     currentParentUid = uid;
     currentSummonId = summonId;
-    
-    // Update Admin Bar
     const typeLabel = summonId ? " (Summon)" : " (Main)";
     document.getElementById('targetUserUID').textContent = "Editing: " + uid + typeLabel;
-    
     document.getElementById('emptyState').style.display = 'none';
     document.getElementById('sheetContainer').style.display = 'block';
     document.getElementById('sheetContainer').classList.add('active');
     document.body.classList.add('show-editor');
-    
     initSkillsTable();
     startListening(uid);
+    
+    // Restore Tabs
+    const savedCombat = localStorage.getItem('adminCombatSub') || 'c-general';
+    const savedAbil = localStorage.getItem('adminAbilSub') || 'a-active';
+    switchSub(savedCombat);
+    switchSubSub(savedAbil);
 }
 
 function startListening(uid){
     if(unsubscribeSheet) unsubscribeSheet();
-    
     const docRef = doc(db, 'users', uid, 'sheet', 'character');
     document.getElementById('statusText').textContent = "Syncing...";
     
     unsubscribeSheet = onSnapshot(docRef, (docSnap) => {
+        // BUG FIX: Ignore local pending writes to prevent UI refresh loop
+        if(docSnap.metadata.hasPendingWrites) return;
+
         if(docSnap.exists()){
-            fullSheetData = docSnap.data(); // Store full data
+            fullSheetData = docSnap.data();
             isInternalUpdate = true;
-            populateSheet(); // Logic decides what to show based on currentSummonId
+            populateSheet();
             isInternalUpdate = false;
             document.getElementById('statusText').textContent = "Synced";
             document.getElementById('statusText').style.color = "#4caf50";
@@ -446,36 +440,21 @@ function startListening(uid){
             document.getElementById('statusText').textContent = "No Sheet Data (Empty)";
             fullSheetData = {};
         }
-    }, (err) => {
-        console.error(err);
-        document.getElementById('statusText').textContent = "Error Syncing";
-        document.getElementById('statusText').style.color = "red";
     });
 }
 
 function populateSheet(){
-    // Determine which data object to display
     let data = fullSheetData;
     if (currentSummonId) {
-        if (fullSheetData.summons) {
-            data = fullSheetData.summons.find(s => s.id === currentSummonId) || {};
-        } else {
-            data = {};
-        }
-        
-        // UI Adjustments for Summon
+        if (fullSheetData.summons) { data = fullSheetData.summons.find(s => s.id === currentSummonId) || {}; } else { data = {}; }
         document.getElementById('sheetTitle').textContent = "Summon Bio";
         document.getElementById('btn-skills').style.display = 'none';
         document.getElementById('btn-items').style.display = 'none';
-        document.getElementById('spellsSubBtn').style.display = 'none'; // Summons usually don't have full spellbooks here
+        document.getElementById('spellsSubBtn').style.display = 'none'; 
         document.getElementById('btn-sub-passive').style.display = 'none';
-
-        // Force switch to Character or Combat if on hidden tab
         const activeTab = document.querySelector('.tab-content.active').id;
         if(['skills','items','notes'].includes(activeTab)) switchTab('combat');
-
     } else {
-        // Main Character
         document.getElementById('sheetTitle').textContent = "Character Bio";
         document.getElementById('btn-skills').style.display = 'block';
         document.getElementById('btn-items').style.display = 'block';
@@ -483,16 +462,9 @@ function populateSheet(){
         document.getElementById('btn-sub-passive').style.display = 'block';
     }
 
-    // Populate Fields
-    document.querySelectorAll('.save-field').forEach(el => { 
-        el.value = "";
-        if(data[el.id] !== undefined) el.value = data[el.id]; 
-    });
-
-    // Populate Arrays
+    document.querySelectorAll('.save-field').forEach(el => { el.value = ""; if(data[el.id] !== undefined) el.value = data[el.id]; });
     const wList = document.getElementById('weaponList'); wList.innerHTML=''; 
     if(data.weapons) data.weapons.forEach(w => addWeaponRow(w));
-
     const sList = document.getElementById('spellList'); sList.innerHTML='';
     if(data.spells) {
          const sortedSpells = data.spells.sort((a,b) => {
@@ -501,44 +473,47 @@ function populateSheet(){
          });
          sortedSpells.forEach(s => addSpellRow(s));
     }
-
     document.getElementById('activeList').innerHTML=''; if(data.activeAbilities) data.activeAbilities.forEach(x => addActiveRow(x));
     document.getElementById('passiveList').innerHTML=''; if(data.passiveAbilities) data.passiveAbilities.forEach(x => addPassiveRow(x));
     document.getElementById('featList').innerHTML=''; if(data.feats) data.feats.forEach(x => addFeatRow(x));
     document.getElementById('itemList').innerHTML=''; if(data.items) data.items.forEach(x => addItemRow(x));
 
-    // Skills (Main Only)
     if(!currentSummonId && data.skills){
         const rows = document.querySelectorAll('.skill-row-data');
-        data.skills.forEach((s, i) => {
-            if(rows[i]){
-                rows[i].querySelector('.skill-cs').checked = s.cs;
-                rows[i].querySelector('.skill-ranks').value = s.lvl;
-            }
-        });
+        data.skills.forEach((s, i) => { if(rows[i]){ rows[i].querySelector('.skill-cs').checked = s.cs; rows[i].querySelector('.skill-ranks').value = s.lvl; } });
     }
     updateCalculations();
 }
 
 function getMod(id) { const val = document.getElementById(id).value; return val ? Math.floor((Number(val)-10)/2) : 0; }
-
 function updateCalculations(){
     ['str','dex','con','int','wis','cha'].forEach(stat => { document.getElementById('mod-'+stat).textContent = (getMod(stat)>=0?'+':'')+getMod(stat); });
-
     const con = getMod('con'), dex = getMod('dex'), wis = getMod('wis');
     const fB = Number(document.getElementById('fort_bonus').value)||0, rB = Number(document.getElementById('ref_bonus').value)||0, wB = Number(document.getElementById('will_bonus').value)||0;
-    
     document.getElementById('fort_total').textContent = (con+fB >=0?'+':'')+(con+fB);
     document.getElementById('ref_total').textContent = (dex+rB >=0?'+':'')+(dex+rB);
     document.getElementById('will_total').textContent = (wis+wB >=0?'+':'')+(wis+wB);
-
-    // Only calc skills if main char
+    
     if(!currentSummonId) {
         document.querySelectorAll('.skill-row-data').forEach(row => {
             const stat = row.dataset.stat, mod = getMod(stat), ranks = Number(row.querySelector('.skill-ranks').value)||0, isCs = row.querySelector('.skill-cs').checked;
             const total = mod + ranks + ((isCs && ranks>0) ? 3 : 0);
             row.querySelector('.skill-mod').textContent = mod;
             row.querySelector('.skill-total').textContent = (total>=0?'+':'')+total;
+
+            const skillNameFull = row.querySelector('.skill-name-cell').textContent;
+            const skillName = skillNameFull.split(' (')[0].trim();
+            const nameCell = row.querySelector('.skill-name-cell');
+            
+            if(TRAINED_ONLY_LIST.includes(skillName)) {
+                if(ranks < 1) {
+                    nameCell.classList.add('trained-untrained');
+                    nameCell.classList.remove('trained-trained');
+                } else {
+                    nameCell.classList.remove('trained-untrained');
+                    nameCell.classList.add('trained-trained');
+                }
+            }
         });
     }
 }
@@ -553,60 +528,37 @@ function triggerSave(){
 
 async function saveData(){
     if(!currentParentUid) return;
-
-    // Scrape current form data
     const currentData = {};
     document.querySelectorAll('.save-field').forEach(el => currentData[el.id] = el.value);
-
-    // Arrays
     currentData.weapons = [];
     document.getElementById('weaponList').querySelectorAll('details').forEach(d => {
         const attrs = [];
         d.querySelectorAll('.attr-row').forEach(row => attrs.push({ name: row.querySelector('.attr-n').value, val: row.querySelector('.attr-v').value }));
         currentData.weapons.push({ name: d.querySelector('.w-name').value, mod: d.querySelector('.w-mod').value, attrs: attrs });
     });
-    
     currentData.spells = scrapeList('spellList', ['.l-val','.n-val','.k-val','.d-val'], ['lvl','name','link','desc']);
     currentData.activeAbilities = scrapeList('activeList', ['.n-val','.u-val','.t-val','.d-val'], ['name','uses','type','desc']);
     currentData.passiveAbilities = scrapeList('passiveList', ['.n-val','.d-val'], ['name','desc']);
     currentData.feats = scrapeList('featList', ['.n-val','.l-val','.d-val'], ['name','link','desc']);
+    
     currentData.items = scrapeList('itemList', ['.n-val','.t-val','.c-val','.d-val','.i-data'], ['name','tags','cost','desc','img']);
 
     if(!currentSummonId) {
         currentData.skills = [];
-        document.querySelectorAll('.skill-row-data').forEach(row => { 
-            currentData.skills.push({ cs: row.querySelector('.skill-cs').checked, lvl: Number(row.querySelector('.skill-ranks').value)||0 }); 
-        });
+        document.querySelectorAll('.skill-row-data').forEach(row => { currentData.skills.push({ cs: row.querySelector('.skill-cs').checked, lvl: Number(row.querySelector('.skill-ranks').value)||0 }); });
     }
 
-    // CONSTRUCT FINAL PAYLOAD
     let finalPayload = {};
-    
     if (currentSummonId) {
-        // We are editing a summon. We need to grab the FULL sheet data,
-        // find the summon in the array, replace it, and save the whole sheet.
-        // We use 'fullSheetData' which is kept up to date by onSnapshot.
-        
-        finalPayload = { ...fullSheetData }; // copy
+        finalPayload = { ...fullSheetData }; 
         if(!finalPayload.summons) finalPayload.summons = [];
-        
         const idx = finalPayload.summons.findIndex(s => s.id === currentSummonId);
-        // Ensure ID is preserved
         currentData.id = currentSummonId; 
-        
-        if(idx > -1) {
-            finalPayload.summons[idx] = currentData;
-        } else {
-            // Should theoretically not happen unless summon was deleted remotely while editing
-            finalPayload.summons.push(currentData);
-        }
+        if(idx > -1) { finalPayload.summons[idx] = currentData; } else { finalPayload.summons.push(currentData); }
     } else {
-        // Editing Main Character
-        // We preserve the 'summons' array from the full data so we don't overwrite it
         const existingSummons = fullSheetData.summons || [];
         finalPayload = { ...currentData, summons: existingSummons };
     }
-
     try {
         await setDoc(doc(db, 'users', currentParentUid, 'sheet', 'character'), finalPayload);
         document.getElementById('statusText').textContent = "Saved";
@@ -646,19 +598,7 @@ function scrapeRow(el){
 function addWeaponRow(d={}){ 
     let attrHtml = '';
     if(d.attrs) d.attrs.forEach(a => attrHtml += `<div class="attr-row"><input class="attr-n" value="${a.name}" placeholder="Attr"><input class="attr-v" value="${a.val}" placeholder="Val"><button class="btn-remove" onclick="this.parentElement.remove();triggerSave()">x</button></div>`);
-
-    const html = `
-        <div style="display:flex; gap:10px;">
-            <input class="w-name" value="${d.name||''}" placeholder="Name">
-            <select class="w-mod" style="width:80px">
-                <option ${d.mod==='STR'?'selected':''}>STR</option><option ${d.mod==='DEX'?'selected':''}>DEX</option>
-                <option ${d.mod==='CON'?'selected':''}>CON</option><option ${d.mod==='INT'?'selected':''}>INT</option>
-                <option ${d.mod==='WIS'?'selected':''}>WIS</option><option ${d.mod==='CHA'?'selected':''}>CHA</option>
-            </select>
-        </div>
-        <div class="attr-container">${attrHtml}</div>
-        <button class="btn-add" style="padding:4px; font-size:11px; margin-top:5px;" onclick="addWeaponAttr(this)">+ Attribute</button>
-    `;
+    const html = `<div style="display:flex; gap:10px;"><input class="w-name" value="${d.name||''}" placeholder="Name"><select class="w-mod" style="width:80px"><option ${d.mod==='STR'?'selected':''}>STR</option><option ${d.mod==='DEX'?'selected':''}>DEX</option><option ${d.mod==='CON'?'selected':''}>CON</option><option ${d.mod==='INT'?'selected':''}>INT</option><option ${d.mod==='WIS'?'selected':''}>WIS</option><option ${d.mod==='CHA'?'selected':''}>CHA</option></select></div><div class="attr-container">${attrHtml}</div><button class="btn-add" style="padding:4px; font-size:11px; margin-top:5px;" onclick="addWeaponAttr(this)">+ Attribute</button>`;
     createRow('weaponList', x => x.name||'New Weapon', html, d);
 }
 window.addWeaponAttr = (btn) => {
@@ -671,10 +611,7 @@ window.addWeaponAttr = (btn) => {
 const SPELL_LVLS = ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"];
 function addSpellRow(d={}){
     let opts = ""; SPELL_LVLS.forEach(l => opts += `<option ${d.lvl===l?'selected':''}>${l}</option>`);
-    const summary = (x) => {
-        const nameDisplay = x.link ? `<a href="${x.link}" target="_blank">${x.name||'New Spell'}</a>` : (x.name||'New Spell');
-        return `[${x.lvl||'-'}] ${nameDisplay}`;
-    };
+    const summary = (x) => { const nameDisplay = x.link ? `<a href="${x.link}" target="_blank">${x.name||'New Spell'}</a>` : (x.name||'New Spell'); return `[${x.lvl||'-'}] ${nameDisplay}`; };
     const html = `<div style="display:flex;gap:5px"><select class="l-val" style="width:80px">${opts}</select><input class="n-val" value="${d.name||''}" placeholder="Name"></div><input class="k-val" value="${d.link||''}" placeholder="Link"><textarea class="d-val">${d.desc||''}</textarea>`;
     createRow('spellList', summary, html, d);
 }
@@ -686,18 +623,60 @@ function addActiveRow(d={}){
     const html = `<input class="n-val" value="${d.name||''}" placeholder="Name"><div style="display:flex;gap:5px;margin-top:5px;"><select class="t-val">${opts}</select><input class="u-val" value="${d.uses||''}" placeholder="Uses"></div><textarea class="d-val">${d.desc||''}</textarea>`;
     createRow('activeList', summary, html, d);
 }
-
 function addPassiveRow(d={}){ createRow('passiveList', x => x.name||'New Passive', `<input class="n-val" value="${d.name||''}" placeholder="Name"><textarea class="d-val">${d.desc||''}</textarea>`, d); }
 function addFeatRow(d={}){ createRow('featList', x => x.name||'New Feat', `<input class="n-val" value="${d.name||''}" placeholder="Name"><input class="l-val" value="${d.link||''}" placeholder="Link"><textarea class="d-val">${d.desc||''}</textarea>`, d); }
-function addItemRow(d={}){ createRow('itemList', x => x.name||'New Item', `<div style="display:flex;gap:10px"><div style="flex:1"><input class="n-val" value="${d.name||''}" placeholder="Name" style="margin-bottom:5px"><input class="t-val" value="${d.tags||''}" placeholder="Tags" style="margin-bottom:5px"><input class="c-val" value="${d.cost||''}" placeholder="Cost"><input type="hidden" class="i-data" value="${d.img||''}"><input type="file" onchange="encodeImg(this)" style="margin-top:5px; font-size:11px;"></div><img src="${d.img||''}" class="item-preview"></div><textarea class="d-val">${d.desc||''}</textarea>`, d); }
 
-window.encodeImg = (inp) => { const f = inp.files[0]; if(f){ const r = new FileReader(); r.onload = e => { const p = inp.parentElement; p.querySelector('.i-data').value = e.target.result; p.nextElementSibling.src = e.target.result; triggerSave(); }; r.readAsDataURL(f); } };
+// --- ADMIN ITEMS ROW ---
+const ITEM_TAGS = ["Weapons", "Armor", "Gear", "Consumables", "Magic Items", "Collections", "Misc"];
+
+function addItemRow(d={}){ 
+    const isCollection = d.tags === "Collections";
+    const opts = ITEM_TAGS.map(t => `<option ${d.tags===t?'selected':''}>${t}</option>`).join('');
+
+    const html = `
+        <div style="display:flex;gap:10px">
+            <div style="flex:1">
+                <input class="n-val" value="${d.name||''}" placeholder="Name" style="margin-bottom:5px">
+                <select class="t-val" style="margin-bottom:5px" onchange="toggleItemImg(this)">${opts}</select>
+                <input class="c-val" value="${d.cost||''}" placeholder="Cost">
+                <div class="img-uploader" style="display:${isCollection?'block':'none'}">
+                    <input class="i-data" value="${d.img||''}" placeholder="Paste Image URL here" oninput="updatePreview(this)" style="margin-top:5px;">
+                </div>
+            </div>
+            <img src="${d.img||''}" class="item-preview" style="display:${d.img?'block':'none'}">
+        </div>
+        <textarea class="d-val">${d.desc||''}</textarea>
+    `;
+    createRow('itemList', x => x.name||'New Item', html, d); 
+}
+
+window.toggleItemImg = (select) => {
+    const row = select.closest('.details-content');
+    const uploader = row.querySelector('.img-uploader');
+    const preview = row.querySelector('.item-preview');
+    if(select.value === "Collections") {
+        uploader.style.display = 'block';
+        if(row.querySelector('.i-data').value) preview.style.display = 'block';
+    } else {
+        uploader.style.display = 'none';
+        preview.style.display = 'none';
+    }
+    triggerSave();
+};
+
+window.updatePreview = (inp) => {
+    const row = inp.closest('.details-content');
+    const preview = row.querySelector('.item-preview');
+    preview.src = inp.value;
+    preview.style.display = inp.value ? 'block' : 'none';
+    triggerSave();
+};
 
 function initSkillsTable(){
     const body = document.getElementById('skillsTableBody'); body.innerHTML = '';
     SKILLS_DB.forEach(s => {
         const tr = document.createElement('tr'); tr.className = 'skill-row-data'; tr.dataset.stat = s.s;
-        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td>${s.n} <small style="color:#888">(${s.s})</small></td><td class="skill-mod">0</td><td><input type="number" class="skill-ranks" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent);font-weight:bold">0</td>`;
+        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td class="skill-name-cell">${s.n} <small style="color:#888">(${s.s})</small></td><td class="skill-mod">0</td><td><input type="number" class="skill-ranks" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent);font-weight:bold">0</td>`;
         tr.querySelectorAll('input').forEach(i => i.addEventListener('input', () => { updateCalculations(); triggerSave(); }));
         body.appendChild(tr);
     });
@@ -716,7 +695,6 @@ document.body.addEventListener('input', (e) => {
         triggerSave(); 
     } 
 });
-
 </script>
 </body>
 </html>

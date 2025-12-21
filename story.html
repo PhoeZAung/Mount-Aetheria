@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Mount Aetheria - Story</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a1a1a">
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
 /* --- THEME --- */
@@ -67,6 +71,39 @@ body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--t
 #adminPanel { display: none; background: #333; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid var(--accent); }
 #adminPanel input, #adminPanel textarea, #adminPanel select { width: 100%; margin-bottom: 10px; padding: 8px; background: #111; color: white; border: 1px solid #555; box-sizing: border-box; }
 #adminPanel button { background: var(--accent); color: #000; padding: 10px; font-weight: bold; border: none; cursor: pointer; width: 100%; }
+.img-url-input { margin-bottom: 5px !important; }
+
+/* CUSTOM NOTIFICATIONS & MODALS */
+.toast-notification {
+    position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+    background: var(--panel); border: 1px solid var(--accent);
+    color: var(--accent); padding: 15px 30px; border-radius: 50px;
+    font-weight: bold; z-index: 5000; opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+}
+.toast-notification.show { opacity: 1; top: 80px; }
+
+.custom-modal-box {
+    display: none; position: fixed; top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.8); z-index: 6000;
+    align-items: center; justify-content: center; backdrop-filter: blur(2px);
+}
+.custom-modal-inner {
+    background: var(--panel); border: 2px solid #a33; border-radius: 8px;
+    padding: 30px; text-align: center; max-width: 300px; width: 80%;
+    box-shadow: 0 0 30px #a33;
+}
+.custom-modal-inner h3 { color: #f66; font-family: 'Uncial Antiqua'; margin-top: 0; }
+.custom-modal-inner button { margin-top: 15px; background: #333; color: #fff; border: 1px solid #555; padding: 8px 20px; cursor: pointer; border-radius: 4px; }
+.custom-modal-inner button:hover { background: #555; }
+
+/* CONFIRM MODAL (Dark Theme) */
+.confirm-modal-box { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.9); z-index:6001; justify-content:center; align-items:center; }
+.confirm-modal-inner { background:var(--panel); border:1px solid var(--accent); padding:20px; border-radius:8px; width:300px; text-align:center; }
+.confirm-modal-actions { display:flex; gap:10px; margin-top:20px; justify-content:center; }
+.confirm-btn { flex:1; padding:10px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; }
+.confirm-yes { background:var(--accent); color:#000; }
+.confirm-no { background:#444; color:#fff; }
 
 @media(max-width:768px){
   .nav-links { display: none; }
@@ -78,6 +115,27 @@ body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--t
 </style>
 </head>
 <body>
+
+<div id="toast" class="toast-notification"></div>
+
+<div id="forbiddenModal" class="custom-modal-box">
+    <div class="custom-modal-inner">
+        <h3>Forbidden</h3>
+        <p>Your will cannot attune to this knowledge.</p>
+        <button onclick="document.getElementById('forbiddenModal').style.display='none'">Retreat</button>
+    </div>
+</div>
+
+<div id="confirmModal" class="confirm-modal-box">
+    <div class="confirm-modal-inner">
+        <h3 style="color:var(--accent); margin-top:0; font-family:'Uncial Antiqua'">Confirm</h3>
+        <p id="confirmText" style="color:#ccc;">Are you sure?</p>
+        <div class="confirm-modal-actions">
+            <button class="confirm-btn confirm-yes" id="confirmYes">Yes</button>
+            <button class="confirm-btn confirm-no" id="confirmNo">No</button>
+        </div>
+    </div>
+</div>
 
 <nav class="top-nav">
   <button id="hamburgerBtn" onclick="document.getElementById('mobileMenu').classList.toggle('show')">&#9776;</button>
@@ -162,10 +220,15 @@ body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--t
       </select>
       <input type="text" id="newSecondaryTag" placeholder="Secondary Tag (comma separated)">
       <textarea id="newText" rows="5" placeholder="Story Content..."></textarea>
-      <label style="display:block; margin-bottom:5px; font-weight:bold;">Upload Images (Max 5):</label>
-      <input type="file" id="imageInput" multiple accept="image/*">
+      
+      <label style="display:block; margin-bottom:5px; font-weight:bold;">Image URLs (Max 5):</label>
+      <input type="text" class="img-url-input" id="img1" placeholder="Image URL 1">
+      <input type="text" class="img-url-input" id="img2" placeholder="Image URL 2">
+      <input type="text" class="img-url-input" id="img3" placeholder="Image URL 3">
+      <input type="text" class="img-url-input" id="img4" placeholder="Image URL 4">
+      <input type="text" class="img-url-input" id="img5" placeholder="Image URL 5">
+      
       <button id="submitStoryBtn">Publish Story</button>
-      <div id="uploadStatus" style="text-align:center; margin-top:5px; color:var(--accent);"></div>
     </div>
 
     <div class="controls-bar">
@@ -187,14 +250,12 @@ body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--t
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, serverTimestamp, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
 const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", authDomain: "mount-aetheria.firebaseapp.com", projectId: "mount-aetheria", storageBucket: "mount-aetheria.firebasestorage.app", messagingSenderId: "492855693446", appId: "1:492855693446:web:f9948569254a7220c38107", measurementId: "G-0PF84KDN7L" };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 const ADMIN_ID = "U7uyfcMtULSLJvXD0HzJaiMIeGE3"; 
 
 let currentPrimary = "all";
@@ -204,6 +265,29 @@ let currentUser = null;
 let editingStoryId = null;
 const urlParams = new URLSearchParams(window.location.search);
 const hasCode10 = urlParams.get('code10') !== null;
+
+// TOAST UTILITY
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => {
+        t.classList.remove('show');
+    }, 2000);
+}
+
+// CONFIRM UTILITY
+function showConfirm(text, callback) {
+    const m = document.getElementById('confirmModal');
+    const txt = document.getElementById('confirmText');
+    const y = document.getElementById('confirmYes');
+    const n = document.getElementById('confirmNo');
+    txt.textContent = text;
+    m.style.display = 'flex';
+    
+    y.onclick = () => { m.style.display = 'none'; callback(); };
+    n.onclick = () => { m.style.display = 'none'; };
+}
 
 onAuthStateChanged(auth, user => {
   currentUser = user;
@@ -259,6 +343,11 @@ document.getElementById('toggleAdminBtn').addEventListener('click', () => {
     panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
     editingStoryId = null; 
     panel.querySelector('h3').textContent = "Create New Story Entry";
+    // Clear fields
+    document.getElementById('newTitle').value = "";
+    document.getElementById('newText').value = "";
+    document.getElementById('newSecondaryTag').value = "";
+    [1,2,3,4,5].forEach(i => document.getElementById('img'+i).value = "");
 });
 
 document.getElementById('submitStoryBtn').addEventListener('click', async () => {
@@ -267,41 +356,31 @@ document.getElementById('submitStoryBtn').addEventListener('click', async () => 
     const secondaryInput = document.getElementById('newSecondaryTag').value.trim();
     const secondaryTags = secondaryInput.split(',').map(t => t.trim()).filter(t => t.length>0);
     const text = document.getElementById('newText').value;
-    const fileInput = document.getElementById('imageInput');
-    const status = document.getElementById('uploadStatus');
+
+    // Collect URLS
+    const imageUrls = [];
+    [1,2,3,4,5].forEach(i => {
+        const val = document.getElementById('img'+i).value.trim();
+        if(val) imageUrls.push(val);
+    });
 
     if(!title || !text) return alert("Title and Content are required.");
     
     document.getElementById('submitStoryBtn').disabled = true;
-    status.textContent = editingStoryId ? "Updating story..." : "Uploading images...";
 
-    const imageUrls = [];
     try {
-        if(fileInput.files.length > 0){
-            for (const file of fileInput.files) {
-                const storageRef = ref(storage, `stories/${Date.now()}_${file.name}`);
-                const snapshot = await uploadBytes(storageRef, file);
-                const url = await getDownloadURL(snapshot.ref);
-                imageUrls.push(url);
-            }
-        }
         if(editingStoryId){
             const storyRef = doc(db, 'artifacts', 'default-app-id', 'public', 'data', 'stories', editingStoryId);
-            await updateDoc(storyRef,{ title, category: cat, secondaryTags, content: text, ...(imageUrls.length>0 && { images: imageUrls }) });
-            alert("Story Updated!");
+            await updateDoc(storyRef,{ title, category: cat, secondaryTags, content: text, images: imageUrls });
+            showToast("Story Updated!");
         } else {
             await addDoc(collection(db, 'artifacts', 'default-app-id', 'public', 'data', 'stories'), { title, category: cat, secondaryTags, content: text, images: imageUrls, createdAt: serverTimestamp() });
-            alert("Story Published!");
+            showToast("Story Published!");
         }
-        document.getElementById('newTitle').value = "";
-        document.getElementById('newText').value = "";
-        document.getElementById('newSecondaryTag').value = "";
-        fileInput.value = "";
         document.getElementById('adminPanel').style.display = 'none';
         editingStoryId = null;
-        status.textContent = "";
 
-    } catch(e) { console.error(e); alert("Error: " + e.message); status.textContent = "Error occurred."; } 
+    } catch(e) { console.error(e); alert("Error: " + e.message); } 
     finally { document.getElementById('submitStoryBtn').disabled = false; }
 });
 
@@ -356,7 +435,9 @@ function renderStories() {
     entry.innerHTML = `<div class="story-header"><div class="story-title" style="${isVeil && !hasCode10 ? 'color:red;' : ''}">${title}</div><div class="story-meta">${secTagHtml}<span class="story-cat" style="${isVeil && !hasCode10 ? 'color:red;' : ''}">${isVeil && !hasCode10 ? '???' : story.category}</span></div></div>`;
 
     entry.addEventListener('click', () => {
-        if(isVeil && !hasCode10) alert('Your will cannot attune to this knowledge.');
+        if(isVeil && !hasCode10) {
+            document.getElementById('forbiddenModal').style.display = 'flex';
+        }
         else openModal(story);
     });
     container.appendChild(entry);
@@ -388,6 +469,15 @@ function openModal(story) {
              document.getElementById('newCategory').value = story.category;
              document.getElementById('newSecondaryTag').value = story.secondaryTags.join(', ');
              document.getElementById('newText').value = story.content;
+             
+             // Populate image fields
+             [1,2,3,4,5].forEach(i => document.getElementById('img'+i).value = "");
+             if(story.images) {
+                 story.images.forEach((url, idx) => {
+                     if(idx < 5) document.getElementById('img'+(idx+1)).value = url;
+                 });
+             }
+
              editingStoryId = story.id;
              document.getElementById('adminPanel').querySelector('h3').textContent = "Edit Story Entry";
              window.scrollTo(0,0);
@@ -395,7 +485,12 @@ function openModal(story) {
          const delBtn = document.createElement('button');
          delBtn.textContent = "Delete Story";
          delBtn.style.cssText = "background:#ff6666;color:#111;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:bold;";
-         delBtn.onclick = async () => { if(confirm("Delete this story?")) { await deleteDoc(doc(db,'artifacts','default-app-id','public','data','stories',story.id)); document.getElementById('storyModal').style.display = 'none'; } };
+         delBtn.onclick = () => { 
+             showConfirm("Delete this story permanently?", async () => {
+                 await deleteDoc(doc(db,'artifacts','default-app-id','public','data','stories',story.id)); 
+                 document.getElementById('storyModal').style.display = 'none'; 
+             });
+         };
          adminDiv.appendChild(editBtn); adminDiv.appendChild(delBtn);
     }
     document.getElementById('storyModal').style.display = 'flex';
