@@ -43,10 +43,10 @@ label { color: #aaa; font-size: 12px; font-weight: bold; margin-bottom: 4px; dis
 .bio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .bio-item { display: flex; flex-direction: column; }
 
-/* --- STATS & COMBAT (Compact) --- */
+/* --- STATS & COMBAT (Default Desktop) --- */
 .combat-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; background: var(--panel); padding: 10px; border-radius: 8px; margin-bottom: 15px; }
 .stat-box { display: flex; flex-direction: column; align-items: center; }
-.stat-dual { display: flex; align-items: center; gap: 5px; }
+.stat-dual { display: flex; align-items: center; gap: 5px; width: 100%; justify-content: center; }
 .stat-dual input { text-align: center; }
 
 /* --- SUB TABS --- */
@@ -104,17 +104,69 @@ summary a:hover { text-decoration: underline; }
 /* --- ITEM SUMMARY VIEW BUTTON --- */
 .btn-view { background: var(--accent); color: #000; border: none; border-radius: 3px; font-size: 11px; padding: 2px 8px; font-weight: bold; margin-right: 10px; cursor: pointer; }
 
+.btn-add { width: 100%; background: var(--accent); border: none; color: #000; padding: 10px; font-weight: bold; margin-top: 10px; border-radius: 4px; cursor: pointer; }
+.btn-del { background: #ff4444; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor:pointer; }
+.btn-danger { background: #990000; color: #fff; width: 100%; padding: 12px; border:none; border-radius: 4px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+
+.status-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; color: #888; font-size: 11px; padding: 4px 10px; text-align: right; border-top: 1px solid #333; z-index: 2000; display: flex; justify-content: space-between; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #444; display: inline-block; margin-right: 5px; }
+.status-dot.live { background: #4caf50; box-shadow: 0 0 5px #4caf50; }
+
 /* --- MOBILE BREAKPOINTS --- */
 @media (max-width: 600px) {
   .nav-links { display: none; }
   #hamburgerBtn { display: block; }
   .tab-btn { font-size: 12px; padding: 12px 8px; }
+
+  /* RESTORE DEFAULT VERTICAL STACK (Used for Saves & General) */
   .combat-stats { display: flex; flex-direction: column; gap: 8px; }
-  .stat-box { flex-direction: row; justify-content: space-between; width: 100%; border-bottom: 1px solid #333; padding-bottom: 4px; }
-  .stat-box label { margin: 0; font-size: 14px; }
-  .stat-box input, .stat-dual { width: 50%; justify-content: flex-end; }
+  .stat-box { flex-direction: row; justify-content: space-between; width: 100%; border-bottom: 1px solid #333; padding-bottom: 4px; min-height: auto; background: transparent; padding: 0;}
+  .stat-box label { margin: 0; font-size: 14px; text-align: left; width: auto; }
+  .stat-box input, .stat-dual { width: 50%; justify-content: flex-end; height: auto; }
   .stat-dual input { width: 48%; }
+
+  /* OVERRIDE: 3-COLUMN COMPACT GRID (Strictly for Top Stats: HP, MP, Speed, Init, BAB, AC) */
+  .mobile-3col { 
+      display: grid !important; 
+      grid-template-columns: repeat(3, 1fr) !important; 
+      gap: 5px !important; 
+      padding: 5px !important; 
+      border-radius: 8px;
+  }
   
+  /* OVERRIDE: 2-COLUMN GRID (Strictly for CMB/CMD) */
+  .mobile-2col {
+      display: grid !important; 
+      grid-template-columns: 1fr 1fr !important; 
+      gap: 5px !important; 
+      padding: 5px !important;
+  }
+
+  /* SHARED COMPACT BOX STYLES (Only for items inside the grid overrides) */
+  .mobile-3col .stat-box, .mobile-2col .stat-box { 
+      flex-direction: column !important; 
+      justify-content: center !important; 
+      width: 100% !important; 
+      border-bottom: none !important; 
+      padding: 5px !important; 
+      background: #2a2a2a; 
+      border-radius: 4px;
+      min-height: 50px;
+  }
+  .mobile-3col .stat-box label, .mobile-2col .stat-box label { 
+      margin: 0 0 2px 0 !important; 
+      font-size: 10px !important; 
+      text-align: center;
+      width: 100%;
+  }
+  .mobile-3col .stat-box input, .mobile-2col .stat-box input { 
+      width: 100% !important; 
+      font-size: 12px !important; 
+      text-align: center; 
+      height: 25px;
+  }
+  
+  /* SKILL TABLE MOBILE */
   #mobileSkillHeader { display: flex !important; justify-content: space-between; padding: 0 10px 5px 10px; }
   #skillsTable { display: block; width: 100%; }
   #skillsTable thead { display: none; } 
@@ -127,14 +179,6 @@ summary a:hover { text-decoration: underline; }
   #skillsTable tr td:nth-child(4) input { max-width: 40px; padding: 2px 4px !important; font-size: 14px; margin-left: 5px; }
   #skillsTable tr td:nth-child(5) { flex-basis: 20%; text-align: right; font-size: 16px; }
 }
-
-.btn-add { width: 100%; background: var(--accent); border: none; color: #000; padding: 10px; font-weight: bold; margin-top: 10px; border-radius: 4px; cursor: pointer; }
-.btn-del { background: #ff4444; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor:pointer; }
-.btn-danger { background: #990000; color: #fff; width: 100%; padding: 12px; border:none; border-radius: 4px; font-weight: bold; margin-top: 20px; cursor: pointer; }
-
-.status-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; color: #888; font-size: 11px; padding: 4px 10px; text-align: right; border-top: 1px solid #333; z-index: 2000; display: flex; justify-content: space-between; }
-.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #444; display: inline-block; margin-right: 5px; }
-.status-dot.live { background: #4caf50; box-shadow: 0 0 5px #4caf50; }
 </style>
 </head>
 <body>
@@ -194,13 +238,13 @@ summary a:hover { text-decoration: underline; }
 </div>
 
 <div id="combat" class="tab-content">
-  <div class="combat-stats" style="grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));">
-    <div class="stat-box"><label>HP (Cur/Max)</label><div class="stat-dual"><input id="hp_curr" class="live-field" placeholder="Curr"><span style="color:#666">/</span><input id="hp_max" class="live-field" placeholder="Max"></div></div>
-    <div class="stat-box"><label>MP (Cur/Max)</label><div class="stat-dual"><input id="mp_curr" class="live-field" placeholder="Curr"><span style="color:#666">/</span><input id="mp_max" class="live-field" placeholder="Max"></div></div>
-    <div class="stat-box"><label>Speed</label><input id="speed" class="live-field"></div>
-    <div class="stat-box"><label>Init Mod</label><input id="init_bonus" class="live-field"></div>
+  <div class="combat-stats mobile-3col">
+    <div class="stat-box"><label>HP</label><div class="stat-dual"><input id="hp_curr" class="live-field" placeholder="Cur"><span style="color:#666">/</span><input id="hp_max" class="live-field" placeholder="Max"></div></div>
+    <div class="stat-box"><label>MP</label><div class="stat-dual"><input id="mp_curr" class="live-field" placeholder="Cur"><span style="color:#666">/</span><input id="mp_max" class="live-field" placeholder="Max"></div></div>
+    <div class="stat-box"><label>AC</label><input id="ac_total" class="live-field"></div>
+    <div class="stat-box"><label>Initiative</label><input id="init_bonus" class="live-field"></div>
     <div class="stat-box"><label>BAB</label><input id="bab" class="live-field"></div>
-    <div class="stat-box"><label>AC Total</label><input id="ac_total" class="live-field"></div>
+    <div class="stat-box"><label>Speed</label><input id="speed" class="live-field"></div>
   </div>
 
   <div class="sub-nav-container">
@@ -212,7 +256,7 @@ summary a:hover { text-decoration: underline; }
   </div>
   
   <div id="c-general" class="sub-group active">
-    <div class="combat-stats" style="grid-template-columns: 1fr 1fr;">
+    <div class="combat-stats mobile-2col">
         <div class="stat-box"><label>CMB</label><input id="cmb" class="live-field"></div>
         <div class="stat-box"><label>CMD</label><input id="cmd_total" class="live-field"></div>
     </div>
