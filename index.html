@@ -2,15 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Mount Aetheria - World Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a1a1a">
-<link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
+<title>Mount Aetheria - World Map</title>
+<link rel="manifest" href="manifest.json">
+
+<link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="manifest" href="/manifest.json">
 
 <style>
 :root{
@@ -18,8 +19,18 @@
   --pin-kingdom: #e74c3c; --pin-town: #3498db; --pin-landmark: #2ecc71; --pin-event: #f1c40f; --pin-player: #9b59b6;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;} 
-body{padding-top:60px; display:flex; flex-direction:column;}
+
+/* --- APP FEEL CSS --- */
+html { height: 100%; overflow: hidden; }
+body { 
+  height: 100%; margin: 0; background: var(--bg); color: var(--text);
+  /* New Cleaner Font */
+  font-family: 'Montserrat', sans-serif; 
+  padding-top: 60px; display: flex; flex-direction: column;
+  /* PREVENT BOUNCE SCROLL ON MOBILE */
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
 
 /* --- NAV --- */
 .top-nav {
@@ -27,6 +38,9 @@ body{padding-top:60px; display:flex; flex-direction:column;}
   background:#000; border-bottom:1px solid var(--border);
   display:flex; align-items:center; justify-content:space-between;
   padding:0 15px; z-index:2000;
+  /* Safe area for iPhone notch */
+  padding-top: env(safe-area-inset-top);
+  height: calc(50px + env(safe-area-inset-top));
 }
 .nav-brand { font-family:'Uncial Antiqua'; color:var(--accent); font-size:18px; text-decoration:none; }
 .nav-links { display:flex; gap:20px; }
@@ -34,22 +48,23 @@ body{padding-top:60px; display:flex; flex-direction:column;}
 .nav-links a:hover { color:#fff; }
 #hamburgerBtn { display:none; background:none; border:none; color:#fff; font-size:24px; cursor:pointer; }
 #mobileMenu {
-  display:none; position:fixed; top:50px; left:0; width:100%; background:#111;
+  display:none; position:fixed; top:calc(50px + env(safe-area-inset-top)); left:0; width:100%; background:#111;
   border-bottom:1px solid var(--accent); flex-direction:column; z-index:1999;
 }
 #mobileMenu.show { display:flex; }
-#mobileMenu a { padding:15px 20px; color:#fff; text-decoration:none; border-bottom:1px solid #333; font-family:'Uncial Antiqua'; }
+#mobileMenu a { padding:15px 20px; color:#fff; text-decoration:none; border-bottom:1px solid #333; font-family:'Uncial Antiqua'; letter-spacing: 1px; }
 
 /* --- PAGE HEADER --- */
-.page-header { padding: 10px; text-align: center; }
+.page-header { padding: 10px; text-align: center; flex-shrink: 0; }
 .map-tabs { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; margin-bottom: 10px; }
-.map-tab { padding: 8px 16px; background:var(--panel); color:#888; border:1px solid var(--border); cursor:pointer; font-weight:bold; transition:0.2s; font-size:0.9em; }
+.map-tab { padding: 8px 16px; background:var(--panel); color:#888; border:1px solid var(--border); cursor:pointer; font-weight:bold; transition:0.2s; font-size:0.85em; text-transform: uppercase; letter-spacing: 1px; }
 .map-tab:hover, .map-tab.active { background:var(--accent); color:#000; border-color:var(--accent); }
 .map-tabs-mobile-btn { display:none; width:100%; padding:10px; margin-bottom:10px; background:var(--panel); color:var(--accent); border:1px solid var(--border); cursor:pointer; font-family:'Uncial Antiqua'; }
 
 /* --- MAIN LAYOUT --- */
-.main-layout { display: flex; flex: 1; width: 100%; max-width: 1600px; margin: 0 auto; padding: 10px 20px; gap: 20px; height: calc(100vh - 160px); min-height: 500px; position: relative; justify-content: space-between; }
-.map-wrapper { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 0; }
+.main-layout { display: flex; flex: 1; width: 100%; max-width: 1600px; margin: 0 auto; padding: 10px 20px; gap: 20px; height: calc(100vh - 140px); min-height: 0; position: relative; justify-content: space-between; padding-bottom: env(safe-area-inset-bottom); }
+
+.map-wrapper { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 0; height: 100%; }
 .map-viewport {
   flex: 1; position: relative; border: 2px solid var(--accent);
   background: #0d0d0d; overflow: hidden; cursor: grab;
@@ -58,21 +73,33 @@ body{padding-top:60px; display:flex; flex-direction:column;}
 }
 .map-viewport:active { cursor: grabbing; }
 .map-content { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; }
-/* Ensure image displays block and retains natural aspect ratio */
 .map-img { display: block; pointer-events: none; user-select: none; width: auto; height: auto; max-width: none; }
 
-.legend { position: absolute; bottom: 0; left: 0; right: 0; height: 40px; background: rgba(20,20,20,0.9); border-top: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; gap: 20px; z-index: 90; }
-.legend-item { display:flex; align-items:center; gap:6px; font-size:0.8em; color:#ccc; }
+.legend { position: absolute; bottom: 0; left: 0; right: 0; height: 40px; background: rgba(20,20,20,0.9); border-top: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; gap: 20px; z-index: 90; backdrop-filter: blur(5px); }
+.legend-item { display:flex; align-items:center; gap:6px; font-size:0.8em; color:#ccc; font-weight: 600; }
 
 .info-sidebar { width: 350px; background: var(--panel); border: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; padding: 20px; border-radius: 4px; box-shadow: -5px 0 15px rgba(0,0,0,0.3); margin-left: auto; flex-shrink: 0; }
 .info-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px; }
-.info-title { font-family:'Uncial Antiqua'; color:var(--accent); margin:0; font-size:1.6em; }
+.info-title { font-family:'Uncial Antiqua'; color:var(--accent); margin:0; font-size:1.6em; line-height: 1.2; }
 .close-info { display: none; background:none; border:none; color:#888; cursor:pointer; font-size:1.2em; }
-.info-img { width:100%; height:200px; object-fit:cover; background:#333; margin-bottom:15px; border:1px solid #444; border-radius:4px; display:none; }
-.info-desc { font-size:0.95em; color:#ccc; line-height:1.5; }
+
+/* --- UPDATED IMAGE STYLING --- */
+.info-img { 
+  width:100%; 
+  height: auto; 
+  max-height: 300px; /* Restrict height so it doesn't push text off screen */
+  object-fit: contain; /* SHOWS WHOLE IMAGE */
+  background: #000; 
+  margin-bottom:15px; 
+  border:1px solid #444; 
+  border-radius:4px; 
+  display:none; 
+}
+
+.info-desc { font-size:0.95em; color:#ccc; line-height:1.6; }
 .info-empty-state { text-align: center; color: #666; margin-top: 50px; font-style: italic; }
 
-.pin { position: absolute; width: 30px; height: 30px; transform: translate(-50%, -100%); transform-origin: bottom center; cursor: pointer; color: #fff; font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.9); z-index: 10; display:flex; justify-content:center; align-items:center; }
+.pin { position: absolute; width: 30px; height: 30px; transform: translate(-50%, -100%); transform-origin: bottom center; cursor: pointer; color: #fff; font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.9); z-index: 10; display:flex; justify-content:center; align-items:center; transition: transform 0.1s; }
 .pin:hover { z-index:20; color:var(--accent); }
 .pin.dragging { opacity: 0.7; cursor: grabbing; }
 .pin[data-type="kingdom"] { color: var(--pin-kingdom); }
@@ -83,18 +110,18 @@ body{padding-top:60px; display:flex; flex-direction:column;}
 
 #adminBar { display:none; align-items:center; justify-content:center; gap:15px; background:#2a1a1a; border:1px solid #633; color:#eaa; padding:8px; margin-bottom:10px; font-size:0.85em; }
 .edit-form { display:none; flex-direction:column; gap:8px; margin-top:20px; border-top:1px solid #444; padding-top:15px; }
-.edit-form input, .edit-form textarea, .edit-form select { background:#111; border:1px solid #444; color:#fff; padding:8px; }
-.btn { padding:8px; cursor:pointer; border:none; font-weight:bold; margin-top:5px; border-radius:3px; }
+.edit-form input, .edit-form textarea, .edit-form select { background:#111; border:1px solid #444; color:#fff; padding:10px; border-radius: 4px; font-family: inherit; }
+.btn { padding:10px; cursor:pointer; border:none; font-weight:bold; margin-top:5px; border-radius:3px; text-transform: uppercase; font-size: 12px; }
 .btn-save { background:var(--accent); color:#000; }
 .btn-del { background:#a33; color:#fff; }
 
 .zoom-controls { position: absolute; bottom: 50px; right: 20px; display: flex; flex-direction: column; gap: 5px; z-index: 100; }
-.zoom-btn { width: 36px; height: 36px; background: rgba(0,0,0,0.8); border: 1px solid var(--border); color: #fff; font-size: 16px; cursor: pointer; border-radius: 4px; }
+.zoom-btn { width: 40px; height: 40px; background: rgba(0,0,0,0.8); border: 1px solid var(--border); color: #fff; font-size: 18px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
 .zoom-btn:hover { background: var(--accent); color: #000; }
 
 /* CONFIRM MODAL */
-.confirm-modal-box { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.9); z-index:6001; justify-content:center; align-items:center; }
-.confirm-modal-inner { background:var(--panel); border:1px solid var(--accent); padding:20px; border-radius:8px; width:300px; text-align:center; }
+.confirm-modal-box { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.9); z-index:6001; justify-content:center; align-items:center; backdrop-filter: blur(4px); }
+.confirm-modal-inner { background:var(--panel); border:1px solid var(--accent); padding:20px; border-radius:8px; width:300px; text-align:center; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
 .confirm-modal-actions { display:flex; gap:10px; margin-top:20px; justify-content:center; }
 .confirm-btn { flex:1; padding:10px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; }
 .confirm-yes { background:var(--accent); color:#000; }
@@ -106,15 +133,18 @@ body{padding-top:60px; display:flex; flex-direction:column;}
   .map-tabs { display:none; flex-direction:column; position:absolute; top:100%; left:0; right:0; z-index:50; }
   .map-tabs.show { display:flex; background:#111; border-bottom: 1px solid var(--accent);}
   .map-tabs-mobile-btn { display:block; }
-  .main-layout { flex-direction: column; height: auto; padding: 10px; gap: 15px; display: block; }
-  .map-wrapper { width: 100%; margin-bottom: 20px; display: block; }
-  .map-viewport { height: 50vh; min-height: 400px; width: 100%; border-radius: 4px; }
-  .zoom-controls { bottom: 20px; right: 10px; }
-  .legend { position: relative; top: auto; bottom: auto; left: auto; right: auto; background: #111; border: 1px solid #333; border-radius: 4px; margin-top: 10px; height: auto; padding: 10px; flex-wrap: wrap; justify-content: center; gap: 10px 15px; }
-  .legend-item { background: #222; border: 1px solid #333; padding: 4px 8px; border-radius: 4px; }
-  .info-sidebar { display: none; position: fixed; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 3000; margin: 0; border: none; padding-top: 60px; }
+  
+  .main-layout { flex-direction: column; height: auto; padding: 10px; gap: 10px; display: block; overflow: hidden; }
+  .map-wrapper { width: 100%; height: calc(100vh - 150px); margin-bottom: 0; display: block; border: 1px solid var(--accent); border-radius: 4px; overflow: hidden; }
+  .map-viewport { height: 100%; width: 100%; border: none; border-radius: 0; }
+  
+  .zoom-controls { bottom: 60px; right: 10px; }
+  .legend { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(10,10,10,0.9); height: auto; padding: 10px; flex-wrap: wrap; justify-content: center; gap: 10px 15px; border-top: 1px solid #444; }
+  .legend-item { background: #222; border: 1px solid #333; padding: 4px 8px; border-radius: 4px; font-size: 11px; }
+  
+  .info-sidebar { display: none; position: fixed; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; z-index: 3000; margin: 0; border: none; padding-top: calc(60px + env(safe-area-inset-top)); padding-bottom: env(safe-area-inset-bottom); background: rgba(10,10,10,0.95); backdrop-filter: blur(5px); }
   .info-sidebar.active { display: flex; }
-  .close-info { display: block; } 
+  .close-info { display: block; font-size: 24px; padding: 10px; } 
   .info-empty-state { display: none; }
 }
 </style>
@@ -158,7 +188,7 @@ body{padding-top:60px; display:flex; flex-direction:column;}
     <label style="cursor:pointer; display:flex; align-items:center; gap:5px;">
       <input type="checkbox" id="adminToggle"> Enable Edit
     </label>
-    <span style="color:#888;">(DblClick Map to Add)</span>
+    <span style="color:#888;">(DblClick Map)</span>
   </div>
 
   <div style="max-width:1100px; margin:0 auto; position:relative;">
@@ -213,12 +243,12 @@ body{padding-top:60px; display:flex; flex-direction:column;}
     </div>
 
     <div id="infoContent" style="display:none;">
-      <img src="" class="info-img" id="infoImg">
+      <img src="" class="info-img" id="infoImg" alt="Pin Image">
       <div class="info-desc" id="infoDesc"></div>
     </div>
 
     <div class="edit-form" id="adminEditForm">
-      <strong>Edit Pin Details</strong>
+      <strong style="color:var(--accent);">Edit Pin Details</strong>
       <input type="text" id="editName" placeholder="Name">
       <select id="editType">
         <option value="kingdom">Kingdom</option>
@@ -332,18 +362,14 @@ document.getElementById('mapMenuBtn').addEventListener('click', () => {
 });
 
 /* 3. ZOOM LOGIC & VIEW RESET */
-
 function getMinScale() {
   const vpRect = viewport.getBoundingClientRect();
-  // We assume the map is roughly 2400x2400 if it hasn't loaded yet
   const imgW = mapImage.naturalWidth || 2400;
   const imgH = mapImage.naturalHeight || 2400;
   
   const scaleX = vpRect.width / imgW;
   const scaleY = vpRect.height / imgH;
   
-  // Use Math.max so we COVER the container (no black bars)
-  // This matches your "previous look" request
   return Math.max(scaleX, scaleY);
 }
 
@@ -352,14 +378,9 @@ function clampPosition() {
   const imgW = (mapImage.naturalWidth || 2400) * scale;
   const imgH = (mapImage.naturalHeight || 2400) * scale;
 
-  // With Cover logic (Math.max), the image is always >= viewport on at least one axis.
-  // We clamp so the user can't pan past the edges into black space.
-
   if (imgW <= vpRect.width) {
-    // If scaled image width is smaller than viewport (rare in Cover mode unless narrow img), center it
     pointX = (vpRect.width - imgW) / 2;
   } else {
-    // Standard clamping for panning
     if (pointX > 0) pointX = 0;
     if (pointX < vpRect.width - imgW) pointX = vpRect.width - imgW;
   }
@@ -389,12 +410,10 @@ function updateTransform() {
 
 function resetView() {
   scale = getMinScale();
-  
   const vpRect = viewport.getBoundingClientRect();
   const imgW = (mapImage.naturalWidth || 2400) * scale;
   const imgH = (mapImage.naturalHeight || 2400) * scale;
   
-  // Center the image initially (Cover logic usually overflows, so centering is good)
   pointX = (vpRect.width - imgW) / 2;
   pointY = (vpRect.height - imgH) / 2;
   
@@ -403,7 +422,7 @@ function resetView() {
 
 window.addEventListener('resize', () => { resetView(); });
 mapImage.onload = resetView;
-resetView(); // Call immediately for cached/fast loading
+resetView(); 
 
 /* CONTROLS */
 viewport.addEventListener('mousedown', (e) => {
@@ -434,12 +453,10 @@ viewport.addEventListener('wheel', (e) => {
   const delta = -e.deltaY;
   (delta > 0) ? (newScale *= 1.1) : (newScale /= 1.1);
 
-  // Constraints
   const minScale = getMinScale();
   if (newScale < minScale) newScale = minScale;
   if (newScale > 5) newScale = 5;
 
-  // Zoom towards mouse pointer logic
   const xs = (e.clientX - rect.left - pointX) / scale;
   const ys = (e.clientY - rect.top - pointY) / scale;
 
@@ -450,7 +467,7 @@ viewport.addEventListener('wheel', (e) => {
   updateTransform();
 }, {passive: false});
 
-// --- TOUCH ZOOM FIX ---
+// TOUCH ZOOM FIX
 let lastScale = 1;
 let initialDist = 0;
 
@@ -490,7 +507,6 @@ viewport.addEventListener('touchmove', (e) => {
     if (newScale < minScale) newScale = minScale;
     if (newScale > 5) newScale = 5;
 
-    // Center zoom logic for pinch
     const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
     const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
     const rect = viewport.getBoundingClientRect();
