@@ -4,11 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Discussions - Mount Aetheria</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#1a1a1a">
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
 /* --- BASE THEME --- */
@@ -46,7 +41,7 @@ body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--t
 /* CHAT AREA */
 .chat-area { flex: 1; display: flex; flex-direction: column; background-color: #151515; background-size: cover; background-position: center; background-repeat: no-repeat; position: relative; transition: background-image 0.5s ease-in-out; }
 .chat-area::before { content: ""; position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(0, 0, 0, 0.75); z-index: 0; }
-.chat-header, .messages-box, .input-area { position: relative; z-index: 1; }
+.chat-header, .messages-box, .input-wrapper { position: relative; z-index: 1; }
 .chat-header { padding: 10px 15px; background: rgba(0,0,0,0.6); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px; backdrop-filter: blur(5px); }
 .chat-back-btn { display: none; background: none; border: none; color: var(--accent); font-size: 20px; cursor: pointer; }
 .chat-header-title { font-family: 'Uncial Antiqua'; color: var(--accent); font-size: 16px; display: flex; align-items: center; gap: 8px; }
@@ -54,17 +49,32 @@ body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--t
 .info-icon:hover { color: #fff; }
 .info-tooltip { display: none; position: absolute; top: 25px; left: 0; background: rgba(0,0,0,0.9); border: 1px solid var(--accent); padding: 10px; width: 200px; font-family: sans-serif; font-size: 12px; color: #ddd; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); white-space: normal; line-height: 1.4; }
 .info-icon:hover .info-tooltip { display: block; }
+
 .messages-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-.msg { display: flex; gap: 10px; max-width: 80%; }
+.msg { display: flex; gap: 10px; max-width: 80%; position: relative; }
 .msg.mine { align-self: flex-end; flex-direction: row-reverse; }
 .msg-avatar { width: 35px; height: 35px; border-radius: 50%; background: #000; object-fit: cover; border: 1px solid #444; flex-shrink: 0; }
+.msg-content-wrapper { display: flex; flex-direction: column; position: relative; }
 .msg-content { background: var(--received); padding: 8px 12px; border-radius: 12px; border-top-left-radius: 0; font-size: 14px; line-height: 1.4; word-wrap: break-word; color: #fff; border: 1px solid rgba(255,255,255,0.1); }
 .msg.mine .msg-content { background: var(--sent); border-radius: 12px; border-top-right-radius: 0; border: 1px solid rgba(255,204,102,0.2); }
 .msg-meta { font-size: 10px; color: #bbb; margin-bottom: 2px; }
 .msg.mine .msg-meta { text-align: right; }
 
-/* INPUT AREA */
-.input-area { padding: 10px; background: rgba(0,0,0,0.8); border-top: 1px solid #333; display: flex; gap: 10px; align-items: center; }
+/* MESSAGE HOVER ACTIONS */
+.msg-actions { display: none; position: absolute; top: -20px; right: 0; background: #222; border: 1px solid var(--accent); border-radius: 4px; padding: 2px 5px; z-index: 10; gap: 5px; }
+.msg.mine:hover .msg-actions { display: flex; }
+.action-icon { cursor: pointer; font-size: 12px; color: #fff; opacity: 0.7; padding: 2px; }
+.action-icon:hover { opacity: 1; color: var(--accent); }
+
+/* INPUT AREA & PERSONA SELECTOR */
+.input-wrapper { background: rgba(0,0,0,0.8); border-top: 1px solid #333; display: flex; flex-direction: column; }
+.persona-bar { display: none; padding: 5px 10px; gap: 10px; overflow-x: auto; background: rgba(0,0,0,0.5); border-bottom: 1px solid #333; align-items: center; }
+.persona-option { width: 35px; height: 35px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; opacity: 0.5; transition: 0.2s; flex-shrink: 0; }
+.persona-option img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #000; }
+.persona-option:hover { opacity: 1; }
+.persona-option.selected { opacity: 1; border-color: var(--accent); transform: scale(1.1); box-shadow: 0 0 5px var(--accent); }
+
+.input-area { padding: 10px; display: flex; gap: 10px; align-items: center; }
 .chat-input { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid #444; color: #fff; padding: 10px; border-radius: 20px; outline: none; }
 .emoji-btn { background: none; border: none; font-size: 20px; cursor: pointer; padding: 5px; transition: transform 0.1s; }
 .emoji-btn:hover { transform: scale(1.1); }
@@ -80,10 +90,19 @@ body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--t
 .modal-close { position: absolute; top: 10px; right: 10px; background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; z-index: 5; }
 input, textarea { background: #111; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 4px; width: 100%; }
 
-/* BROWSE LIST */
+/* BROWSE LIST UPDATED */
 .browse-list { max-height: 400px; overflow-y: auto; margin-top: 10px; }
-.browse-item { padding: 12px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: background 0.2s; }
+.browse-item { padding: 12px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: default; transition: background 0.2s; }
 .browse-item:hover { background: #333; }
+
+.browse-text-col { flex: 1; min-width: 0; margin-right: 5px; } /* Ensures text truncates and pushes buttons right */
+.browse-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; } /* Group buttons together */
+
+.joined-actions { display: flex; gap: 5px; }
+.btn-small { font-size: 12px; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; white-space: nowrap; }
+.btn-to-chat { background: var(--accent); color: #000; }
+.btn-leave { background: #444; color: #ddd; }
+.btn-leave:hover { background: #666; color: #fff; }
 
 /* JOIN TOPIC POPUP */
 #joinPopupContent { background-size: cover; background-position: center; position: relative; border-radius: 8px; overflow: hidden; min-height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
@@ -92,8 +111,9 @@ input, textarea { background: #111; border: 1px solid #444; color: #fff; padding
 .join-title { font-family: 'Uncial Antiqua'; color: var(--accent); font-size: 24px; margin-bottom: 10px; text-shadow: 2px 2px 0 #000; }
 .join-desc { color: #ddd; margin-bottom: 20px; font-size: 14px; text-shadow: 1px 1px 0 #000; }
 
-.admin-controls { display: flex; gap: 5px; }
-.btn-mini { padding: 4px 8px; font-size: 10px; cursor: pointer; border: none; border-radius: 3px; }
+/* ADMIN CONTROLS */
+.admin-controls { display: flex; gap: 5px; margin-left: 5px; border-left: 1px solid #444; padding-left: 8px; }
+.btn-mini { padding: 4px 8px; font-size: 10px; cursor: pointer; border: none; border-radius: 3px; white-space: nowrap; }
 .btn-edit { background: #444; color: #fff; }
 .btn-del { background: #a00; color: #fff; }
 
@@ -105,6 +125,7 @@ input, textarea { background: #111; border: 1px solid #444; color: #fff; padding
     .chat-mode .sidebar { display: none; }
     .chat-mode .chat-area { display: flex; }
     .chat-back-btn { display: block; }
+    .msg.mine:active .msg-actions { display: flex; }
 }
 </style>
 </head>
@@ -138,26 +159,63 @@ input, textarea { background: #111; border: 1px solid #444; color: #fff; padding
         </div>
         <div class="topic-list" id="myTopicsList"><div style="padding:20px; text-align:center; color:#666; font-size:12px;">Loading chats...</div></div>
     </div>
+    
     <div class="chat-area" id="chatArea">
         <div class="chat-header">
             <button class="chat-back-btn" onclick="exitChat()">&#8592;</button>
             <div class="chat-header-title"><span id="chatTitle">Select a Topic</span><span class="info-icon">&#9432;<div class="info-tooltip" id="chatDescTooltip">Topic Description</div></span></div>
         </div>
-        <div class="messages-box" id="msgBox"><div style="text-align:center; color:#ccc; margin-top:50px; text-shadow: 1px 1px 2px #000;"><p>Join a topic to start chatting.</p></div></div>
-        <form class="input-area" id="chatForm" style="display:none;">
-            <button type="button" class="emoji-btn" onclick="document.getElementById('emojiPicker').classList.toggle('show')">⚔️</button>
-            <div class="emoji-picker" id="emojiPicker">
-                <div class="emoji-item" onclick="addEmoji('🎲')">🎲</div><div class="emoji-item" onclick="addEmoji('⚔️')">⚔️</div><div class="emoji-item" onclick="addEmoji('🛡️')">🛡️</div><div class="emoji-item" onclick="addEmoji('🏹')">🏹</div><div class="emoji-item" onclick="addEmoji('🧙‍♂️')">🧙‍♂️</div><div class="emoji-item" onclick="addEmoji('🐉')">🐉</div><div class="emoji-item" onclick="addEmoji('🔥')">🔥</div><div class="emoji-item" onclick="addEmoji('✨')">✨</div><div class="emoji-item" onclick="addEmoji('📜')">📜</div><div class="emoji-item" onclick="addEmoji('🍺')">🍺</div><div class="emoji-item" onclick="addEmoji('💀')">💀</div><div class="emoji-item" onclick="addEmoji('💰')">💰</div><div class="emoji-item" onclick="addEmoji('🗝️')">🗝️</div><div class="emoji-item" onclick="addEmoji('💍')">💍</div><div class="emoji-item" onclick="addEmoji('🐺')">🐺</div><div class="emoji-item" onclick="addEmoji('🌙')">🌙</div><div class="emoji-item" onclick="addEmoji('🧪')">🧪</div><div class="emoji-item" onclick="addEmoji('💎')">💎</div>
-            </div>
-            <input type="text" class="chat-input" id="msgInput" placeholder="Type a message..." autocomplete="off">
-            <button type="submit" class="send-btn">&#10148;</button>
-        </form>
+        
+        <div class="messages-box" id="msgBox">
+            <div style="text-align:center; color:#ccc; margin-top:50px; text-shadow: 1px 1px 2px #000;"><p>Join a topic to start chatting.</p></div>
+        </div>
+        
+        <div class="input-wrapper" id="chatFormWrapper" style="display:none;">
+            <div id="personaBar" class="persona-bar"></div>
+            <form class="input-area" id="chatForm">
+                <input type="hidden" id="editingMsgId">
+                <button type="button" class="emoji-btn" onclick="document.getElementById('emojiPicker').classList.toggle('show')">⚔️</button>
+                <div class="emoji-picker" id="emojiPicker">
+                    <div class="emoji-item" onclick="addEmoji('🎲')">🎲</div><div class="emoji-item" onclick="addEmoji('⚔️')">⚔️</div><div class="emoji-item" onclick="addEmoji('🛡️')">🛡️</div><div class="emoji-item" onclick="addEmoji('🏹')">🏹</div><div class="emoji-item" onclick="addEmoji('🧙‍♂️')">🧙‍♂️</div><div class="emoji-item" onclick="addEmoji('🐉')">🐉</div><div class="emoji-item" onclick="addEmoji('🔥')">🔥</div><div class="emoji-item" onclick="addEmoji('✨')">✨</div><div class="emoji-item" onclick="addEmoji('📜')">📜</div><div class="emoji-item" onclick="addEmoji('🍺')">🍺</div><div class="emoji-item" onclick="addEmoji('💀')">💀</div><div class="emoji-item" onclick="addEmoji('💰')">💰</div><div class="emoji-item" onclick="addEmoji('🗝️')">🗝️</div><div class="emoji-item" onclick="addEmoji('💍')">💍</div><div class="emoji-item" onclick="addEmoji('🐺')">🐺</div><div class="emoji-item" onclick="addEmoji('🌙')">🌙</div><div class="emoji-item" onclick="addEmoji('🧪')">🧪</div><div class="emoji-item" onclick="addEmoji('💎')">💎</div>
+                </div>
+                <input type="text" class="chat-input" id="msgInput" placeholder="Type a message..." autocomplete="off">
+                <button type="submit" class="send-btn" id="sendBtn">&#10148;</button>
+            </form>
+        </div>
     </div>
 </div>
 
 <div class="modal-overlay" id="createModal"><div class="modal-box"><button class="modal-close" onclick="closeModals()">x</button><h3 style="color:var(--accent); text-align:center;" id="createModalTitle">Create Topic</h3><input type="hidden" id="editTopicId"> <input id="newTopicName" placeholder="Topic Name"><input id="newTopicDesc" placeholder="Short Description"><input id="newTopicImg" placeholder="Image URL (Background)"><input id="newTopicPass" placeholder="Password (Optional)"><button class="btn-action" onclick="submitTopicForm()">Save</button></div></div>
+
 <div class="modal-overlay" id="browseModal"><div class="modal-box" style="max-width:500px; height:80vh;"><button class="modal-close" onclick="closeModals()">x</button><h3 style="color:var(--accent); text-align:center;">Browse Topics</h3><input id="searchTopics" placeholder="Search topics..." onkeyup="filterBrowse()"><div class="browse-list" id="browseListContainer"></div></div></div>
+
 <div class="modal-overlay" id="joinModal"><div class="modal-box" id="joinPopupContent"><button class="modal-close" onclick="closeModals()">x</button><div class="join-inner"><div class="join-title" id="joinTitle">Topic Name</div><div class="join-desc" id="joinDesc">Topic Description goes here...</div><input type="password" id="joinPassInput" placeholder="Enter Password" style="display:none; margin-bottom:10px; text-align:center;"><button class="btn-action" onclick="confirmJoin()">Join Topic</button><div id="joinError" style="color:#f44; font-size:12px; margin-top:5px; display:none;"></div></div></div></div>
+
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box" style="text-align:center; max-width: 300px;">
+        <h3 style="color:#ff4444; margin-top:0;">Delete Message?</h3>
+        <p style="color:#ccc; font-size:14px; margin-bottom: 20px;">
+            Are you sure you want to delete this message? This action cannot be undone.
+        </p>
+        <div style="display:flex; gap:10px; justify-content:center;">
+            <button class="btn-action" style="background:#444; color:#fff;" onclick="closeModals()">Cancel</button>
+            <button class="btn-action" style="background:#ff4444; color:#fff;" onclick="confirmDeleteAction()">Delete</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="deleteTopicModal">
+    <div class="modal-box" style="text-align:center; max-width: 300px;">
+        <h3 style="color:#ff4444; margin-top:0;">Delete Topic?</h3>
+        <p style="color:#ccc; font-size:14px; margin-bottom: 20px;">
+            Permanently delete this topic and all its messages? This cannot be undone.
+        </p>
+        <div style="display:flex; gap:10px; justify-content:center;">
+            <button class="btn-action" style="background:#444; color:#fff;" onclick="closeModals()">Cancel</button>
+            <button class="btn-action" style="background:#ff4444; color:#fff;" onclick="confirmDeleteTopic()">Delete</button>
+        </div>
+    </div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -169,17 +227,24 @@ const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", auth
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
 const ADMIN_EMAIL = "phoeaung2076@gmail.com";
 
 let currentUser = null;
 let isAdmin = false;
 let currentProfile = { name: "Player", pfp: "" };
+let activePersona = null;
+let myPersonas = [];
 let activeTopicId = null;
 let joinedTopicsData = []; 
 let allTopicsCache = [];
 let msgUnsub = null;
 let pendingJoinId = null;
 let pendingJoinPass = null;
+let msgToDeleteId = null;
+let topicToDeleteId = null;
+
+const personaBar = document.getElementById('personaBar');
 
 onAuthStateChanged(auth, async (user) => {
     const link = document.getElementById('authLink');
@@ -193,27 +258,61 @@ onAuthStateChanged(auth, async (user) => {
             isAdmin = true;
             document.getElementById('createTopicBtn').style.display = 'block';
         }
+
         try {
             const userDoc = await getDoc(doc(db, "users", user.uid));
             if(userDoc.exists()) {
                 const data = userDoc.data();
-                currentProfile.name = data.displayName || data.username || `Player${Math.floor(Math.random()*9000)}`;
-                currentProfile.pfp = data.photoURL || data.pfp || "";
+                currentProfile.name = data.displayName || user.displayName || "Player";
+                currentProfile.pfp = data.pfp || user.photoURL || "";
             }
         } catch(e) { console.error(e); }
+
+        const pQuery = query(collection(db, "users", user.uid, "personas"), orderBy("createdAt", "desc"));
+        onSnapshot(pQuery, (snap) => {
+            myPersonas = [];
+            snap.forEach(d => myPersonas.push({id:d.id, ...d.data()}));
+            renderPersonaBar();
+        });
+
         initSidebar();
     } else {
         window.location.href = "signin.html";
     }
 });
 
-// --- SIDEBAR & JOINED TOPICS ---
+function renderPersonaBar() {
+    if(myPersonas.length === 0) { personaBar.style.display = 'none'; return; }
+    if(activeTopicId) personaBar.style.display = 'flex';
+    personaBar.innerHTML = '';
+    const mainDiv = document.createElement('div');
+    mainDiv.className = `persona-option ${activePersona === null ? 'selected' : ''}`;
+    mainDiv.onclick = () => switchPersona(null);
+    mainDiv.innerHTML = `<img src="${currentProfile.pfp || 'https://via.placeholder.com/35'}">`;
+    personaBar.appendChild(mainDiv);
+    myPersonas.forEach(p => {
+        const pDiv = document.createElement('div');
+        pDiv.className = `persona-option ${activePersona && activePersona.id === p.id ? 'selected' : ''}`;
+        pDiv.onclick = () => switchPersona(p);
+        pDiv.innerHTML = `<img src="${p.pfp}" onerror="this.src='https://via.placeholder.com/35'">`;
+        personaBar.appendChild(pDiv);
+    });
+}
+
+function switchPersona(persona) {
+    activePersona = persona;
+    renderPersonaBar();
+    const input = document.getElementById('msgInput');
+    const name = persona ? persona.name : currentProfile.name;
+    input.placeholder = `Speaking as ${name}...`;
+    input.focus();
+}
+
 function initSidebar() {
     const joinedRef = collection(db, "users", currentUser.uid, "joined");
     onSnapshot(joinedRef, (snapshot) => {
         const myJoins = [];
         snapshot.forEach(doc => myJoins.push({ id: doc.id, readCount: doc.data().readCount || 0 }));
-        
         const q = query(collection(db, "topics")); 
         onSnapshot(q, (topicSnap) => {
             joinedTopicsData = [];
@@ -235,7 +334,7 @@ function initSidebar() {
 function renderSidebar() {
     const container = document.getElementById('myTopicsList');
     container.innerHTML = '';
-    if(joinedTopicsData.length === 0) { container.innerHTML = '<div style="padding:20px;text-align:center;color:#666;">Click "Browse Topics" to join.</div>'; return; }
+    if(joinedTopicsData.length === 0) { container.innerHTML = '<div style="padding:20px;text-align:center;color:#666;">Browse to join.</div>'; return; }
     joinedTopicsData.forEach(topic => {
         const div = document.createElement('div');
         div.className = `topic-card ${activeTopicId === topic.id ? 'active' : ''}`;
@@ -247,14 +346,18 @@ function renderSidebar() {
     });
 }
 
-// --- CHAT LOGIC ---
 window.openChat = async (topic) => {
+    document.getElementById('editingMsgId').value = "";
+    document.getElementById('msgInput').value = "";
+    document.getElementById('sendBtn').innerHTML = '&#10148;';
+    
     activeTopicId = topic.id;
     document.getElementById('chatTitle').textContent = topic.title;
     document.getElementById('chatDescTooltip').textContent = topic.desc || "No description.";
-    document.getElementById('chatForm').style.display = 'flex';
+    document.getElementById('chatFormWrapper').style.display = 'flex';
     document.getElementById('msgBox').innerHTML = '<div style="text-align:center; padding:20px; color:#ccc;">Loading...</div>';
     
+    renderPersonaBar();
     const area = document.getElementById('chatArea');
     if(topic.img) area.style.backgroundImage = `url('${topic.img}')`; else area.style.backgroundImage = `none`;
     
@@ -266,77 +369,312 @@ window.openChat = async (topic) => {
     const q = query(collection(db, "topics", topic.id, "messages"), orderBy("timestamp", "asc"));
     msgUnsub = onSnapshot(q, (snap) => {
         const box = document.getElementById('msgBox'); box.innerHTML = '';
-        if(snap.empty) box.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">No messages yet.</div>';
         snap.forEach(d => {
             const m = d.data();
             const isMine = m.senderId === currentUser.uid;
             const date = m.timestamp ? new Date(m.timestamp.seconds * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
-            const pfpHtml = m.senderPfp ? `<img src="${m.senderPfp}" class="msg-avatar">` : `<div class="msg-avatar" style="background:#000"></div>`;
-            const row = document.createElement('div'); row.className = `msg ${isMine?'mine':''}`;
-            row.innerHTML = `${pfpHtml}<div><div class="msg-meta">${isMine?'You':m.senderName} • ${date}</div><div class="msg-content">${escapeHtml(m.content)}</div></div>`;
+            
+            const row = document.createElement('div');
+            row.className = `msg ${isMine ? 'mine' : ''}`;
+            
+            const actionsHtml = isMine ? `
+                <div class="msg-actions">
+                    <span class="action-icon" onclick="editMessage('${d.id}', '${escapeHtml(m.content)}')">✎</span>
+                    <span class="action-icon" onclick="deleteMessage('${d.id}')">✖</span>
+                </div>` : '';
+
+            row.innerHTML = `
+                <img src="${m.senderPfp || 'https://via.placeholder.com/35'}" class="msg-avatar">
+                <div class="msg-content-wrapper">
+                    <div class="msg-meta">${m.senderName} • ${date}</div>
+                    <div class="msg-content">${escapeHtml(m.content)}</div>
+                    ${actionsHtml}
+                </div>
+            `;
             box.appendChild(row);
         });
         box.scrollTop = box.scrollHeight;
     });
 }
 
-window.exitChat = () => { document.getElementById('appContainer').classList.remove('chat-mode'); activeTopicId = null; if(msgUnsub) msgUnsub(); renderSidebar(); }
+window.editMessage = (msgId, content) => {
+    document.getElementById('editingMsgId').value = msgId;
+    document.getElementById('msgInput').value = content;
+    document.getElementById('sendBtn').innerHTML = '✓';
+    document.getElementById('msgInput').focus();
+};
+
+window.deleteMessage = (msgId) => {
+    msgToDeleteId = msgId;
+    document.getElementById('deleteModal').style.display = 'flex';
+};
+
+window.confirmDeleteAction = async () => {
+    if (!msgToDeleteId || !activeTopicId) return;
+    const btn = document.querySelector('#deleteModal .btn-action[onclick="confirmDeleteAction()"]');
+    const originalText = btn.textContent;
+    btn.textContent = "...";
+    try {
+        await deleteDoc(doc(db, "topics", activeTopicId, "messages", msgToDeleteId));
+        closeModals();
+    } catch (e) { console.error("Error deleting:", e); alert("Failed to delete message."); } 
+    finally { msgToDeleteId = null; btn.textContent = originalText; }
+};
 
 document.getElementById('chatForm').addEventListener('submit', async (e) => {
-    e.preventDefault(); const input = document.getElementById('msgInput'); const txt = input.value.trim();
+    e.preventDefault();
+    const input = document.getElementById('msgInput');
+    const txt = input.value.trim();
+    const editingId = document.getElementById('editingMsgId').value;
+    
     if(!txt || !activeTopicId) return;
-    input.value = ''; document.getElementById('emojiPicker').classList.remove('show');
+
     try {
-        await addDoc(collection(db, "topics", activeTopicId, "messages"), { content: txt, senderId: currentUser.uid, senderName: currentProfile.name, senderPfp: currentProfile.pfp, timestamp: serverTimestamp() });
-        await updateDoc(doc(db, "topics", activeTopicId), { lastActive: serverTimestamp(), messageCount: increment(1) });
-    } catch(err) { console.error(err); alert("Error sending."); }
+        if(editingId) {
+            await updateDoc(doc(db, "topics", activeTopicId, "messages", editingId), { content: txt });
+            document.getElementById('editingMsgId').value = "";
+            document.getElementById('sendBtn').innerHTML = '&#10148;';
+        } else {
+            let finalName = currentProfile.name;
+            let finalPfp = currentProfile.pfp;
+            if(activePersona) { finalName = activePersona.name; finalPfp = activePersona.pfp; }
+            await addDoc(collection(db, "topics", activeTopicId, "messages"), { 
+                content: txt, senderId: currentUser.uid, senderName: finalName, 
+                senderPfp: finalPfp, timestamp: serverTimestamp() 
+            });
+            await updateDoc(doc(db, "topics", activeTopicId), { lastActive: serverTimestamp(), messageCount: increment(1) });
+        }
+        input.value = '';
+    } catch(err) { console.error(err); }
 });
 
-window.addEmoji = (char) => { const inp = document.getElementById('msgInput'); inp.value += char; inp.focus(); }
+/* --- BROWSE / JOIN / CREATE LOGIC --- */
 
-window.openCreateModal = () => { document.getElementById('createModalTitle').textContent = "Create Topic"; document.getElementById('editTopicId').value = ""; document.getElementById('newTopicName').value = ""; document.getElementById('newTopicDesc').value = ""; document.getElementById('newTopicImg').value = ""; document.getElementById('newTopicPass').value = ""; document.getElementById('createModal').style.display = 'flex'; }
-window.openEditModal = (id) => { const t = allTopicsCache.find(x => x.id === id); if(!t) return; document.getElementById('createModalTitle').textContent = "Edit Topic"; document.getElementById('editTopicId').value = id; document.getElementById('newTopicName').value = t.title; document.getElementById('newTopicDesc').value = t.desc; document.getElementById('newTopicImg').value = t.img; document.getElementById('newTopicPass').value = t.password || ""; document.getElementById('browseModal').style.display = 'none'; document.getElementById('createModal').style.display = 'flex'; }
-window.deleteTopic = async (id) => { if(!confirm("Delete this topic?")) return; await deleteDoc(doc(db, "topics", id)); openBrowseModal(); }
-window.submitTopicForm = async () => {
-    const id = document.getElementById('editTopicId').value; const title = document.getElementById('newTopicName').value; const desc = document.getElementById('newTopicDesc').value; const img = document.getElementById('newTopicImg').value; const pass = document.getElementById('newTopicPass').value;
-    if(!title) return alert("Title required");
-    const data = { title, desc, img, password: pass, lastActive: serverTimestamp() };
-    if(id) await updateDoc(doc(db, "topics", id), data); else { data.createdAt = serverTimestamp(); data.messageCount = 0; await addDoc(collection(db, "topics"), data); }
-    closeModals();
-}
+window.openBrowseModal = async () => {
+    document.getElementById('browseModal').style.display = 'flex';
+    document.getElementById('browseListContainer').innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Loading topics...</div>';
+    
+    try {
+        const querySnapshot = await getDocs(query(collection(db, "topics"), orderBy("lastActive", "desc")));
+        allTopicsCache = [];
+        querySnapshot.forEach((doc) => {
+            allTopicsCache.push({ id: doc.id, ...doc.data() });
+        });
+        filterBrowse();
+    } catch(e) {
+        console.error(e);
+        document.getElementById('browseListContainer').innerHTML = '<div style="text-align:center; color:#f44;">Error loading topics.</div>';
+    }
+};
 
-window.openBrowseModal = async () => { document.getElementById('browseModal').style.display = 'flex'; document.getElementById('browseListContainer').innerHTML = 'Loading...'; const snap = await getDocs(query(collection(db, "topics"), orderBy("lastActive", "desc"))); allTopicsCache = []; snap.forEach(d => allTopicsCache.push({id: d.id, ...d.data()})); filterBrowse(); }
 window.filterBrowse = () => {
-    const term = document.getElementById('searchTopics').value.toLowerCase(); const list = document.getElementById('browseListContainer'); list.innerHTML = '';
-    allTopicsCache.filter(t => t.title.toLowerCase().includes(term)).forEach(t => {
+    const term = document.getElementById('searchTopics').value.toLowerCase();
+    const container = document.getElementById('browseListContainer');
+    container.innerHTML = '';
+    
+    const filtered = allTopicsCache.filter(t => t.title.toLowerCase().includes(term));
+    
+    if(filtered.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No topics found.</div>';
+        return;
+    }
+
+    filtered.forEach(t => {
         const isJoined = joinedTopicsData.find(j => j.id === t.id);
-        let adminBtns = ''; if(isAdmin) adminBtns = `<div class="admin-controls"><button class="btn-mini btn-edit" onclick="event.stopPropagation(); openEditModal('${t.id}')">Edit</button><button class="btn-mini btn-del" onclick="event.stopPropagation(); deleteTopic('${t.id}')">Del</button></div>`;
-        const div = document.createElement('div'); div.className = 'browse-item'; div.onclick = () => showJoinPopup(t); 
-        div.innerHTML = `<div><div style="font-weight:bold;color:var(--accent)">${t.title} ${isJoined ? '✅' : ''}</div><div style="font-size:11px;color:#888;">${t.desc||''}</div></div>${adminBtns}`;
-        list.appendChild(div);
+        
+        // ADMIN CONTROLS
+        let adminBtns = ''; 
+        if(isAdmin) {
+            adminBtns = `<div class="admin-controls">
+                <button class="btn-mini btn-edit" onclick="event.stopPropagation(); openEditModal('${t.id}')">Edit</button>
+                <button class="btn-mini btn-del" onclick="event.stopPropagation(); deleteTopic('${t.id}')">Del</button>
+            </div>`;
+        }
+
+        // JOINED ACTIONS (To Chat / Leave)
+        let joinedActions = '';
+        if(isJoined) {
+            joinedActions = `
+            <div class="joined-actions">
+                <button class="btn-small btn-to-chat" onclick="closeModals(); openChat(allTopicsCache.find(x => x.id === '${t.id}'))">To Chat</button>
+                <button class="btn-small btn-leave" onclick="leaveTopic('${t.id}')">Leave</button>
+            </div>`;
+        }
+
+        const div = document.createElement('div');
+        div.className = 'browse-item';
+        
+        if(!isJoined) {
+            div.onclick = () => showJoinPopup(t);
+        }
+
+        div.innerHTML = `
+            <div class="browse-text-col">
+                <div style="font-weight:bold; color:var(--accent);">
+                    ${t.title} ${isJoined ? '✅' : ''} ${t.password ? '🔒' : ''}
+                </div>
+                <div style="font-size:12px; color:#888;">${t.desc || 'No description'}</div>
+            </div>
+            
+            <div class="browse-actions">
+                ${joinedActions}
+                ${adminBtns}
+            </div>
+        `;
+        container.appendChild(div);
     });
-}
+};
+
+window.leaveTopic = async (id) => {
+    try {
+        await deleteDoc(doc(db, "users", currentUser.uid, "joined", id));
+        filterBrowse();
+    } catch(e) {
+        console.error(e);
+        alert("Error leaving topic.");
+    }
+};
+
+window.openCreateModal = () => {
+    document.getElementById('createModalTitle').textContent = "Create Topic";
+    document.getElementById('editTopicId').value = "";
+    document.getElementById('createModal').style.display = 'flex';
+    document.getElementById('newTopicName').value = "";
+    document.getElementById('newTopicDesc').value = "";
+    document.getElementById('newTopicImg').value = "";
+    document.getElementById('newTopicPass').value = "";
+};
+
+window.openEditModal = (id) => {
+    const t = allTopicsCache.find(x => x.id === id);
+    if(!t) return;
+    document.getElementById('createModalTitle').textContent = "Edit Topic";
+    document.getElementById('editTopicId').value = id;
+    document.getElementById('newTopicName').value = t.title;
+    document.getElementById('newTopicDesc').value = t.desc;
+    document.getElementById('newTopicImg').value = t.img;
+    document.getElementById('newTopicPass').value = t.password || "";
+    document.getElementById('browseModal').style.display = 'none';
+    document.getElementById('createModal').style.display = 'flex';
+};
+
+// DELETE TOPIC POPUP
+window.deleteTopic = (id) => {
+    topicToDeleteId = id;
+    document.getElementById('deleteTopicModal').style.display = 'flex';
+};
+
+window.confirmDeleteTopic = async () => {
+    if(!topicToDeleteId) return;
+    try {
+        await deleteDoc(doc(db, "topics", topicToDeleteId));
+        closeModals();
+        openBrowseModal(); // Refresh list
+    } catch(e) {
+        console.error(e);
+        alert("Error deleting topic.");
+    } finally {
+        topicToDeleteId = null;
+    }
+};
+
+window.submitTopicForm = async () => {
+    const id = document.getElementById('editTopicId').value;
+    const title = document.getElementById('newTopicName').value.trim();
+    const desc = document.getElementById('newTopicDesc').value.trim();
+    const img = document.getElementById('newTopicImg').value.trim();
+    const pass = document.getElementById('newTopicPass').value.trim();
+    
+    if(!title) return alert("Topic name is required.");
+    
+    const data = { title, desc, img, password: pass, lastActive: serverTimestamp() };
+    
+    try {
+        if(id) {
+            await updateDoc(doc(db, "topics", id), data);
+        } else {
+            data.createdAt = serverTimestamp();
+            data.messageCount = 0;
+            await addDoc(collection(db, "topics"), data);
+        }
+        closeModals();
+        openBrowseModal(); // Refresh list
+    } catch(e) { console.error(e); alert("Error saving topic."); }
+};
 
 window.showJoinPopup = (topic) => {
-    if(joinedTopicsData.find(j => j.id === topic.id)) { closeModals(); openChat(topic); return; }
-    pendingJoinId = topic.id; pendingJoinPass = topic.password;
-    document.getElementById('browseModal').style.display = 'none'; document.getElementById('joinModal').style.display = 'flex';
-    document.getElementById('joinTitle').textContent = topic.title; document.getElementById('joinDesc').textContent = topic.desc; document.getElementById('joinError').style.display = 'none';
+    if(joinedTopicsData.find(j => j.id === topic.id)) {
+        closeModals();
+        openChat(topic);
+        return;
+    }
+
+    pendingJoinId = topic.id;
+    pendingJoinPass = topic.password;
+    
+    document.getElementById('browseModal').style.display = 'none';
+    document.getElementById('joinModal').style.display = 'flex';
+    
+    document.getElementById('joinTitle').textContent = topic.title;
+    document.getElementById('joinDesc').textContent = topic.desc || "";
+    document.getElementById('joinError').style.display = 'none';
+    
     const content = document.getElementById('joinPopupContent');
-    if(topic.img) content.style.backgroundImage = `url('${topic.img}')`; else { content.style.backgroundImage = `none`; content.style.backgroundColor = '#222'; }
-    const passInput = document.getElementById('joinPassInput'); if(topic.password) { passInput.style.display = 'block'; passInput.value = ''; } else passInput.style.display = 'none';
-}
+    if(topic.img) {
+        content.style.backgroundImage = `url('${topic.img}')`;
+    } else {
+        content.style.backgroundImage = `none`;
+        content.style.backgroundColor = '#222';
+    }
+    
+    const passInput = document.getElementById('joinPassInput');
+    if(topic.password) {
+        passInput.style.display = 'block';
+        passInput.value = '';
+        passInput.focus();
+    } else {
+        passInput.style.display = 'none';
+    }
+};
 
 window.confirmJoin = async () => {
-    const err = document.getElementById('joinError');
-    if(pendingJoinPass) { const val = document.getElementById('joinPassInput').value; if(val !== pendingJoinPass) { err.textContent = "Wrong password."; err.style.display = 'block'; return; } }
-    const t = allTopicsCache.find(x => x.id === pendingJoinId);
-    await setDoc(doc(db, "users", currentUser.uid, "joined", pendingJoinId), { joinedAt: serverTimestamp(), readCount: t.messageCount || 0 });
-    closeModals(); openChat(t);
-}
+    if(!pendingJoinId) return;
+    
+    if(pendingJoinPass) {
+        const inputPass = document.getElementById('joinPassInput').value;
+        if(inputPass !== pendingJoinPass) {
+            const err = document.getElementById('joinError');
+            err.innerText = "Incorrect Password";
+            err.style.display = 'block';
+            return;
+        }
+    }
+    
+    try {
+        const topic = allTopicsCache.find(t => t.id === pendingJoinId);
+        await setDoc(doc(db, "users", currentUser.uid, "joined", pendingJoinId), { 
+            readCount: topic.messageCount || 0,
+            joinedAt: serverTimestamp()
+        });
+        
+        closeModals();
+        openChat(topic);
+    } catch(e) {
+        console.error(e);
+        alert("Error joining topic.");
+    }
+};
 
+window.exitChat = () => { 
+    document.getElementById('appContainer').classList.remove('chat-mode'); 
+    activeTopicId = null; 
+    document.getElementById('chatFormWrapper').style.display = 'none'; 
+    if(msgUnsub) msgUnsub(); 
+    renderSidebar(); 
+};
+window.addEmoji = (char) => { const inp = document.getElementById('msgInput'); inp.value += char; inp.focus(); };
 window.closeModals = () => document.querySelectorAll('.modal-overlay').forEach(el => el.style.display = 'none');
-function escapeHtml(text) { if(!text) return text; return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function escapeHtml(text) { if(!text) return ""; return text.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
 </script>
 </body>
 </html>

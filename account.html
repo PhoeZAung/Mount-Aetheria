@@ -4,11 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Account - Mount Aetheria</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#1a1a1a">
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
 /* --- THEME --- */
@@ -28,7 +23,7 @@ body { margin: 0; padding-top: 70px; font-family: sans-serif; background: var(--
 
 /* FORM CONTAINER */
 .container { background: var(--panel); padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); margin-top: 20px; margin-bottom: 40px; border: 1px solid var(--border); }
-h2 { font-family:'Uncial Antiqua', serif; text-align:center; color: var(--accent); margin-top:0; }
+h2, h3 { font-family:'Uncial Antiqua', serif; text-align:center; color: var(--accent); margin-top:0; }
 
 .profile-preview { display:flex; flex-direction:column; align-items:center; margin-bottom:20px; }
 .profile-preview img { width:120px; height:120px; border-radius:50%; object-fit:cover; border:3px solid var(--accent); background: #000; margin-bottom:10px; cursor:pointer; }
@@ -42,6 +37,17 @@ input:focus { border-color: var(--accent); outline: none; }
 .action-btn:hover { background: #e6b800; }
 .logout-btn { background: #ff4444; color: white; margin-top: 20px; }
 .logout-btn:hover { background: #cc0000; }
+
+/* PERSONA STYLES */
+.persona-section { display:none; margin-top:30px; border-top:1px solid #444; padding-top:20px; }
+.persona-form { background:#111; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #333; }
+.persona-list { display:flex; flex-direction:column; gap:10px; }
+.persona-item { display:flex; align-items:center; justify-content:space-between; background:#222; padding:10px; border-radius:6px; border:1px solid #333; }
+.persona-info { display:flex; align-items:center; gap:10px; }
+.persona-img { width:40px; height:40px; border-radius:50%; object-fit:cover; background:#000; }
+.btn-mini { padding:5px 10px; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold; margin-left:5px; }
+.btn-edit { background:#444; color:#fff; }
+.btn-del { background:#a00; color:#fff; }
 
 @media(max-width:768px){
   .nav-links { display: none; }
@@ -59,7 +65,7 @@ input:focus { border-color: var(--accent); outline: none; }
     <a href="tools.html">Tools</a>
     <a href="characters.html">Sheet</a>
     <a href="discussions.html">Discussion</a>
-    <a href="account.html" id="authLink" class="active" style="color:var(--accent)">My Account</a>
+    <a href="account.html" class="active" style="color:var(--accent)">My Account</a>
   </div>
 </nav>
 
@@ -68,7 +74,7 @@ input:focus { border-color: var(--accent); outline: none; }
   <a href="tools.html">Tools</a>
   <a href="characters.html">Character Sheet</a>
   <a href="discussions.html">Discussion</a>
-  <a href="account.html" id="mobileAuthLink" style="color:var(--accent)">My Account</a>
+  <a href="account.html" style="color:var(--accent)">My Account</a>
 </div>
 
 <div class="container">
@@ -76,7 +82,7 @@ input:focus { border-color: var(--accent); outline: none; }
   
   <div class="profile-preview">
     <img src="https://via.placeholder.com/120?text=Upload" id="profilePic" alt="Profile Picture">
-    <div style="font-size:12px; color:#aaa;">Click image to change</div>
+    <div style="font-size:12px; color:#aaa;">Click image to upload file</div>
     <input type="file" id="pfpInput" accept="image/*" style="display:none;">
   </div>
   
@@ -85,20 +91,40 @@ input:focus { border-color: var(--accent); outline: none; }
     <input type="text" id="displayName" placeholder="Enter your display name">
   </div>
   
-  <button id="saveBtn" class="action-btn">Save Changes</button>
+  <button id="saveBtn" class="action-btn">Save Main Profile</button>
   <div id="status" style="text-align:center; margin-top:10px; font-weight:bold;"></div>
 
-  <button id="logoutBtn" class="action-btn logout-btn">Logout</button>
+  <div id="personaSection" class="persona-section">
+      <h3>Character Workshop</h3>
+      
+      <div class="persona-form">
+          <h4 style="margin-top:0; color:#ddd; margin-bottom:10px;" id="formTitle">Create New Character</h4>
+          <input type="hidden" id="editPersonaId">
+          <div style="display:flex; gap:10px; margin-bottom:10px;">
+              <input type="text" id="personaName" placeholder="Character Name" style="flex:1;">
+          </div>
+          <div style="margin-bottom:10px;">
+              <input type="text" id="personaImgUrl" placeholder="Image URL (e.g. https://imgur.com/...)" onchange="updatePreview(this.value)">
+          </div>
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+              <img id="personaPreview" src="https://via.placeholder.com/40" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #555;">
+              <span style="font-size:12px; color:#888;">Preview</span>
+          </div>
+          <button id="savePersonaBtn" class="action-btn" style="background:#444; color:white; margin-top:0;">+ Create Character</button>
+          <button id="cancelEditBtn" class="action-btn" style="background:#333; display:none; margin-top:5px;">Cancel</button>
+      </div>
 
-  <div id="adminLinkContainer" style="display:none; margin-top:30px; text-align:center;">
-    <a href="admin.html" id="adminLink" style="color:var(--accent); font-weight:bold; font-size:18px; text-decoration:none;">Go to Admin Panel</a>
+      <div id="personaList" class="persona-list">
+          </div>
   </div>
+
+  <button id="logoutBtn" class="action-btn logout-btn">Logout</button>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
 const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", authDomain: "mount-aetheria.firebaseapp.com", projectId: "mount-aetheria", storageBucket: "mount-aetheria.firebasestorage.app", messagingSenderId: "492855693446", appId: "1:492855693446:web:f9948569254a7220c38107", measurementId: "G-0PF84KDN7L" };
@@ -108,26 +134,36 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
+// CONFIG
+const ALLOWED_EMAILS = ["phoeaung2076@gmail.com"];
+const IS_PUBLIC_FEATURE = false; // Set to true to release to everyone
+
 let currentUser = null;
 let selectedFile = null;
+
+// MAIN ELEMENTS
 const profilePic = document.getElementById('profilePic');
 const pfpInput = document.getElementById('pfpInput');
 const displayNameInput = document.getElementById('displayName');
 const statusDiv = document.getElementById('status');
-const adminLinkContainer = document.getElementById('adminLinkContainer');
-const ADMIN_UID = "U7uyfcMtULSLJvXD0HzJaiMIeGE3";
+
+// PERSONA ELEMENTS
+const personaSection = document.getElementById('personaSection');
+const pNameInput = document.getElementById('personaName');
+const pImgInput = document.getElementById('personaImgUrl');
+const pPreview = document.getElementById('personaPreview');
+const savePersonaBtn = document.getElementById('savePersonaBtn');
+const cancelEditBtn = document.getElementById('cancelEditBtn');
+const editIdInput = document.getElementById('editPersonaId');
+const formTitle = document.getElementById('formTitle');
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = "signin.html"; return; }
   currentUser = user;
-  if(user.uid === ADMIN_UID) adminLinkContainer.style.display = 'block';
   
-  // Updating Nav Links based on Auth state logic in Nav is redundant here since we are ALREADY on account page
-  // But good for consistency if copied elsewhere
-  
+  // 1. Load Main Profile
   displayNameInput.value = currentUser.displayName || "";
   if(currentUser.photoURL) profilePic.src = currentUser.photoURL;
-
   try {
     const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
     if(userDoc.exists()){
@@ -136,10 +172,16 @@ onAuthStateChanged(auth, async (user) => {
       if(data.pfp) profilePic.src = data.pfp; 
     }
   } catch(e) { console.error(e); }
+
+  // 2. Check Permissions for Workshop
+  const isAllowed = IS_PUBLIC_FEATURE || ALLOWED_EMAILS.includes(user.email.toLowerCase());
+  if(isAllowed) {
+      personaSection.style.display = 'block';
+      loadPersonas();
+  }
 });
 
-document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); window.location.href = "signin.html"; });
-
+// --- MAIN PROFILE LOGIC ---
 profilePic.addEventListener('click', () => pfpInput.click());
 pfpInput.addEventListener('change', e => {
   if(e.target.files[0]){
@@ -150,23 +192,131 @@ pfpInput.addEventListener('change', e => {
 
 document.getElementById('saveBtn').addEventListener('click', async () => {
   if(!currentUser) return;
-  const btn = document.getElementById('saveBtn');
-  btn.disabled = true;
+  const btn = document.getElementById('saveBtn'); btn.disabled = true;
   statusDiv.textContent = "Saving..."; statusDiv.style.color = "yellow";
   try {
     let finalPfpUrl = currentUser.photoURL;
-    const newDisplayName = displayNameInput.value;
     if(selectedFile){
       const storageRef = ref(storage, `users/${currentUser.uid}/profile_${Date.now()}`); 
       const snapshot = await uploadBytes(storageRef, selectedFile);
       finalPfpUrl = await getDownloadURL(snapshot.ref);
     }
-    await updateProfile(currentUser, { displayName: newDisplayName, photoURL: finalPfpUrl });
-    await setDoc(doc(db, 'users', currentUser.uid), { displayName: newDisplayName, pfp: finalPfpUrl, updatedAt: new Date() }, { merge: true });
+    await updateProfile(currentUser, { displayName: displayNameInput.value, photoURL: finalPfpUrl });
+    await setDoc(doc(db, 'users', currentUser.uid), { displayName: displayNameInput.value, pfp: finalPfpUrl, updatedAt: new Date() }, { merge: true });
     statusDiv.textContent = "Profile Updated!"; statusDiv.style.color = "#4caf50"; selectedFile = null;
   } catch(e){ statusDiv.textContent = "Error: " + e.message; statusDiv.style.color = "#ff6666"; } 
   finally { btn.disabled = false; }
 });
+
+document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); window.location.href = "signin.html"; });
+
+// --- PERSONA LOGIC ---
+
+// Helper: Live Preview of URL
+window.updatePreview = (url) => {
+    if(url) pPreview.src = url;
+    else pPreview.src = "https://via.placeholder.com/40";
+}
+
+// 1. Save / Update Persona
+savePersonaBtn.addEventListener('click', async () => {
+    const name = pNameInput.value.trim();
+    const img = pImgInput.value.trim();
+    const id = editIdInput.value;
+
+    if(!name) return alert("Name is required!");
+    if(!img) return alert("Image URL is required!");
+
+    savePersonaBtn.textContent = "Saving...";
+    savePersonaBtn.disabled = true;
+
+    try {
+        if(id) {
+            // Update
+            await updateDoc(doc(db, "users", currentUser.uid, "personas", id), {
+                name: name,
+                pfp: img
+            });
+            alert("Character Updated!");
+        } else {
+            // Create
+            await addDoc(collection(db, "users", currentUser.uid, "personas"), {
+                name: name,
+                pfp: img,
+                createdAt: new Date()
+            });
+        }
+        resetPersonaForm();
+    } catch(err) {
+        console.error(err);
+        alert("Error saving character.");
+    } finally {
+        savePersonaBtn.disabled = false;
+    }
+});
+
+function resetPersonaForm() {
+    pNameInput.value = "";
+    pImgInput.value = "";
+    editIdInput.value = "";
+    pPreview.src = "https://via.placeholder.com/40";
+    formTitle.textContent = "Create New Character";
+    savePersonaBtn.textContent = "+ Create Character";
+    cancelEditBtn.style.display = 'none';
+}
+
+cancelEditBtn.addEventListener('click', resetPersonaForm);
+
+// 2. Load List
+function loadPersonas() {
+    const q = query(collection(db, "users", currentUser.uid, "personas"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snap) => {
+        const list = document.getElementById('personaList');
+        list.innerHTML = '';
+        snap.forEach(d => {
+            const p = d.data();
+            const div = document.createElement('div');
+            div.className = 'persona-item';
+            div.innerHTML = `
+                <div class="persona-info">
+                    <img src="${p.pfp}" class="persona-img" onerror="this.src='https://via.placeholder.com/40'">
+                    <span style="color:#eee; font-weight:bold;">${p.name}</span>
+                </div>
+                <div>
+                    <button class="btn-mini btn-edit" onclick="editPersona('${d.id}', '${escapeHtml(p.name)}', '${escapeHtml(p.pfp)}')">Edit</button>
+                    <button class="btn-mini btn-del" onclick="deletePersona('${d.id}')">Del</button>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+    });
+}
+
+// 3. Edit & Delete Actions (Global scope for HTML onclick)
+window.editPersona = (id, name, img) => {
+    editIdInput.value = id;
+    pNameInput.value = name;
+    pImgInput.value = img;
+    updatePreview(img);
+    
+    formTitle.textContent = "Edit Character";
+    savePersonaBtn.textContent = "Save Changes";
+    cancelEditBtn.style.display = 'block';
+    
+    // Scroll to form
+    personaSection.scrollIntoView({behavior: "smooth"});
+}
+
+window.deletePersona = async (id) => {
+    if(confirm("Are you sure you want to delete this character?")) {
+        await deleteDoc(doc(db, "users", currentUser.uid, "personas", id));
+    }
+}
+
+function escapeHtml(text) {
+  if(!text) return "";
+  return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
 </script>
 </body>
 </html>
