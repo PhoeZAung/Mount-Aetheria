@@ -38,6 +38,10 @@ input:focus { border-color: var(--accent); outline: none; }
 .logout-btn { background: #ff4444; color: white; margin-top: 20px; }
 .logout-btn:hover { background: #cc0000; }
 
+/* ADMIN BTN */
+#adminBtn { display: none; background: #333; color: #fff; border: 1px solid #555; margin-top: 20px; }
+#adminBtn:hover { background: #444; border-color: #777; }
+
 /* PERSONA STYLES */
 .persona-section { display:none; margin-top:30px; border-top:1px solid #444; padding-top:20px; }
 .persona-form { background:#111; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #333; }
@@ -94,6 +98,8 @@ input:focus { border-color: var(--accent); outline: none; }
   <button id="saveBtn" class="action-btn">Save Main Profile</button>
   <div id="status" style="text-align:center; margin-top:10px; font-weight:bold;"></div>
 
+  <button id="adminBtn" class="action-btn" onclick="window.location.href='admin.html'">Admin Panel</button>
+
   <div id="personaSection" class="persona-section">
       <h3>Character Workshop</h3>
       
@@ -127,7 +133,7 @@ import { getAuth, onAuthStateChanged, updateProfile, signOut } from "https://www
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", authDomain: "mount-aetheria.firebaseapp.com", projectId: "mount-aetheria", storageBucket: "mount-aetheria.firebasestorage.app", messagingSenderId: "492855693446", appId: "1:492855693446:web:f9948569254a7220c38107", measurementId: "G-0PF84KDN7L" };
+const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", authDomain: "mount-aetheria.firebaseapp.com", projectId: "mount-aetheria", storageBucket: "mount-aetheria.firebasestorage.app", messagingSenderId: "492855693446", appId: "1:492855693446:web:f99485569254a7220c38107", measurementId: "G-0PF84KDN7L" };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -146,6 +152,7 @@ const profilePic = document.getElementById('profilePic');
 const pfpInput = document.getElementById('pfpInput');
 const displayNameInput = document.getElementById('displayName');
 const statusDiv = document.getElementById('status');
+const adminBtn = document.getElementById('adminBtn');
 
 // PERSONA ELEMENTS
 const personaSection = document.getElementById('personaSection');
@@ -161,6 +168,11 @@ onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = "signin.html"; return; }
   currentUser = user;
   
+  // CHECK ADMIN ACCESS
+  if (user.email === "phoeaung2076@gmail.com") {
+      adminBtn.style.display = "block";
+  }
+
   // 1. Load Main Profile
   displayNameInput.value = currentUser.displayName || "";
   if(currentUser.photoURL) profilePic.src = currentUser.photoURL;

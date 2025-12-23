@@ -6,19 +6,21 @@
 <title>Admin — Master Editor</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#1a1a1a">
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
+  /* --- SHARED VARIABLES FROM CHARACTER SHEET --- */
   :root { --bg:#111; --panel:#222; --muted:#aaa; --accent:#ffcc66; --good:#4caf50; --bad:#ff6666; --input-bg:#111; --border:#333; }
   body { margin:0; font-family:Arial,Helvetica,sans-serif; background:#0b0b0b; color:#fff; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
-  
+  * { box-sizing: border-box; }
+
   header { height:50px; background:var(--panel); display:flex; align-items:center; padding:0 18px; border-bottom:1px solid #333; flex-shrink:0; justify-content: space-between;}
   header h1 { font-family:'Uncial Antiqua',serif; color:var(--accent); margin:0; font-size:20px; cursor: pointer; text-decoration: none; }
   
   #layout { display:flex; flex:1; overflow:hidden; position: relative; }
   
+  /* --- SIDEBAR --- */
   #sidebar { width:250px; background:#181818; border-right:1px solid #333; display:flex; flex-direction:column; flex-shrink:0; transition: transform 0.3s ease; }
   #userSearch { background:#000; border:none; border-bottom:1px solid #333; color:#fff; padding:15px; width:100%; box-sizing:border-box; outline:none; }
   #usersList { flex:1; overflow-y:auto; }
@@ -34,11 +36,11 @@
   .summonItem:hover { background: #333; color: #fff; }
   .summonItem.selected { background: var(--accent); color: #000; }
 
+  /* --- EDITOR AREA --- */
   #editorArea { flex:1; display:flex; flex-direction:column; background:#111; position:relative; overflow:hidden; }
   #emptyState { display:flex; align-items:center; justify-content:center; height:100%; color:#444; font-family:'Uncial Antiqua'; font-size:24px; }
   #backBtnMobile { display: none; background: #333; color: #fff; border: none; padding: 10px; text-align: left; font-weight: bold; cursor: pointer; border-bottom: 1px solid #444; }
   
-  /* --- LAYOUT FIX: MATCH CHARACTER SHEET WIDTH --- */
   #sheetContainer { flex:1; overflow-y:auto; padding:20px; display:none; }
   #sheetContainer.active { display:block; }
 
@@ -60,10 +62,25 @@
   .bio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .bio-item { display: flex; flex-direction: column; }
   
+  /* --- UPDATED COMBAT VITALS (Matching Mobile Sheet) --- */
+  .vital-row { display: flex; gap: 10px; margin-bottom: 15px; }
+  .vital-box { flex: 1; background: var(--panel); padding: 10px; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; }
+  .vital-box label { font-size: 14px; color: var(--accent); margin-bottom: 5px; text-align:center; }
+  .vital-inputs { display: flex; align-items: center; gap: 5px; width: 100%; }
+  .vital-inputs input { text-align: center; font-size: 18px; font-weight: bold; padding: 10px 5px; background: #111; border: 1px solid #444; }
+  .vital-inputs span { color: #666; font-size: 20px; }
+
+  /* --- STATS GRID --- */
   .combat-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 10px; background: var(--panel); padding: 10px; border-radius: 8px; margin-bottom: 15px; }
   .stat-box { display: flex; flex-direction: column; align-items: center; }
-  .stat-dual { display: flex; align-items: center; gap: 5px; }
+  .stat-dual { display: flex; align-items: center; gap: 5px; width:100%; justify-content: center; }
   .stat-dual input { text-align: center; }
+
+  /* --- MOBILE 2-COL GRID (From Sheet) --- */
+  .mobile-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 5px; }
+  .mobile-2col .stat-box { flex-direction: column; justify-content: center; width: 100%; border-bottom: none; padding: 5px; background: #2a2a2a; border-radius: 4px; min-height: 50px; }
+  .mobile-2col .stat-box label { text-align: center; width: 100%; font-size: 10px; margin-bottom: 2px; }
+  .mobile-2col .stat-box input { width: 100%; font-size: 12px; text-align: center; height: 25px; }
 
   .sub-nav-container { margin-bottom: 15px; position: relative; }
   .sub-nav { display: flex; justify-content: center; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
@@ -89,7 +106,6 @@
   .skills-table td { padding:4px; border-bottom:1px solid #333; }
   .skills-table td:nth-child(2) { text-align: left; font-weight: bold; }
   
-  /* Skill Colors */
   .trained-untrained { color: #ff4444; transition: color 0.3s; }
   .trained-trained { color: #fff; }
 
@@ -106,10 +122,6 @@
     body.show-editor #sidebar { transform: translateX(-20%); opacity: 0; }
     body.show-editor #editorArea { transform: translateX(0); }
     #backBtnMobile { display: block; }
-    
-    .combat-stats { display: flex; flex-direction: column; }
-    .stat-box { flex-direction: row; justify-content: space-between; border-bottom:1px solid #333; }
-    .stat-box input { width: 50%; }
   }
 </style>
 </head>
@@ -166,13 +178,31 @@
         </div>
 
         <div class="tab-content" id="combat">
-          <div class="combat-stats" style="grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));">
-            <div class="stat-box"><label>HP (Cur/Max)</label><div class="stat-dual"><input id="hp_curr" class="save-field" placeholder="Curr"><span style="color:#666">/</span><input id="hp_max" class="save-field" placeholder="Max"></div></div>
-            <div class="stat-box"><label>MP (Cur/Max)</label><div class="stat-dual"><input id="mp_curr" class="save-field" placeholder="Curr"><span style="color:#666">/</span><input id="mp_max" class="save-field" placeholder="Max"></div></div>
-            <div class="stat-box"><label>Speed</label><input id="speed" class="save-field"></div>
-            <div class="stat-box"><label>Init Mod</label><input id="init_bonus" class="save-field"></div>
+          
+          <div class="vital-row">
+              <div class="vital-box">
+                  <label>❤️ HP</label>
+                  <div class="vital-inputs">
+                      <input id="hp_curr" class="save-field" placeholder="Cur">
+                      <span>/</span>
+                      <input id="hp_max" class="save-field" placeholder="Max">
+                  </div>
+              </div>
+              <div class="vital-box">
+                  <label>💧 MP</label>
+                  <div class="vital-inputs">
+                      <input id="mp_curr" class="save-field" placeholder="Cur">
+                      <span>/</span>
+                      <input id="mp_max" class="save-field" placeholder="Max">
+                  </div>
+              </div>
+          </div>
+
+          <div class="combat-stats mobile-2col">
+            <div class="stat-box"><label>AC</label><input id="ac_total" class="save-field"></div>
+            <div class="stat-box"><label>Initiative</label><input id="init_bonus" class="save-field"></div>
             <div class="stat-box"><label>BAB</label><input id="bab" class="save-field"></div>
-            <div class="stat-box"><label>AC Total</label><input id="ac_total" class="save-field"></div>
+            <div class="stat-box"><label>Speed</label><input id="speed" class="save-field"></div>
           </div>
 
           <div class="sub-nav-container">
@@ -184,7 +214,7 @@
           </div>
 
           <div id="c-general" class="sub-group active">
-            <div class="combat-stats" style="grid-template-columns: 1fr 1fr;">
+            <div class="combat-stats mobile-2col">
                 <div class="stat-box"><label>CMB</label><input id="cmb" class="save-field"></div>
                 <div class="stat-box"><label>CMD</label><input id="cmd_total" class="save-field"></div>
             </div>
@@ -195,10 +225,10 @@
             </div>
             
             <h3>Saves</h3>
-            <div class="combat-stats">
-                <div class="stat-box"><label>Fortitude</label><div class="stat-dual"><input id="fort_bonus" type="number" class="save-field calc-trigger" placeholder="Bonus"><span id="fort_total" style="color:var(--accent); font-weight:bold;">+0</span></div></div>
-                <div class="stat-box"><label>Reflex</label><div class="stat-dual"><input id="ref_bonus" type="number" class="save-field calc-trigger" placeholder="Bonus"><span id="ref_total" style="color:var(--accent); font-weight:bold;">+0</span></div></div>
-                <div class="stat-box"><label>Will</label><div class="stat-dual"><input id="will_bonus" type="number" class="save-field calc-trigger" placeholder="Bonus"><span id="will_total" style="color:var(--accent); font-weight:bold;">+0</span></div></div>
+            <div class="combat-stats" style="grid-template-columns: 1fr;">
+                <div class="stat-box" style="flex-direction:row; justify-content:space-between; padding:10px 20px;"><label>Fortitude</label><div class="stat-dual" style="width:auto;"><input id="fort_bonus" type="number" class="save-field calc-trigger" placeholder="Bonus" style="width:50px;"><span id="fort_total" style="color:var(--accent); font-weight:bold; margin-left:10px;">+0</span></div></div>
+                <div class="stat-box" style="flex-direction:row; justify-content:space-between; padding:10px 20px;"><label>Reflex</label><div class="stat-dual" style="width:auto;"><input id="ref_bonus" type="number" class="save-field calc-trigger" placeholder="Bonus" style="width:50px;"><span id="ref_total" style="color:var(--accent); font-weight:bold; margin-left:10px;">+0</span></div></div>
+                <div class="stat-box" style="flex-direction:row; justify-content:space-between; padding:10px 20px;"><label>Will</label><div class="stat-dual" style="width:auto;"><input id="will_bonus" type="number" class="save-field calc-trigger" placeholder="Bonus" style="width:50px;"><span id="will_total" style="color:var(--accent); font-weight:bold; margin-left:10px;">+0</span></div></div>
             </div>
             
             <h3>Weapons</h3>
@@ -302,38 +332,27 @@ window.switchTab = (id) => {
     const btn = document.getElementById('btn-' + id);
     if(btn) btn.classList.add('active');
     document.getElementById(id).classList.add('active'); 
-    
-    // Do not auto-reset Combat/Subtabs to avoid frustration, just show the container
 };
 
 window.switchSub = (id) => { 
     const container = document.getElementById('combatSubNav');
     Array.from(container.children).forEach(b => b.classList.remove('active'));
-    
-    // Find button matching this ID
     const targetBtn = Array.from(container.children).find(b => b.getAttribute('onclick').includes(id));
     if(targetBtn) targetBtn.classList.add('active');
-
     const parentTab = document.getElementById('combat');
     parentTab.querySelectorAll('.sub-group').forEach(c => c.style.display = 'none');
     document.getElementById(id).style.display = 'block';
-
-    // Persist
     localStorage.setItem('adminCombatSub', id);
 };
 
 window.switchSubSub = (id) => {
     const container = document.getElementById('abilitiesSubSubNav');
     Array.from(container.children).forEach(b => b.classList.remove('active'));
-    
     const targetBtn = Array.from(container.children).find(b => b.getAttribute('onclick').includes(id));
     if(targetBtn) targetBtn.classList.add('active');
-
     const parent = document.getElementById('c-abilities-main');
     parent.querySelectorAll('.sub-sub-group').forEach(c => c.style.display = 'none');
     document.getElementById(id).style.display = 'block'; 
-    
-    // Persist
     localStorage.setItem('adminAbilSub', id);
 };
 
@@ -390,6 +409,7 @@ function renderUserList(users){
         if(u.summons && u.summons.length > 0) {
             u.summons.forEach(s => {
                 const sDiv = document.createElement('div'); sDiv.className = 'summonItem';
+                sDiv.dataset.sid = s.id;
                 sDiv.textContent = s.charName || "Unnamed Summon";
                 sDiv.onclick = (e) => { e.stopPropagation(); selectUser(u.uid, s.id, sDiv); };
                 listEl.appendChild(sDiv);
@@ -431,7 +451,6 @@ function startListening(uid){
     document.getElementById('statusText').textContent = "Syncing...";
     
     unsubscribeSheet = onSnapshot(docRef, (docSnap) => {
-        // BUG FIX: Ignore local pending writes to prevent UI refresh loop
         if(docSnap.metadata.hasPendingWrites) return;
 
         if(docSnap.exists()){
@@ -698,7 +717,20 @@ document.body.addEventListener('input', (e) => {
     if(e.target.classList.contains('save-field') || e.target.classList.contains('calc-trigger')) { 
         updateCalculations(); 
         triggerSave(); 
-    } 
+    }
+    
+    // --- FIX FOR SUMMON NAME UPDATING IN SIDEBAR ---
+    if(e.target.id === 'charName') {
+        const newVal = e.target.value || (currentSummonId ? "Unnamed Summon" : "Unknown");
+        if(currentSummonId) {
+            const summonEl = document.querySelector(`.summonItem[data-sid="${currentSummonId}"]`);
+            if(summonEl) summonEl.innerText = newVal;
+        } else {
+             // Optional: Update Main User Name visually (though this resets on refresh)
+             const userEl = document.querySelector(`.userItem[data-uid="${currentParentUid}"] .uName`);
+             if(userEl) userEl.innerText = newVal;
+        }
+    }
 });
 </script>
 </body>
