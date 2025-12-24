@@ -88,7 +88,7 @@ button:hover { background: #e6b800; }
   const googleProvider = new GoogleAuthProvider();
   const msg = document.getElementById("message");
 
-  // Default Black/Gold Silhouette (Base64 to avoid external deps)
+  // Default Black/Gold Silhouette
   const defaultPfp = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffcc66'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E";
   
   document.getElementById('pfpPreview').src = defaultPfp;
@@ -96,20 +96,40 @@ button:hover { background: #e6b800; }
   let currentUser = null;
   let fileToUpload = null;
 
+  // Custom Error Handler
+  function handleAuthError(error) {
+    console.error(error); // Keep full log in console for debugging
+    msg.style.color = "#ff6666";
+    
+    switch (error.code) {
+        case 'auth/email-already-in-use':
+            msg.textContent = "This email is already registered.";
+            break;
+        case 'auth/invalid-email':
+            msg.textContent = "Please enter a valid email address.";
+            break;
+        case 'auth/weak-password':
+            msg.textContent = "Password is too weak (min 6 chars).";
+            break;
+        case 'auth/operation-not-allowed':
+            msg.textContent = "Sign up is currently disabled.";
+            break;
+        default:
+            msg.textContent = "An error occurred. Please try again.";
+    }
+  }
+
   // Watch Auth State
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       // Check if profile exists in DB
       const snap = await getDoc(doc(db, "users", user.uid));
       if(snap.exists()) {
-          // Already fully setup
           window.location.href = "index.html";
       } else {
-          // Auth exists, but DB does not -> Show Step 2
           currentUser = user;
           document.getElementById('step1').style.display = 'none';
           document.getElementById('step2').style.display = 'block';
-          // Pre-fill display name if Google provided it
           if(user.displayName) document.getElementById('displayName').value = user.displayName;
       }
     }
@@ -127,20 +147,18 @@ button:hover { background: #e6b800; }
     msg.textContent = "Creating account..."; msg.style.color = "#aaa";
     try {
       await createUserWithEmailAndPassword(auth, email, pass);
-      // Auth observer triggers Step 2
     } catch (err) {
-      msg.style.color = "#ff6666"; msg.textContent = "Error: " + err.message;
+      handleAuthError(err);
     }
   });
 
   document.getElementById("googleSignupBtn").addEventListener("click", async () => {
       try { await signInWithPopup(auth, googleProvider); }
-      catch(err) { msg.style.color = "#ff6666"; msg.textContent = "Error: " + err.message; }
+      catch(err) { handleAuthError(err); }
   });
 
   // --- STEP 2: PROFILE SETUP ---
 
-  // Image Preview Logic
   document.getElementById('pfpInput').addEventListener('change', (e) => {
       if(e.target.files[0]) {
           fileToUpload = e.target.files[0];
@@ -165,20 +183,16 @@ button:hover { background: #e6b800; }
       try {
           let photoURL = defaultPfp;
 
-          // 1. Upload Image if selected
           if(fileToUpload) {
               const storageRef = ref(storage, `users/${currentUser.uid}/profile_${Date.now()}`);
               const snapshot = await uploadBytes(storageRef, fileToUpload);
               photoURL = await getDownloadURL(snapshot.ref);
           } else if (currentUser.photoURL) {
-              // Use Google photo if available and no new file selected
               photoURL = currentUser.photoURL;
           }
 
-          // 2. Update Auth Profile
           await updateProfile(currentUser, { displayName: displayName, photoURL: photoURL });
 
-          // 3. Create Firestore Doc (This validates the account exists for the app)
           await setDoc(doc(db, "users", currentUser.uid), {
               email: currentUser.email,
               displayName: displayName,
@@ -187,17 +201,14 @@ button:hover { background: #e6b800; }
               uid: currentUser.uid
           });
 
-          // 4. Done
           window.location.href = "index.html";
 
       } catch (err) {
-          console.error(err);
-          msg.style.color = "#ff6666"; msg.textContent = "Error saving profile: " + err.message;
+          handleAuthError(err);
           btn.disabled = false;
           btn.textContent = "Complete Setup";
       }
   });
-
 </script>
 </body>
 </html>

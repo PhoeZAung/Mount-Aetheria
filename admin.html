@@ -4,13 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Admin — Master Editor</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#1a1a1a">
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
-  /* --- SHARED VARIABLES FROM CHARACTER SHEET --- */
   :root { --bg:#111; --panel:#222; --muted:#aaa; --accent:#ffcc66; --good:#4caf50; --bad:#ff6666; --input-bg:#111; --border:#333; }
   body { margin:0; font-family:Arial,Helvetica,sans-serif; background:#0b0b0b; color:#fff; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
   * { box-sizing: border-box; }
@@ -25,32 +21,35 @@
   #userSearch { background:#000; border:none; border-bottom:1px solid #333; color:#fff; padding:15px; width:100%; box-sizing:border-box; outline:none; }
   #usersList { flex:1; overflow-y:auto; }
   
-  .userItem { padding:10px 15px; cursor:pointer; border-bottom:1px solid #222; transition:0.2s; display:flex; flex-direction: column; }
+  .userItem { padding:10px 15px; cursor:pointer; border-bottom:1px solid #222; transition:0.2s; display:flex; justify-content: space-between; align-items: center; }
   .userItem:hover { background:#222; }
   .userItem.selected { background:var(--accent); color:#000; }
-  .userItem .uName { font-weight:bold; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .userItem .uInfo { display: flex; flex-direction: column; overflow: hidden; }
+  .userItem .uName { font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .userItem .uMeta { font-size:11px; opacity:0.7; }
+  .userItem .del-user-btn { background: none; border: none; color: #666; cursor: pointer; padding: 5px; font-size: 14px; }
+  .userItem .del-user-btn:hover { color: #ff4444; }
   
   .summonItem { padding: 8px 15px 8px 35px; cursor:pointer; border-bottom:1px solid #222; background: #252525; color: #aaa; font-size: 0.95em; position: relative; }
   .summonItem:before { content:"↳"; position:absolute; left:15px; opacity:0.5; }
   .summonItem:hover { background: #333; color: #fff; }
   .summonItem.selected { background: var(--accent); color: #000; }
 
-  /* --- EDITOR AREA --- */
+  /* --- EDITOR AREA (MIRRORED FROM CHARACTERS.HTML) --- */
   #editorArea { flex:1; display:flex; flex-direction:column; background:#111; position:relative; overflow:hidden; }
   #emptyState { display:flex; align-items:center; justify-content:center; height:100%; color:#444; font-family:'Uncial Antiqua'; font-size:24px; }
   #backBtnMobile { display: none; background: #333; color: #fff; border: none; padding: 10px; text-align: left; font-weight: bold; cursor: pointer; border-bottom: 1px solid #444; }
   
-  #sheetContainer { flex:1; overflow-y:auto; padding:20px; display:none; }
+  #sheetContainer { flex:1; overflow-y:auto; padding-bottom:50px; display:none; }
   #sheetContainer.active { display:block; }
 
+  /* Tab Style */
   .tabs-container { display: flex; width: 100%; max-width: 900px; margin: 0 auto; gap:20px; flex-direction: column; }
-  
-  .tab-menu { display: flex; flex-wrap: wrap; width: 100%; background: #1a1a1a; padding: 10px; gap: 5px; border-radius:8px; box-sizing: border-box; overflow-x: auto; }
-  .tab-btn { flex: 1; min-width: 80px; background: transparent; border: none; color: #888; padding: 10px; cursor: pointer; font-family: 'Uncial Antiqua', serif; text-align: center; border-bottom: 3px solid transparent; }
+  .main-tabs { display: flex; width: 100%; background: #000; border-bottom: 1px solid var(--accent); overflow-x: auto; scrollbar-width: none; }
+  .tab-btn { flex: 1; min-width: fit-content; background: transparent; border: none; color: #888; padding: 12px 5px; cursor: pointer; font-family: 'Uncial Antiqua', serif; text-align: center; border-bottom: 3px solid transparent; }
   .tab-btn:hover, .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: #111; }
   
-  .tab-content { display: none; padding: 15px; width: 100%; box-sizing: border-box; }
+  .tab-content { display: none; padding: 15px; width: 100%; box-sizing: border-box; max-width: 800px; margin: 0 auto; }
   .tab-content.active { display: block; animation: fadeIn 0.3s; }
 
   h2, h3, h4 { font-family: 'Uncial Antiqua', serif; color: var(--accent); margin-top:0; text-align: center; }
@@ -62,7 +61,6 @@
   .bio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .bio-item { display: flex; flex-direction: column; }
   
-  /* --- UPDATED COMBAT VITALS (Matching Mobile Sheet) --- */
   .vital-row { display: flex; gap: 10px; margin-bottom: 15px; }
   .vital-box { flex: 1; background: var(--panel); padding: 10px; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; }
   .vital-box label { font-size: 14px; color: var(--accent); margin-bottom: 5px; text-align:center; }
@@ -70,17 +68,52 @@
   .vital-inputs input { text-align: center; font-size: 18px; font-weight: bold; padding: 10px 5px; background: #111; border: 1px solid #444; }
   .vital-inputs span { color: #666; font-size: 20px; }
 
-  /* --- STATS GRID --- */
   .combat-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 10px; background: var(--panel); padding: 10px; border-radius: 8px; margin-bottom: 15px; }
   .stat-box { display: flex; flex-direction: column; align-items: center; }
   .stat-dual { display: flex; align-items: center; gap: 5px; width:100%; justify-content: center; }
   .stat-dual input { text-align: center; }
 
-  /* --- MOBILE 2-COL GRID (From Sheet) --- */
-  .mobile-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 5px; }
-  .mobile-2col .stat-box { flex-direction: column; justify-content: center; width: 100%; border-bottom: none; padding: 5px; background: #2a2a2a; border-radius: 4px; min-height: 50px; }
-  .mobile-2col .stat-box label { text-align: center; width: 100%; font-size: 10px; margin-bottom: 2px; }
-  .mobile-2col .stat-box input { width: 100%; font-size: 12px; text-align: center; height: 25px; }
+  /* LIST ROWS - NEW UI */
+  .list-row { background: var(--panel); padding: 10px; margin-bottom: 8px; border-radius: 6px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s; touch-action: manipulation; }
+  .list-row:hover { background: #333; border-color: #555; }
+  .row-content { flex-grow: 1; display: flex; flex-direction: column; padding-right: 10px; min-width: 0; }
+  .row-actions { flex-shrink: 0; display: flex; align-items: center; gap: 5px; }
+  .list-row-title { font-weight: bold; color: var(--accent); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-row-meta { color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .row-content.active-ability-layout { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; }
+  .active-name { font-weight: bold; color: var(--accent); flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .active-type { color: #888; font-size: 12px; margin-right: 10px; white-space: nowrap; }
+
+  .inline-input-group { display: flex; align-items: center; gap: 2px; margin-right: 5px; }
+  .inline-input-group input { width: 35px; padding: 4px 0; text-align: center; background: #111; border: 1px solid #444; border-radius: 4px; font-size: 13px; color: var(--accent); height: 28px; }
+
+  /* MODALS */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(3px); }
+  .modal-content { background: #222; border: 1px solid var(--accent); border-radius: 8px; width: 100%; max-width: 500px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+  .modal-header { padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; border-radius: 8px 8px 0 0; flex-shrink: 0; }
+  .modal-header h3 { margin: 0; font-size: 18px; color: var(--accent); font-family: 'Uncial Antiqua'; }
+  .modal-body { padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; overflow-x: hidden; } 
+    .view-text {
+        color: #eee;
+        font-size: 15px;
+        margin-bottom: 12px;
+        white-space: pre-wrap;      /* Maintains line breaks from the editor */
+        word-wrap: break-word;     /* Legacy support */
+        overflow-wrap: break-word; /* Prevents long words from overflowing */
+        line-height: 1.5;
+        max-width: 100%;           /* Ensures it stays within the modal boundaries */
+    }
+  .view-label { color: #888; font-size: 11px; text-transform: uppercase; margin-bottom: 2px; font-weight: bold; }
+  .view-attr-block { display: block; background: #333; padding: 6px; border-radius: 4px; font-size: 13px; margin-bottom: 5px; border: 1px solid #444; color: #eee; }
+
+  .btn-add { width: 100%; background: var(--accent); border: none; color: #000; padding: 10px; font-weight: bold; margin-top: 10px; border-radius: 4px; cursor: pointer; }
+  .btn-del { background: #ff4444; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; cursor:pointer; font-weight: bold; }
+  .btn-edit { background: #444; color: #ccc; border: 1px solid #666; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor:pointer; font-weight: bold; transition: 0.2s; }
+  .btn-edit:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+  .btn-save { background: var(--accent); color: #000; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer;}
+  .btn-close { background: transparent; border: none; color: #888; font-size: 24px; cursor: pointer; padding: 0; line-height: 1; }
+  .btn-link-small { background: #4488ff; color: #fff; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; text-decoration: none; display: inline-block; font-weight: bold; margin-right: 5px; cursor: pointer;}
 
   .sub-nav-container { margin-bottom: 15px; position: relative; }
   .sub-nav { display: flex; justify-content: center; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
@@ -88,33 +121,27 @@
   .sub-btn.active { background: var(--accent); color: #000; }
   .sub-group, .sub-sub-group { display: none; }
   .sub-group.active, .sub-sub-group.active { display: block; }
-
-  details { background: #181818; border: 1px solid #333; border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
-  details summary { padding: 8px 12px; cursor: pointer; background: #252525; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
-  .details-content { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
   
   .attr-row { display: flex; gap: 5px; margin-top: 5px; align-items: center; }
-  .attr-row .attr-n { flex: 3; min-width: 0; }
-  .attr-row .attr-v { flex: 7; min-width: 0; }
-  .btn-remove { background:#ff4444; color:#fff; border:none; padding:2px 8px; border-radius:2px; cursor:pointer; font-size:12px; }
   
-  .btn-add { width:100%; background:var(--accent); color:#000; border:none; padding:8px; font-weight:bold; cursor:pointer; border-radius:4px; margin-top:10px; }
-  
-  /* --- SKILLS --- */
   .skills-table { width:100%; border-collapse:collapse; font-size:13px; text-align: center; }
   .skills-table th { background: #000; color:var(--accent); border-bottom:1px solid #444; padding:5px; }
   .skills-table td { padding:4px; border-bottom:1px solid #333; }
   .skills-table td:nth-child(2) { text-align: left; font-weight: bold; }
+  .skill-custom-input { background: transparent; border: none; border-bottom: 1px solid #444; color: var(--accent); width: 100px; font-size: 12px; padding: 2px; }
   
-  .trained-untrained { color: #ff4444; transition: color 0.3s; }
+  .trained-untrained { color: #ff4444; }
   .trained-trained { color: #fff; }
 
-  .item-preview { width:50px; height:50px; border:1px solid #444; background:#000; object-fit:cover; display:none; }
+  /* IMAGE MODAL */
+  #imageModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3100; justify-content: center; align-items: center; flex-direction: column; padding: 10px; }
+  #imageModal img { max-width: 95vw; max-height: 85vh; border: 2px solid var(--accent); border-radius: 4px; object-fit: contain; }
 
   @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 
   #adminBar { position:absolute; bottom:0; left:0; right:0; background:var(--accent); color:#000; padding:5px 10px; font-size:12px; font-weight:bold; display:flex; justify-content:space-between; z-index: 100; }
 
+  /* Mobile Tweaks */
   @media(max-width:768px){
     #sidebar { width: 100%; position: absolute; z-index: 10; height: 100%; }
     #editorArea { width: 100%; position: absolute; z-index: 20; height: 100%; transform: translateX(100%); transition: transform 0.3s ease; background: #000; }
@@ -122,6 +149,11 @@
     body.show-editor #sidebar { transform: translateX(-20%); opacity: 0; }
     body.show-editor #editorArea { transform: translateX(0); }
     #backBtnMobile { display: block; }
+
+    .mobile-2col { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 5px !important; padding: 5px !important; }
+    .mobile-2col .stat-box { flex-direction: column !important; justify-content: center !important; width: 100% !important; border-bottom: none !important; padding: 5px !important; background: #2a2a2a; border-radius: 4px; min-height: 50px; }
+    .mobile-2col .stat-box label { text-align: center; width: 100%; font-size: 10px !important; margin-bottom: 2px !important; }
+    .mobile-2col .stat-box input { width: 100% !important; font-size: 12px !important; text-align: center; height: 25px; }
   }
 </style>
 </head>
@@ -144,16 +176,15 @@
     <div id="emptyState">Select a user to edit their sheet</div>
     
     <div id="sheetContainer">
-      <div class="tabs-container">
-        <div class="tab-menu">
+      <div class="main-tabs">
           <button class="tab-btn active" id="btn-character" onclick="switchTab('character')">Character</button>
           <button class="tab-btn" id="btn-combat" onclick="switchTab('combat')">Combat</button>
           <button class="tab-btn" id="btn-skills" onclick="switchTab('skills')">Skills</button>
           <button class="tab-btn" id="btn-items" onclick="switchTab('items')">Items</button>
           <button class="tab-btn" id="btn-notes" onclick="switchTab('notes')">Notes</button>
-        </div>
+      </div>
 
-        <div class="tab-content active" id="character">
+      <div class="tab-content active" id="character">
           <h2 id="sheetTitle">Bio & Stats</h2>
           <div class="bio-grid">
             <div class="bio-item"><label>Name</label><input id="charName" class="save-field"></div>
@@ -175,26 +206,18 @@
                 </script>
             </table>
           </div>
-        </div>
+      </div>
 
-        <div class="tab-content" id="combat">
+      <div class="tab-content" id="combat">
           
           <div class="vital-row">
               <div class="vital-box">
                   <label>❤️ HP</label>
-                  <div class="vital-inputs">
-                      <input id="hp_curr" class="save-field" placeholder="Cur">
-                      <span>/</span>
-                      <input id="hp_max" class="save-field" placeholder="Max">
-                  </div>
+                  <div class="vital-inputs"><input id="hp_curr" class="save-field" placeholder="Cur"><span>/</span><input id="hp_max" class="save-field" placeholder="Max"></div>
               </div>
               <div class="vital-box">
                   <label>💧 MP</label>
-                  <div class="vital-inputs">
-                      <input id="mp_curr" class="save-field" placeholder="Cur">
-                      <span>/</span>
-                      <input id="mp_max" class="save-field" placeholder="Max">
-                  </div>
+                  <div class="vital-inputs"><input id="mp_curr" class="save-field" placeholder="Cur"><span>/</span><input id="mp_max" class="save-field" placeholder="Max"></div>
               </div>
           </div>
 
@@ -208,7 +231,7 @@
           <div class="sub-nav-container">
             <div class="sub-nav" id="combatSubNav">
                 <button class="sub-btn active" onclick="switchSub('c-general')">General</button>
-                <button class="sub-btn" onclick="switchSub('c-abilities-main')">Abilities</button>
+                <button class="sub-btn" id="abilitiesSubBtn" onclick="switchSub('c-abilities-main')">Abilities</button>
                 <button class="sub-btn" id="spellsSubBtn" onclick="switchSub('c-spells')">Spells</button>
             </div>
           </div>
@@ -232,7 +255,7 @@
             </div>
             
             <h3>Weapons</h3>
-            <div id="weaponList"></div><button class="btn-add" id="btnAddWeapon">+ Add Weapon</button>
+            <div id="weaponList"></div><button class="btn-add" onclick="addNewItem('weapon')">+ Add Weapon</button>
           </div>
 
           <div id="c-abilities-main" class="sub-group" style="display:none">
@@ -243,59 +266,44 @@
                     <button class="sub-btn" onclick="switchSubSub('a-feats')">Feats</button>
                 </div>
               </div>
-              
-              <div id="a-active" class="sub-sub-group active">
-                  <h3>Active Abilities</h3>
-                  <div id="activeList"></div>
-                  <button class="btn-add" id="btnAddActive">+ Add Active</button>
-              </div>
-
-              <div id="a-passive" class="sub-sub-group" style="display:none">
-                  <h3>Passive Abilities</h3>
-                  <div id="passiveList"></div>
-                  <button class="btn-add" id="btnAddPassive">+ Add Passive</button>
-              </div>
-
+              <div id="a-active" class="sub-sub-group active"><div id="activeList"></div><button class="btn-add" onclick="addNewItem('active')">+ Add Active</button></div>
+              <div id="a-passive" class="sub-sub-group" style="display:none"><div id="passiveList"></div><button class="btn-add" onclick="addNewItem('passive')">+ Add Passive</button></div>
               <div id="a-feats" class="sub-sub-group" style="display:none">
-                  <h3>Feats</h3>
-                  <div id="featList"></div>
-                  <button class="btn-add" id="btnAddFeat">+ Add Feat</button>
-                  <br><br>
-                  <label>Proficiencies</label>
-                  <textarea id="proficiencies" class="save-field" style="height:80px"></textarea>
+                  <div id="featList"></div><button class="btn-add" onclick="addNewItem('feat')">+ Add Feat</button>
+                  <br><br><label>Proficiencies</label><textarea id="proficiencies" class="save-field" style="height:80px"></textarea>
               </div>
           </div>
 
           <div id="c-spells" class="sub-group" style="display:none">
              <h3>Spells</h3>
              <div class="stat-box" style="margin-bottom:10px;"><label>Spell DC Base</label><input id="spell_dc_base" class="save-field"></div>
-             <div id="spellList"></div>
-             <button class="btn-add" id="btnAddSpell">+ Add Spell</button>
+             <div id="spellList"></div><button class="btn-add" onclick="addNewItem('spell')">+ Add Spell</button>
           </div>
-        </div>
+      </div>
 
-        <div class="tab-content" id="skills">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><span>Unused Pts:</span><input id="skill_points" class="save-field" style="width:60px; text-align:center;"></div>
-            <div class="skills-container">
-                <table class="skills-table">
-                    <thead><tr><th style="width:30px">CS</th><th style="text-align:left;">Skill Name</th><th style="width:40px">Mod</th><th style="width:50px">Ranks</th><th style="width:40px">Tot</th></tr></thead>
-                    <tbody id="skillsTableBody"></tbody>
-                </table>
-            </div>
-        </div>
+      <div class="tab-content" id="skills">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><span>Unused Pts:</span><input id="skill_points" class="save-field" style="width:60px; text-align:center;"></div>
+          <div class="skills-container">
+              <table class="skills-table">
+                  <thead><tr><th style="width:30px">CS</th><th style="text-align:left;">Skill Name</th><th style="width:40px">Mod</th><th style="width:50px">Ranks</th><th style="width:40px">Tot</th></tr></thead>
+                  <tbody id="skillsTableBody"></tbody>
+              </table>
+          </div>
+      </div>
 
-        <div class="tab-content" id="items">
-            <div class="combat-stats" style="grid-template-columns: 1fr 1fr;"><div class="stat-box"><label>💰 Gil</label><input id="currency_gil" class="save-field"></div><div class="stat-box"><label>Moogle Pts</label><input id="currency_moogle" class="save-field"></div></div>
-            <div id="itemList"></div>
-            <button class="btn-add" id="btnAddItem">+ Add Item</button>
-        </div>
+      <div class="tab-content" id="items">
+          <div class="combat-stats" style="grid-template-columns: 1fr 1fr;"><div class="stat-box"><label>💰 Gil</label><input id="currency_gil" class="save-field"></div><div class="stat-box"><label>Moogle Pts</label><input id="currency_moogle" class="save-field"></div></div>
+          <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <select id="itemFilterTag" onchange="renderItems()" style="flex:1;"><option value="All">All Tags</option><option value="Weapons">Weapons</option><option value="Armor">Armor</option><option value="Gear">Gear</option><option value="Consumables">Consumables</option><option value="Magic Items">Magic Items</option><option value="Collections">Collections</option><option value="Misc">Misc</option></select>
+            <select id="itemSort" onchange="renderItems()" style="flex:1;"><option value="recent">Recent</option><option value="abc">A-Z</option></select>
+          </div>
+          <div id="itemList"></div><button class="btn-add" onclick="addNewItem('item')">+ Add Item</button>
+      </div>
 
-        <div class="tab-content" id="notes">
-            <textarea id="notesArea" class="save-field" style="height:400px; font-family:sans-serif; line-height:1.5;"></textarea>
-        </div>
+      <div class="tab-content" id="notes">
+          <textarea id="notesArea" class="save-field" style="height:400px; font-family:sans-serif; line-height:1.5;"></textarea>
+      </div>
 
-      </div> 
-      <div style="height:40px;"></div>
     </div> 
     
     <div id="adminBar">
@@ -305,10 +313,34 @@
   </div>
 </div>
 
+<div id="viewModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header"><h3 id="viewTitle">Item Name</h3><button class="btn-close" onclick="document.getElementById('viewModal').style.display='none'">&times;</button></div>
+        <div id="viewBody" class="modal-body"></div>
+        <div style="padding:10px; text-align:right; border-top:1px solid #333;"><button class="btn-save" onclick="document.getElementById('viewModal').style.display='none'">Close</button></div>
+    </div>
+</div>
+
+<div id="editorModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Edit</h3>
+            <div class="modal-actions"><a id="modalLinkBtn" href="#" target="_blank" class="btn-link-small" style="display:none">Link</a><button class="btn-save" onclick="closeModal()">Done</button></div>
+        </div>
+        <div id="modalBody" class="modal-body"></div>
+        <div style="padding:15px; border-top:1px solid #333; background:#1a1a1a; border-radius:0 0 8px 8px;"><button id="modalDeleteBtn" class="btn-del" style="width:100%">Delete</button></div>
+    </div>
+</div>
+
+<div id="imageModal" onclick="this.style.display='none'">
+  <img id="modalImg" src="">
+  <button onclick="document.getElementById('imageModal').style.display='none'" style="margin-top:15px; padding:10px 20px; background:var(--accent); border:none; font-weight:bold; cursor:pointer;">Close</button>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, getDocs, doc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, onSnapshot, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", authDomain: "mount-aetheria.firebaseapp.com", projectId: "mount-aetheria", storageBucket: "mount-aetheria.firebasestorage.app", messagingSenderId: "492855693446", appId: "1:492855693446:web:f9948569254a7220c38107", measurementId: "G-0PF84KDN7L" };
 const ADMIN_UID = "U7uyfcMtULSLJvXD0HzJaiMIeGE3";
@@ -321,7 +353,7 @@ const db = getFirestore(app);
 let allUsers = [];
 let currentParentUid = null;
 let currentSummonId = null;
-let fullSheetData = {}; 
+let fullSheetData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [] }; 
 let unsubscribeSheet = null;
 let saveTimeout = null;
 let isInternalUpdate = false;
@@ -333,7 +365,6 @@ window.switchTab = (id) => {
     if(btn) btn.classList.add('active');
     document.getElementById(id).classList.add('active'); 
 };
-
 window.switchSub = (id) => { 
     const container = document.getElementById('combatSubNav');
     Array.from(container.children).forEach(b => b.classList.remove('active'));
@@ -344,7 +375,6 @@ window.switchSub = (id) => {
     document.getElementById(id).style.display = 'block';
     localStorage.setItem('adminCombatSub', id);
 };
-
 window.switchSubSub = (id) => {
     const container = document.getElementById('abilitiesSubSubNav');
     Array.from(container.children).forEach(b => b.classList.remove('active'));
@@ -358,16 +388,27 @@ window.switchSubSub = (id) => {
 
 window.closeMobileEditor = () => { document.body.classList.remove('show-editor'); };
 
-const SKILLS_DB = [{n:"Acrobatics",s:"dex"}, {n:"Appraise",s:"int"}, {n:"Bluff",s:"cha"}, {n:"Climb",s:"str"}, {n:"Diplomacy",s:"cha"}, {n:"Disable Device",s:"dex"}, {n:"Disguise",s:"cha"}, {n:"Escape Artist",s:"dex"}, {n:"Fly",s:"dex"}, {n:"Handle Animal",s:"cha"}, {n:"Heal",s:"wis"}, {n:"Intimidate",s:"cha"}, {n:"Knw: Arcana",s:"int"}, {n:"Knw: Dungeoneering",s:"int"}, {n:"Knw: Engineering",s:"int"}, {n:"Knw: Geography",s:"int"}, {n:"Knw: History",s:"int"}, {n:"Knw: Local",s:"int"}, {n:"Knw: Nature",s:"int"}, {n:"Knw: Nobility",s:"int"}, {n:"Knw: Planes",s:"int"}, {n:"Knw: Religion",s:"int"}, {n:"Linguistics",s:"int"}, {n:"Perception",s:"wis"}, {n:"Profession",s:"wis"}, {n:"Ride",s:"dex"}, {n:"Sense Motive",s:"wis"}, {n:"Sleight of Hand",s:"dex"}, {n:"Spellcraft",s:"int"}, {n:"Stealth",s:"dex"}, {n:"Survival",s:"wis"}, {n:"Swim",s:"str"}, {n:"Use Magic Device",s:"cha"}];
-
+const SKILLS_DB = [
+    {n:"Acrobatics",s:"dex"}, {n:"Appraise",s:"int"}, {n:"Bluff",s:"cha"}, {n:"Climb",s:"str"},
+    {n:"Craft",s:"int", custom:true}, {n:"Craft",s:"int", custom:true}, {n:"Craft",s:"int", custom:true},
+    {n:"Diplomacy",s:"cha"}, {n:"Disable Device",s:"dex"}, {n:"Disguise",s:"cha"}, {n:"Drive",s:"dex"}, 
+    {n:"Escape Artist",s:"dex"}, {n:"Fly",s:"dex"}, {n:"Handle Animal",s:"cha"}, {n:"Heal",s:"wis"}, 
+    {n:"Intimidate",s:"cha"}, {n:"Knw: Arcana",s:"int"}, {n:"Knw: Dungeoneering",s:"int"}, {n:"Knw: Engineering",s:"int"}, 
+    {n:"Knw: Geography",s:"int"}, {n:"Knw: History",s:"int"}, {n:"Knw: Local",s:"int"}, {n:"Knw: Nature",s:"int"}, 
+    {n:"Knw: Nobility",s:"int"}, {n:"Knw: Planes",s:"int"}, {n:"Knw: Religion",s:"int"}, {n:"Linguistics",s:"int"}, 
+    {n:"Navigate",s:"int"}, {n:"Perception",s:"wis"}, 
+    {n:"Perform",s:"cha", custom:true}, {n:"Perform",s:"cha", custom:true}, {n:"Perform",s:"cha", custom:true},
+    {n:"Pilot",s:"dex"},
+    {n:"Profession",s:"wis", custom:true}, {n:"Profession",s:"wis", custom:true}, {n:"Profession",s:"wis", custom:true}, 
+    {n:"Repair",s:"int"},
+    {n:"Ride",s:"dex"}, {n:"Sense Motive",s:"wis"}, {n:"Sleight of Hand",s:"dex"}, {n:"Spellcraft",s:"int"}, 
+    {n:"Stealth",s:"dex"}, {n:"Survival",s:"wis"}, {n:"Swim",s:"str"}, {n:"Use Magic Device",s:"cha"}
+];
 const TRAINED_ONLY_LIST = ["Disable Device", "Handle Animal", "Knw: Arcana", "Knw: Dungeoneering", "Knw: Engineering", "Knw: Geography", "Knw: History", "Knw: Local", "Knw: Nature", "Knw: Nobility", "Knw: Planes", "Knw: Religion", "Linguistics", "Profession", "Use Magic Device"];
 
 onAuthStateChanged(auth, async (user) => {
-  if(!user) { window.location.href="login.html"; return; }
-  if(user.uid !== ADMIN_UID && user.email !== ADMIN_EMAIL) {
-    document.body.innerHTML = "<h2 style='color:red;padding:20px'>Access Denied: Admin Only</h2>";
-    return;
-  }
+  if(!user) { window.location.href="signin.html"; return; }
+  if(user.uid !== ADMIN_UID && user.email !== ADMIN_EMAIL) { document.body.innerHTML = "<h2 style='color:red;padding:20px'>Access Denied: Admin Only</h2>"; return; }
   loadUserList();
 });
 
@@ -385,31 +426,27 @@ async function loadUserList(){
             let summons = [];
             try {
                 const sheetSnap = await getDoc(doc(db, 'users', uid, 'sheet', 'character'));
-                if(sheetSnap.exists() && sheetSnap.data().summons) {
-                    summons = sheetSnap.data().summons;
-                }
+                if(sheetSnap.exists() && sheetSnap.data().summons) { summons = sheetSnap.data().summons; }
             } catch(e) { console.log("No sheet for " + name); }
             allUsers.push({ uid, name, email, summons });
         }
         allUsers.sort((a,b) => a.name.localeCompare(b.name));
         renderUserList(allUsers);
-    } catch(e) {
-        listEl.innerHTML = `<div style="padding:15px;color:red">Error: ${e.message}</div>`;
-    }
+    } catch(e) { listEl.innerHTML = `<div style="padding:15px;color:red">Error: ${e.message}</div>`; }
 }
 
 function renderUserList(users){
     const listEl = document.getElementById('usersList'); listEl.innerHTML = '';
     users.forEach(u => {
         const div = document.createElement('div'); div.className = 'userItem';
-        div.innerHTML = `<span class="uName">${u.name}</span><span class="uMeta">${u.email}</span>`;
-        div.onclick = () => selectUser(u.uid, null, div);
-        div.dataset.uid = u.uid;
-        listEl.appendChild(div);
+        div.innerHTML = `<div class="uInfo"><span class="uName">${u.name}</span><span class="uMeta">${u.email}</span></div><button class="del-user-btn" title="Delete">🗑️</button>`;
+        div.onclick = (e) => { if(e.target.classList.contains('del-user-btn')) return; selectUser(u.uid, null, div); };
+        div.querySelector('.del-user-btn').onclick = (e) => { e.stopPropagation(); deleteUserDoc(u.uid, u.name); };
+        div.dataset.uid = u.uid; listEl.appendChild(div);
+
         if(u.summons && u.summons.length > 0) {
             u.summons.forEach(s => {
-                const sDiv = document.createElement('div'); sDiv.className = 'summonItem';
-                sDiv.dataset.sid = s.id;
+                const sDiv = document.createElement('div'); sDiv.className = 'summonItem'; sDiv.dataset.sid = s.id;
                 sDiv.textContent = s.charName || "Unnamed Summon";
                 sDiv.onclick = (e) => { e.stopPropagation(); selectUser(u.uid, s.id, sDiv); };
                 listEl.appendChild(sDiv);
@@ -417,6 +454,11 @@ function renderUserList(users){
         }
     });
 }
+
+window.deleteUserDoc = async (uid, name) => {
+    if(!confirm(`Delete user data for "${name}"?`)) return;
+    try { await deleteDoc(doc(db, "users", uid)); loadUserList(); } catch(e) { alert("Error: " + e.message); }
+};
 
 document.getElementById('userSearch').addEventListener('input', (e)=>{
     const txt = e.target.value.toLowerCase();
@@ -427,22 +469,18 @@ document.getElementById('userSearch').addEventListener('input', (e)=>{
 function selectUser(uid, summonId, el){
     document.querySelectorAll('.userItem, .summonItem').forEach(d => d.classList.remove('selected'));
     if(el) el.classList.add('selected');
-    currentParentUid = uid;
-    currentSummonId = summonId;
+    currentParentUid = uid; currentSummonId = summonId;
     const typeLabel = summonId ? " (Summon)" : " (Main)";
     document.getElementById('targetUserUID').textContent = "Editing: " + uid + typeLabel;
     document.getElementById('emptyState').style.display = 'none';
     document.getElementById('sheetContainer').style.display = 'block';
     document.getElementById('sheetContainer').classList.add('active');
     document.body.classList.add('show-editor');
-    initSkillsTable();
-    startListening(uid);
+    initSkillsTable(); startListening(uid);
     
-    // Restore Tabs
     const savedCombat = localStorage.getItem('adminCombatSub') || 'c-general';
     const savedAbil = localStorage.getItem('adminAbilSub') || 'a-active';
-    switchSub(savedCombat);
-    switchSubSub(savedAbil);
+    switchSub(savedCombat); switchSubSub(savedAbil);
 }
 
 function startListening(uid){
@@ -452,61 +490,260 @@ function startListening(uid){
     
     unsubscribeSheet = onSnapshot(docRef, (docSnap) => {
         if(docSnap.metadata.hasPendingWrites) return;
-
+        if (document.querySelector('.save-field:focus') || document.querySelector('input:focus') || document.querySelector('textarea:focus')) { return; }
         if(docSnap.exists()){
-            fullSheetData = docSnap.data();
+            fullSheetData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [], ...docSnap.data() };
             isInternalUpdate = true;
             populateSheet();
             isInternalUpdate = false;
             document.getElementById('statusText').textContent = "Synced";
             document.getElementById('statusText').style.color = "#4caf50";
         } else {
-            document.getElementById('statusText').textContent = "No Sheet Data (Empty)";
-            fullSheetData = {};
+            document.getElementById('statusText').textContent = "No Sheet Data";
+            fullSheetData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [] };
         }
     });
 }
 
+function getActiveData() { return currentSummonId ? (fullSheetData.summons.find(s => s.id === currentSummonId) || {}) : fullSheetData; }
+
 function populateSheet(){
-    let data = fullSheetData;
+    const data = getActiveData();
     if (currentSummonId) {
-        if (fullSheetData.summons) { data = fullSheetData.summons.find(s => s.id === currentSummonId) || {}; } else { data = {}; }
         document.getElementById('sheetTitle').textContent = "Summon Bio";
-        document.getElementById('btn-skills').style.display = 'none';
-        document.getElementById('btn-items').style.display = 'none';
+        ['btn-skills','btn-items'].forEach(id => document.getElementById(id).style.display = 'none');
         document.getElementById('spellsSubBtn').style.display = 'none'; 
         document.getElementById('btn-sub-passive').style.display = 'none';
         const activeTab = document.querySelector('.tab-content.active').id;
         if(['skills','items','notes'].includes(activeTab)) switchTab('combat');
     } else {
         document.getElementById('sheetTitle').textContent = "Character Bio";
-        document.getElementById('btn-skills').style.display = 'block';
-        document.getElementById('btn-items').style.display = 'block';
+        document.querySelectorAll('.tab-btn').forEach(b => b.style.display = '');
         document.getElementById('spellsSubBtn').style.display = 'block';
         document.getElementById('btn-sub-passive').style.display = 'block';
     }
 
     document.querySelectorAll('.save-field').forEach(el => { el.value = ""; if(data[el.id] !== undefined) el.value = data[el.id]; });
-    const wList = document.getElementById('weaponList'); wList.innerHTML=''; 
-    if(data.weapons) data.weapons.forEach(w => addWeaponRow(w));
-    const sList = document.getElementById('spellList'); sList.innerHTML='';
-    if(data.spells) {
-         const sortedSpells = data.spells.sort((a,b) => {
-             const map = { "Cantrip": 0, "1st": 1, "2nd": 2, "3rd": 3, "4th": 4, "5th": 5, "6th": 6, "7th": 7, "8th": 8, "9th": 9 };
-             return (map[a.lvl] || 0) - (map[b.lvl] || 0);
-         });
-         sortedSpells.forEach(s => addSpellRow(s));
-    }
-    document.getElementById('activeList').innerHTML=''; if(data.activeAbilities) data.activeAbilities.forEach(x => addActiveRow(x));
-    document.getElementById('passiveList').innerHTML=''; if(data.passiveAbilities) data.passiveAbilities.forEach(x => addPassiveRow(x));
-    document.getElementById('featList').innerHTML=''; if(data.feats) data.feats.forEach(x => addFeatRow(x));
-    document.getElementById('itemList').innerHTML=''; if(data.items) data.items.forEach(x => addItemRow(x));
+    document.querySelectorAll('textarea.save-field').forEach(tx => { autoExpand(tx); tx.addEventListener('input', () => autoExpand(tx)); });
+    
+    renderWeapons(); renderSpells(); renderAbilities('active'); renderAbilities('passive'); renderAbilities('feat'); renderItems();
 
     if(!currentSummonId && data.skills){
         const rows = document.querySelectorAll('.skill-row-data');
-        data.skills.forEach((s, i) => { if(rows[i]){ rows[i].querySelector('.skill-cs').checked = s.cs; rows[i].querySelector('.skill-ranks').value = s.lvl; } });
+        data.skills.forEach((s, i) => { 
+            if(rows[i]){ 
+                rows[i].querySelector('.skill-cs').checked = s.cs; 
+                rows[i].querySelector('.skill-ranks').value = s.lvl; 
+                if(s.subName && rows[i].querySelector('.skill-custom-input')) rows[i].querySelector('.skill-custom-input').value = s.subName;
+            } 
+        });
     }
     updateCalculations();
+}
+
+function autoExpand(el) { el.style.height = 'auto'; el.style.height = (el.scrollHeight + 5) + 'px'; }
+
+const listContainerIds = { weapon: 'weaponList', spell: 'spellList', active: 'activeList', passive: 'passiveList', feat: 'featList', item: 'itemList' };
+
+window.openView = (type, index) => {
+    const data = getActiveData();
+    let col = type === 'active' ? 'activeAbilities' : type === 'passive' ? 'passiveAbilities' : type === 'feat' ? 'feats' : type + 's';
+    populateViewModal(type, data[col][index]);
+};
+
+window.openEditor = (type, index) => {
+    const data = getActiveData();
+    let col = type === 'active' ? 'activeAbilities' : type === 'passive' ? 'passiveAbilities' : type === 'feat' ? 'feats' : type + 's';
+    populateEditorModal(type, data[col][index], index, col);
+};
+
+function renderWeapons() {
+    const data = getActiveData().weapons || [];
+    document.getElementById('weaponList').innerHTML = '';
+    data.forEach((w, i) => {
+        const div = document.createElement('div'); div.className = 'list-row';
+        div.innerHTML = `<div class="row-content" onclick="openView('weapon',${i})"><span class="list-row-title">${w.name||'New Weapon'}</span><span class="list-row-meta">${w.mod||''}</span></div><div class="row-actions"><button class="btn-edit" onclick="openEditor('weapon',${i})">Edit</button></div>`;
+        document.getElementById('weaponList').appendChild(div);
+    });
+}
+
+function renderSpells() {
+    const data = getActiveData().spells || [];
+    const sorted = [...data].sort((a,b) => { const map = { "Cantrip":0, "1st":1, "2nd":2, "3rd":3, "4th":4, "5th":5, "6th":6, "7th":7, "8th":8, "9th":9 }; return (map[a.lvl]||0)-(map[b.lvl]||0); });
+    const container = document.getElementById('spellList'); container.innerHTML = '';
+    sorted.forEach((s) => {
+        const idx = data.indexOf(s);
+        const div = document.createElement('div'); div.className = 'list-row';
+        let linkHtml = s.link ? `<a class="btn-link-small" href="${s.link}" target="_blank" onclick="event.stopPropagation()">Link</a>` : '';
+        div.innerHTML = `<div class="row-content" onclick="openView('spell',${idx})"><span class="list-row-title">[${s.lvl||'-'}] ${s.name||'New Spell'}</span></div><div class="row-actions">${linkHtml}<button class="btn-edit" onclick="openEditor('spell',${idx})">Edit</button></div>`;
+        container.appendChild(div);
+    });
+}
+
+function renderAbilities(subType) {
+    let prop = subType === 'active' ? 'activeAbilities' : subType === 'passive' ? 'passiveAbilities' : 'feats';
+    const data = getActiveData()[prop] || [];
+    const container = document.getElementById(listContainerIds[subType]); container.innerHTML = '';
+    data.forEach((a, i) => {
+        const div = document.createElement('div'); div.className = 'list-row';
+        let contentHtml = `<span class="list-row-title">${a.name||`New ${subType}`}</span>`;
+        if(subType === 'active') { contentHtml = `<span class="active-name">${a.name||'New Ability'}</span><span class="active-type">${a.type||''}</span>`; }
+        
+        let inputsHtml = '';
+        if(subType === 'active') {
+            inputsHtml = `<div class="inline-input-group"><input type="number" value="${a.u_curr||0}" onchange="updateAbilityUse(${i},'u_curr',this.value)" onclick="event.stopPropagation()"><span>/</span><input type="number" value="${a.u_max||0}" onchange="updateAbilityUse(${i},'u_max',this.value)" onclick="event.stopPropagation()"></div>`;
+        }
+
+        const cDiv = document.createElement('div'); cDiv.className = `row-content ${subType==='active'?'active-ability-layout':''}`;
+        cDiv.innerHTML = contentHtml; cDiv.onclick = () => openView(subType, i);
+        const aDiv = document.createElement('div'); aDiv.className = 'row-actions';
+        aDiv.innerHTML = `${inputsHtml}<button class="btn-edit" onclick="openEditor('${subType}',${i})">Edit</button>`;
+        
+        div.appendChild(cDiv); div.appendChild(aDiv); container.appendChild(div);
+    });
+}
+window.updateAbilityUse = (idx, key, val) => { const d = getActiveData().activeAbilities[idx]; d[key] = Number(val); triggerSave(); };
+
+window.renderItems = () => {
+    const data = getActiveData().items || [];
+    const container = document.getElementById('itemList'); container.innerHTML = '';
+    const tagFilter = document.getElementById('itemFilterTag').value;
+    const sortType = document.getElementById('itemSort').value;
+    let filtered = data.filter(i => tagFilter === "All" || i.tags === tagFilter);
+    if(sortType === "abc") filtered.sort((a,b) => (a.name||"").localeCompare(b.name||"")); else filtered.reverse();
+
+    filtered.forEach(item => {
+        const idx = data.indexOf(item);
+        const div = document.createElement('div'); div.className = 'list-row';
+        let extraBtn = (item.tags === "Collections" && item.img) ? `<button class="btn-save" style="font-size:10px; padding:4px 8px;" onclick="event.stopPropagation();viewCollection('${item.img}')">IMG</button>` : '';
+        div.innerHTML = `<div class="row-content" onclick="openView('item',${idx})"><span class="list-row-title">${item.name||'New Item'} <small style="color:#888; font-weight:normal">(${item.tags})</small></span></div><div class="row-actions" style="display:flex; gap:5px">${extraBtn}<button class="btn-edit" onclick="openEditor('item',${idx})">Edit</button></div>`;
+        container.appendChild(div);
+    });
+};
+
+function populateViewModal(type, item) {
+    document.getElementById('viewTitle').textContent = item.name || "Unnamed";
+    const body = document.getElementById('viewBody'); body.innerHTML = '';
+    document.getElementById('viewModal').style.display = 'flex';
+    const add = (l, t) => { if(t){ body.innerHTML += `<div class="view-label">${l}</div><div class="view-text">${t}</div>`; } };
+    
+    // --- GM NOTES SECTION ---
+    if(item.gm_notes) {
+        body.innerHTML += `<div class="view-label" style="color:#ff6666;">GM Notes (Hidden)</div><div class="view-text" style="color:#ffaaaa; border:1px dashed #ff6666; padding:5px;">${item.gm_notes}</div>`;
+    }
+    // ------------------------
+
+    if(type === 'weapon' && item.attrs) {
+        body.innerHTML += `<div class="view-label">Attributes</div>`;
+        item.attrs.forEach(a => body.innerHTML += `<div class="view-attr-block">${a.name}: ${a.val}</div>`);
+    }
+    if(type === 'spell') { add("Level", item.lvl); if(item.link) body.innerHTML += `<a href="${item.link}" target="_blank" style="display:block; margin-bottom:15px; color:#4488ff;">Link</a>`; }
+    if(type === 'feat' && item.link) body.innerHTML += `<a href="${item.link}" target="_blank" class="btn-link-small" style="margin-bottom:15px">View Feat Source</a>`;
+    if(type === 'item') { if(item.tags) add("Type", item.tags); if(item.cost) add("Cost", item.cost); }
+    add("Description", item.desc);
+}
+
+let currentEditContext = null;
+const modal = document.getElementById('editorModal');
+const modalBody = document.getElementById('modalBody');
+
+function populateEditorModal(type, item, index, col) {
+    currentEditContext = { type, index, col };
+    document.getElementById('modalTitle').textContent = "Edit " + type;
+    modalBody.innerHTML = '';
+    const linkBtn = document.getElementById('modalLinkBtn');
+    linkBtn.style.display = (item.link) ? 'inline-block' : 'none'; linkBtn.href = item.link || '#';
+
+    createInput('Name', item.name, 'name');
+    if(type === 'weapon') {
+        createSelect('Modifier', item.mod, 'mod', ['STR','DEX','CON','INT','WIS','CHA']);
+        const attrC = document.createElement('div'); 
+        modalBody.appendChild(document.createElement('label')).textContent = "Attributes"; modalBody.appendChild(attrC);
+        (item.attrs||[]).forEach((a,i) => addAttrRow(attrC, a, i));
+        const btn = document.createElement('button'); btn.className='btn-add'; btn.textContent='+ Add Attribute'; btn.style.fontSize='12px'; btn.style.padding='5px';
+        btn.onclick=()=>{ if(!item.attrs) item.attrs=[]; item.attrs.push({name:'',val:''}); addAttrRow(attrC, item.attrs[item.attrs.length-1], item.attrs.length-1); triggerSave(); };
+        modalBody.appendChild(btn);
+    }
+    if(type === 'spell') { createSelect('Level', item.lvl, 'lvl', ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"]); createInput('Link URL', item.link, 'link'); }
+    if(type === 'active') {
+        createSelect('Type', item.type, 'type', ["Standard","Move","Swift","Full","Free","Immediate","Reaction"]);
+        modalBody.appendChild(document.createElement('label')).textContent = "Uses (Cur/Max)";
+        const d = document.createElement('div'); d.style.cssText="display:flex;gap:5px";
+        const c = document.createElement('input'); c.type="number"; c.placeholder="Cur"; c.value=item.u_curr||0; c.oninput=e=>updateCurrentItem('u_curr',e.target.value);
+        const m = document.createElement('input'); m.type="number"; m.placeholder="Max"; m.value=item.u_max||0; m.oninput=e=>updateCurrentItem('u_max',e.target.value);
+        d.appendChild(c); d.appendChild(m); modalBody.appendChild(d);
+    }
+    if(type === 'feat') createInput('Link URL', item.link, 'link');
+    if(type === 'item') {
+        if(item.tags==='Collections') { modalBody.appendChild(document.createElement('label')).textContent="Tag"; const i=document.createElement('input'); i.value="Collections"; i.disabled=true; modalBody.appendChild(i); if(item.img) createInput('Image URL', item.img, 'img'); }
+        else createSelect('Tag', item.tags, 'tags', ["Weapons", "Armor", "Gear", "Consumables", "Magic Items", "Misc"]);
+        createInput('Cost', item.cost, 'cost');
+    }
+    createTextArea('Description', item.desc, 'desc');
+
+    // --- GM NOTES INPUT (ADMIN ONLY) ---
+    if(['active', 'passive', 'feat', 'spell'].includes(type)) {
+        const lb = document.createElement('label'); 
+        lb.textContent = "GM Notes (Hidden from Player)"; 
+        lb.style.color = "#ff6666"; 
+        
+        const t = document.createElement('textarea'); 
+        t.value = item.gm_notes || ''; 
+        t.style.borderColor = "#ff4444"; 
+        
+        setTimeout(()=>autoExpand(t),0); 
+        t.oninput = e => { autoExpand(t); updateCurrentItem('gm_notes', e.target.value) }; 
+        
+        modalBody.appendChild(lb); 
+        modalBody.appendChild(t);
+    }
+    // -----------------------------------
+
+    document.getElementById('modalDeleteBtn').onclick = () => { getActiveData()[col].splice(index, 1); triggerSave(); closeModal(); };
+    modal.style.display = 'flex';
+}
+
+function createInput(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const i=document.createElement('input'); i.value=v||''; i.oninput=e=>updateCurrentItem(k,e.target.value); modalBody.appendChild(lb); modalBody.appendChild(i); }
+function createTextArea(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const t=document.createElement('textarea'); t.value=v||''; setTimeout(()=>autoExpand(t),0); t.oninput=e=>{autoExpand(t); updateCurrentItem(k,e.target.value)}; modalBody.appendChild(lb); modalBody.appendChild(t); }
+function createSelect(l, v, k, ops) { const lb=document.createElement('label'); lb.textContent=l; const s=document.createElement('select'); ops.forEach(o=>{const op=document.createElement('option'); op.text=o; op.value=o; if(o===v) op.selected=true; s.appendChild(op)}); s.onchange=e=>updateCurrentItem(k,e.target.value); modalBody.appendChild(lb); modalBody.appendChild(s); }
+function addAttrRow(c, d, i) {
+    const r=document.createElement('div'); r.className='attr-row';
+    const n=document.createElement('input'); n.placeholder="Attr"; n.value=d.name||''; n.oninput=e=>{d.name=e.target.value; triggerSave()};
+    const v=document.createElement('input'); v.placeholder="Val"; v.value=d.val||''; v.oninput=e=>{d.val=e.target.value; triggerSave()};
+    const b=document.createElement('button'); b.className='btn-del'; b.textContent='x'; b.onclick=()=>{getActiveData().weapons[currentEditContext.index].attrs.splice(i,1); r.remove(); triggerSave()};
+    r.appendChild(n); r.appendChild(v); r.appendChild(b); c.appendChild(r);
+}
+
+function updateCurrentItem(k, v) {
+    const item = getActiveData()[currentEditContext.col][currentEditContext.index];
+    item[k] = v;
+    if(k==='link') { const b=document.getElementById('modalLinkBtn'); b.href=v; b.style.display=v?'inline-block':'none'; }
+    if(['name','lvl','tags','type','u_curr','u_max'].includes(k)) refreshList(currentEditContext.type);
+    triggerSave();
+}
+window.closeModal = () => { modal.style.display='none'; refreshList(currentEditContext.type); };
+function refreshList(t) { if(t==='weapon') renderWeapons(); else if(t==='spell') renderSpells(); else if(t==='item') renderItems(); else renderAbilities(t); }
+
+window.addNewItem = (t) => {
+    const d = getActiveData();
+    let n={name:''}, c='';
+    if(t==='weapon'){c='weapons';n.mod='STR';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;} else if(t==='passive')c='passiveAbilities'; else if(t==='feat')c='feats'; else if(t==='item'){c='items';n.tags='Misc';}
+    if(!d[c]) d[c]=[]; d[c].push(n);
+    triggerSave(); refreshList(t); openEditor(t, d[c].length-1);
+};
+
+function scrapeCurrentSheet() {
+    const p = {};
+    document.querySelectorAll('.save-field').forEach(el => p[el.id] = el.value);
+    p.skills = [];
+    document.querySelectorAll('#skillsTableBody tr').forEach(r => { 
+        const sub = r.querySelector('.skill-custom-input') ? r.querySelector('.skill-custom-input').value : null;
+        p.skills.push({ cs: r.querySelector('.skill-cs').checked, lvl: Number(r.querySelector('.skill-ranks').value)||0, subName: sub }); 
+    });
+    const m = getActiveData();
+    p.weapons=m.weapons||[]; p.spells=m.spells||[]; p.activeAbilities=m.activeAbilities||[]; p.passiveAbilities=m.passiveAbilities||[]; p.feats=m.feats||[];
+    p.items = currentSummonId ? (m.items||[]) : (fullSheetData.items||[]);
+    return p;
 }
 
 function getMod(id) { const val = document.getElementById(id).value; return val ? Math.floor((Number(val)-10)/2) : 0; }
@@ -525,18 +762,13 @@ function updateCalculations(){
             row.querySelector('.skill-mod').textContent = mod;
             row.querySelector('.skill-total').textContent = (total>=0?'+':'')+total;
 
-            const skillNameFull = row.querySelector('.skill-name-cell').textContent;
-            const skillName = skillNameFull.split(' (')[0].trim();
             const nameCell = row.querySelector('.skill-name-cell');
-            
-            if(TRAINED_ONLY_LIST.includes(skillName)) {
-                if(ranks < 1) {
-                    nameCell.classList.add('trained-untrained');
-                    nameCell.classList.remove('trained-trained');
-                } else {
-                    nameCell.classList.remove('trained-untrained');
-                    nameCell.classList.add('trained-trained');
-                }
+            let baseName = nameCell.innerText.split(' ')[0].trim();
+            if(nameCell.querySelector('input')) baseName = nameCell.firstChild.textContent.trim();
+
+            if(TRAINED_ONLY_LIST.some(t => nameCell.innerText.includes(t))) {
+                if(ranks < 1) { nameCell.classList.add('trained-untrained'); nameCell.classList.remove('trained-trained'); }
+                else { nameCell.classList.remove('trained-untrained'); nameCell.classList.add('trained-trained'); }
             }
         });
     }
@@ -552,39 +784,12 @@ function triggerSave(){
 
 async function saveData(){
     if(!currentParentUid) return;
-    const currentData = {};
-    document.querySelectorAll('.save-field').forEach(el => currentData[el.id] = el.value);
-    currentData.weapons = [];
-    document.getElementById('weaponList').querySelectorAll('details').forEach(d => {
-        const attrs = [];
-        d.querySelectorAll('.attr-row').forEach(row => attrs.push({ name: row.querySelector('.attr-n').value, val: row.querySelector('.attr-v').value }));
-        currentData.weapons.push({ name: d.querySelector('.w-name').value, mod: d.querySelector('.w-mod').value, attrs: attrs });
-    });
-    currentData.spells = scrapeList('spellList', ['.l-val','.n-val','.k-val','.d-val'], ['lvl','name','link','desc']);
-    currentData.activeAbilities = scrapeList('activeList', ['.n-val','.u-val','.t-val','.d-val'], ['name','uses','type','desc']);
-    currentData.passiveAbilities = scrapeList('passiveList', ['.n-val','.d-val'], ['name','desc']);
-    currentData.feats = scrapeList('featList', ['.n-val','.l-val','.d-val'], ['name','link','desc']);
+    const cur = scrapeCurrentSheet();
+    if(currentSummonId) { cur.id = currentSummonId; const i = fullSheetData.summons.findIndex(s=>s.id===currentSummonId); if(i>=0) fullSheetData.summons[i]=cur; }
+    else { const sb = fullSheetData.summons; fullSheetData = { ...cur, summons: sb, items: cur.items }; }
     
-    currentData.items = scrapeList('itemList', ['.n-val','.t-val','.c-val','.d-val','.i-data'], ['name','tags','cost','desc','img']);
-
-    if(!currentSummonId) {
-        currentData.skills = [];
-        document.querySelectorAll('.skill-row-data').forEach(row => { currentData.skills.push({ cs: row.querySelector('.skill-cs').checked, lvl: Number(row.querySelector('.skill-ranks').value)||0 }); });
-    }
-
-    let finalPayload = {};
-    if (currentSummonId) {
-        finalPayload = { ...fullSheetData }; 
-        if(!finalPayload.summons) finalPayload.summons = [];
-        const idx = finalPayload.summons.findIndex(s => s.id === currentSummonId);
-        currentData.id = currentSummonId; 
-        if(idx > -1) { finalPayload.summons[idx] = currentData; } else { finalPayload.summons.push(currentData); }
-    } else {
-        const existingSummons = fullSheetData.summons || [];
-        finalPayload = { ...currentData, summons: existingSummons };
-    }
     try {
-        await setDoc(doc(db, 'users', currentParentUid, 'sheet', 'character'), finalPayload);
+        await setDoc(doc(db, 'users', currentParentUid, 'sheet', 'character'), fullSheetData);
         document.getElementById('statusText').textContent = "Saved";
         document.getElementById('statusText').style.color = "#4caf50";
     } catch(e) {
@@ -594,144 +799,32 @@ async function saveData(){
     }
 }
 
-function scrapeList(id, selectors, keys){
-    const list = [];
-    document.getElementById(id).querySelectorAll('details').forEach(d => {
-        const obj = {}; selectors.forEach((sel, i) => obj[keys[i]] = d.querySelector(sel)?.value || '');
-        list.push(obj);
-    });
-    return list;
-}
-
-function createRow(containerId, titleFunc, html, data={}){
-    const div = document.createElement('details');
-    div.innerHTML = `<summary>${titleFunc(data)} <button class="btn-remove">x</button></summary><div class="details-content">${html}</div>`;
-    document.getElementById(containerId).appendChild(div);
-    div.querySelectorAll('input,textarea,select').forEach(i => i.addEventListener('input', () => { div.querySelector('summary').innerHTML = titleFunc(scrapeRow(div)) + ` <button class="btn-remove">x</button>`; triggerSave(); }));
-    div.querySelector('.btn-remove').onclick = (e) => { e.preventDefault(); div.remove(); triggerSave(); };
-    return div;
-}
-
-function scrapeRow(el){
-    const d = {};
-    const map = {'.w-name':'name', '.w-mod':'mod', '.n-val':'name', '.l-val':'lvl', '.k-val':'link', '.u-val':'uses', '.t-val':'type'};
-    for(let k in map) d[map[k]] = el.querySelector(k)?.value || '';
-    return d;
-}
-
-function addWeaponRow(d={}){ 
-    let attrHtml = '';
-    if(d.attrs) d.attrs.forEach(a => attrHtml += `<div class="attr-row"><input class="attr-n" value="${a.name}" placeholder="Attr"><input class="attr-v" value="${a.val}" placeholder="Val"><button class="btn-remove" onclick="this.parentElement.remove();triggerSave()">x</button></div>`);
-    const html = `<div style="display:flex; gap:10px;"><input class="w-name" value="${d.name||''}" placeholder="Name"><select class="w-mod" style="width:80px"><option ${d.mod==='STR'?'selected':''}>STR</option><option ${d.mod==='DEX'?'selected':''}>DEX</option><option ${d.mod==='CON'?'selected':''}>CON</option><option ${d.mod==='INT'?'selected':''}>INT</option><option ${d.mod==='WIS'?'selected':''}>WIS</option><option ${d.mod==='CHA'?'selected':''}>CHA</option></select></div><div class="attr-container">${attrHtml}</div><button class="btn-add" style="padding:4px; font-size:11px; margin-top:5px;" onclick="addWeaponAttr(this)">+ Attribute</button>`;
-    createRow('weaponList', x => x.name||'New Weapon', html, d);
-}
-window.addWeaponAttr = (btn) => {
-    const div = document.createElement('div'); div.className = 'attr-row';
-    div.innerHTML = `<input class="attr-n" placeholder="Attr"><input class="attr-v" placeholder="Val"><button class="btn-remove" onclick="this.parentElement.remove();triggerSave()">x</button>`;
-    btn.previousElementSibling.appendChild(div);
-    div.querySelectorAll('input').forEach(i => i.addEventListener('input', triggerSave));
-};
-
-const SPELL_LVLS = ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"];
-function addSpellRow(d={}){
-    let opts = ""; SPELL_LVLS.forEach(l => opts += `<option ${d.lvl===l?'selected':''}>${l}</option>`);
-    const summary = (x) => { const nameDisplay = x.link ? `<a href="${x.link}" target="_blank">${x.name||'New Spell'}</a>` : (x.name||'New Spell'); return `[${x.lvl||'-'}] ${nameDisplay}`; };
-    const html = `<div style="display:flex;gap:5px"><select class="l-val" style="width:80px">${opts}</select><input class="n-val" value="${d.name||''}" placeholder="Name"></div><input class="k-val" value="${d.link||''}" placeholder="Link"><textarea class="d-val">${d.desc||''}</textarea>`;
-    createRow('spellList', summary, html, d);
-}
-
-const ACTION_TYPES = ["Standard","Move","Swift","Full","Free","Immediate","Reaction"];
-function addActiveRow(d={}){
-    let opts = ""; ACTION_TYPES.forEach(t => opts += `<option ${d.type===t?'selected':''}>${t}</option>`);
-    const summary = (x) => `<span>${x.name||'Ability'}: <small style="color:#aaa">${x.type||'-'}</small></span> <span>${x.uses||''}</span>`;
-    const html = `<input class="n-val" value="${d.name||''}" placeholder="Name"><div style="display:flex;gap:5px;margin-top:5px;"><select class="t-val">${opts}</select><input class="u-val" value="${d.uses||''}" placeholder="Uses"></div><textarea class="d-val">${d.desc||''}</textarea>`;
-    createRow('activeList', summary, html, d);
-}
-function addPassiveRow(d={}){ createRow('passiveList', x => x.name||'New Passive', `<input class="n-val" value="${d.name||''}" placeholder="Name"><textarea class="d-val">${d.desc||''}</textarea>`, d); }
-function addFeatRow(d={}){ createRow('featList', x => x.name||'New Feat', `<input class="n-val" value="${d.name||''}" placeholder="Name"><input class="l-val" value="${d.link||''}" placeholder="Link"><textarea class="d-val">${d.desc||''}</textarea>`, d); }
-
-// --- ADMIN ITEMS ROW ---
-const ITEM_TAGS = ["Weapons", "Armor", "Gear", "Consumables", "Magic Items", "Collections", "Misc"];
-
-function addItemRow(d={}){ 
-    const isCollection = d.tags === "Collections";
-    const opts = ITEM_TAGS.map(t => `<option ${d.tags===t?'selected':''}>${t}</option>`).join('');
-
-    const html = `
-        <div style="display:flex;gap:10px">
-            <div style="flex:1">
-                <input class="n-val" value="${d.name||''}" placeholder="Name" style="margin-bottom:5px">
-                <select class="t-val" style="margin-bottom:5px" onchange="toggleItemImg(this)">${opts}</select>
-                <input class="c-val" value="${d.cost||''}" placeholder="Cost">
-                <div class="img-uploader" style="display:${isCollection?'block':'none'}">
-                    <input class="i-data" value="${d.img||''}" placeholder="Paste Image URL here" oninput="updatePreview(this)" style="margin-top:5px;">
-                </div>
-            </div>
-            <img src="${d.img||''}" class="item-preview" style="display:${d.img?'block':'none'}">
-        </div>
-        <textarea class="d-val">${d.desc||''}</textarea>
-    `;
-    createRow('itemList', x => x.name||'New Item', html, d); 
-}
-
-window.toggleItemImg = (select) => {
-    const row = select.closest('.details-content');
-    const uploader = row.querySelector('.img-uploader');
-    const preview = row.querySelector('.item-preview');
-    if(select.value === "Collections") {
-        uploader.style.display = 'block';
-        if(row.querySelector('.i-data').value) preview.style.display = 'block';
-    } else {
-        uploader.style.display = 'none';
-        preview.style.display = 'none';
-    }
-    triggerSave();
-};
-
-window.updatePreview = (inp) => {
-    const row = inp.closest('.details-content');
-    const preview = row.querySelector('.item-preview');
-    preview.src = inp.value;
-    preview.style.display = inp.value ? 'block' : 'none';
-    triggerSave();
-};
-
 function initSkillsTable(){
     const body = document.getElementById('skillsTableBody'); body.innerHTML = '';
     SKILLS_DB.forEach(s => {
         const tr = document.createElement('tr'); tr.className = 'skill-row-data'; tr.dataset.stat = s.s;
-        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td class="skill-name-cell">${s.n} <small style="color:#888">(${s.s})</small></td><td class="skill-mod">0</td><td><input type="number" class="skill-ranks" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent);font-weight:bold">0</td>`;
+        let nameHtml = s.n;
+        if(s.custom) nameHtml += ` <input class="skill-custom-input" placeholder="Type">`;
+        else nameHtml += ` <small style="color:#888; font-weight:normal;">(${s.s})</small>`;
+        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td class="skill-name-cell">${nameHtml}</td><td class="skill-mod">0</td><td><input type="number" class="skill-ranks" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent);font-weight:bold">0</td>`;
         tr.querySelectorAll('input').forEach(i => i.addEventListener('input', () => { updateCalculations(); triggerSave(); }));
         body.appendChild(tr);
     });
 }
 
-document.getElementById('btnAddWeapon').onclick = () => addWeaponRow();
-document.getElementById('btnAddSpell').onclick = () => addSpellRow();
-document.getElementById('btnAddActive').onclick = () => addActiveRow();
-document.getElementById('btnAddPassive').onclick = () => addPassiveRow();
-document.getElementById('btnAddFeat').onclick = () => addFeatRow();
-document.getElementById('btnAddItem').onclick = () => addItemRow();
-
 document.body.addEventListener('input', (e) => { 
     if(e.target.classList.contains('save-field') || e.target.classList.contains('calc-trigger')) { 
-        updateCalculations(); 
-        triggerSave(); 
+        updateCalculations(); triggerSave(); 
     }
-    
-    // --- FIX FOR SUMMON NAME UPDATING IN SIDEBAR ---
     if(e.target.id === 'charName') {
         const newVal = e.target.value || (currentSummonId ? "Unnamed Summon" : "Unknown");
-        if(currentSummonId) {
-            const summonEl = document.querySelector(`.summonItem[data-sid="${currentSummonId}"]`);
-            if(summonEl) summonEl.innerText = newVal;
-        } else {
-             // Optional: Update Main User Name visually (though this resets on refresh)
-             const userEl = document.querySelector(`.userItem[data-uid="${currentParentUid}"] .uName`);
-             if(userEl) userEl.innerText = newVal;
-        }
+        if(currentSummonId) { const el = document.querySelector(`.summonItem[data-sid="${currentSummonId}"]`); if(el) el.innerText = newVal; } 
+        else { const el = document.querySelector(`.userItem[data-uid="${currentParentUid}"] .uName`); if(el) el.innerText = newVal; }
     }
 });
+
+window.viewCollection = (url) => { document.getElementById('modalImg').src = url; document.getElementById('imageModal').style.display = 'flex'; };
+
 </script>
 </body>
 </html>

@@ -24,8 +24,8 @@ body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--t
 #mobileMenu a { padding: 15px 20px; color: #fff; text-decoration: none; border-bottom: 1px solid #333; font-family: 'Uncial Antiqua'; }
 
 /* --- MAIN TABS (Sticky) --- */
-.main-tabs { display: flex; width: 100%; background: #000; border-bottom: 1px solid var(--accent); position: sticky; top: 50px; z-index: 900; flex-shrink: 0; overflow-x: auto; scrollbar-width: none; justify-content: flex-start; padding-right: 20px; }
-.tab-btn { flex: 1 0 auto; min-width: 70px; border: none; background: transparent; color: #888; padding: 12px 10px; cursor: pointer; font-family: 'Uncial Antiqua'; font-size: 14px; text-align: center; border-bottom: 3px solid transparent; transition: 0.2s; white-space: nowrap; }
+.main-tabs { display: flex; width: 100%; background: #000; border-bottom: 1px solid var(--accent); position: sticky; top: 50px; z-index: 900; flex-shrink: 0; overflow-x: auto; scrollbar-width: none; justify-content: flex-start; }
+.tab-btn { flex: 1; min-width: fit-content; border: none; background: transparent; color: #888; padding: 12px 5px; cursor: pointer; font-family: 'Uncial Antiqua'; font-size: 14px; text-align: center; border-bottom: 3px solid transparent; transition: 0.2s; white-space: nowrap; }
 .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: #111; }
 
 /* --- CONTENT AREA --- */
@@ -64,7 +64,6 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
 .row-content { flex-grow: 1; display: flex; flex-direction: column; padding-right: 10px; min-width: 0; }
 .row-actions { flex-shrink: 0; display: flex; align-items: center; gap: 5px; }
 
-/* Active Ability Specific Layout */
 .row-content.active-ability-layout { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; }
 .active-name { font-weight: bold; color: var(--accent); flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .active-type { color: #888; font-size: 12px; margin-right: 10px; white-space: nowrap; }
@@ -114,6 +113,7 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
 #skillsTable input[type="number"] { max-width: 50px; padding: 4px; text-align: center; }
 .trained-untrained { color: #ff4444; }
 .trained-trained { color: #fff; }
+.skill-custom-input { background: transparent; border: none; border-bottom: 1px solid #444; color: var(--accent); width: 100px; font-size: 13px; padding: 2px; }
 
 /* --- FAB --- */
 #summonFab { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--accent); border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.5); align-items: center; justify-content: center; cursor: pointer; z-index: 2500; font-size: 24px; color: #000; font-weight: bold; border: 2px solid #fff; display: none; }
@@ -145,50 +145,34 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
 @media (max-width: 600px) {
   .nav-links { display: none; }
   #hamburgerBtn { display: block; }
-  .tab-btn { font-size: 12px; padding: 12px 8px; }
+  .tab-btn { font-size: 11px; padding: 12px 2px; }
   
-  /* HEART MODAL ACTIVATION */
   #mobileHeartBtn { display: block; }
-  #heartModalContainer { display: none; } /* Hidden by default on mobile */
+  #heartModalContainer { display: none; }
   
-  /* The Active Modal State */
   #heartModalContainer.active-heart-modal {
-      display: flex;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.85); /* Transparent black background */
-      backdrop-filter: blur(5px);
-      z-index: 5000;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
+      display: flex; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 5000;
+      flex-direction: column; justify-content: center; align-items: center; padding: 20px;
   }
   
-  /* Show the close button inside modal */
   #heartModalContainer.active-heart-modal #heartCloseBtn { display: block; }
-
-  /* Adjust inputs inside modal */
   #heartModalContainer.active-heart-modal .vital-row { width: 100%; margin-bottom: 20px; }
   #heartModalContainer.active-heart-modal .combat-stats { width: 100%; }
 
-  /* 2x2 Grid for AC/Init/etc */
   .mobile-2col { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 5px !important; padding: 5px !important; }
   .mobile-2col .stat-box { flex-direction: column !important; justify-content: center !important; width: 100% !important; border-bottom: none !important; padding: 5px !important; background: #2a2a2a; border-radius: 4px; min-height: 50px; }
   .mobile-2col .stat-box label { text-align: center; width: 100%; font-size: 10px !important; margin-bottom: 2px !important; }
   .mobile-2col .stat-box input { width: 100% !important; font-size: 12px !important; text-align: center; height: 25px; }
   
-  /* SAVES MOBILE LAYOUT (Stacked) */
   #savesContainer { grid-template-columns: 1fr !important; }
   #savesContainer .stat-box { flex-direction: row !important; justify-content: space-between; align-items: center; padding: 10px 15px; width: 100%; background: #2a2a2a; border-radius: 4px; min-height: auto; }
   #savesContainer label { width: auto !important; margin-bottom: 0 !important; font-size: 14px !important; text-align: left; }
   #savesContainer .stat-dual { width: auto !important; gap: 10px; }
   #savesContainer .stat-dual input { width: 50px !important; }
   
-  /* Inline Inputs on Mobile */
   .inline-input-group input { width: 30px; font-size: 12px; }
 
-  /* SKILLS MOBILE */
   #mobileSkillHeader { display: flex !important; justify-content: space-between; padding: 0 10px 5px 10px; }
   #skillsTable thead { display: none; } 
   #skillsTable tr { display: flex; justify-content: space-between; align-items: center; border: 1px solid #444; margin-bottom: 8px; padding: 10px; border-radius: 6px; background: var(--panel); }
@@ -199,7 +183,6 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
   #skillsTable tr td:nth-child(5) { flex-basis: 20%; text-align: right; font-size: 16px; }
 }
 
-/* NOTES SPECIFIC - REMOVE RESIZE & FIX VISUALS */
 #notes { display: none; flex-direction: column; height: 100%; box-sizing: border-box; }
 #notes.active { display: flex; }
 #notesArea { flex-grow: 1; border: 1px solid var(--border); border-radius: 6px; background: #111; padding: 10px; font-family: sans-serif; line-height: 1.6; font-size: 16px; width: 100%; margin-bottom: 20px; }
@@ -231,8 +214,8 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
   <button class="tab-btn active" id="btn-character" onclick="switchTab('character')">Character</button>
   <button class="tab-btn" id="btn-combat" onclick="switchTab('combat')">Combat</button>
   <button class="tab-btn" id="btn-skills" onclick="switchTab('skills')">Skills</button>
-  <button class="tab-btn" id="btn-notes" onclick="switchTab('notes')">Notes</button>
   <button class="tab-btn" id="btn-items" onclick="switchTab('items')">Items</button>
+  <button class="tab-btn" id="btn-notes" onclick="switchTab('notes')">Notes</button>
 </div>
 
 <div id="character" class="tab-content active">
@@ -262,31 +245,19 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
 </div>
 
 <div id="combat" class="tab-content">
-  
   <button id="mobileHeartBtn" onclick="toggleHeartStats()">❤️</button>
-
   <div id="heartModalContainer">
       <div id="heartCloseBtn" onclick="toggleHeartStats()">❤️</div>
-      
       <div class="vital-row">
           <div class="vital-box">
               <label>❤️ HP</label>
-              <div class="vital-inputs">
-                  <input id="hp_curr" class="live-field" placeholder="Cur">
-                  <span>/</span>
-                  <input id="hp_max" class="live-field" placeholder="Max">
-              </div>
+              <div class="vital-inputs"><input id="hp_curr" class="live-field" placeholder="Cur"><span>/</span><input id="hp_max" class="live-field" placeholder="Max"></div>
           </div>
           <div class="vital-box">
               <label>💧 MP</label>
-              <div class="vital-inputs">
-                  <input id="mp_curr" class="live-field" placeholder="Cur">
-                  <span>/</span>
-                  <input id="mp_max" class="live-field" placeholder="Max">
-              </div>
+              <div class="vital-inputs"><input id="mp_curr" class="live-field" placeholder="Cur"><span>/</span><input id="mp_max" class="live-field" placeholder="Max"></div>
           </div>
       </div>
-
       <div class="combat-stats mobile-2col">
         <div class="stat-box"><label>AC</label><input id="ac_total" class="live-field"></div>
         <div class="stat-box"><label>Initiative</label><input id="init_bonus" class="live-field"></div>
@@ -307,19 +278,16 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
         <div class="stat-box"><label>CMB</label><input id="cmb" class="live-field"></div>
         <div class="stat-box"><label>CMD</label><input id="cmd_total" class="live-field"></div>
     </div>
-    
     <div id="resistancesBox" style="background:var(--panel); padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid var(--border);">
         <label>Resist</label>
         <textarea id="resistances" class="live-field" placeholder="Resistances, Immunities, DR, SR"></textarea>
     </div>
-    
     <h3>Saves</h3>
     <div id="savesContainer" class="combat-stats">
         <div class="stat-box"><label>Fortitude</label><div class="stat-dual"><input id="fort_bonus" type="number" class="live-field calc-trigger" placeholder="Bonus"><span id="fort_total" style="color:var(--accent); font-weight:bold;">+0</span></div></div>
         <div class="stat-box"><label>Reflex</label><div class="stat-dual"><input id="ref_bonus" type="number" class="live-field calc-trigger" placeholder="Bonus"><span id="ref_total" style="color:var(--accent); font-weight:bold;">+0</span></div></div>
         <div class="stat-box"><label>Will</label><div class="stat-dual"><input id="will_bonus" type="number" class="live-field calc-trigger" placeholder="Bonus"><span id="will_total" style="color:var(--accent); font-weight:bold;">+0</span></div></div>
     </div>
-    
     <h3>Weapons</h3>
     <div id="weaponList"></div>
     <button class="btn-add" onclick="addNewItem('weapon')">+ Add Weapon</button>
@@ -333,17 +301,8 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
             <button class="sub-btn" onclick="switchSubSub('a-feats')">Feats</button>
         </div>
       </div>
-      
-      <div id="a-active" class="sub-sub-group active">
-          <div id="activeList"></div>
-          <button class="btn-add" onclick="addNewItem('active')">+ Add Active Ability</button>
-      </div>
-
-      <div id="a-passive" class="sub-sub-group" style="display:none">
-          <div id="passiveList"></div>
-          <button class="btn-add" onclick="addNewItem('passive')">+ Add Passive Ability</button>
-      </div>
-
+      <div id="a-active" class="sub-sub-group active"><div id="activeList"></div><button class="btn-add" onclick="addNewItem('active')">+ Add Active Ability</button></div>
+      <div id="a-passive" class="sub-sub-group" style="display:none"><div id="passiveList"></div><button class="btn-add" onclick="addNewItem('passive')">+ Add Passive Ability</button></div>
       <div id="a-feats" class="sub-sub-group" style="display:none">
           <div id="featList"></div>
           <button class="btn-add" onclick="addNewItem('feat')">+ Add Feat</button>
@@ -377,20 +336,8 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
 <div id="items" class="tab-content">
   <div class="combat-stats" style="grid-template-columns: 1fr 1fr;"><div class="stat-box"><label>💰 Gil</label><input id="currency_gil" class="live-field"></div><div class="stat-box"><label>Moogle Pts</label><input id="currency_moogle" class="live-field"></div></div>
   <div style="display:flex; gap:10px; margin-bottom:10px;">
-    <select id="itemFilterTag" onchange="renderItems()" style="flex:1;">
-      <option value="All">All Tags</option>
-      <option value="Weapons">Weapons</option>
-      <option value="Armor">Armor</option>
-      <option value="Gear">Gear</option>
-      <option value="Consumables">Consumables</option>
-      <option value="Magic Items">Magic Items</option>
-      <option value="Collections">Collections</option>
-      <option value="Misc">Misc</option>
-    </select>
-    <select id="itemSort" onchange="renderItems()" style="flex:1;">
-      <option value="recent">Recent</option>
-      <option value="abc">A-Z</option>
-    </select>
+    <select id="itemFilterTag" onchange="renderItems()" style="flex:1;"><option value="All">All Tags</option><option value="Weapons">Weapons</option><option value="Armor">Armor</option><option value="Gear">Gear</option><option value="Consumables">Consumables</option><option value="Magic Items">Magic Items</option><option value="Collections">Collections</option><option value="Misc">Misc</option></select>
+    <select id="itemSort" onchange="renderItems()" style="flex:1;"><option value="recent">Recent</option><option value="abc">A-Z</option></select>
   </div>
   <div id="itemList"></div>
   <button class="btn-add" onclick="addNewItem('item')">+ Add Item</button>
@@ -405,15 +352,9 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
 
 <div id="viewModal" class="modal-overlay">
     <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="viewTitle">Item Name</h3>
-            <button class="btn-close" onclick="document.getElementById('viewModal').style.display='none'">&times;</button>
-        </div>
-        <div id="viewBody" class="modal-body">
-            </div>
-        <div style="padding:10px; text-align:right; border-top:1px solid #333;">
-            <button class="btn-save" onclick="document.getElementById('viewModal').style.display='none'">Close</button>
-        </div>
+        <div class="modal-header"><h3 id="viewTitle">Item Name</h3><button class="btn-close" onclick="document.getElementById('viewModal').style.display='none'">&times;</button></div>
+        <div id="viewBody" class="modal-body"></div>
+        <div style="padding:10px; text-align:right; border-top:1px solid #333;"><button class="btn-save" onclick="document.getElementById('viewModal').style.display='none'">Close</button></div>
     </div>
 </div>
 
@@ -421,15 +362,10 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
     <div class="modal-content">
         <div class="modal-header">
             <h3 id="modalTitle">Edit</h3>
-            <div class="modal-actions">
-                <a id="modalLinkBtn" href="#" target="_blank" class="btn-link" style="display:none">Link</a>
-                <button class="btn-save" onclick="closeModal()">Done</button>
-            </div>
+            <div class="modal-actions"><a id="modalLinkBtn" href="#" target="_blank" class="btn-link" style="display:none">Link</a><button class="btn-save" onclick="closeModal()">Done</button></div>
         </div>
         <div id="modalBody" class="modal-body"></div>
-        <div style="padding:15px; border-top:1px solid #333; background:#1a1a1a; border-radius:0 0 8px 8px;">
-            <button id="modalDeleteBtn" class="btn-del" style="width:100%">Delete</button>
-        </div>
+        <div style="padding:15px; border-top:1px solid #333; background:#1a1a1a; border-radius:0 0 8px 8px;"><button id="modalDeleteBtn" class="btn-del" style="width:100%">Delete</button></div>
     </div>
 </div>
 
@@ -446,7 +382,6 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", authDomain: "mount-aetheria.firebaseapp.com", projectId: "mount-aetheria", storageBucket: "mount-aetheria.firebasestorage.app", messagingSenderId: "492855693446", appId: "1:492855693446:web:f99485569254a7220c38107", measurementId: "G-0PF84KDN7L" };
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -457,7 +392,6 @@ let isRemoteUpdate = false;
 let fullData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [] }; 
 let currentSummonId = null; 
 
-// --- TAB LOGIC ---
 window.switchTab = (id) => { 
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); 
@@ -484,7 +418,6 @@ window.switchSubSub = (id) => {
     localStorage.setItem('activeAbilSub', id);
 };
 
-// --- AUTH & SYNC ---
 onAuthStateChanged(auth, (user) => {
     if(user){
         currentUser = user;
@@ -493,9 +426,7 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById('mobileAuthLink').textContent = "My Account"; document.getElementById('mobileAuthLink').href = "account.html";
         initSkills();
         startSync();
-    } else {
-        window.location.href = "signin.html";
-    }
+    } else { window.location.href = "signin.html"; }
 });
 
 function startSync() {
@@ -515,17 +446,10 @@ function startSync() {
     });
 }
 
-function getActiveData() {
-    if(currentSummonId) {
-        return fullData.summons.find(s => s.id === currentSummonId) || {};
-    }
-    return fullData;
-}
+function getActiveData() { return currentSummonId ? (fullData.summons.find(s => s.id === currentSummonId) || {}) : fullData; }
 
-// --- LOAD SHEET ---
 function loadCurrentSheet() {
     const data = getActiveData();
-
     if(currentSummonId) {
         document.getElementById('sheetTitle').textContent = "Summoning Sheet";
         document.getElementById('btnAddSummon').style.display = 'none';
@@ -544,667 +468,285 @@ function loadCurrentSheet() {
         document.getElementById('btn-sub-passive').style.display = 'block';
     }
     
-    const savedCombatSub = localStorage.getItem('activeCombatSub') || 'c-general';
-    const savedAbilSub = localStorage.getItem('activeAbilSub') || 'a-active';
-    switchSub(savedCombatSub);
-    switchSubSub(savedAbilSub);
+    switchSub(localStorage.getItem('activeCombatSub') || 'c-general');
+    switchSubSub(localStorage.getItem('activeAbilSub') || 'a-active');
 
-    document.querySelectorAll('.live-field').forEach(el => {
-        el.value = (data[el.id] !== undefined) ? data[el.id] : "";
-    });
+    document.querySelectorAll('.live-field').forEach(el => { el.value = (data[el.id] !== undefined) ? data[el.id] : ""; });
+    document.querySelectorAll('textarea.live-field').forEach(tx => { autoExpand(tx); tx.addEventListener('input', () => autoExpand(tx)); });
     
-    // Auto-expand global textareas
-    document.querySelectorAll('textarea.live-field').forEach(tx => {
-       autoExpand(tx);
-       tx.addEventListener('input', () => autoExpand(tx));
-    });
-    
-    renderWeapons();
-    renderSpells();
-    renderAbilities('active');
-    renderAbilities('passive');
-    renderAbilities('feat');
-    renderItems();
+    renderWeapons(); renderSpells(); renderAbilities('active'); renderAbilities('passive'); renderAbilities('feat'); renderItems();
     
     if(data.skills) {
         const rows = document.querySelectorAll('#skillsTableBody tr');
-        rows.forEach(r => { r.querySelector('.skill-cs').checked = false; r.querySelector('.skill-ranks').value = ""; });
-        data.skills.forEach((s, i) => { if(rows[i]) { rows[i].querySelector('.skill-cs').checked = s.cs; rows[i].querySelector('.skill-ranks').value = s.lvl; } });
+        rows.forEach(r => { r.querySelector('.skill-cs').checked = false; r.querySelector('.skill-ranks').value = ""; if(r.querySelector('.skill-custom-input')) r.querySelector('.skill-custom-input').value = ""; });
+        data.skills.forEach((s, i) => { 
+            if(rows[i]) { 
+                rows[i].querySelector('.skill-cs').checked = s.cs; 
+                rows[i].querySelector('.skill-ranks').value = s.lvl; 
+                if(s.subName && rows[i].querySelector('.skill-custom-input')) rows[i].querySelector('.skill-custom-input').value = s.subName;
+            } 
+        });
     }
     updateCalcs();
 }
 
-function autoExpand(el) {
-    el.style.height = 'auto';
-    el.style.height = (el.scrollHeight + 5) + 'px';
-}
+function autoExpand(el) { el.style.height = 'auto'; el.style.height = (el.scrollHeight + 5) + 'px'; }
 
-// --- RENDERING LISTS ---
-const listContainerIds = {
-    weapon: 'weaponList',
-    spell: 'spellList',
-    active: 'activeList',
-    passive: 'passiveList',
-    feat: 'featList',
-    item: 'itemList'
-};
-
-function createListRow(containerId, title, meta, type, index, onViewClick, onEditClick) {
-    const container = document.getElementById(containerId);
-    const div = document.createElement('div');
-    div.className = 'list-row';
-    
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'row-content';
-    contentDiv.innerHTML = `<span class="list-row-title">${title}</span><span class="list-row-meta">${meta}</span>`;
-    contentDiv.onclick = onViewClick;
-
-    const actionsDiv = document.createElement('div');
-    actionsDiv.className = 'row-actions';
-    const editBtn = document.createElement('button');
-    editBtn.className = 'btn-edit';
-    editBtn.textContent = 'Edit';
-    editBtn.onclick = (e) => { e.stopPropagation(); onEditClick(); };
-
-    div.appendChild(contentDiv);
-    div.appendChild(actionsDiv);
-    actionsDiv.appendChild(editBtn);
-    container.appendChild(div);
-}
+const listContainerIds = { weapon: 'weaponList', spell: 'spellList', active: 'activeList', passive: 'passiveList', feat: 'featList', item: 'itemList' };
 
 window.openView = (type, index) => {
     const data = getActiveData();
-    let collectionName = '';
-    if(type === 'active') collectionName = 'activeAbilities';
-    else if(type === 'passive') collectionName = 'passiveAbilities';
-    else if(type === 'feat') collectionName = 'feats';
-    else collectionName = type + 's';
-    
-    const item = data[collectionName][index];
-    populateViewModal(type, item);
+    let col = type === 'active' ? 'activeAbilities' : type === 'passive' ? 'passiveAbilities' : type === 'feat' ? 'feats' : type + 's';
+    populateViewModal(type, data[col][index]);
 };
 
 window.openEditor = (type, index) => {
     const data = getActiveData();
-    let collectionName = '';
-    if(type === 'active') collectionName = 'activeAbilities';
-    else if(type === 'passive') collectionName = 'passiveAbilities';
-    else if(type === 'feat') collectionName = 'feats';
-    else collectionName = type + 's';
-    
-    const item = data[collectionName][index];
-    populateEditorModal(type, item, index, collectionName);
+    let col = type === 'active' ? 'activeAbilities' : type === 'passive' ? 'passiveAbilities' : type === 'feat' ? 'feats' : type + 's';
+    populateEditorModal(type, data[col][index], index, col);
 };
 
 function renderWeapons() {
     const data = getActiveData().weapons || [];
     document.getElementById('weaponList').innerHTML = '';
     data.forEach((w, i) => {
-        createListRow('weaponList', w.name||'New Weapon', w.mod||'', 'weapon', i, 
-            () => openView('weapon', i), 
-            () => openEditor('weapon', i)
-        );
+        const div = document.createElement('div'); div.className = 'list-row';
+        div.innerHTML = `<div class="row-content" onclick="openView('weapon',${i})"><span class="list-row-title">${w.name||'New Weapon'}</span><span class="list-row-meta">${w.mod||''}</span></div><div class="row-actions"><button class="btn-edit" onclick="openEditor('weapon',${i})">Edit</button></div>`;
+        document.getElementById('weaponList').appendChild(div);
     });
 }
 
 function renderSpells() {
     const data = getActiveData().spells || [];
-    const sorted = [...data].sort((a,b) => {
-        const map = { "Cantrip": 0, "1st": 1, "2nd": 2, "3rd": 3, "4th": 4, "5th": 5, "6th": 6, "7th": 7, "8th": 8, "9th": 9 };
-        return (map[a.lvl] || 0) - (map[b.lvl] || 0);
-    });
-    
-    const container = document.getElementById('spellList');
-    container.innerHTML = '';
-
+    const sorted = [...data].sort((a,b) => { const map = { "Cantrip":0, "1st":1, "2nd":2, "3rd":3, "4th":4, "5th":5, "6th":6, "7th":7, "8th":8, "9th":9 }; return (map[a.lvl]||0)-(map[b.lvl]||0); });
+    const container = document.getElementById('spellList'); container.innerHTML = '';
     sorted.forEach((s) => {
-        const originalIndex = data.indexOf(s);
-        const div = document.createElement('div');
-        div.className = 'list-row';
-        
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'row-content';
-        contentDiv.innerHTML = `<span class="list-row-title">[${s.lvl || '-'}] ${s.name || 'New Spell'}</span>`;
-        contentDiv.onclick = () => openView('spell', originalIndex);
-
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'row-actions';
-        
-        // Add Link Button if exists
-        if(s.link) {
-            const linkBtn = document.createElement('a');
-            linkBtn.className = 'btn-link-small';
-            linkBtn.href = s.link;
-            linkBtn.target = "_blank";
-            linkBtn.textContent = "Link";
-            linkBtn.onclick = (e) => e.stopPropagation();
-            actionsDiv.appendChild(linkBtn);
-        }
-
-        const editBtn = document.createElement('button');
-        editBtn.className = 'btn-edit';
-        editBtn.textContent = 'Edit';
-        editBtn.onclick = (e) => { e.stopPropagation(); openEditor('spell', originalIndex); };
-        
-        div.appendChild(contentDiv);
-        div.appendChild(actionsDiv);
-        actionsDiv.appendChild(editBtn);
+        const idx = data.indexOf(s);
+        const div = document.createElement('div'); div.className = 'list-row';
+        let linkHtml = s.link ? `<a class="btn-link-small" href="${s.link}" target="_blank" onclick="event.stopPropagation()">Link</a>` : '';
+        div.innerHTML = `<div class="row-content" onclick="openView('spell',${idx})"><span class="list-row-title">[${s.lvl||'-'}] ${s.name||'New Spell'}</span></div><div class="row-actions">${linkHtml}<button class="btn-edit" onclick="openEditor('spell',${idx})">Edit</button></div>`;
         container.appendChild(div);
     });
 }
 
-// UPDATED: Active Ability Render Logic
 function renderAbilities(subType) {
-    let prop = 'activeAbilities';
-    if(subType === 'passive') prop = 'passiveAbilities';
-    if(subType === 'feat') prop = 'feats';
-    
+    let prop = subType === 'active' ? 'activeAbilities' : subType === 'passive' ? 'passiveAbilities' : 'feats';
     const data = getActiveData()[prop] || [];
-    const container = document.getElementById(listContainerIds[subType]);
-    container.innerHTML = '';
-
+    const container = document.getElementById(listContainerIds[subType]); container.innerHTML = '';
     data.forEach((a, i) => {
-        const div = document.createElement('div');
-        div.className = 'list-row';
+        const div = document.createElement('div'); div.className = 'list-row';
+        let contentHtml = `<span class="list-row-title">${a.name||`New ${subType}`}</span>`;
+        if(subType === 'active') { contentHtml = `<span class="active-name">${a.name||'New Ability'}</span><span class="active-type">${a.type||''}</span>`; }
         
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'row-content';
-        
+        let inputsHtml = '';
         if(subType === 'active') {
-            // New Active Layout: Name | Type
-            contentDiv.classList.add('active-ability-layout');
-            contentDiv.innerHTML = `<span class="active-name">${a.name||'New Ability'}</span><span class="active-type">${a.type||''}</span>`;
-        } else {
-            contentDiv.innerHTML = `<span class="list-row-title">${a.name||`New ${subType}`}</span>`;
-        }
-        
-        contentDiv.onclick = () => openView(subType, i);
-
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'row-actions';
-        actionsDiv.style.display = 'flex';
-        actionsDiv.style.alignItems = 'center';
-
-        // INJECT INPUTS for Active Abilities
-        if(subType === 'active') {
-            const inputGroup = document.createElement('div');
-            inputGroup.className = 'inline-input-group';
-            
-            const iCur = document.createElement('input');
-            iCur.type = 'number';
-            iCur.value = a.u_curr || 0;
-            iCur.onclick = (e) => e.stopPropagation(); 
-            iCur.onchange = (e) => { 
-                a.u_curr = Number(e.target.value); 
-                saveDataOnly(); 
-            };
-
-            const sep = document.createElement('span');
-            sep.textContent = '/';
-
-            const iMax = document.createElement('input');
-            iMax.type = 'number';
-            iMax.value = a.u_max || 0;
-            iMax.onclick = (e) => e.stopPropagation();
-            iMax.onchange = (e) => { 
-                a.u_max = Number(e.target.value); 
-                saveDataOnly(); 
-            };
-
-            inputGroup.appendChild(iCur);
-            inputGroup.appendChild(sep);
-            inputGroup.appendChild(iMax);
-            actionsDiv.appendChild(inputGroup);
+            inputsHtml = `<div class="inline-input-group"><input type="number" value="${a.u_curr||0}" onchange="updateAbilityUse(${i},'u_curr',this.value)" onclick="event.stopPropagation()"><span>/</span><input type="number" value="${a.u_max||0}" onchange="updateAbilityUse(${i},'u_max',this.value)" onclick="event.stopPropagation()"></div>`;
         }
 
-        const editBtn = document.createElement('button');
-        editBtn.className = 'btn-edit';
-        editBtn.textContent = 'Edit';
-        editBtn.onclick = (e) => { e.stopPropagation(); openEditor(subType, i); };
-
-        div.appendChild(contentDiv);
-        div.appendChild(actionsDiv);
-        actionsDiv.appendChild(editBtn);
-        container.appendChild(div);
+        const cDiv = document.createElement('div'); cDiv.className = `row-content ${subType==='active'?'active-ability-layout':''}`;
+        cDiv.innerHTML = contentHtml; cDiv.onclick = () => openView(subType, i);
+        const aDiv = document.createElement('div'); aDiv.className = 'row-actions';
+        aDiv.innerHTML = `${inputsHtml}<button class="btn-edit" onclick="openEditor('${subType}',${i})">Edit</button>`;
+        
+        div.appendChild(cDiv); div.appendChild(aDiv); container.appendChild(div);
     });
 }
+window.updateAbilityUse = (idx, key, val) => { const d = getActiveData().activeAbilities[idx]; d[key] = Number(val); saveDataOnly(); };
 
 window.renderItems = () => {
     const data = getActiveData().items || [];
-    const container = document.getElementById('itemList');
-    container.innerHTML = '';
-    
+    const container = document.getElementById('itemList'); container.innerHTML = '';
     const tagFilter = document.getElementById('itemFilterTag').value;
     const sortType = document.getElementById('itemSort').value;
-    
     let filtered = data.filter(i => tagFilter === "All" || i.tags === tagFilter);
-    if(sortType === "abc") filtered.sort((a,b) => (a.name||"").localeCompare(b.name||""));
-    else filtered.reverse();
+    if(sortType === "abc") filtered.sort((a,b) => (a.name||"").localeCompare(b.name||"")); else filtered.reverse();
 
     filtered.forEach(item => {
-        const originalIndex = data.indexOf(item);
-        
-        const div = document.createElement('div');
-        div.className = 'list-row';
-        
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'row-content';
-        contentDiv.innerHTML = `<span class="list-row-title">${item.name || 'New Item'} <small style="color:#888; font-weight:normal">(${item.tags})</small></span>`;
-        contentDiv.onclick = () => openView('item', originalIndex);
-
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'row-actions';
-        actionsDiv.style.display = 'flex';
-        actionsDiv.style.gap = '5px';
-
-        if(item.tags === "Collections" && item.img) {
-            const imgBtn = document.createElement('button');
-            imgBtn.className = 'btn-save';
-            imgBtn.style.fontSize = "10px"; imgBtn.style.padding = "4px 8px";
-            imgBtn.textContent = "IMG";
-            imgBtn.onclick = (e) => { e.stopPropagation(); viewCollection(item.img); };
-            actionsDiv.appendChild(imgBtn);
-        }
-
-        const editBtn = document.createElement('button');
-        editBtn.className = 'btn-edit';
-        editBtn.textContent = 'Edit';
-        editBtn.onclick = (e) => { e.stopPropagation(); openEditor('item', originalIndex); };
-        actionsDiv.appendChild(editBtn);
-
-        div.appendChild(contentDiv);
-        div.appendChild(actionsDiv);
+        const idx = data.indexOf(item);
+        const div = document.createElement('div'); div.className = 'list-row';
+        let extraBtn = (item.tags === "Collections" && item.img) ? `<button class="btn-save" style="font-size:10px; padding:4px 8px;" onclick="event.stopPropagation();viewCollection('${item.img}')">IMG</button>` : '';
+        div.innerHTML = `<div class="row-content" onclick="openView('item',${idx})"><span class="list-row-title">${item.name||'New Item'} <small style="color:#888; font-weight:normal">(${item.tags})</small></span></div><div class="row-actions" style="display:flex; gap:5px">${extraBtn}<button class="btn-edit" onclick="openEditor('item',${idx})">Edit</button></div>`;
         container.appendChild(div);
     });
 };
 
-// --- VIEW MODAL LOGIC (READ ONLY) ---
 function populateViewModal(type, item) {
-    const title = document.getElementById('viewTitle');
-    const body = document.getElementById('viewBody');
-    body.innerHTML = '';
-    title.textContent = item.name || "Unnamed";
+    document.getElementById('viewTitle').textContent = item.name || "Unnamed";
+    const body = document.getElementById('viewBody'); body.innerHTML = '';
     document.getElementById('viewModal').style.display = 'flex';
-
-    const addLine = (label, text) => {
-        if(!text) return;
-        const l = document.createElement('div'); l.className = 'view-label'; l.textContent = label;
-        const t = document.createElement('div'); t.className = 'view-text'; t.textContent = text;
-        body.appendChild(l); body.appendChild(t);
-    };
-
-    if(type === 'weapon') {
-        // Removed Modifier display as requested
-        if(item.attrs && item.attrs.length > 0) {
-            const l = document.createElement('div'); l.className = 'view-label'; l.textContent = "Attributes"; body.appendChild(l);
-            const d = document.createElement('div'); d.style.marginBottom = "10px";
-            // Attributes each on their own line
-            item.attrs.forEach(a => {
-                const s = document.createElement('div'); s.className = 'view-attr-block';
-                s.textContent = `${a.name}: ${a.val}`;
-                d.appendChild(s);
-            });
-            body.appendChild(d);
-        }
-    }
+    const add = (l, t) => { if(t){ body.innerHTML += `<div class="view-label">${l}</div><div class="view-text">${t}</div>`; } };
     
-    if(type === 'spell') {
-        addLine("Level", item.lvl);
-        if(item.link) {
-            const btn = document.createElement('a'); btn.href = item.link; btn.target = "_blank";  btn.style.marginBottom = "15px";
-            body.appendChild(btn);
-        }
+    if(type === 'weapon' && item.attrs) {
+        body.innerHTML += `<div class="view-label">Attributes</div>`;
+        item.attrs.forEach(a => body.innerHTML += `<div class="view-attr-block">${a.name}: ${a.val}</div>`);
     }
-    
-    if(type === 'active') {
-        // Removed Type and Uses from popup as requested (now in row)
-        // Only showing Description
-    }
-    
-    if(type === 'feat' && item.link) {
-         const btn = document.createElement('a'); btn.href = item.link; btn.target = "_blank"; btn.className = "btn-link"; btn.textContent = "View Feat Source"; btn.style.marginBottom = "15px";
-         body.appendChild(btn);
-    }
-    
-    if(type === 'item') {
-        if(item.tags) addLine("Type", item.tags);
-        if(item.cost) addLine("Cost", item.cost);
-    }
-
-    if(item.desc) addLine("Description", item.desc);
+    if(type === 'spell') { add("Level", item.lvl); if(item.link) body.innerHTML += `<a href="${item.link}" target="_blank" style="display:block; margin-bottom:15px; color:#4488ff;">Link</a>`; }
+    if(type === 'feat' && item.link) body.innerHTML += `<a href="${item.link}" target="_blank" class="btn-link" style="margin-bottom:15px">View Feat Source</a>`;
+    if(type === 'item') { if(item.tags) add("Type", item.tags); if(item.cost) add("Cost", item.cost); }
+    add("Description", item.desc);
 }
 
-// --- EDITOR MODAL LOGIC ---
+let currentEditContext = null;
 const modal = document.getElementById('editorModal');
 const modalBody = document.getElementById('modalBody');
-const modalTitle = document.getElementById('modalTitle');
-const modalDelBtn = document.getElementById('modalDeleteBtn');
-const modalLinkBtn = document.getElementById('modalLinkBtn');
-let currentEditContext = null; 
 
-function populateEditorModal(type, item, index, collectionName) {
-    currentEditContext = { type, index, collectionName };
-    modalTitle.textContent = "Edit " + (type.charAt(0).toUpperCase() + type.slice(1));
+function populateEditorModal(type, item, index, col) {
+    currentEditContext = { type, index, col };
+    document.getElementById('modalTitle').textContent = "Edit " + type;
     modalBody.innerHTML = '';
-    modalLinkBtn.style.display = 'none';
-
-    if((type === 'spell' || type === 'feat') && item.link) {
-        modalLinkBtn.href = item.link;
-        modalLinkBtn.style.display = 'inline-block';
-    }
+    const linkBtn = document.getElementById('modalLinkBtn');
+    linkBtn.style.display = (item.link) ? 'inline-block' : 'none'; linkBtn.href = item.link || '#';
 
     createInput('Name', item.name, 'name');
-
     if(type === 'weapon') {
         createSelect('Modifier', item.mod, 'mod', ['STR','DEX','CON','INT','WIS','CHA']);
-        const attrLabel = document.createElement('label'); attrLabel.textContent = "Attributes"; modalBody.appendChild(attrLabel);
-        const attrCont = document.createElement('div'); attrCont.id = 'modalAttrCont';
-        modalBody.appendChild(attrCont);
-        (item.attrs || []).forEach((a, ai) => addAttrRow(attrCont, a, ai));
-        const addAttrBtn = document.createElement('button');
-        addAttrBtn.className = 'btn-add'; addAttrBtn.textContent = "+ Add Attribute";
-        addAttrBtn.style.fontSize = "12px"; addAttrBtn.style.padding = "5px";
-        addAttrBtn.onclick = () => {
-            if(!item.attrs) item.attrs = [];
-            item.attrs.push({name:'', val:''});
-            addAttrRow(attrCont, item.attrs[item.attrs.length-1], item.attrs.length-1);
-            saveDataOnly(); 
-        };
-        modalBody.appendChild(addAttrBtn);
+        const attrC = document.createElement('div'); 
+        modalBody.appendChild(document.createElement('label')).textContent = "Attributes"; modalBody.appendChild(attrC);
+        (item.attrs||[]).forEach((a,i) => addAttrRow(attrC, a, i));
+        const btn = document.createElement('button'); btn.className='btn-add'; btn.textContent='+ Add Attribute'; btn.style.fontSize='12px'; btn.style.padding='5px';
+        btn.onclick=()=>{ if(!item.attrs) item.attrs=[]; item.attrs.push({name:'',val:''}); addAttrRow(attrC, item.attrs[item.attrs.length-1], item.attrs.length-1); saveDataOnly(); };
+        modalBody.appendChild(btn);
     }
-    
-    if(type === 'spell') {
-        createSelect('Level', item.lvl, 'lvl', ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"]);
-        createInput('Link URL', item.link, 'link');
-    }
-    
+    if(type === 'spell') { createSelect('Level', item.lvl, 'lvl', ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"]); createInput('Link URL', item.link, 'link'); }
     if(type === 'active') {
         createSelect('Type', item.type, 'type', ["Standard","Move","Swift","Full","Free","Immediate","Reaction"]);
-        // Split Uses Inputs
-        const usesLabel = document.createElement('label'); usesLabel.textContent = "Uses (Current / Max)"; modalBody.appendChild(usesLabel);
-        const usesRow = document.createElement('div'); usesRow.style.display = "flex"; usesRow.style.gap = "5px";
-        
-        const uCurr = document.createElement('input'); uCurr.type = "number"; uCurr.placeholder = "Curr"; uCurr.value = item.u_curr || 0;
-        const uMax = document.createElement('input'); uMax.type = "number"; uMax.placeholder = "Max"; uMax.value = item.u_max || 0;
-        
-        uCurr.oninput = (e) => { updateCurrentItem('u_curr', e.target.value); };
-        uMax.oninput = (e) => { updateCurrentItem('u_max', e.target.value); };
-        
-        usesRow.appendChild(uCurr); usesRow.appendChild(uMax);
-        modalBody.appendChild(usesRow);
+        modalBody.appendChild(document.createElement('label')).textContent = "Uses (Cur/Max)";
+        const d = document.createElement('div'); d.style.cssText="display:flex;gap:5px";
+        const c = document.createElement('input'); c.type="number"; c.placeholder="Cur"; c.value=item.u_curr||0; c.oninput=e=>updateCurrentItem('u_curr',e.target.value);
+        const m = document.createElement('input'); m.type="number"; m.placeholder="Max"; m.value=item.u_max||0; m.oninput=e=>updateCurrentItem('u_max',e.target.value);
+        d.appendChild(c); d.appendChild(m); modalBody.appendChild(d);
     }
-    
-    if(type === 'feat') {
-        createInput('Link URL', item.link, 'link');
-    }
-    
+    if(type === 'feat') createInput('Link URL', item.link, 'link');
     if(type === 'item') {
-        if(item.tags === 'Collections') {
-             const lbl = document.createElement('label'); lbl.textContent = "Tag"; modalBody.appendChild(lbl);
-             const inp = document.createElement('input'); inp.value = "Collections"; inp.disabled = true; modalBody.appendChild(inp);
-             if(item.img) createInput('Image URL', item.img, 'img');
-        } else {
-             createSelect('Tag', item.tags, 'tags', ["Weapons", "Armor", "Gear", "Consumables", "Magic Items", "Misc"]);
-        }
+        if(item.tags==='Collections') { modalBody.appendChild(document.createElement('label')).textContent="Tag"; const i=document.createElement('input'); i.value="Collections"; i.disabled=true; modalBody.appendChild(i); if(item.img) createInput('Image URL', item.img, 'img'); }
+        else createSelect('Tag', item.tags, 'tags', ["Weapons", "Armor", "Gear", "Consumables", "Magic Items", "Misc"]);
         createInput('Cost', item.cost, 'cost');
     }
-
     createTextArea('Description', item.desc, 'desc');
 
-    modalDelBtn.onclick = () => {
-        const data = getActiveData();
-        data[collectionName].splice(index, 1);
-        saveDataOnly();
-        closeModal();
-    };
-
+    document.getElementById('modalDeleteBtn').onclick = () => { getActiveData()[col].splice(index, 1); saveDataOnly(); closeModal(); };
     modal.style.display = 'flex';
 }
 
-function createInput(label, value, key) {
-    const lbl = document.createElement('label'); lbl.textContent = label;
-    const inp = document.createElement('input'); 
-    inp.value = value || ''; 
-    inp.oninput = (e) => { updateCurrentItem(key, e.target.value); };
-    modalBody.appendChild(lbl); modalBody.appendChild(inp);
+function createInput(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const i=document.createElement('input'); i.value=v||''; i.oninput=e=>updateCurrentItem(k,e.target.value); modalBody.appendChild(lb); modalBody.appendChild(i); }
+function createTextArea(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const t=document.createElement('textarea'); t.value=v||''; setTimeout(()=>autoExpand(t),0); t.oninput=e=>{autoExpand(t); updateCurrentItem(k,e.target.value)}; modalBody.appendChild(lb); modalBody.appendChild(t); }
+function createSelect(l, v, k, ops) { const lb=document.createElement('label'); lb.textContent=l; const s=document.createElement('select'); ops.forEach(o=>{const op=document.createElement('option'); op.text=o; op.value=o; if(o===v) op.selected=true; s.appendChild(op)}); s.onchange=e=>updateCurrentItem(k,e.target.value); modalBody.appendChild(lb); modalBody.appendChild(s); }
+function addAttrRow(c, d, i) {
+    const r=document.createElement('div'); r.className='attr-row';
+    const n=document.createElement('input'); n.placeholder="Attr"; n.value=d.name||''; n.oninput=e=>{d.name=e.target.value; saveDataOnly()};
+    const v=document.createElement('input'); v.placeholder="Val"; v.value=d.val||''; v.oninput=e=>{d.val=e.target.value; saveDataOnly()};
+    const b=document.createElement('button'); b.className='btn-del'; b.textContent='x'; b.onclick=()=>{getActiveData().weapons[currentEditContext.index].attrs.splice(i,1); r.remove(); saveDataOnly()};
+    r.appendChild(n); r.appendChild(v); r.appendChild(b); c.appendChild(r);
 }
 
-function createTextArea(label, value, key) {
-    const lbl = document.createElement('label'); lbl.textContent = label;
-    const txt = document.createElement('textarea'); 
-    txt.value = value || ''; 
-    setTimeout(() => autoExpand(txt), 0);
-    txt.oninput = (e) => { 
-        autoExpand(txt);
-        updateCurrentItem(key, e.target.value); 
-    };
-    modalBody.appendChild(lbl); modalBody.appendChild(txt);
-}
-
-function createSelect(label, value, key, options) {
-    const lbl = document.createElement('label'); lbl.textContent = label;
-    const sel = document.createElement('select');
-    options.forEach(o => {
-        const opt = document.createElement('option'); opt.text = o; opt.value = o;
-        if(o === value) opt.selected = true;
-        sel.appendChild(opt);
-    });
-    sel.onchange = (e) => { updateCurrentItem(key, e.target.value); };
-    modalBody.appendChild(lbl); modalBody.appendChild(sel);
-}
-
-function addAttrRow(container, attrData, index) {
-    const row = document.createElement('div'); row.className = 'attr-row';
-    const n = document.createElement('input'); n.placeholder = "Attr"; n.value = attrData.name || '';
-    const v = document.createElement('input'); v.placeholder = "Val"; v.value = attrData.val || '';
-    const del = document.createElement('button'); del.className = 'btn-del'; del.textContent = 'x';
-    
-    n.oninput = (e) => { attrData.name = e.target.value; saveDataOnly(); };
-    v.oninput = (e) => { attrData.val = e.target.value; saveDataOnly(); };
-    del.onclick = () => {
-        const data = getActiveData();
-        const realItem = data.weapons[currentEditContext.index];
-        realItem.attrs.splice(index, 1);
-        row.remove();
-        saveDataOnly();
-    };
-    
-    row.appendChild(n); row.appendChild(v); row.appendChild(del);
-    container.appendChild(row);
-}
-
-function updateCurrentItem(key, value) {
-    const data = getActiveData();
-    const item = data[currentEditContext.collectionName][currentEditContext.index];
-    item[key] = value;
-    
-    if(key === 'link') {
-        modalLinkBtn.href = value;
-        modalLinkBtn.style.display = value ? 'inline-block' : 'none';
-    }
-    
-    // Refresh List if critical info changed
-    if(key === 'name' || key === 'lvl' || key === 'tags' || key === 'type' || key === 'u_curr' || key === 'u_max') {
-        refreshList(currentEditContext.type);
-    }
-    
+function updateCurrentItem(k, v) {
+    const item = getActiveData()[currentEditContext.col][currentEditContext.index];
+    item[k] = v;
+    if(k==='link') { const b=document.getElementById('modalLinkBtn'); b.href=v; b.style.display=v?'inline-block':'none'; }
+    if(['name','lvl','tags','type','u_curr','u_max'].includes(k)) refreshList(currentEditContext.type);
     saveDataOnly();
 }
+window.closeModal = () => { modal.style.display='none'; refreshList(currentEditContext.type); };
+function refreshList(t) { if(t==='weapon') renderWeapons(); else if(t==='spell') renderSpells(); else if(t==='item') renderItems(); else renderAbilities(t); }
 
-window.closeModal = () => {
-    modal.style.display = 'none';
-    refreshList(currentEditContext.type); 
+window.addNewItem = (t) => {
+    const d = getActiveData();
+    let n={name:''}, c='';
+    if(t==='weapon'){c='weapons';n.mod='STR';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;} else if(t==='passive')c='passiveAbilities'; else if(t==='feat')c='feats'; else if(t==='item'){c='items';n.tags='Misc';}
+    if(!d[c]) d[c]=[]; d[c].push(n);
+    saveDataOnly(); refreshList(t); openEditor(t, d[c].length-1);
 };
 
-function refreshList(type) {
-    if(type === 'weapon') renderWeapons();
-    else if(type === 'spell') renderSpells();
-    else if(type === 'item') renderItems();
-    else renderAbilities(type);
-}
-
-window.addNewItem = (type) => {
-    const data = getActiveData();
-    let newItem = { name: '' };
-    let collectionName = '';
-    
-    if(type === 'weapon') { collectionName = 'weapons'; newItem.mod = 'STR'; newItem.attrs=[]; }
-    else if(type === 'spell') { collectionName = 'spells'; newItem.lvl = 'Cantrip'; }
-    else if(type === 'active') { collectionName = 'activeAbilities'; newItem.type = 'Standard'; newItem.u_curr=0; newItem.u_max=0; }
-    else if(type === 'passive') { collectionName = 'passiveAbilities'; }
-    else if(type === 'feat') { collectionName = 'feats'; }
-    else if(type === 'item') { collectionName = 'items'; newItem.tags = 'Misc'; }
-    
-    if(!data[collectionName]) data[collectionName] = [];
-    data[collectionName].push(newItem);
-    
-    const newIndex = data[collectionName].length - 1;
-    saveDataOnly(); 
-    refreshList(type);
-    openEditor(type, newIndex);
-};
-
-// --- SAVING ---
 function scrapeCurrentSheet() {
-    const payload = {};
-    document.querySelectorAll('.live-field').forEach(el => payload[el.id] = el.value);
-    
-    payload.skills = [];
+    const p = {};
+    document.querySelectorAll('.live-field').forEach(el => p[el.id] = el.value);
+    p.skills = [];
     document.querySelectorAll('#skillsTableBody tr').forEach(r => { 
-        payload.skills.push({ cs: r.querySelector('.skill-cs').checked, lvl: Number(r.querySelector('.skill-ranks').value)||0 }); 
+        const sub = r.querySelector('.skill-custom-input') ? r.querySelector('.skill-custom-input').value : null;
+        p.skills.push({ cs: r.querySelector('.skill-cs').checked, lvl: Number(r.querySelector('.skill-ranks').value)||0, subName: sub }); 
     });
-    
-    const activeMemory = getActiveData();
-    payload.weapons = activeMemory.weapons || [];
-    payload.spells = activeMemory.spells || [];
-    payload.activeAbilities = activeMemory.activeAbilities || [];
-    payload.passiveAbilities = activeMemory.passiveAbilities || [];
-    payload.feats = activeMemory.feats || [];
-    
-    if(currentSummonId) payload.items = activeMemory.items || [];
-    else payload.items = fullData.items || []; 
-
-    return payload;
+    const m = getActiveData();
+    p.weapons=m.weapons||[]; p.spells=m.spells||[]; p.activeAbilities=m.activeAbilities||[]; p.passiveAbilities=m.passiveAbilities||[]; p.feats=m.feats||[];
+    p.items = currentSummonId ? (m.items||[]) : (fullData.items||[]);
+    return p;
 }
 
-function saveDataOnly() {
-    save();
-}
-
-function save(force = false) {
+function saveDataOnly() { save(); }
+function save(force=false) {
     if(isRemoteUpdate && !force) return;
-    document.getElementById('statusDot').className = 'status-dot'; 
-    clearTimeout(saveTimeout);
-    
+    document.getElementById('statusDot').className = 'status-dot'; clearTimeout(saveTimeout);
     saveTimeout = setTimeout(async () => {
-        const currentSheetData = scrapeCurrentSheet();
-        if(currentSummonId) {
-            currentSheetData.id = currentSummonId;
-            const index = fullData.summons.findIndex(s => s.id === currentSummonId);
-            if(index >= 0) fullData.summons[index] = currentSheetData;
-        } else {
-            const summonsBackup = fullData.summons;
-            fullData = { ...currentSheetData, summons: summonsBackup, items: currentSheetData.items };
-        }
+        const cur = scrapeCurrentSheet();
+        if(currentSummonId) { cur.id = currentSummonId; const i = fullData.summons.findIndex(s=>s.id===currentSummonId); if(i>=0) fullData.summons[i]=cur; }
+        else { const sb = fullData.summons; fullData = { ...cur, summons: sb, items: cur.items }; }
         await setDoc(doc(db,'users',currentUser.uid,'sheet','character'), fullData);
-        document.getElementById('statusDot').classList.add('live');
-        if(!force) updateSummonMenu(); 
+        document.getElementById('statusDot').classList.add('live'); if(!force) updateSummonMenu();
     }, 1000);
 }
 
-// --- SUMMON & UTILS ---
 window.createNewSummon = async () => {
     const newId = 'sum_' + Date.now();
-    const template = { id: newId, charName: 'New Summon', summons: [] }; 
     if(!fullData.summons) fullData.summons = [];
-    fullData.summons.push(template);
-    currentSummonId = newId;
-    save(true);
-    loadCurrentSheet();
-    updateSummonMenu();
+    fullData.summons.push({ id: newId, charName: 'New Summon', summons: [] });
+    currentSummonId = newId; save(true); loadCurrentSheet(); updateSummonMenu();
 }
 window.deleteCurrentSummon = async () => {
-    if(!confirm("Are you sure you want to delete this Summon sheet?")) return;
+    if(!confirm("Delete this Summon?")) return;
     fullData.summons = fullData.summons.filter(s => s.id !== currentSummonId);
-    currentSummonId = null;
-    save(true);
-    loadCurrentSheet();
-    updateSummonMenu();
+    currentSummonId = null; save(true); loadCurrentSheet(); updateSummonMenu();
 }
 function updateSummonMenu() {
     const fab = document.getElementById('summonFab');
     if(fullData.summons && fullData.summons.length > 0) { fab.style.display = 'flex'; } else { fab.style.display = 'none'; document.getElementById('summonMenu').classList.remove('show'); }
-    const menuEl = document.getElementById('summonMenu');
-    menuEl.innerHTML = '';
-    const mainBtn = document.createElement('button');
-    mainBtn.className = `summon-opt ${currentSummonId === null ? 'active' : ''}`;
-    mainBtn.textContent = fullData.charName || "Main Character";
-    mainBtn.onclick = () => { currentSummonId = null; loadCurrentSheet(); menuEl.classList.remove('show'); };
-    menuEl.appendChild(mainBtn);
+    const m = document.getElementById('summonMenu'); m.innerHTML = '';
+    const main = document.createElement('button'); main.className = `summon-opt ${currentSummonId===null?'active':''}`; main.textContent = fullData.charName || "Main Character"; main.onclick=()=>{currentSummonId=null;loadCurrentSheet();m.classList.remove('show')}; m.appendChild(main);
     fullData.summons.forEach(s => {
-        const btn = document.createElement('button');
-        btn.className = `summon-opt ${currentSummonId === s.id ? 'active' : ''}`;
-        btn.textContent = s.charName || "Unnamed Summon";
-        btn.onclick = () => { currentSummonId = s.id; loadCurrentSheet(); menuEl.classList.remove('show'); };
-        menuEl.appendChild(btn);
+        const b = document.createElement('button'); b.className = `summon-opt ${currentSummonId===s.id?'active':''}`; b.textContent = s.charName || "Unnamed"; b.onclick=()=>{currentSummonId=s.id;loadCurrentSheet();m.classList.remove('show')}; m.appendChild(b);
     });
 }
 
-const fab = document.getElementById('summonFab');
-const menu = document.getElementById('summonMenu');
+const fab = document.getElementById('summonFab'); const menu = document.getElementById('summonMenu');
 fab.onclick = (e) => {
     if(fab.dataset.dragging === "true") return;
-    const rect = fab.getBoundingClientRect();
-    const menuWidth = 200; const menuHeight = 250;
-    const spaceBelow = window.innerHeight - rect.bottom;
-    const spaceAbove = rect.top;
-    menu.style.bottom = 'auto'; menu.style.top = 'auto';
-    if (spaceBelow >= menuHeight || spaceBelow > spaceAbove) { menu.style.top = (rect.bottom + 10) + 'px'; } else { menu.style.bottom = (window.innerHeight - rect.top + 10) + 'px'; }
-    const spaceRight = window.innerWidth - rect.right;
-    menu.style.left = 'auto'; menu.style.right = 'auto';
-    if (spaceRight >= menuWidth) { menu.style.left = rect.left + 'px'; } else { 
-        let newRight = (window.innerWidth - rect.right);
-        newRight = Math.min(newRight, window.innerWidth - menuWidth - 10);
-        menu.style.right = newRight + 'px';
-    }
+    const r = fab.getBoundingClientRect();
+    menu.style.bottom='auto'; menu.style.top='auto'; menu.style.left='auto'; menu.style.right='auto';
+    if(window.innerHeight-r.bottom >= 250) menu.style.top=(r.bottom+10)+'px'; else menu.style.bottom=(window.innerHeight-r.top+10)+'px';
+    if(window.innerWidth-r.right >= 200) menu.style.left=r.left+'px'; else menu.style.right=(window.innerWidth-r.right)+'px';
     menu.classList.toggle('show');
 };
-let isDragging = false;
-let dragOffset = { x: 0, y: 0 };
-const startDrag = (e) => {
-    isDragging = true; fab.dataset.dragging = "false";
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    const rect = fab.getBoundingClientRect();
-    dragOffset.x = clientX - rect.left; dragOffset.y = clientY - rect.top;
-    document.addEventListener('mousemove', onDrag); document.addEventListener('touchmove', onDrag, {passive: false});
-    document.addEventListener('mouseup', endDrag); document.addEventListener('touchend', endDrag);
-};
-const onDrag = (e) => {
-    if(!isDragging) return;
-    e.preventDefault(); fab.dataset.dragging = "true";
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    let newX = clientX - dragOffset.x; let newY = clientY - dragOffset.y;
-    newX = Math.max(0, Math.min(window.innerWidth - fab.offsetWidth, newX));
-    newY = Math.max(0, Math.min(window.innerHeight - fab.offsetHeight, newY));
-    fab.style.left = newX + 'px'; fab.style.top = newY + 'px';
-};
-const endDrag = () => {
-    isDragging = false;
-    document.removeEventListener('mousemove', onDrag); document.removeEventListener('touchmove', onDrag);
-    document.removeEventListener('mouseup', endDrag); document.removeEventListener('touchend', endDrag);
-};
-fab.addEventListener('mousedown', startDrag);
-fab.addEventListener('touchstart', startDrag, {passive: false});
+let isD=false, dof={x:0,y:0};
+fab.addEventListener('mousedown', sD); fab.addEventListener('touchstart', sD, {passive:false});
+function sD(e) { isD=true; fab.dataset.dragging="false"; const c=e.touches?e.touches[0]:e; const r=fab.getBoundingClientRect(); dof.x=c.clientX-r.left; dof.y=c.clientY-r.top; document.addEventListener('mousemove', oD); document.addEventListener('touchmove', oD, {passive:false}); document.addEventListener('mouseup', eD); document.addEventListener('touchend', eD); }
+function oD(e) { if(!isD)return; e.preventDefault(); fab.dataset.dragging="true"; const c=e.touches?e.touches[0]:e; fab.style.left=Math.max(0,Math.min(window.innerWidth-fab.offsetWidth,c.clientX-dof.x))+'px'; fab.style.top=Math.max(0,Math.min(window.innerHeight-fab.offsetHeight,c.clientY-dof.y))+'px'; }
+function eD() { isD=false; document.removeEventListener('mousemove', oD); document.removeEventListener('touchmove', oD); document.removeEventListener('mouseup', eD); document.removeEventListener('touchend', eD); }
 
-const SKILLS_DB = [{n:"Acrobatics",s:"dex"}, {n:"Appraise",s:"int"}, {n:"Bluff",s:"cha"}, {n:"Climb",s:"str"}, {n:"Diplomacy",s:"cha"}, {n:"Disable Device",s:"dex"}, {n:"Disguise",s:"cha"}, {n:"Escape Artist",s:"dex"}, {n:"Fly",s:"dex"}, {n:"Handle Animal",s:"cha"}, {n:"Heal",s:"wis"}, {n:"Intimidate",s:"cha"}, {n:"Knw: Arcana",s:"int"}, {n:"Knw: Dungeoneering",s:"int"}, {n:"Knw: Engineering",s:"int"}, {n:"Knw: Geography",s:"int"}, {n:"Knw: History",s:"int"}, {n:"Knw: Local",s:"int"}, {n:"Knw: Nature",s:"int"}, {n:"Knw: Nobility",s:"int"}, {n:"Knw: Planes",s:"int"}, {n:"Knw: Religion",s:"int"}, {n:"Linguistics",s:"int"}, {n:"Perception",s:"wis"}, {n:"Profession",s:"wis"}, {n:"Ride",s:"dex"}, {n:"Sense Motive",s:"wis"}, {n:"Sleight of Hand",s:"dex"}, {n:"Spellcraft",s:"int"}, {n:"Stealth",s:"dex"}, {n:"Survival",s:"wis"}, {n:"Swim",s:"str"}, {n:"Use Magic Device",s:"cha"}];
+const SKILLS_DB = [
+    {n:"Acrobatics",s:"dex"}, {n:"Appraise",s:"int"}, {n:"Bluff",s:"cha"}, {n:"Climb",s:"str"},
+    {n:"Craft",s:"int", custom:true}, {n:"Craft",s:"int", custom:true}, {n:"Craft",s:"int", custom:true},
+    {n:"Diplomacy",s:"cha"}, {n:"Disable Device",s:"dex"}, {n:"Disguise",s:"cha"}, {n:"Drive",s:"dex"}, 
+    {n:"Escape Artist",s:"dex"}, {n:"Fly",s:"dex"}, {n:"Handle Animal",s:"cha"}, {n:"Heal",s:"wis"}, 
+    {n:"Intimidate",s:"cha"}, {n:"Knw: Arcana",s:"int"}, {n:"Knw: Dungeoneering",s:"int"}, {n:"Knw: Engineering",s:"int"}, 
+    {n:"Knw: Geography",s:"int"}, {n:"Knw: History",s:"int"}, {n:"Knw: Local",s:"int"}, {n:"Knw: Nature",s:"int"}, 
+    {n:"Knw: Nobility",s:"int"}, {n:"Knw: Planes",s:"int"}, {n:"Knw: Religion",s:"int"}, {n:"Linguistics",s:"int"}, 
+    {n:"Navigate",s:"int"}, {n:"Perception",s:"wis"}, 
+    {n:"Perform",s:"cha", custom:true}, {n:"Perform",s:"cha", custom:true}, {n:"Perform",s:"cha", custom:true},
+    {n:"Pilot",s:"dex"},
+    {n:"Profession",s:"wis", custom:true}, {n:"Profession",s:"wis", custom:true}, {n:"Profession",s:"wis", custom:true}, 
+    {n:"Repair",s:"int"},
+    {n:"Ride",s:"dex"}, {n:"Sense Motive",s:"wis"}, {n:"Sleight of Hand",s:"dex"}, {n:"Spellcraft",s:"int"}, 
+    {n:"Stealth",s:"dex"}, {n:"Survival",s:"wis"}, {n:"Swim",s:"str"}, {n:"Use Magic Device",s:"cha"}
+];
 const TRAINED_ONLY = ["Disable Device", "Handle Animal", "Knw: Arcana", "Knw: Dungeoneering", "Knw: Engineering", "Knw: Geography", "Knw: History", "Knw: Local", "Knw: Nature", "Knw: Nobility", "Knw: Planes", "Knw: Religion", "Linguistics", "Profession", "Use Magic Device"];
+
 function initSkills() {
     const cont = document.getElementById('skillsTableBody'); cont.innerHTML = '';
     SKILLS_DB.forEach(s => {
         const tr = document.createElement('tr'); tr.className = 'skill-row-data'; tr.dataset.stat = s.s;
-        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td style="text-align:left; font-weight:bold;" class="skill-name-cell">${s.n} <small style="color:#888; font-weight:normal;">(${s.s})</small></td><td class="skill-mod">0</td><td><input type="number" class="skill-ranks" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent); font-weight:bold;">0</td>`;
+        let nameHtml = s.n;
+        if(s.custom) nameHtml += ` <input class="skill-custom-input" placeholder="Type">`;
+        else nameHtml += ` <small style="color:#888; font-weight:normal;">(${s.s})</small>`;
+        
+        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td style="text-align:left; font-weight:bold;" class="skill-name-cell">${nameHtml}</td><td class="skill-mod">0</td><td><input type="number" class="skill-ranks" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent); font-weight:bold;">0</td>`;
         cont.appendChild(tr); tr.querySelectorAll('input').forEach(i => i.addEventListener('input', () => { updateCalcs(); save(); }));
     });
 }
@@ -1216,24 +758,24 @@ function updateCalcs() {
     const r = (Number(document.getElementById('ref_bonus').value)||0) + dex;
     const w = (Number(document.getElementById('will_bonus').value)||0) + wis;
     document.getElementById('fort_total').textContent = (f>=0?'+':'')+f; document.getElementById('ref_total').textContent = (r>=0?'+':'')+r; document.getElementById('will_total').textContent = (w>=0?'+':'')+w;
+    
     document.querySelectorAll('#skillsTableBody tr').forEach(row => {
         const mod = getMod(row.dataset.stat); const ranks = Number(row.querySelector('.skill-ranks').value)||0; const cs = row.querySelector('.skill-cs').checked;
         const total = mod + ranks + (cs && ranks>0 ? 3 : 0); row.querySelector('.skill-mod').textContent = mod; row.querySelector('.skill-total').textContent = (total>=0?'+':'')+total;
-        const skillName = row.querySelector('.skill-name-cell').textContent.split(' (')[0].trim();
-        const nameCell = row.querySelector('.skill-name-cell');
-        if(TRAINED_ONLY.includes(skillName)) {
-            if(ranks < 1) { nameCell.classList.add('trained-untrained'); nameCell.classList.remove('trained-trained'); } 
-            else { nameCell.classList.remove('trained-untrained'); nameCell.classList.add('trained-trained'); }
+        
+        const cell = row.querySelector('.skill-name-cell');
+        // Handle "Trained Only" logic simply by checking base name
+        let baseName = cell.innerText.split(' ')[0].trim();
+        if(cell.querySelector('input')) baseName = cell.firstChild.textContent.trim();
+
+        if(TRAINED_ONLY.some(t => cell.innerText.includes(t))) {
+            if(ranks < 1) { cell.classList.add('trained-untrained'); cell.classList.remove('trained-trained'); } 
+            else { cell.classList.remove('trained-untrained'); cell.classList.add('trained-trained'); }
         }
     });
 }
 
-// --- TOGGLE HEART MODAL (Mobile) ---
-window.toggleHeartStats = () => {
-    const container = document.getElementById('heartModalContainer');
-    container.classList.toggle('active-heart-modal');
-};
-
+window.toggleHeartStats = () => document.getElementById('heartModalContainer').classList.toggle('active-heart-modal');
 window.viewCollection = (url) => { document.getElementById('modalImg').src = url; document.getElementById('imageModal').style.display = 'flex'; };
 document.body.addEventListener('input', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); save(); } });
 </script>

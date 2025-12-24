@@ -25,36 +25,18 @@ button:hover { background: #e6b800; }
 .secondary-btn { background: #333; color: #fff; margin-top: 10px; border: 1px solid var(--border); }
 .secondary-btn:hover { background: #444; }
 
-/* Custom style for the Forgot Password link/button */
 .forgot-pass { 
-    display: block; 
-    margin-top: 10px; 
-    font-size: 14px; 
-    color: #aaa; /* Default color */
-    text-decoration: underline; 
-    cursor: pointer; 
-    border: none; 
-    background: none; 
-    width: 100%;
-    text-align: center; 
-    padding: 0;
-    transition: none; /* Disable all transitions */
+    display: block; margin-top: 10px; font-size: 14px; color: #aaa; 
+    text-decoration: underline; cursor: pointer; border: none; background: none; 
+    width: 100%; text-align: center; padding: 0; transition: none; 
 }
-/* Explicitly neutralize the hover effect */
-.forgot-pass:hover { 
-    color: #aaa; 
-    text-decoration: underline; 
-    background: none;
-}
+.forgot-pass:hover { color: #aaa; text-decoration: underline; background: none; }
 
 #message { margin-top: 20px; font-size: 14px; min-height: 20px; }
 .switch-link { margin-top: 20px; font-size: 12px; color: #888; }
 .switch-link a { color: var(--accent); text-decoration: none; font-weight: bold; }
 
-/* Transition containers for the in-page switch */
-#loginForm, #forgotForm {
-    transition: opacity 0.3s ease-in-out;
-}
+#loginForm, #forgotForm { transition: opacity 0.3s ease-in-out; }
 </style>
 </head>
 <body>
@@ -104,67 +86,72 @@ button:hover { background: #e6b800; }
   const forgotForm = document.getElementById("forgotForm");
   const resetEmailInput = document.getElementById("resetEmail");
 
-  // --- View Transitions ---
   function showForgotForm() {
-    // Copy main email input to reset form input for convenience
     resetEmailInput.value = document.getElementById("email").value; 
     loginForm.style.display = 'none';
     forgotForm.style.display = 'block';
-    msg.textContent = ''; // Clear previous messages
+    msg.textContent = ''; 
   }
 
   function showLoginForm() {
     forgotForm.style.display = 'none';
     loginForm.style.display = 'block';
-    msg.textContent = ''; // Clear previous messages
+    msg.textContent = ''; 
   }
 
-  // --- Firebase Auth Logic ---
+  // Custom Error Handler
+  function handleAuthError(error) {
+    console.error(error); 
+    msg.style.color = "#ff6666";
+    
+    // Check error codes and display user-friendly text
+    if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        msg.textContent = "This email isn't registered or the credentials are invalid.";
+    } else if (error.code === 'auth/wrong-password') {
+        msg.textContent = "Wrong password.";
+    } else if (error.code === 'auth/invalid-email') {
+        msg.textContent = "Invalid email format.";
+    } else if (error.code === 'auth/too-many-requests') {
+        msg.textContent = "Too many attempts. Try again later.";
+    } else {
+        msg.textContent = "An error occurred. Please try again.";
+    }
+  }
 
   onAuthStateChanged(auth, (user) => {
     if (user) window.location.href = "index.html";
   });
 
-  // Sign In Button
   document.getElementById("loginBtn").addEventListener("click", async () => {
     msg.textContent = "Signing in..."; msg.style.color = "#aaa";
     try {
       await signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value);
     } catch (err) {
-      msg.style.color = "#ff6666"; msg.textContent = "Error: " + err.message;
+      handleAuthError(err);
     }
   });
 
-  // Google Sign In Button
   document.getElementById("googleLoginBtn").addEventListener("click", async () => {
     try { await signInWithPopup(auth, googleProvider); } 
-    catch (err) { msg.style.color = "#ff6666"; msg.textContent = "Error: " + err.message; }
+    catch (err) { handleAuthError(err); }
   });
 
-  // Forgot Password Link -> SHOW FORGOT FORM
   document.getElementById("forgotBtn").addEventListener("click", showForgotForm);
-
-  // Back to Sign In Button
   document.getElementById("backToLoginBtn").addEventListener("click", showLoginForm);
 
-  // Send Reset Link Button -> FIREBASE RESET
   document.getElementById("sendResetBtn").addEventListener("click", async () => {
     const email = resetEmailInput.value.trim();
-
     if(!email) { 
         msg.style.color = "#ff6666"; msg.textContent = "Please enter an email address."; 
         return; 
     }
-    
     msg.textContent = "Sending reset link..."; msg.style.color = "#aaa";
-
     try {
         await sendPasswordResetEmail(auth, email);
         msg.style.color = "#4caf50"; 
-        msg.textContent = `Password reset email successfully sent to ${email}! Please check your inbox and your spam/junk folder.`;
+        msg.textContent = `Password reset email sent to ${email}.`;
     } catch(err) {
-        msg.style.color = "#ff6666"; 
-        msg.textContent = "Error sending reset link: " + err.message;
+        handleAuthError(err);
     }
   });
 </script>
