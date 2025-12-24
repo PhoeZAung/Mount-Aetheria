@@ -720,6 +720,7 @@ function sD(e) { isD=true; fab.dataset.dragging="false"; const c=e.touches?e.tou
 function oD(e) { if(!isD)return; e.preventDefault(); fab.dataset.dragging="true"; const c=e.touches?e.touches[0]:e; fab.style.left=Math.max(0,Math.min(window.innerWidth-fab.offsetWidth,c.clientX-dof.x))+'px'; fab.style.top=Math.max(0,Math.min(window.innerHeight-fab.offsetHeight,c.clientY-dof.y))+'px'; }
 function eD() { isD=false; document.removeEventListener('mousemove', oD); document.removeEventListener('touchmove', oD); document.removeEventListener('mouseup', eD); document.removeEventListener('touchend', eD); }
 
+// In characters.html
 const SKILLS_DB = [
     {n:"Acrobatics",s:"dex"}, {n:"Appraise",s:"int"}, {n:"Bluff",s:"cha"}, {n:"Climb",s:"str"},
     {n:"Craft",s:"int", custom:true}, {n:"Craft",s:"int", custom:true}, {n:"Craft",s:"int", custom:true},
@@ -727,8 +728,8 @@ const SKILLS_DB = [
     {n:"Escape Artist",s:"dex"}, {n:"Fly",s:"dex"}, {n:"Handle Animal",s:"cha"}, {n:"Heal",s:"wis"}, 
     {n:"Intimidate",s:"cha"}, {n:"Knw: Arcana",s:"int"}, {n:"Knw: Dungeoneering",s:"int"}, {n:"Knw: Engineering",s:"int"}, 
     {n:"Knw: Geography",s:"int"}, {n:"Knw: History",s:"int"}, {n:"Knw: Local",s:"int"}, {n:"Knw: Nature",s:"int"}, 
-    {n:"Knw: Nobility",s:"int"}, {n:"Knw: Planes",s:"int"}, {n:"Knw: Religion",s:"int"}, {n:"Linguistics",s:"int"}, 
-    {n:"Navigate",s:"int"}, {n:"Perception",s:"wis"}, 
+    {n:"Knw: Nobility",s:"int"}, {n:"Knw: Planes",s:"int"}, {n:"Knw: Religion",s:"int"}, {n:"Knw: Technology",s:"int"}, 
+    {n:"Linguistics",s:"int"}, {n:"Navigate",s:"int"}, {n:"Perception",s:"wis"}, 
     {n:"Perform",s:"cha", custom:true}, {n:"Perform",s:"cha", custom:true}, {n:"Perform",s:"cha", custom:true},
     {n:"Pilot",s:"dex"},
     {n:"Profession",s:"wis", custom:true}, {n:"Profession",s:"wis", custom:true}, {n:"Profession",s:"wis", custom:true}, 
@@ -736,8 +737,8 @@ const SKILLS_DB = [
     {n:"Ride",s:"dex"}, {n:"Sense Motive",s:"wis"}, {n:"Sleight of Hand",s:"dex"}, {n:"Spellcraft",s:"int"}, 
     {n:"Stealth",s:"dex"}, {n:"Survival",s:"wis"}, {n:"Swim",s:"str"}, {n:"Use Magic Device",s:"cha"}
 ];
-const TRAINED_ONLY = ["Disable Device", "Handle Animal", "Knw: Arcana", "Knw: Dungeoneering", "Knw: Engineering", "Knw: Geography", "Knw: History", "Knw: Local", "Knw: Nature", "Knw: Nobility", "Knw: Planes", "Knw: Religion", "Linguistics", "Profession", "Use Magic Device"];
-
+// In characters.html
+const TRAINED_ONLY = ["Disable Device", "Handle Animal", "Knw: Arcana", "Knw: Dungeoneering", "Knw: Engineering", "Knw: Geography", "Knw: History", "Knw: Local", "Knw: Nature", "Knw: Nobility", "Knw: Planes", "Knw: Religion", "Knw: Technology", "Linguistics", "Profession", "Use Magic Device"];
 function initSkills() {
     const cont = document.getElementById('skillsTableBody'); cont.innerHTML = '';
     SKILLS_DB.forEach(s => {
