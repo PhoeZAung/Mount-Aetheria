@@ -42,6 +42,10 @@
   
   #sheetContainer { flex:1; overflow-y:auto; padding-bottom:50px; display:none; }
   #sheetContainer.active { display:block; }
+  #modalLinkBtn {
+    display: none !important;
+    }
+
 
   /* Tab Style */
   .tabs-container { display: flex; width: 100%; max-width: 900px; margin: 0 auto; gap:20px; flex-direction: column; }
@@ -575,7 +579,13 @@ function renderSpells() {
         const idx = data.indexOf(s);
         const div = document.createElement('div'); div.className = 'list-row';
         let linkHtml = s.link ? `<a class="btn-link-small" href="${s.link}" target="_blank" onclick="event.stopPropagation()">Link</a>` : '';
-        div.innerHTML = `<div class="row-content" onclick="openView('spell',${idx})"><span class="list-row-title">[${s.lvl||'-'}] ${s.name||'New Spell'}</span></div><div class="row-actions">${linkHtml}<button class="btn-edit" onclick="openEditor('spell',${idx})">Edit</button></div>`;
+        const actionType = s.type || "Standard";
+        
+        div.innerHTML = `<div class="row-content active-ability-layout" onclick="openView('spell',${idx})">
+            <span class="active-name">[${s.lvl||'-'}] ${s.name||'New Spell'}</span>
+            <span class="active-type">${actionType}</span>
+        </div>
+        <div class="row-actions">${linkHtml}<button class="btn-edit" onclick="openEditor('spell',${idx})">Edit</button></div>`;
         container.appendChild(div);
     });
 }
@@ -637,7 +647,9 @@ function populateViewModal(type, item) {
         body.innerHTML += `<div class="view-label">Attributes</div>`;
         item.attrs.forEach(a => body.innerHTML += `<div class="view-attr-block">${a.name}: ${a.val}</div>`);
     }
-    if(type === 'spell') { add("Level", item.lvl); if(item.link) body.innerHTML += `<a href="${item.link}" target="_blank" style="display:block; margin-bottom:15px; color:#4488ff;">Link</a>`; }
+    if(type === 'spell') { 
+        if(item.link) body.innerHTML += `<a href="${item.link}" target="_blank" class="btn-link-small" style="display:inline-block; margin-bottom:15px; color:#fff;">Open Link</a>`; 
+    }
     if(type === 'feat' && item.link) body.innerHTML += `<a href="${item.link}" target="_blank" class="btn-link-small" style="margin-bottom:15px">View Feat Source</a>`;
     if(type === 'item') { if(item.tags) add("Type", item.tags); if(item.cost) add("Cost", item.cost); }
     add("Description", item.desc);
@@ -664,7 +676,11 @@ function populateEditorModal(type, item, index, col) {
         btn.onclick=()=>{ if(!item.attrs) item.attrs=[]; item.attrs.push({name:'',val:''}); addAttrRow(attrC, item.attrs[item.attrs.length-1], item.attrs.length-1); triggerSave(); };
         modalBody.appendChild(btn);
     }
-    if(type === 'spell') { createSelect('Level', item.lvl, 'lvl', ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"]); createInput('Link URL', item.link, 'link'); }
+    if(type === 'spell') { 
+        createSelect('Level', item.lvl, 'lvl', ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"]); 
+        createSelect('Action Type', item.type, 'type', ["Standard","Move","Swift","Full","Round","Minute","10 Min","Free","Immediate","Reaction"]);
+        createInput('Link URL', item.link, 'link'); 
+    }
     if(type === 'active') {
         createSelect('Type', item.type, 'type', ["Standard","Move","Swift","Full","Free","Immediate","Reaction"]);
         modalBody.appendChild(document.createElement('label')).textContent = "Uses (Cur/Max)";
@@ -727,7 +743,7 @@ function refreshList(t) { if(t==='weapon') renderWeapons(); else if(t==='spell')
 window.addNewItem = (t) => {
     const d = getActiveData();
     let n={name:''}, c='';
-    if(t==='weapon'){c='weapons';n.mod='STR';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;} else if(t==='passive')c='passiveAbilities'; else if(t==='feat')c='feats'; else if(t==='item'){c='items';n.tags='Misc';}
+    if(t==='weapon'){c='weapons';n.mod='STR';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;} else if(t==='passive')c='passiveAbilities'; else if(t==='feat')c='feats'; else if(t==='item'){c='items';n.tags='Misc';}
     if(!d[c]) d[c]=[]; d[c].push(n);
     triggerSave(); refreshList(t); openEditor(t, d[c].length-1);
 };
