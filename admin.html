@@ -88,10 +88,44 @@
   .stat-dual input { text-align: center; }
 
   /* LIST ROWS */
-  .list-row { background: var(--panel); padding: 10px; margin-bottom: 8px; border-radius: 6px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s; touch-action: manipulation; }
-  .list-row:hover { background: #333; border-color: #555; }
-  .row-content { flex-grow: 1; display: flex; flex-direction: column; padding-right: 10px; min-width: 0; }
-  .row-actions { flex-shrink: 0; display: flex; align-items: center; gap: 5px; }
+  .list-row { 
+    background: var(--panel); 
+    padding: 10px; 
+    margin-bottom: 8px; 
+    border-radius: 6px; 
+    border: 1px solid var(--border); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    cursor: pointer; 
+    position: relative;
+    /* This line makes the movement smooth */
+    transition: margin-top 0.2s cubic-bezier(0.2, 0, 0.2, 1), background 0.2s, opacity 0.2s; 
+    }
+    .list-row:hover { background: #333; border-color: #555; }
+  /* Drag & Drop Visuals */
+  .list-row.dragging { 
+    opacity: 0.2; 
+    background: #000;
+    border: 1px dashed #555;
+    }
+  .list-row.drag-over { 
+    border-top: 2px solid var(--accent); 
+    margin-top: 40px; /* Moves the item down visually */
+    background: #2a2a2a;
+    }
+
+ /* Find this class and CHANGE pointer-events to auto */
+    .row-content { 
+        flex-grow: 1; 
+        display: flex; 
+        flex-direction: column; 
+        padding-right: 10px; 
+        min-width: 0; 
+        pointer-events: auto; /* <--- CHANGED FROM none TO auto */
+    }/* Ensure clicks work but don't interfere with dragging */
+  .row-actions { flex-shrink: 0; display: flex; align-items: center; gap: 5px; pointer-events: auto; }
+  
   .list-row-title { font-weight: bold; color: var(--accent); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .list-row-meta { color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
@@ -150,6 +184,9 @@
   /* IMAGE MODAL */
   #imageModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3100; justify-content: center; align-items: center; flex-direction: column; padding: 10px; }
   #imageModal img { max-width: 95vw; max-height: 85vh; border: 2px solid var(--accent); border-radius: 4px; object-fit: contain; }
+
+  /* Ghost element for touch drag */
+  #dragGhost { position: fixed; top: 0; left: 0; width: 250px; background: #333; padding: 10px; border: 1px solid var(--accent); color: #fff; z-index: 9999; pointer-events: none; opacity: 0.8; display: none; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-weight: bold; }
 
   @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 
@@ -237,6 +274,7 @@
 
           <div class="combat-stats mobile-2col">
             <div class="stat-box"><label>AC</label><input id="ac_total" class="save-field"></div>
+            <div class="stat-box"><label>AR</label><input id="ar_total" class="save-field"></div>
             <div class="stat-box"><label>Initiative</label><input id="init_bonus" class="save-field"></div>
             <div class="stat-box"><label>BAB</label><input id="bab" class="save-field"></div>
             <div class="stat-box"><label>Speed</label><input id="speed" class="save-field"></div>
@@ -351,6 +389,8 @@
   <img id="modalImg" src="">
   <button onclick="document.getElementById('imageModal').style.display='none'" style="margin-top:15px; padding:10px 20px; background:var(--accent); border:none; font-weight:bold; cursor:pointer;">Close</button>
 </div>
+
+<div id="dragGhost"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -597,6 +637,8 @@ function autoExpand(el) {
 const listContainerIds = { weapon: 'weaponList', spell: 'spellList', active: 'activeList', passive: 'passiveList', feat: 'featList', item: 'itemList' };
 
 window.openView = (type, index) => {
+    // Prevent view if dragging
+    if(isDragging) return;
     const data = getActiveData();
     let col = type === 'active' ? 'activeAbilities' : type === 'passive' ? 'passiveAbilities' : type === 'feat' ? 'feats' : type + 's';
     populateViewModal(type, data[col][index]);
@@ -637,28 +679,194 @@ function renderSpells() {
     });
 }
 
+// DRAG AND DROP LOGIC
+let dragSrcIndex = null;
+let dragType = null;
+let isDragging = false;
+let touchTimer = null;
+let touchDragItem = null;
+let touchStartCoords = {x:0, y:0};
+
 function renderAbilities(subType) {
     let prop = subType === 'active' ? 'activeAbilities' : subType === 'passive' ? 'passiveAbilities' : 'feats';
+    // Get the correct array, default to empty
     const data = getActiveData()[prop] || [];
-    const container = document.getElementById(listContainerIds[subType]); container.innerHTML = '';
+    // Get the correct container ID
+    const container = document.getElementById(listContainerIds[subType]); 
+    container.innerHTML = '';
+    
     data.forEach((a, i) => {
-        const div = document.createElement('div'); div.className = 'list-row';
-        let contentHtml = `<span class="list-row-title">${a.name||`New ${subType}`}</span>`;
-        if(subType === 'active') { contentHtml = `<span class="active-name">${a.name||'New Ability'}</span><span class="active-type">${a.type||''}</span>`; }
+        const div = document.createElement('div'); 
+        div.className = 'list-row';
         
+        // Desktop DnD Attributes
+        div.draggable = true;
+        div.dataset.index = i;
+        div.dataset.type = subType;
+        
+        // Drag Events
+        div.addEventListener('dragstart', handleDragStart);
+        div.addEventListener('dragover', handleDragOver);
+        div.addEventListener('drop', handleDrop);
+        div.addEventListener('dragend', handleDragEnd);
+        
+        // Touch Events
+        div.addEventListener('touchstart', handleTouchStart, {passive: false});
+        div.addEventListener('touchmove', handleTouchMove, {passive: false});
+        div.addEventListener('touchend', handleTouchEnd);
+
+        // Content HTML
+        let contentHtml = `<span class="list-row-title">${a.name||`New ${subType}`}</span>`;
+        if(subType === 'active') { 
+            contentHtml = `<span class="active-name">${a.name||'New Ability'}</span><span class="active-type">${a.type||''}</span>`; 
+        }
+        
+        // Inputs HTML (for Active uses)
         let inputsHtml = '';
         if(subType === 'active') {
             inputsHtml = `<div class="inline-input-group"><input type="number" value="${a.u_curr||0}" onchange="updateAbilityUse(${i},'u_curr',this.value)" onclick="event.stopPropagation()"><span>/</span><input type="number" value="${a.u_max||0}" onchange="updateAbilityUse(${i},'u_max',this.value)" onclick="event.stopPropagation()"></div>`;
         }
 
-        const cDiv = document.createElement('div'); cDiv.className = `row-content ${subType==='active'?'active-ability-layout':''}`;
-        cDiv.innerHTML = contentHtml; cDiv.onclick = () => openView(subType, i);
-        const aDiv = document.createElement('div'); aDiv.className = 'row-actions';
-        aDiv.innerHTML = `${inputsHtml}<button class="btn-edit" onclick="openEditor('${subType}',${i})">Edit</button>`;
+        // --- NEW: FEAT LINK LOGIC ---
+        let linkHtml = '';
+        if(subType === 'feat' && a.link) {
+            linkHtml = `<a class="btn-link-small" href="${a.link}" target="_blank" onclick="event.stopPropagation()">Link</a>`;
+        }
+        // ----------------------------
+
+        const cDiv = document.createElement('div'); 
+        cDiv.className = `row-content ${subType==='active'?'active-ability-layout':''}`;
+        cDiv.innerHTML = contentHtml; 
+        
+        // Ensure click opens view only if we aren't dragging
+        cDiv.onclick = (e) => { 
+            if(!isDragging) openView(subType, i); 
+        };
+        
+        const aDiv = document.createElement('div'); 
+        aDiv.className = 'row-actions';
+        // Added linkHtml to the output below
+        aDiv.innerHTML = `${inputsHtml}${linkHtml}<button class="btn-edit" onclick="event.stopPropagation(); openEditor('${subType}',${i})">Edit</button>`;
         
         div.appendChild(cDiv); div.appendChild(aDiv); container.appendChild(div);
     });
 }
+
+// Desktop Drag Handlers
+function handleDragStart(e) {
+    dragSrcIndex = Number(this.dataset.index);
+    dragType = this.dataset.type;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', dragSrcIndex);
+    this.classList.add('dragging');
+    isDragging = true;
+}
+function handleDragOver(e) {
+    if (e.preventDefault) e.preventDefault();
+    return false;
+}
+function handleDrop(e) {
+    e.stopPropagation();
+    const target = e.currentTarget;
+    const targetIndex = Number(target.dataset.index);
+    const targetType = target.dataset.type;
+    
+    if (dragType !== targetType) return false;
+    if (dragSrcIndex === targetIndex) return false;
+
+    const data = getActiveData();
+    let col = dragType === 'active' ? 'activeAbilities' : dragType === 'passive' ? 'passiveAbilities' : 'feats';
+    const arr = data[col];
+    
+    const item = arr[dragSrcIndex];
+    arr.splice(dragSrcIndex, 1);
+    arr.splice(targetIndex, 0, item);
+    
+    triggerSave();
+    renderAbilities(dragType);
+    return false;
+}
+function handleDragEnd(e) {
+    this.classList.remove('dragging');
+    isDragging = false;
+    dragSrcIndex = null;
+    dragType = null;
+}
+
+// Mobile Touch Handlers
+function handleTouchStart(e) {
+    if(e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+    const el = e.currentTarget;
+    touchStartCoords = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    touchDragItem = el;
+    
+    touchTimer = setTimeout(() => {
+        isDragging = true;
+        el.classList.add('dragging');
+        navigator.vibrate(50); // Haptic feedback
+        // Create ghost
+        const ghost = document.getElementById('dragGhost');
+        ghost.textContent = "Moving: " + (el.querySelector('.list-row-title, .active-name')?.textContent || "Item");
+        ghost.style.display = 'block';
+        ghost.style.left = (e.touches[0].clientX + 15) + 'px';
+        ghost.style.top = (e.touches[0].clientY + 15) + 'px';
+    }, 500); // 500ms hold
+}
+function handleTouchMove(e) {
+    if(!isDragging) {
+        // If moved significantly before timer, cancel timer
+        const dx = Math.abs(e.touches[0].clientX - touchStartCoords.x);
+        const dy = Math.abs(e.touches[0].clientY - touchStartCoords.y);
+        if(dx > 10 || dy > 10) clearTimeout(touchTimer);
+        return;
+    }
+    e.preventDefault(); // Prevent scroll
+    const ghost = document.getElementById('dragGhost');
+    ghost.style.left = (e.touches[0].clientX + 15) + 'px';
+    ghost.style.top = (e.touches[0].clientY + 15) + 'px';
+    
+    // Highlight potential drop target
+    const target = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+    const row = target?.closest('.list-row');
+    document.querySelectorAll('.list-row').forEach(r => r.classList.remove('drag-over'));
+    if(row && row !== touchDragItem && row.dataset.type === touchDragItem.dataset.type) {
+        row.classList.add('drag-over');
+    }
+}
+function handleTouchEnd(e) {
+    clearTimeout(touchTimer);
+    document.getElementById('dragGhost').style.display = 'none';
+    document.querySelectorAll('.list-row').forEach(r => {
+        r.classList.remove('dragging');
+        r.classList.remove('drag-over');
+    });
+    
+    if(isDragging) {
+        // Find drop target
+        const touch = e.changedTouches[0];
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+        const targetRow = target?.closest('.list-row');
+        
+        if(targetRow && targetRow !== touchDragItem) {
+            const srcIdx = Number(touchDragItem.dataset.index);
+            const tgtIdx = Number(targetRow.dataset.index);
+            const type = touchDragItem.dataset.type;
+            
+            if(type === targetRow.dataset.type) {
+                const data = getActiveData();
+                let col = type === 'active' ? 'activeAbilities' : type === 'passive' ? 'passiveAbilities' : 'feats';
+                const arr = data[col];
+                const item = arr[srcIdx];
+                arr.splice(srcIdx, 1);
+                arr.splice(tgtIdx, 0, item);
+                triggerSave();
+                renderAbilities(type);
+            }
+        }
+        isDragging = false;
+    }
+}
+
 window.updateAbilityUse = (idx, key, val) => { const d = getActiveData().activeAbilities[idx]; d[key] = Number(val); triggerSave(); };
 
 window.renderItems = () => {
@@ -697,7 +905,6 @@ function populateViewModal(type, item) {
     if(type === 'spell') { 
         if(item.link) body.innerHTML += `<a href="${item.link}" target="_blank" class="btn-link-small" style="display:inline-block; margin-bottom:15px; color:#fff;">Open Link</a>`; 
     }
-    if(type === 'feat' && item.link) body.innerHTML += `<a href="${item.link}" target="_blank" class="btn-link-small" style="margin-bottom:15px">View Feat Source</a>`;
     if(type === 'item') { if(item.tags) add("Type", item.tags); if(item.cost) add("Cost", item.cost); }
     add("Description", item.desc);
 }
@@ -729,7 +936,8 @@ function populateEditorModal(type, item, index, col) {
         createInput('Link URL', item.link, 'link'); 
     }
     if(type === 'active') {
-        createSelect('Type', item.type, 'type', ["Standard","Move","Swift","Full","Free","Immediate","Reaction"]);
+        // Added 'Other' to Action Type list
+        createSelect('Type', item.type, 'type', ["Standard","Move","Swift","Full","Free","Immediate","Reaction","Other"]);
         modalBody.appendChild(document.createElement('label')).textContent = "Uses (Cur/Max)";
         const d = document.createElement('div'); d.style.cssText="display:flex;gap:5px";
         const c = document.createElement('input'); c.type="number"; c.placeholder="Cur"; c.value=item.u_curr||0; c.oninput=e=>updateCurrentItem('u_curr',e.target.value);

@@ -59,14 +59,42 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
 .stat-dual input { text-align: center; padding: 8px 2px; }
 
 /* --- LIST ROWS --- */
-.list-row { background: var(--panel); padding: 10px; margin-bottom: 8px; border-radius: 6px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s; touch-action: manipulation; user-select: none; -webkit-tap-highlight-color: transparent; position: relative; }
+.list-row { 
+    background: var(--panel); 
+    padding: 10px; 
+    margin-bottom: 8px; 
+    border-radius: 6px; 
+    border: 1px solid var(--border); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    cursor: pointer; 
+    position: relative;
+    /* This line makes the movement smooth */
+    transition: margin-top 0.2s cubic-bezier(0.2, 0, 0.2, 1), background 0.2s, opacity 0.2s; 
+}
 .list-row:hover { background: #333; border-color: #555; }
 /* Drag & Drop Visuals */
-.list-row.dragging { opacity: 0.5; border: 1px dashed var(--accent); background: #111; }
-.list-row.drag-over { border-top: 2px solid var(--accent); }
+.list-row.dragging { 
+    opacity: 0.2; 
+    background: #000;
+    border: 1px dashed #555;
+}
+.list-row.drag-over { 
+    border-top: 2px solid var(--accent); 
+    margin-top: 40px; /* Moves the item down visually */
+    background: #2a2a2a;
+}
 
-.row-content { flex-grow: 1; display: flex; flex-direction: column; padding-right: 10px; min-width: 0; pointer-events: none; } 
-/* Note: pointer-events: none on content helps click-through for DnD, but we enable it on parent click handler */
+/* Find this class and CHANGE pointer-events to auto */
+.row-content { 
+    flex-grow: 1; 
+    display: flex; 
+    flex-direction: column; 
+    padding-right: 10px; 
+    min-width: 0; 
+    pointer-events: auto; /* <--- CHANGED FROM none TO auto */
+}
 .row-actions { flex-shrink: 0; display: flex; align-items: center; gap: 5px; pointer-events: auto; }
 
 .row-content.active-ability-layout { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; }
@@ -558,46 +586,64 @@ let touchStartCoords = {x:0, y:0};
 
 function renderAbilities(subType) {
     let prop = subType === 'active' ? 'activeAbilities' : subType === 'passive' ? 'passiveAbilities' : 'feats';
+    // Get the correct array, default to empty
     const data = getActiveData()[prop] || [];
+    // Get the correct container ID
     const container = document.getElementById(listContainerIds[subType]); 
     container.innerHTML = '';
     
     data.forEach((a, i) => {
         const div = document.createElement('div'); 
         div.className = 'list-row';
+        
         // Desktop DnD Attributes
         div.draggable = true;
         div.dataset.index = i;
         div.dataset.type = subType;
         
-        // Touch/Mouse Events for Drag
+        // Drag Events
         div.addEventListener('dragstart', handleDragStart);
         div.addEventListener('dragover', handleDragOver);
         div.addEventListener('drop', handleDrop);
         div.addEventListener('dragend', handleDragEnd);
         
-        // Mobile Long Press Logic
+        // Touch Events
         div.addEventListener('touchstart', handleTouchStart, {passive: false});
         div.addEventListener('touchmove', handleTouchMove, {passive: false});
         div.addEventListener('touchend', handleTouchEnd);
-        div.addEventListener('mousedown', (e) => { 
-           // Allow simple click but prevent drag conflict if needed 
-        });
 
+        // Content HTML
         let contentHtml = `<span class="list-row-title">${a.name||`New ${subType}`}</span>`;
-        if(subType === 'active') { contentHtml = `<span class="active-name">${a.name||'New Ability'}</span><span class="active-type">${a.type||''}</span>`; }
+        if(subType === 'active') { 
+            contentHtml = `<span class="active-name">${a.name||'New Ability'}</span><span class="active-type">${a.type||''}</span>`; 
+        }
         
+        // Inputs HTML (for Active uses)
         let inputsHtml = '';
         if(subType === 'active') {
             inputsHtml = `<div class="inline-input-group"><input type="number" value="${a.u_curr||0}" onchange="updateAbilityUse(${i},'u_curr',this.value)" onclick="event.stopPropagation()"><span>/</span><input type="number" value="${a.u_max||0}" onchange="updateAbilityUse(${i},'u_max',this.value)" onclick="event.stopPropagation()"></div>`;
         }
 
-        const cDiv = document.createElement('div'); cDiv.className = `row-content ${subType==='active'?'active-ability-layout':''}`;
+        // --- NEW: FEAT LINK LOGIC ---
+        let linkHtml = '';
+        if(subType === 'feat' && a.link) {
+            linkHtml = `<a class="btn-link-small" href="${a.link}" target="_blank" onclick="event.stopPropagation()">Link</a>`;
+        }
+        // ----------------------------
+
+        const cDiv = document.createElement('div'); 
+        cDiv.className = `row-content ${subType==='active'?'active-ability-layout':''}`;
         cDiv.innerHTML = contentHtml; 
-        cDiv.onclick = (e) => { if(!isDragging) openView(subType, i); };
         
-        const aDiv = document.createElement('div'); aDiv.className = 'row-actions';
-        aDiv.innerHTML = `${inputsHtml}<button class="btn-edit" onclick="event.stopPropagation(); openEditor('${subType}',${i})">Edit</button>`;
+        // Ensure click opens view only if we aren't dragging
+        cDiv.onclick = (e) => { 
+            if(!isDragging) openView(subType, i); 
+        };
+        
+        const aDiv = document.createElement('div'); 
+        aDiv.className = 'row-actions';
+        // Added linkHtml to the output below
+        aDiv.innerHTML = `${inputsHtml}${linkHtml}<button class="btn-edit" onclick="event.stopPropagation(); openEditor('${subType}',${i})">Edit</button>`;
         
         div.appendChild(cDiv); div.appendChild(aDiv); container.appendChild(div);
     });
@@ -752,7 +798,6 @@ function populateViewModal(type, item) {
     if(type === 'spell') { 
         if(item.link) body.innerHTML += `<a href="${item.link}" target="_blank" class="btn-link-small" style="margin-bottom:15px; display:inline-block;">Open Link</a>`; 
     }
-    if(type === 'feat' && item.link) body.innerHTML += `<a href="${item.link}" target="_blank" class="btn-link" style="margin-bottom:15px">View Feat Source</a>`;
     if(type === 'item') { if(item.tags) add("Type", item.tags); if(item.cost) add("Cost", item.cost); }
     add("Description", item.desc);
 }
