@@ -59,10 +59,15 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
 .stat-dual input { text-align: center; padding: 8px 2px; }
 
 /* --- LIST ROWS --- */
-.list-row { background: var(--panel); padding: 10px; margin-bottom: 8px; border-radius: 6px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s; touch-action: manipulation; user-select: none; -webkit-tap-highlight-color: transparent; }
+.list-row { background: var(--panel); padding: 10px; margin-bottom: 8px; border-radius: 6px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.2s; touch-action: manipulation; user-select: none; -webkit-tap-highlight-color: transparent; position: relative; }
 .list-row:hover { background: #333; border-color: #555; }
-.row-content { flex-grow: 1; display: flex; flex-direction: column; padding-right: 10px; min-width: 0; }
-.row-actions { flex-shrink: 0; display: flex; align-items: center; gap: 5px; }
+/* Drag & Drop Visuals */
+.list-row.dragging { opacity: 0.5; border: 1px dashed var(--accent); background: #111; }
+.list-row.drag-over { border-top: 2px solid var(--accent); }
+
+.row-content { flex-grow: 1; display: flex; flex-direction: column; padding-right: 10px; min-width: 0; pointer-events: none; } 
+/* Note: pointer-events: none on content helps click-through for DnD, but we enable it on parent click handler */
+.row-actions { flex-shrink: 0; display: flex; align-items: center; gap: 5px; pointer-events: auto; }
 
 .row-content.active-ability-layout { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; }
 .active-name { font-weight: bold; color: var(--accent); flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -186,6 +191,9 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
 #notes { display: none; flex-direction: column; height: 100%; box-sizing: border-box; }
 #notes.active { display: flex; }
 #notesArea { flex-grow: 1; border: 1px solid var(--border); border-radius: 6px; background: #111; padding: 10px; font-family: sans-serif; line-height: 1.6; font-size: 16px; width: 100%; margin-bottom: 20px; }
+
+/* Ghost element for touch drag */
+#dragGhost { position: fixed; top: 0; left: 0; width: 250px; background: #333; padding: 10px; border: 1px solid var(--accent); color: #fff; z-index: 9999; pointer-events: none; opacity: 0.8; display: none; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-weight: bold; }
 </style>
 </head>
 <body>
@@ -260,6 +268,7 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
       </div>
       <div class="combat-stats mobile-2col">
         <div class="stat-box"><label>AC</label><input id="ac_total" class="live-field"></div>
+        <div class="stat-box"><label>AR</label><input id="ar_total" class="live-field"></div>
         <div class="stat-box"><label>Initiative</label><input id="init_bonus" class="live-field"></div>
         <div class="stat-box"><label>BAB</label><input id="bab" class="live-field"></div>
         <div class="stat-box"><label>Speed</label><input id="speed" class="live-field"></div>
@@ -373,6 +382,8 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
   <img id="modalImg" src="">
   <button onclick="document.getElementById('imageModal').style.display='none'" style="margin-top:15px; padding:10px 20px; background:var(--accent); border:none; font-weight:bold; cursor:pointer;">Close</button>
 </div>
+
+<div id="dragGhost"></div>
 
 <div class="status-bar"><span id="uidDisplay">Loading...</span><div><span class="status-dot" id="statusDot"></span><span id="statusText">Connecting</span></div></div>
 
@@ -495,6 +506,8 @@ function autoExpand(el) { el.style.height = 'auto'; el.style.height = (el.scroll
 const listContainerIds = { weapon: 'weaponList', spell: 'spellList', active: 'activeList', passive: 'passiveList', feat: 'featList', item: 'itemList' };
 
 window.openView = (type, index) => {
+    // Prevent view from opening if we are dragging
+    if(isDragging) return;
     const data = getActiveData();
     let col = type === 'active' ? 'activeAbilities' : type === 'passive' ? 'passiveAbilities' : type === 'feat' ? 'feats' : type + 's';
     populateViewModal(type, data[col][index]);
@@ -535,12 +548,42 @@ function renderSpells() {
     });
 }
 
+// DRAG AND DROP LOGIC
+let dragSrcIndex = null;
+let dragType = null;
+let isDragging = false;
+let touchTimer = null;
+let touchDragItem = null;
+let touchStartCoords = {x:0, y:0};
+
 function renderAbilities(subType) {
     let prop = subType === 'active' ? 'activeAbilities' : subType === 'passive' ? 'passiveAbilities' : 'feats';
     const data = getActiveData()[prop] || [];
-    const container = document.getElementById(listContainerIds[subType]); container.innerHTML = '';
+    const container = document.getElementById(listContainerIds[subType]); 
+    container.innerHTML = '';
+    
     data.forEach((a, i) => {
-        const div = document.createElement('div'); div.className = 'list-row';
+        const div = document.createElement('div'); 
+        div.className = 'list-row';
+        // Desktop DnD Attributes
+        div.draggable = true;
+        div.dataset.index = i;
+        div.dataset.type = subType;
+        
+        // Touch/Mouse Events for Drag
+        div.addEventListener('dragstart', handleDragStart);
+        div.addEventListener('dragover', handleDragOver);
+        div.addEventListener('drop', handleDrop);
+        div.addEventListener('dragend', handleDragEnd);
+        
+        // Mobile Long Press Logic
+        div.addEventListener('touchstart', handleTouchStart, {passive: false});
+        div.addEventListener('touchmove', handleTouchMove, {passive: false});
+        div.addEventListener('touchend', handleTouchEnd);
+        div.addEventListener('mousedown', (e) => { 
+           // Allow simple click but prevent drag conflict if needed 
+        });
+
         let contentHtml = `<span class="list-row-title">${a.name||`New ${subType}`}</span>`;
         if(subType === 'active') { contentHtml = `<span class="active-name">${a.name||'New Ability'}</span><span class="active-type">${a.type||''}</span>`; }
         
@@ -550,13 +593,132 @@ function renderAbilities(subType) {
         }
 
         const cDiv = document.createElement('div'); cDiv.className = `row-content ${subType==='active'?'active-ability-layout':''}`;
-        cDiv.innerHTML = contentHtml; cDiv.onclick = () => openView(subType, i);
+        cDiv.innerHTML = contentHtml; 
+        cDiv.onclick = (e) => { if(!isDragging) openView(subType, i); };
+        
         const aDiv = document.createElement('div'); aDiv.className = 'row-actions';
-        aDiv.innerHTML = `${inputsHtml}<button class="btn-edit" onclick="openEditor('${subType}',${i})">Edit</button>`;
+        aDiv.innerHTML = `${inputsHtml}<button class="btn-edit" onclick="event.stopPropagation(); openEditor('${subType}',${i})">Edit</button>`;
         
         div.appendChild(cDiv); div.appendChild(aDiv); container.appendChild(div);
     });
 }
+
+// Desktop Drag Handlers
+function handleDragStart(e) {
+    dragSrcIndex = Number(this.dataset.index);
+    dragType = this.dataset.type;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', dragSrcIndex);
+    this.classList.add('dragging');
+    isDragging = true;
+}
+function handleDragOver(e) {
+    if (e.preventDefault) e.preventDefault();
+    return false;
+}
+function handleDrop(e) {
+    e.stopPropagation();
+    const target = e.currentTarget;
+    const targetIndex = Number(target.dataset.index);
+    const targetType = target.dataset.type;
+    
+    if (dragType !== targetType) return false;
+    if (dragSrcIndex === targetIndex) return false;
+
+    // Swap Data
+    const data = getActiveData();
+    let col = dragType === 'active' ? 'activeAbilities' : dragType === 'passive' ? 'passiveAbilities' : 'feats';
+    const arr = data[col];
+    
+    const item = arr[dragSrcIndex];
+    arr.splice(dragSrcIndex, 1);
+    arr.splice(targetIndex, 0, item);
+    
+    saveDataOnly();
+    renderAbilities(dragType);
+    return false;
+}
+function handleDragEnd(e) {
+    this.classList.remove('dragging');
+    isDragging = false;
+    dragSrcIndex = null;
+    dragType = null;
+}
+
+// Mobile Touch Handlers
+function handleTouchStart(e) {
+    if(e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+    const el = e.currentTarget;
+    touchStartCoords = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    touchDragItem = el;
+    
+    touchTimer = setTimeout(() => {
+        isDragging = true;
+        el.classList.add('dragging');
+        navigator.vibrate(50); // Haptic feedback
+        // Create ghost
+        const ghost = document.getElementById('dragGhost');
+        ghost.textContent = "Moving: " + (el.querySelector('.list-row-title, .active-name')?.textContent || "Item");
+        ghost.style.display = 'block';
+        ghost.style.left = (e.touches[0].clientX + 15) + 'px';
+        ghost.style.top = (e.touches[0].clientY + 15) + 'px';
+    }, 500); // 500ms hold
+}
+function handleTouchMove(e) {
+    if(!isDragging) {
+        // If moved significantly before timer, cancel timer
+        const dx = Math.abs(e.touches[0].clientX - touchStartCoords.x);
+        const dy = Math.abs(e.touches[0].clientY - touchStartCoords.y);
+        if(dx > 10 || dy > 10) clearTimeout(touchTimer);
+        return;
+    }
+    e.preventDefault(); // Prevent scroll
+    const ghost = document.getElementById('dragGhost');
+    ghost.style.left = (e.touches[0].clientX + 15) + 'px';
+    ghost.style.top = (e.touches[0].clientY + 15) + 'px';
+    
+    // Highlight potential drop target
+    const target = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+    const row = target?.closest('.list-row');
+    document.querySelectorAll('.list-row').forEach(r => r.classList.remove('drag-over'));
+    if(row && row !== touchDragItem && row.dataset.type === touchDragItem.dataset.type) {
+        row.classList.add('drag-over');
+    }
+}
+function handleTouchEnd(e) {
+    clearTimeout(touchTimer);
+    document.getElementById('dragGhost').style.display = 'none';
+    document.querySelectorAll('.list-row').forEach(r => {
+        r.classList.remove('dragging');
+        r.classList.remove('drag-over');
+    });
+    
+    if(isDragging) {
+        // Find drop target
+        const touch = e.changedTouches[0];
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+        const targetRow = target?.closest('.list-row');
+        
+        if(targetRow && targetRow !== touchDragItem) {
+            const srcIdx = Number(touchDragItem.dataset.index);
+            const tgtIdx = Number(targetRow.dataset.index);
+            const type = touchDragItem.dataset.type;
+            
+            if(type === targetRow.dataset.type) {
+                const data = getActiveData();
+                let col = type === 'active' ? 'activeAbilities' : type === 'passive' ? 'passiveAbilities' : 'feats';
+                const arr = data[col];
+                const item = arr[srcIdx];
+                arr.splice(srcIdx, 1);
+                arr.splice(tgtIdx, 0, item);
+                saveDataOnly();
+                renderAbilities(type);
+            }
+        }
+        isDragging = false;
+    }
+}
+
 window.updateAbilityUse = (idx, key, val) => { const d = getActiveData().activeAbilities[idx]; d[key] = Number(val); saveDataOnly(); };
 
 window.renderItems = () => {
@@ -623,7 +785,8 @@ function populateEditorModal(type, item, index, col) {
         createInput('Link URL', item.link, 'link'); 
     }
     if(type === 'active') {
-        createSelect('Type', item.type, 'type', ["Standard","Move","Swift","Full","Free","Immediate","Reaction"]);
+        // ADDED 'Other' to this list
+        createSelect('Type', item.type, 'type', ["Standard","Move","Swift","Full","Free","Immediate","Reaction","Other"]);
         modalBody.appendChild(document.createElement('label')).textContent = "Uses (Cur/Max)";
         const d = document.createElement('div'); d.style.cssText="display:flex;gap:5px";
         const c = document.createElement('input'); c.type="number"; c.placeholder="Cur"; c.value=item.u_curr||0; c.oninput=e=>updateCurrentItem('u_curr',e.target.value);
