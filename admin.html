@@ -23,8 +23,8 @@
   
   .userItem { padding:10px 15px; cursor:pointer; border-bottom:1px solid #222; transition:0.2s; display:flex; justify-content: space-between; align-items: center; }
   .userItem:hover { background:#222; }
-  .userItem.selected { background:var(--accent); color:#000; }
-  .userItem.banned-user { background: #3d0000; border-left: 3px solid #ff4444; } /* Visual for banned users */
+  .userItem.selected { background:#333; border-left: 3px solid var(--accent); } /* Visual only for sidebar */
+  .userItem.banned-user { background: #3d0000; border-left: 3px solid #ff4444; }
   
   .userItem .uInfo { display: flex; flex-direction: column; overflow: hidden; }
   .userItem .uName { font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -40,22 +40,55 @@
   .summonItem { padding: 8px 15px 8px 35px; cursor:pointer; border-bottom:1px solid #222; background: #252525; color: #aaa; font-size: 0.95em; position: relative; }
   .summonItem:before { content:"↳"; position:absolute; left:15px; opacity:0.5; }
   .summonItem:hover { background: #333; color: #fff; }
-  .summonItem.selected { background: var(--accent); color: #000; }
 
   /* --- EDITOR AREA --- */
   #editorArea { flex:1; display:flex; flex-direction:column; background:#111; position:relative; overflow:hidden; }
-  #emptyState { display:flex; align-items:center; justify-content:center; height:100%; color:#444; font-family:'Uncial Antiqua'; font-size:24px; }
+  
+  /* --- NEW TABS BAR --- */
+  #editorTabs { display: flex; background: #000; border-bottom: 1px solid #333; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; height: 36px; align-items: flex-end; }
+  #editorTabs::-webkit-scrollbar { display: none; }
+  
+  .editor-tab {
+      padding: 8px 15px;
+      background: #111;
+      color: #888;
+      border-right: 1px solid #222;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 140px;
+      max-width: 200px;
+      justify-content: space-between;
+      font-size: 13px;
+      user-select: none;
+      height: 35px;
+      border-top: 2px solid transparent;
+  }
+  .editor-tab:hover { background: #1a1a1a; color: #ccc; }
+  .editor-tab.active { background: #222; color: var(--accent); border-top: 2px solid var(--accent); font-weight: bold; }
+  
+  .tab-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tab-close { 
+      border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 14px; opacity: 0.5; transition: 0.2s; flex-shrink: 0; 
+      margin-right: -5px; /* Pull slightly right */
+  }
+  .tab-close:hover { background: #444; color: #fff; opacity: 1; }
+
+  /* ------------------- */
+
+  #emptyState { display:flex; align-items:center; justify-content:center; height:100%; color:#444; font-family:'Uncial Antiqua'; font-size:24px; flex-direction: column; gap: 10px; }
   #backBtnMobile { display: none; background: #333; color: #fff; border: none; padding: 10px; text-align: left; font-weight: bold; cursor: pointer; border-bottom: 1px solid #444; }
   
   #sheetContainer { flex:1; overflow-y:auto; padding-bottom:50px; display:none; }
   #sheetContainer.active { display:block; }
   #modalLinkBtn { display: none !important; }
 
-  /* Tab Style */
+  /* Tab Style (Internal Navigation) */
   .tabs-container { display: flex; width: 100%; max-width: 900px; margin: 0 auto; gap:20px; flex-direction: column; }
-  .main-tabs { display: flex; width: 100%; background: #000; border-bottom: 1px solid var(--accent); overflow-x: auto; scrollbar-width: none; }
+  .main-tabs { display: flex; width: 100%; background: #1a1a1a; border-bottom: 1px solid var(--accent); overflow-x: auto; scrollbar-width: none; }
   .tab-btn { flex: 1; min-width: fit-content; background: transparent; border: none; color: #888; padding: 12px 5px; cursor: pointer; font-family: 'Uncial Antiqua', serif; text-align: center; border-bottom: 3px solid transparent; }
-  .tab-btn:hover, .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: #111; }
+  .tab-btn:hover, .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: #222; }
   
   .tab-content { display: none; padding: 15px; width: 100%; box-sizing: border-box; max-width: 800px; margin: 0 auto; }
   .tab-content.active { display: block; animation: fadeIn 0.3s; }
@@ -66,11 +99,7 @@
   input:focus, textarea:focus { border-color: var(--accent); outline: none; }
   label { color: #aaa; font-size: 12px; font-weight: bold; margin-bottom: 4px; display: block; }
   
-  /* EXPANDED BOX STYLES - Updated for larger default size */
-  .expanded-textarea {
-      min-height: 200px; /* Increased default height */
-      resize: vertical;
-  }
+  .expanded-textarea { min-height: 200px; resize: vertical; }
 
   .bio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .bio-item { display: flex; flex-direction: column; }
@@ -99,31 +128,14 @@
     align-items: center; 
     cursor: pointer; 
     position: relative;
-    /* This line makes the movement smooth */
     transition: margin-top 0.2s cubic-bezier(0.2, 0, 0.2, 1), background 0.2s, opacity 0.2s; 
     }
     .list-row:hover { background: #333; border-color: #555; }
   /* Drag & Drop Visuals */
-  .list-row.dragging { 
-    opacity: 0.2; 
-    background: #000;
-    border: 1px dashed #555;
-    }
-  .list-row.drag-over { 
-    border-top: 2px solid var(--accent); 
-    margin-top: 40px; /* Moves the item down visually */
-    background: #2a2a2a;
-    }
+  .list-row.dragging { opacity: 0.2; background: #000; border: 1px dashed #555; }
+  .list-row.drag-over { border-top: 2px solid var(--accent); margin-top: 40px; background: #2a2a2a; }
 
- /* Find this class and CHANGE pointer-events to auto */
-    .row-content { 
-        flex-grow: 1; 
-        display: flex; 
-        flex-direction: column; 
-        padding-right: 10px; 
-        min-width: 0; 
-        pointer-events: auto; /* <--- CHANGED FROM none TO auto */
-    }/* Ensure clicks work but don't interfere with dragging */
+    .row-content { flex-grow: 1; display: flex; flex-direction: column; padding-right: 10px; min-width: 0; pointer-events: auto; }
   .row-actions { flex-shrink: 0; display: flex; align-items: center; gap: 5px; pointer-events: auto; }
   
   .list-row-title { font-weight: bold; color: var(--accent); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -142,16 +154,7 @@
   .modal-header { padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; border-radius: 8px 8px 0 0; flex-shrink: 0; }
   .modal-header h3 { margin: 0; font-size: 18px; color: var(--accent); font-family: 'Uncial Antiqua'; }
   .modal-body { padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; overflow-x: hidden; } 
-    .view-text {
-        color: #eee;
-        font-size: 15px;
-        margin-bottom: 12px;
-        white-space: pre-wrap;      
-        word-wrap: break-word;     
-        overflow-wrap: break-word; 
-        line-height: 1.5;
-        max-width: 100%;
-    }
+    .view-text { color: #eee; font-size: 15px; margin-bottom: 12px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; line-height: 1.5; max-width: 100%; }
   .view-label { color: #888; font-size: 11px; text-transform: uppercase; margin-bottom: 2px; font-weight: bold; }
   .view-attr-block { display: block; background: #333; padding: 6px; border-radius: 4px; font-size: 13px; margin-bottom: 5px; border: 1px solid #444; color: #eee; }
 
@@ -200,6 +203,7 @@
     body.show-editor #sidebar { transform: translateX(-20%); opacity: 0; }
     body.show-editor #editorArea { transform: translateX(0); }
     #backBtnMobile { display: block; }
+    #editorTabs { padding-left: 0; }
 
     .mobile-2col { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 5px !important; padding: 5px !important; }
     .mobile-2col .stat-box { flex-direction: column !important; justify-content: center !important; width: 100% !important; border-bottom: none !important; padding: 5px !important; background: #2a2a2a; border-radius: 4px; min-height: 50px; }
@@ -222,9 +226,13 @@
   </div>
 
   <div id="editorArea">
+    <div id="editorTabs"></div>
     <button id="backBtnMobile" onclick="closeMobileEditor()">← Back to User List</button>
     
-    <div id="emptyState">Select a user to edit their sheet</div>
+    <div id="emptyState">
+        <span>Select a user to edit</span>
+        <span style="font-size:14px; opacity:0.5; font-family:sans-serif;">(Tabs will appear above)</span>
+    </div>
     
     <div id="sheetContainer">
       <div class="main-tabs">
@@ -413,6 +421,9 @@ let unsubscribeSheet = null;
 let saveTimeout = null;
 let isInternalUpdate = false;
 
+// TABS STATE
+let openTabs = []; // { uid, sid, name }
+
 window.switchTab = (id) => { 
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); 
@@ -441,7 +452,11 @@ window.switchSubSub = (id) => {
     localStorage.setItem('adminAbilSub', id);
 };
 
-window.closeMobileEditor = () => { document.body.classList.remove('show-editor'); };
+// Close mobile editor now acts as close tab for the current tab on mobile
+window.closeMobileEditor = () => { 
+    if(currentParentUid) closeTab(currentParentUid, currentSummonId);
+    document.body.classList.remove('show-editor'); 
+};
 
 const SKILLS_DB = [
     {n:"Acrobatics",s:"dex"}, {n:"Appraise",s:"int"}, {n:"Bluff",s:"cha"}, {n:"Climb",s:"str"},
@@ -509,7 +524,7 @@ function renderUserList(users){
         
         div.onclick = (e) => { 
             if(e.target.closest('.user-actions')) return; 
-            selectUser(u.uid, null, div); 
+            openTab(u.uid, null, u.name); // CHANGED TO OPEN TAB
         };
         
         const btnDel = div.querySelector('.del');
@@ -525,12 +540,129 @@ function renderUserList(users){
             u.summons.forEach(s => {
                 const sDiv = document.createElement('div'); sDiv.className = 'summonItem'; sDiv.dataset.sid = s.id;
                 sDiv.textContent = s.charName || "Unnamed Summon";
-                sDiv.onclick = (e) => { e.stopPropagation(); selectUser(u.uid, s.id, sDiv); };
+                sDiv.onclick = (e) => { e.stopPropagation(); openTab(u.uid, s.id, s.charName || "Summon"); }; // CHANGED TO OPEN TAB
                 listEl.appendChild(sDiv);
             });
         }
     });
 }
+
+// --- TABS LOGIC ---
+
+window.openTab = (uid, sid, name) => {
+    // Check if exists
+    const existing = openTabs.find(t => t.uid === uid && t.sid === sid);
+    if (!existing) {
+        openTabs.push({ uid, sid, name });
+        renderTabs();
+    }
+    activateTab(uid, sid);
+    document.body.classList.add('show-editor'); // for mobile
+};
+
+window.closeTab = (uid, sid) => {
+    const idx = openTabs.findIndex(t => t.uid === uid && t.sid === sid);
+    if (idx === -1) return;
+    
+    const wasActive = (currentParentUid === uid && currentSummonId === sid);
+    openTabs.splice(idx, 1);
+    renderTabs();
+
+    if (wasActive) {
+        // If we closed the active tab, switch to the last one, or empty state
+        if (openTabs.length > 0) {
+            const last = openTabs[openTabs.length - 1];
+            activateTab(last.uid, last.sid);
+        } else {
+            // No tabs left
+            if(unsubscribeSheet) unsubscribeSheet();
+            unsubscribeSheet = null;
+            currentParentUid = null;
+            currentSummonId = null;
+            document.getElementById('sheetContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'flex';
+            document.getElementById('targetUserUID').textContent = "No User Selected";
+        }
+    }
+};
+
+function renderTabs() {
+    const container = document.getElementById('editorTabs');
+    container.innerHTML = '';
+    openTabs.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'editor-tab';
+        if (t.uid === currentParentUid && t.sid === currentSummonId) div.classList.add('active');
+        
+        div.innerHTML = `<span class="tab-title">${t.name}</span><span class="tab-close">×</span>`;
+        div.onclick = (e) => {
+            if(e.target.classList.contains('tab-close')) {
+                e.stopPropagation();
+                closeTab(t.uid, t.sid);
+            } else {
+                activateTab(t.uid, t.sid);
+            }
+        };
+        container.appendChild(div);
+    });
+}
+
+function activateTab(uid, sid) {
+    if(currentParentUid === uid && currentSummonId === sid) return; // Already active
+
+    // 1. CLEAR OLD DATA VISUALLY AND INTERNALLY
+    if(unsubscribeSheet) unsubscribeSheet();
+    unsubscribeSheet = null;
+    
+    // Wipe global data
+    fullSheetData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [] };
+    
+    // Wipe UI Inputs immediately to prevent bleed
+    document.querySelectorAll('.save-field').forEach(el => el.value = "");
+    document.querySelectorAll('#skillsTableBody input[type="number"]').forEach(el => el.value = "");
+    document.querySelectorAll('#skillsTableBody input[type="checkbox"]').forEach(el => el.checked = false);
+    document.getElementById('weaponList').innerHTML = '';
+    document.getElementById('spellList').innerHTML = '';
+    document.getElementById('activeList').innerHTML = '';
+    document.getElementById('passiveList').innerHTML = '';
+    document.getElementById('featList').innerHTML = '';
+    document.getElementById('itemList').innerHTML = '';
+
+    // 2. Set new State
+    currentParentUid = uid; 
+    currentSummonId = sid;
+
+    // 3. Update UI Wrapper
+    renderTabs(); // Highlights new tab
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('sheetContainer').style.display = 'block';
+    document.getElementById('sheetContainer').classList.add('active');
+    
+    const typeLabel = sid ? " (Summon)" : " (Main)";
+    document.getElementById('targetUserUID').textContent = "Editing: " + uid + typeLabel;
+    
+    // 4. Highlight Sidebar (Visual only)
+    document.querySelectorAll('.userItem, .summonItem').forEach(d => d.classList.remove('selected'));
+    if(!sid) {
+        const row = document.querySelector(`.userItem[data-uid="${uid}"]`);
+        if(row) row.classList.add('selected');
+    } else {
+        const row = document.querySelector(`.summonItem[data-sid="${sid}"]`);
+        if(row) row.classList.add('selected');
+    }
+
+    // 5. Restore Sub-Tabs Preference
+    initSkillsTable(); 
+    const savedCombat = localStorage.getItem('adminCombatSub') || 'c-general';
+    const savedAbil = localStorage.getItem('adminAbilSub') || 'a-active';
+    switchSub(savedCombat); 
+    switchSubSub(savedAbil);
+
+    // 6. Start Listening
+    startListening(uid);
+}
+
+// ---------------------------
 
 window.deleteUserDoc = async (uid, name) => {
     if(!confirm(`Delete user data for "${name}"?`)) return;
@@ -552,41 +684,28 @@ document.getElementById('userSearch').addEventListener('input', (e)=>{
     renderUserList(filtered);
 });
 
-function selectUser(uid, summonId, el){
-    document.querySelectorAll('.userItem, .summonItem').forEach(d => d.classList.remove('selected'));
-    if(el) el.classList.add('selected');
-    currentParentUid = uid; currentSummonId = summonId;
-    const typeLabel = summonId ? " (Summon)" : " (Main)";
-    document.getElementById('targetUserUID').textContent = "Editing: " + uid + typeLabel;
-    document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('sheetContainer').style.display = 'block';
-    document.getElementById('sheetContainer').classList.add('active');
-    document.body.classList.add('show-editor');
-    initSkillsTable(); startListening(uid);
-    
-    const savedCombat = localStorage.getItem('adminCombatSub') || 'c-general';
-    const savedAbil = localStorage.getItem('adminAbilSub') || 'a-active';
-    switchSub(savedCombat); switchSubSub(savedAbil);
-}
-
 function startListening(uid){
-    if(unsubscribeSheet) unsubscribeSheet();
     const docRef = doc(db, 'users', uid, 'sheet', 'character');
     document.getElementById('statusText').textContent = "Syncing...";
     
     unsubscribeSheet = onSnapshot(docRef, (docSnap) => {
         if(docSnap.metadata.hasPendingWrites) return;
         if (document.querySelector('.save-field:focus') || document.querySelector('input:focus') || document.querySelector('textarea:focus')) { return; }
+        
         if(docSnap.exists()){
             fullSheetData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [], ...docSnap.data() };
             isInternalUpdate = true;
-            populateSheet();
+            populateSheet(); // Logic moved here ensures we populate with fresh data
             isInternalUpdate = false;
             document.getElementById('statusText').textContent = "Synced";
             document.getElementById('statusText').style.color = "#4caf50";
         } else {
+            // DATA IS EMPTY/NEW USER
             document.getElementById('statusText').textContent = "No Sheet Data";
             fullSheetData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [] };
+            isInternalUpdate = true;
+            populateSheet(); // CRITICAL: Run populate even if empty to clear the UI
+            isInternalUpdate = false;
         }
     });
 }
@@ -609,22 +728,34 @@ function populateSheet(){
         document.getElementById('btn-sub-passive').style.display = 'block';
     }
 
+    // Force clear then fill
     document.querySelectorAll('.save-field').forEach(el => { el.value = ""; if(data[el.id] !== undefined) el.value = data[el.id]; });
+    
     document.querySelectorAll('textarea.save-field').forEach(tx => { 
         if(!tx.classList.contains('expanded-textarea') && tx.id !== 'notesArea') autoExpand(tx); 
     });
     
     renderWeapons(); renderSpells(); renderAbilities('active'); renderAbilities('passive'); renderAbilities('feat'); renderItems();
 
-    if(!currentSummonId && data.skills){
+    // Skills
+    if(!currentSummonId){
         const rows = document.querySelectorAll('.skill-row-data');
-        data.skills.forEach((s, i) => { 
-            if(rows[i]){ 
-                rows[i].querySelector('.skill-cs').checked = s.cs; 
-                rows[i].querySelector('.skill-ranks').value = s.lvl; 
-                if(s.subName && rows[i].querySelector('.skill-custom-input')) rows[i].querySelector('.skill-custom-input').value = s.subName;
-            } 
+        // Reset skills first
+        rows.forEach(r => {
+             r.querySelector('.skill-cs').checked = false;
+             r.querySelector('.skill-ranks').value = "";
+             if(r.querySelector('.skill-custom-input')) r.querySelector('.skill-custom-input').value = "";
         });
+
+        if (data.skills) {
+            data.skills.forEach((s, i) => { 
+                if(rows[i]){ 
+                    rows[i].querySelector('.skill-cs').checked = s.cs; 
+                    rows[i].querySelector('.skill-ranks').value = s.lvl; 
+                    if(s.subName && rows[i].querySelector('.skill-custom-input')) rows[i].querySelector('.skill-custom-input').value = s.subName;
+                } 
+            });
+        }
     }
     updateCalculations();
 }
@@ -689,63 +820,46 @@ let touchStartCoords = {x:0, y:0};
 
 function renderAbilities(subType) {
     let prop = subType === 'active' ? 'activeAbilities' : subType === 'passive' ? 'passiveAbilities' : 'feats';
-    // Get the correct array, default to empty
     const data = getActiveData()[prop] || [];
-    // Get the correct container ID
     const container = document.getElementById(listContainerIds[subType]); 
     container.innerHTML = '';
     
     data.forEach((a, i) => {
         const div = document.createElement('div'); 
         div.className = 'list-row';
-        
-        // Desktop DnD Attributes
         div.draggable = true;
         div.dataset.index = i;
         div.dataset.type = subType;
-        
-        // Drag Events
         div.addEventListener('dragstart', handleDragStart);
         div.addEventListener('dragover', handleDragOver);
         div.addEventListener('drop', handleDrop);
         div.addEventListener('dragend', handleDragEnd);
-        
-        // Touch Events
         div.addEventListener('touchstart', handleTouchStart, {passive: false});
         div.addEventListener('touchmove', handleTouchMove, {passive: false});
         div.addEventListener('touchend', handleTouchEnd);
 
-        // Content HTML
         let contentHtml = `<span class="list-row-title">${a.name||`New ${subType}`}</span>`;
         if(subType === 'active') { 
             contentHtml = `<span class="active-name">${a.name||'New Ability'}</span><span class="active-type">${a.type||''}</span>`; 
         }
         
-        // Inputs HTML (for Active uses)
         let inputsHtml = '';
         if(subType === 'active') {
             inputsHtml = `<div class="inline-input-group"><input type="number" value="${a.u_curr||0}" onchange="updateAbilityUse(${i},'u_curr',this.value)" onclick="event.stopPropagation()"><span>/</span><input type="number" value="${a.u_max||0}" onchange="updateAbilityUse(${i},'u_max',this.value)" onclick="event.stopPropagation()"></div>`;
         }
 
-        // --- NEW: FEAT LINK LOGIC ---
         let linkHtml = '';
         if(subType === 'feat' && a.link) {
             linkHtml = `<a class="btn-link-small" href="${a.link}" target="_blank" onclick="event.stopPropagation()">Link</a>`;
         }
-        // ----------------------------
 
         const cDiv = document.createElement('div'); 
         cDiv.className = `row-content ${subType==='active'?'active-ability-layout':''}`;
         cDiv.innerHTML = contentHtml; 
-        
-        // Ensure click opens view only if we aren't dragging
-        cDiv.onclick = (e) => { 
-            if(!isDragging) openView(subType, i); 
-        };
+        cDiv.onclick = (e) => { if(!isDragging) openView(subType, i); };
         
         const aDiv = document.createElement('div'); 
         aDiv.className = 'row-actions';
-        // Added linkHtml to the output below
         aDiv.innerHTML = `${inputsHtml}${linkHtml}<button class="btn-edit" onclick="event.stopPropagation(); openEditor('${subType}',${i})">Edit</button>`;
         
         div.appendChild(cDiv); div.appendChild(aDiv); container.appendChild(div);
@@ -803,29 +917,26 @@ function handleTouchStart(e) {
     touchTimer = setTimeout(() => {
         isDragging = true;
         el.classList.add('dragging');
-        navigator.vibrate(50); // Haptic feedback
-        // Create ghost
+        navigator.vibrate(50);
         const ghost = document.getElementById('dragGhost');
         ghost.textContent = "Moving: " + (el.querySelector('.list-row-title, .active-name')?.textContent || "Item");
         ghost.style.display = 'block';
         ghost.style.left = (e.touches[0].clientX + 15) + 'px';
         ghost.style.top = (e.touches[0].clientY + 15) + 'px';
-    }, 500); // 500ms hold
+    }, 500); 
 }
 function handleTouchMove(e) {
     if(!isDragging) {
-        // If moved significantly before timer, cancel timer
         const dx = Math.abs(e.touches[0].clientX - touchStartCoords.x);
         const dy = Math.abs(e.touches[0].clientY - touchStartCoords.y);
         if(dx > 10 || dy > 10) clearTimeout(touchTimer);
         return;
     }
-    e.preventDefault(); // Prevent scroll
+    e.preventDefault();
     const ghost = document.getElementById('dragGhost');
     ghost.style.left = (e.touches[0].clientX + 15) + 'px';
     ghost.style.top = (e.touches[0].clientY + 15) + 'px';
     
-    // Highlight potential drop target
     const target = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
     const row = target?.closest('.list-row');
     document.querySelectorAll('.list-row').forEach(r => r.classList.remove('drag-over'));
@@ -842,7 +953,6 @@ function handleTouchEnd(e) {
     });
     
     if(isDragging) {
-        // Find drop target
         const touch = e.changedTouches[0];
         const target = document.elementFromPoint(touch.clientX, touch.clientY);
         const targetRow = target?.closest('.list-row');
@@ -892,11 +1002,9 @@ function populateViewModal(type, item) {
     document.getElementById('viewModal').style.display = 'flex';
     const add = (l, t) => { if(t){ body.innerHTML += `<div class="view-label">${l}</div><div class="view-text">${t}</div>`; } };
     
-    // --- GM NOTES SECTION ---
     if(item.gm_notes) {
         body.innerHTML += `<div class="view-label" style="color:#ff6666;">GM Notes (Hidden)</div><div class="view-text" style="color:#ffaaaa; border:1px dashed #ff6666; padding:5px;">${item.gm_notes}</div>`;
     }
-    // ------------------------
 
     if(type === 'weapon' && item.attrs) {
         body.innerHTML += `<div class="view-label">Attributes</div>`;
@@ -936,7 +1044,6 @@ function populateEditorModal(type, item, index, col) {
         createInput('Link URL', item.link, 'link'); 
     }
     if(type === 'active') {
-        // Added 'Other' to Action Type list
         createSelect('Type', item.type, 'type', ["Standard","Move","Swift","Full","Free","Immediate","Reaction","Other"]);
         modalBody.appendChild(document.createElement('label')).textContent = "Uses (Cur/Max)";
         const d = document.createElement('div'); d.style.cssText="display:flex;gap:5px";
@@ -946,34 +1053,19 @@ function populateEditorModal(type, item, index, col) {
     }
     if(type === 'feat') createInput('Link URL', item.link, 'link');
     if(type === 'item') {
-        // --- UPDATED COLLECTIONS LOGIC ---
-        // We now allow 'Collections' to be selected and show Image URL input if it is.
         createSelect('Tag', item.tags, 'tags', ["Weapons", "Armor", "Gear", "Consumables", "Magic Items", "Collections", "Misc"]);
-        
-        if(item.tags === "Collections") {
-            createInput('Image URL', item.img, 'img');
-        }
+        if(item.tags === "Collections") { createInput('Image URL', item.img, 'img'); }
         createInput('Cost', item.cost, 'cost');
     }
     createTextArea('Description', item.desc, 'desc');
 
-    // --- GM NOTES INPUT (ADMIN ONLY) ---
     if(['active', 'passive', 'feat', 'spell'].includes(type)) {
-        const lb = document.createElement('label'); 
-        lb.textContent = "GM Notes (Hidden from Player)"; 
-        lb.style.color = "#ff6666"; 
-        
-        const t = document.createElement('textarea'); 
-        t.value = item.gm_notes || ''; 
-        t.style.borderColor = "#ff4444"; 
-        
+        const lb = document.createElement('label'); lb.textContent = "GM Notes (Hidden from Player)"; lb.style.color = "#ff6666"; 
+        const t = document.createElement('textarea'); t.value = item.gm_notes || ''; t.style.borderColor = "#ff4444"; 
         setTimeout(()=>autoExpand(t),0); 
         t.oninput = e => { autoExpand(t); updateCurrentItem('gm_notes', e.target.value) }; 
-        
-        modalBody.appendChild(lb); 
-        modalBody.appendChild(t);
+        modalBody.appendChild(lb); modalBody.appendChild(t);
     }
-    // -----------------------------------
 
     document.getElementById('modalDeleteBtn').onclick = () => { getActiveData()[col].splice(index, 1); triggerSave(); closeModal(); };
     modal.style.display = 'flex';
@@ -991,10 +1083,7 @@ function createSelect(l, v, k, ops) {
     }); 
     s.onchange = e => {
         updateCurrentItem(k,e.target.value);
-        // Specifically for items, if tag changes to Collections, we need to re-render to show img input
-        if(currentEditContext.type === 'item') {
-            populateEditorModal('item', getActiveData().items[currentEditContext.index], currentEditContext.index, 'items');
-        }
+        if(currentEditContext.type === 'item') { populateEditorModal('item', getActiveData().items[currentEditContext.index], currentEditContext.index, 'items'); }
     }; 
     modalBody.appendChild(lb); modalBody.appendChild(s); 
 }
@@ -1055,9 +1144,6 @@ function updateCalculations(){
             row.querySelector('.skill-total').textContent = (total>=0?'+':'')+total;
 
             const nameCell = row.querySelector('.skill-name-cell');
-            let baseName = nameCell.innerText.split(' ')[0].trim();
-            if(nameCell.querySelector('input')) baseName = nameCell.firstChild.textContent.trim();
-
             if(TRAINED_ONLY_LIST.some(t => nameCell.innerText.includes(t))) {
                 if(ranks < 1) { nameCell.classList.add('trained-untrained'); nameCell.classList.remove('trained-trained'); }
                 else { nameCell.classList.remove('trained-untrained'); nameCell.classList.add('trained-trained'); }
@@ -1110,6 +1196,10 @@ document.body.addEventListener('input', (e) => {
     }
     if(e.target.id === 'charName') {
         const newVal = e.target.value || (currentSummonId ? "Unnamed Summon" : "Unknown");
+        // Update tab title
+        const tab = openTabs.find(t => t.uid === currentParentUid && t.sid === currentSummonId);
+        if(tab) { tab.name = newVal; renderTabs(); }
+        
         if(currentSummonId) { const el = document.querySelector(`.summonItem[data-sid="${currentSummonId}"]`); if(el) el.innerText = newVal; } 
         else { const el = document.querySelector(`.userItem[data-uid="${currentParentUid}"] .uName`); if(el) el.innerText = newVal; }
     }
