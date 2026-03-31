@@ -210,14 +210,76 @@
     .mobile-2col .stat-box label { text-align: center; width: 100%; font-size: 10px !important; margin-bottom: 2px !important; }
     .mobile-2col .stat-box input { width: 100% !important; font-size: 12px !important; text-align: center; height: 25px; }
   }
+
+/* --- Ability Drawer --- */
+.top-nav-actions { display:flex; align-items:center; gap:10px; }
+.icon-btn { background:none; border:1px solid #444; color:#fff; border-radius:6px; padding:6px 10px; cursor:pointer; font-size:18px; line-height:1; }
+.icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+.sheet-toolbar { display:flex; justify-content:flex-end; margin:8px 0 12px; }
+.sheet-toolbar .icon-btn { display:none; }
+.ability-drawer { position:fixed; top:50px; right:-340px; width:min(340px, 92vw); height:calc(100vh - 50px); background:#111; border-left:1px solid var(--accent); z-index:2200; transition:right 0.25s ease; box-shadow:-8px 0 20px rgba(0,0,0,0.35); overflow:hidden; padding:0; }
+.ability-drawer.open { right:0; }
+.ability-drawer-header { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; background:#0b0b0b; border-bottom:1px solid #333; cursor:move; user-select:none; }
+.ability-drawer-header h3 { margin:0; font-size:16px; }
+.ability-drawer-close { background:none; border:none; color:#fff; font-size:20px; line-height:1; cursor:pointer; padding:0 2px; }
+.ability-drawer-body { max-height:calc(100% - 49px); overflow-y:auto; padding:15px; }
+.ability-drawer table { width:100%; border-collapse:collapse; text-align:center; }
+.ability-drawer th, .ability-drawer td { padding:10px 6px; border-top:1px solid #333; }
+.ability-drawer th { background:#000; color:#888; font-size:12px; border-top:none; }
+.ability-drawer .drawer-stat { color:var(--accent); font-weight:bold; text-transform:uppercase; }
+.ability-overlay { position:fixed; inset:50px 0 0 0; background:rgba(0,0,0,0.45); z-index:2190; display:none; }
+.ability-overlay.show { display:block; }
+@media (min-width: 701px) {
+  .sheet-toolbar .icon-btn { display:inline-flex; align-items:center; justify-content:center; }
+  #abilityDrawerBtn.top-nav-only, #abilityDrawerBtn.header-only { display:none !important; }
+  .ability-overlay.show { display:none; }
+  .ability-drawer { top:120px; right:18px; left:auto; width:300px; height:auto; max-height:calc(100vh - 140px); border:1px solid var(--accent); border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,0.45); transform:translateY(-8px); opacity:0; pointer-events:none; transition:opacity 0.2s ease, transform 0.2s ease; }
+  .ability-drawer.open { right:18px; opacity:1; transform:translateY(0); pointer-events:auto; }
+}
+@media (max-width: 700px) {
+  .sheet-toolbar .icon-btn { display:none !important; }
+}
+
+/* --- Items --- */
+.item-top-grid { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; margin-bottom:10px; }
+.slot-box-value { width:100%; min-height:40px; display:flex; align-items:center; justify-content:center; background:#111; border:1px solid #444; border-radius:4px; font-weight:bold; }
+.slot-box-value.over { color:#ff6b6b; border-color:#b33; }
+.item-section-tabs { display:flex; gap:10px; margin-bottom:10px; }
+.item-section-tabs .sub-btn { flex:1; }
+.item-toggle-wrap { display:flex; align-items:center; gap:10px; }
+.item-equip-check { width:18px; height:18px; flex:0 0 18px; accent-color: var(--accent); }
+.item-meta-line { color:#888; font-size:12px; display:flex; flex-wrap:wrap; gap:8px; }
+@media (max-width: 700px) {
+  .item-top-grid { grid-template-columns: 1fr; }
+  .top-nav-actions { gap:6px; }
+  .icon-btn { padding:6px 8px; }
+}
+
 </style>
 </head>
 <body>
 
 <header>
   <h1 onclick="window.location.href='index.html'">Mount Aetheria</h1>
-  <div style="font-size:12px; color:#888;">Admin</div>
+  <div style="display:flex; align-items:center; gap:10px;">
+    <div style="font-size:12px; color:#888;">Admin</div>
+    <button class="icon-btn top-nav-only" id="abilityDrawerBtn" onclick="toggleAbilityDrawer()" title="Ability Scores">&#9776;</button>
+  </div>
 </header>
+
+<div id="abilityOverlay" class="ability-overlay" onclick="toggleAbilityDrawer(false)"></div>
+<aside id="abilityDrawer" class="ability-drawer">
+  <div id="abilityDrawerHandle" class="ability-drawer-header">
+    <h3>Ability Scores</h3>
+    <button class="ability-drawer-close" onclick="toggleAbilityDrawer(false)" title="Close">&times;</button>
+  </div>
+  <div class="ability-drawer-body">
+    <table>
+      <tr><th>Stat</th><th>Score</th><th>Mod</th></tr>
+      <tbody id="abilityDrawerBody"></tbody>
+    </table>
+  </div>
+</aside>
 
 <div id="layout">
   <div id="sidebar">
@@ -242,6 +304,7 @@
           <button class="tab-btn" id="btn-items" onclick="switchTab('items')">Items</button>
           <button class="tab-btn" id="btn-notes" onclick="switchTab('notes')">Notes</button>
       </div>
+      <div class="sheet-toolbar"><button class="icon-btn" onclick="toggleAbilityDrawer()" title="Ability Scores">&#9776; Ability Scores</button></div>
 
       <div class="tab-content active" id="character">
           <h2 id="sheetTitle">Bio & Stats</h2>
@@ -353,7 +416,23 @@
       </div>
 
       <div class="tab-content" id="items">
-          <div class="combat-stats" style="grid-template-columns: 1fr 1fr;"><div class="stat-box"><label>💰 Gil</label><input id="currency_gil" class="save-field"></div><div class="stat-box"><label>Moogle Pts</label><input id="currency_moogle" class="save-field"></div></div>
+          <div class="item-top-grid">
+            <div class="stat-box"><label>💰 Gil</label><input id="currency_gil" class="save-field"></div>
+            <div class="stat-box"><label>Moogle Pts</label><input id="currency_moogle" class="save-field"></div>
+            <div class="stat-box">
+              <label>Slot</label>
+              <select id="slot_cap" class="save-field" onchange="renderItems()">
+                <option value="20">20</option><option value="40">40</option><option value="80">80</option><option value="120">120</option>
+                <option value="200">200</option><option value="300">300</option><option value="500">500</option>
+                <option value="5000">5000</option><option value="50000">50000</option>
+              </select>
+              <div id="slotUsageDisplay" class="slot-box-value" style="margin-top:8px;">0/20</div>
+            </div>
+          </div>
+          <div class="item-section-tabs">
+            <button class="sub-btn active" id="itemView-storage" onclick="setItemView('storage')">Storage</button>
+            <button class="sub-btn" id="itemView-equipped" onclick="setItemView('equipped')">Equipped</button>
+          </div>
           <div style="display:flex; gap:10px; margin-bottom:10px;">
             <select id="itemFilterTag" onchange="renderItems()" style="flex:1;"><option value="All">All Tags</option><option value="Weapons">Weapons</option><option value="Armor">Armor</option><option value="Gear">Gear</option><option value="Consumables">Consumables</option><option value="Magic Items">Magic Items</option><option value="Collections">Collections</option><option value="Misc">Misc</option></select>
             <select id="itemSort" onchange="renderItems()" style="flex:1;"><option value="recent">Recent</option><option value="abc">A-Z</option></select>
@@ -416,7 +495,7 @@ const db = getFirestore(app);
 let allUsers = [];
 let currentParentUid = null;
 let currentSummonId = null;
-let fullSheetData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [] }; 
+let fullSheetData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [], slot_cap: 20 }; 
 let unsubscribeSheet = null;
 let saveTimeout = null;
 let isInternalUpdate = false;
@@ -693,7 +772,7 @@ function startListening(uid){
         if (document.querySelector('.save-field:focus') || document.querySelector('input:focus') || document.querySelector('textarea:focus')) { return; }
         
         if(docSnap.exists()){
-            fullSheetData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [], ...docSnap.data() };
+            fullSheetData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [], slot_cap: 20, ...docSnap.data() };
             isInternalUpdate = true;
             populateSheet(); // Logic moved here ensures we populate with fresh data
             isInternalUpdate = false;
@@ -730,6 +809,7 @@ function populateSheet(){
 
     // Force clear then fill
     document.querySelectorAll('.save-field').forEach(el => { el.value = ""; if(data[el.id] !== undefined) el.value = data[el.id]; });
+    const slotCapEl = document.getElementById('slot_cap'); if(slotCapEl && !slotCapEl.value) slotCapEl.value = String(data.slot_cap || fullSheetData.slot_cap || 20);
     
     document.querySelectorAll('textarea.save-field').forEach(tx => { 
         if(!tx.classList.contains('expanded-textarea') && tx.id !== 'notesArea') autoExpand(tx); 
@@ -758,6 +838,9 @@ function populateSheet(){
         }
     }
     updateCalculations();
+    renderAbilityDrawerScores();
+initAbilityDrawerDrag();
+    updateSlotUsageDisplay();
 }
 
 function autoExpand(el) { 
@@ -766,6 +849,120 @@ function autoExpand(el) {
 }
 
 const listContainerIds = { weapon: 'weaponList', spell: 'spellList', active: 'activeList', passive: 'passiveList', feat: 'featList', item: 'itemList' };
+
+let currentItemView = 'storage';
+
+window.toggleAbilityDrawer = (force) => {
+    const drawer = document.getElementById('abilityDrawer');
+    const overlay = document.getElementById('abilityOverlay');
+    if(!drawer || !overlay) return;
+    const desktop = window.innerWidth > 700;
+    const shouldOpen = (typeof force === 'boolean') ? force : !drawer.classList.contains('open');
+    drawer.classList.toggle('open', shouldOpen);
+    overlay.classList.toggle('show', shouldOpen && !desktop);
+    if(!shouldOpen && desktop) {
+        drawer.style.left = '';
+        drawer.style.top = '';
+        drawer.style.right = '18px';
+    }
+};
+
+function initAbilityDrawerDrag() {
+    const drawer = document.getElementById('abilityDrawer');
+    const handle = document.getElementById('abilityDrawerHandle');
+    if(!drawer || !handle || drawer.dataset.dragReady === '1') return;
+    drawer.dataset.dragReady = '1';
+    let dragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
+    const move = (e) => {
+        if(!dragging || window.innerWidth <= 700) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        const maxLeft = Math.max(0, window.innerWidth - drawer.offsetWidth - 8);
+        const maxTop = Math.max(60, window.innerHeight - drawer.offsetHeight - 8);
+        const nextLeft = Math.min(Math.max(8, startLeft + dx), maxLeft);
+        const nextTop = Math.min(Math.max(60, startTop + dy), maxTop);
+        drawer.style.left = nextLeft + 'px';
+        drawer.style.top = nextTop + 'px';
+        drawer.style.right = 'auto';
+    };
+    const up = () => { dragging = false; document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
+    handle.addEventListener('mousedown', (e) => {
+        if(window.innerWidth <= 700) return;
+        if(e.target.closest('.ability-drawer-close')) return;
+        if(!drawer.classList.contains('open')) return;
+        dragging = true;
+        const rect = drawer.getBoundingClientRect();
+        startX = e.clientX; startY = e.clientY; startLeft = rect.left; startTop = rect.top;
+        drawer.style.left = rect.left + 'px';
+        drawer.style.top = rect.top + 'px';
+        drawer.style.right = 'auto';
+        document.addEventListener('mousemove', move);
+        document.addEventListener('mouseup', up);
+    });
+    window.addEventListener('resize', () => {
+        if(window.innerWidth <= 700) {
+            drawer.style.left = '';
+            drawer.style.top = '';
+            drawer.style.right = '';
+        } else if(!drawer.style.left && drawer.classList.contains('open')) {
+            drawer.style.right = '18px';
+        }
+    });
+}
+
+function renderAbilityDrawerScores() {
+    const body = document.getElementById('abilityDrawerBody');
+    if(!body) return;
+    const stats = ['str','dex','con','int','wis','cha'];
+    body.innerHTML = stats.map(stat => {
+        const score = document.getElementById(stat)?.value || '0';
+        const mod = document.getElementById('mod-' + stat)?.textContent || '+0';
+        return `<tr><td class="drawer-stat">${stat}</td><td>${score}</td><td>${mod}</td></tr>`;
+    }).join('');
+}
+
+window.setItemView = (view) => {
+    currentItemView = view;
+    ['storage','equipped'].forEach(v => {
+        const btn = document.getElementById('itemView-' + v);
+        if(btn) btn.classList.toggle('active', v === view);
+    });
+    renderItems();
+};
+
+function getItemAmount(item) {
+    const amt = Number(item?.amount);
+    return Number.isFinite(amt) && amt > 0 ? amt : 1;
+}
+function getItemSlot(item) {
+    const val = Number(item?.slot);
+    return Number.isFinite(val) && val >= 0 ? val : 1;
+}
+function getSlotCap() {
+    const data = (typeof getActiveData === 'function') ? getActiveData() : {};
+    const raw = document.getElementById('slot_cap')?.value || data.slot_cap || 20;
+    const cap = Number(raw);
+    return Number.isFinite(cap) && cap > 0 ? cap : 20;
+}
+function updateSlotUsageDisplay() {
+    const data = getActiveData();
+    const items = data.items || [];
+    const used = items.filter(i => !i.equipped).reduce((sum, item) => sum + (getItemAmount(item) * getItemSlot(item)), 0);
+    const cap = getSlotCap();
+    const display = document.getElementById('slotUsageDisplay');
+    if(display) {
+        display.textContent = `${used}/${cap}`;
+        display.classList.toggle('over', used > cap);
+    }
+}
+window.toggleItemEquipped = (idx, checked) => {
+    const items = getActiveData().items || [];
+    if(!items[idx]) return;
+    items[idx].equipped = !!checked;
+    refreshList('item');
+    if (typeof triggerSave === 'function') triggerSave(); else saveDataOnly();
+};
+
 
 window.openView = (type, index) => {
     // Prevent view if dragging
@@ -979,22 +1176,38 @@ function handleTouchEnd(e) {
 
 window.updateAbilityUse = (idx, key, val) => { const d = getActiveData().activeAbilities[idx]; d[key] = Number(val); triggerSave(); };
 
+
 window.renderItems = () => {
     const data = getActiveData().items || [];
     const container = document.getElementById('itemList'); container.innerHTML = '';
     const tagFilter = document.getElementById('itemFilterTag').value;
     const sortType = document.getElementById('itemSort').value;
-    let filtered = data.filter(i => tagFilter === "All" || i.tags === tagFilter);
-    if(sortType === "abc") filtered.sort((a,b) => (a.name||"").localeCompare(b.name||"")); else filtered.reverse();
+    let filtered = data.filter(i => {
+        const matchesTag = tagFilter === "All" || i.tags === tagFilter;
+        const equipped = !!i.equipped;
+        const matchesView = currentItemView === 'equipped' ? equipped : !equipped;
+        return matchesTag && matchesView;
+    });
+    if(sortType === "abc") filtered.sort((a,b) => (a.name||"").localeCompare(b.name||"")); else filtered = [...filtered].reverse();
 
     filtered.forEach(item => {
         const idx = data.indexOf(item);
         const div = document.createElement('div'); div.className = 'list-row';
+        const amount = getItemAmount(item);
+        const slot = getItemSlot(item);
         let extraBtn = (item.tags === "Collections" && item.img) ? `<button class="btn-save" style="font-size:10px; padding:4px 8px;" onclick="event.stopPropagation();viewCollection('${item.img}')">IMG</button>` : '';
-        div.innerHTML = `<div class="row-content" onclick="openView('item',${idx})"><span class="list-row-title">${item.name||'New Item'} <small style="color:#888; font-weight:normal">(${item.tags})</small></span></div><div class="row-actions" style="display:flex; gap:5px">${extraBtn}<button class="btn-edit" onclick="openEditor('item',${idx})">Edit</button></div>`;
+        div.innerHTML = `<div class="item-toggle-wrap">
+            <input type="checkbox" class="item-equip-check" ${item.equipped ? 'checked' : ''} onchange="event.stopPropagation();toggleItemEquipped(${idx}, this.checked)">
+            <div class="row-content" onclick="openView('item',${idx})">
+                <span class="list-row-title">${amount}x ${item.name||'New Item'}</span>
+                <span class="item-meta-line"><span>${item.tags || 'Misc'}</span><span>Slot ${slot}</span>${item.cost ? `<span>Cost ${item.cost}</span>` : ''}</span>
+            </div>
+        </div><div class="row-actions" style="display:flex; gap:5px">${extraBtn}<button class="btn-edit" onclick="openEditor('item',${idx})">Edit</button></div>`;
         container.appendChild(div);
     });
+    updateSlotUsageDisplay();
 };
+
 
 function populateViewModal(type, item) {
     document.getElementById('viewTitle').textContent = item.name || "Unnamed";
@@ -1013,7 +1226,7 @@ function populateViewModal(type, item) {
     if(type === 'spell') { 
         if(item.link) body.innerHTML += `<a href="${item.link}" target="_blank" class="btn-link-small" style="display:inline-block; margin-bottom:15px; color:#fff;">Open Link</a>`; 
     }
-    if(type === 'item') { if(item.tags) add("Type", item.tags); if(item.cost) add("Cost", item.cost); }
+    if(type === 'item') { if(item.tags) add("Type", item.tags); add("Amount", String(getItemAmount(item))); if(item.cost) add("Cost", item.cost); add("Slot", String(getItemSlot(item))); add("Location", item.equipped ? 'Equipped' : 'Storage'); }
     add("Description", item.desc);
 }
 
@@ -1055,7 +1268,10 @@ function populateEditorModal(type, item, index, col) {
     if(type === 'item') {
         createSelect('Tag', item.tags, 'tags', ["Weapons", "Armor", "Gear", "Consumables", "Magic Items", "Collections", "Misc"]);
         if(item.tags === "Collections") { createInput('Image URL', item.img, 'img'); }
+        createInput('Amount', getItemAmount(item), 'amount');
         createInput('Cost', item.cost, 'cost');
+        createInput('Slot', getItemSlot(item), 'slot');
+        createCheckbox('Equipped', !!item.equipped, 'equipped');
     }
     createTextArea('Description', item.desc, 'desc');
 
@@ -1087,6 +1303,7 @@ function createSelect(l, v, k, ops) {
     }; 
     modalBody.appendChild(lb); modalBody.appendChild(s); 
 }
+function createCheckbox(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const w=document.createElement('div'); w.style.cssText='display:flex; align-items:center; gap:10px;'; const i=document.createElement('input'); i.type='checkbox'; i.checked=!!v; i.style.width='18px'; i.style.height='18px'; i.onchange=e=>updateCurrentItem(k,e.target.checked); w.appendChild(i); modalBody.appendChild(lb); modalBody.appendChild(w); }
 function addAttrRow(c, d, i) {
     const r=document.createElement('div'); r.className='attr-row';
     const n=document.createElement('input'); n.placeholder="Attr"; n.value=d.name||''; n.oninput=e=>{d.name=e.target.value; triggerSave()};
@@ -1099,7 +1316,7 @@ function updateCurrentItem(k, v) {
     const item = getActiveData()[currentEditContext.col][currentEditContext.index];
     item[k] = v;
     if(k==='link') { const b=document.getElementById('modalLinkBtn'); b.href=v; b.style.display=v?'inline-block':'none'; }
-    if(['name','lvl','tags','type','u_curr','u_max'].includes(k)) refreshList(currentEditContext.type);
+    if(['name','lvl','tags','type','u_curr','u_max','amount','slot','equipped'].includes(k)) refreshList(currentEditContext.type);
     triggerSave();
 }
 window.closeModal = () => { modal.style.display='none'; refreshList(currentEditContext.type); };
@@ -1108,7 +1325,7 @@ function refreshList(t) { if(t==='weapon') renderWeapons(); else if(t==='spell')
 window.addNewItem = (t) => {
     const d = getActiveData();
     let n={name:''}, c='';
-    if(t==='weapon'){c='weapons';n.mod='STR';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;} else if(t==='passive')c='passiveAbilities'; else if(t==='feat')c='feats'; else if(t==='item'){c='items';n.tags='Misc';}
+    if(t==='weapon'){c='weapons';n.mod='STR';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;} else if(t==='passive')c='passiveAbilities'; else if(t==='feat')c='feats'; else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
     if(!d[c]) d[c]=[]; d[c].push(n);
     triggerSave(); refreshList(t); openEditor(t, d[c].length-1);
 };
@@ -1124,6 +1341,7 @@ function scrapeCurrentSheet() {
     const m = getActiveData();
     p.weapons=m.weapons||[]; p.spells=m.spells||[]; p.activeAbilities=m.activeAbilities||[]; p.passiveAbilities=m.passiveAbilities||[]; p.feats=m.feats||[];
     p.items = currentSummonId ? (m.items||[]) : (fullSheetData.items||[]);
+    p.slot_cap = Number(document.getElementById('slot_cap')?.value || fullSheetData.slot_cap || 20);
     return p;
 }
 
@@ -1150,6 +1368,8 @@ function updateCalculations(){
             }
         });
     }
+    renderAbilityDrawerScores();
+    updateSlotUsageDisplay();
 }
 
 function triggerSave(){
