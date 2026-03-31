@@ -227,7 +227,7 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
 .top-nav-actions { display:flex; align-items:center; gap:10px; }
 .icon-btn { background:none; border:1px solid #444; color:#fff; border-radius:6px; padding:6px 10px; cursor:pointer; font-size:18px; line-height:1; }
 .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
-.sheet-toolbar { display:flex; justify-content:flex-end; margin:8px 0 12px; }
+.sheet-toolbar { display:flex; flex-direction:column; align-items:flex-end; gap:8px; margin:8px 0 12px; }
 .sheet-toolbar .icon-btn { display:none; }
 .ability-drawer { position:fixed; top:50px; right:-340px; width:min(340px, 92vw); height:calc(100vh - 50px); background:#111; border-left:1px solid var(--accent); z-index:2200; transition:right 0.25s ease; box-shadow:-8px 0 20px rgba(0,0,0,0.35); overflow:hidden; padding:0; }
 .ability-drawer.open { right:0; }
@@ -243,6 +243,23 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
 .ability-overlay.show { display:block; }
 @media (min-width: 701px) {
   .sheet-toolbar .icon-btn { display:inline-flex; align-items:center; justify-content:center; }
+  .sheet-toolbar .toolbar-stack { display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+  .sheet-toolbar .mode-btn { background:#2c2c2c; border:1px solid #555; color:#fff; padding:10px 14px; border-radius:999px; font-weight:bold; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+  .sheet-toolbar .mode-btn.active { background:var(--accent); color:#000; border-color:var(--accent); }
+.readonly-yellow { background:#3b3b3b !important; color:var(--accent) !important; }
+.main-vital-input[readonly]::-webkit-outer-spin-button,
+.main-vital-input[readonly]::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+.main-vital-input[readonly] { -moz-appearance:textfield; }
+
+input.readonly-yellow[type=number] {
+  -moz-appearance: textfield;
+}
+.readonly-yellow::-webkit-outer-spin-button,
+.readonly-yellow::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
   #abilityDrawerBtn.top-nav-only, #abilityDrawerBtn.header-only { display:none !important; }
   .ability-overlay.show { display:none; }
   .ability-drawer { top:120px; right:18px; left:auto; width:300px; height:auto; max-height:calc(100vh - 140px); border:1px solid var(--accent); border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,0.45); transform:translateY(-8px); opacity:0; pointer-events:none; transition:opacity 0.2s ease, transform 0.2s ease; }
@@ -267,6 +284,77 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
   .icon-btn { padding:6px 8px; }
 }
 
+
+/* --- EDIT MODE / SINGLE-STAT OVERLAY --- */
+.sheet-toolbar { position: sticky; top: 98px; z-index: 850; background: linear-gradient(180deg,#111 0%, rgba(17,17,17,.96) 100%); padding: 10px 15px; border-bottom: 1px solid var(--border); }
+.inline-value-wrap { display:flex; align-items:center; gap:8px; color:var(--accent); font-weight:bold; font-size:20px; line-height:1.1; }
+.inline-value-wrap.small { font-size:18px; }
+.inline-value { color:var(--accent); font-weight:bold; }
+.stat-card.compact { padding:12px 14px; }
+.stat-card.compact .stat-head { margin-bottom:0; align-items:center; }
+.stat-card.compact .edit-stat-btn { margin-left:2px; }
+.stat-card.compact .select-display { margin-top:10px; }
+.readonly-inline-note { color:#888; font-size:11px; text-transform:uppercase; letter-spacing:.04em; margin-top:8px; }
+.toolbar-stack { display:flex; gap:10px; align-items:center; justify-content:flex-end; flex-wrap:wrap; width:100%; max-width:800px; margin:0 auto; }
+.mode-btn { background:#333; color:#ddd; border:1px solid #555; padding:10px 14px; border-radius:8px; font-weight:bold; cursor:pointer; }
+.mode-btn.active { background:var(--accent); color:#000; border-color:var(--accent); }
+.stat-card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:10px; position:relative; }
+.stat-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
+.stat-title { color:var(--accent); font-weight:bold; font-size:13px; text-transform:uppercase; letter-spacing:.04em; }
+.stat-main-value, .stat-sub-value { background:#111; border:1px solid #444; border-radius:8px; padding:10px 8px; text-align:center; color:#fff; font-weight:bold; min-height:44px; display:flex; align-items:center; justify-content:center; }
+.stat-subline { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+.stat-subbox small, .stat-display-grid small, .save-mini small { display:block; color:#8d8d8d; font-size:11px; margin-bottom:4px; text-transform:uppercase; }
+.stat-display-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:12px; }
+.save-row-display { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:12px; }
+.save-mini { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:10px; }
+.edit-stat-btn { display:none; width:34px; height:34px; border-radius:50%; border:1px solid #666; background:#1a1a1a; color:var(--accent); cursor:pointer; font-size:15px; }
+body.edit-mode-active .edit-stat-btn { display:inline-flex; align-items:center; justify-content:center; }
+.edit-stat-btn:hover { background:var(--accent); color:#000; }
+.stat-main-value.readonly, .readonly-display { background:#191919; color:#d3d3d3; }
+.combat-overview { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:14px; }
+.combat-row-main { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; margin-bottom:14px; }
+.toolbar-card .stat-head { justify-content:center; gap:8px; }
+.toolbar-card { min-width:0; }
+.toolbar-card .mode-btn { padding:10px 12px; line-height:1; }
+.toolbar-card .general-edit-btn { display:none; }
+body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; align-items:center; justify-content:center; }
+.main-vital-input[readonly]::-webkit-outer-spin-button, .main-vital-input[readonly]::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+.main-vital-input[readonly][type=number] { -moz-appearance:textfield; }
+.hpmp-card .stat-main-value { font-size:20px; }
+.select-display { appearance:none; -webkit-appearance:none; }
+.section-note { color:#9a9a9a; font-size:12px; margin-top:4px; }
+.edit-grid-2, .edit-grid-3, .edit-grid-4 { display:grid; gap:10px; }
+.edit-grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.edit-grid-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.edit-grid-4 { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.formula-line { background:#171717; border:1px solid #333; border-radius:8px; padding:10px; }
+.formula-parts { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; align-items:flex-end; }
+.formula-parts .mini-field { min-width:70px; flex:1; }
+.formula-parts .mini-field input, .formula-parts .mini-field select { text-align:center; }
+.formula-parts .mini-field .graybase { background:#222; color:#999; }
+.total-pill { background:#000; border:1px solid var(--accent); color:var(--accent); border-radius:999px; padding:9px 14px; font-weight:bold; min-width:70px; text-align:center; }
+.notes-shell { display:flex; flex-direction:column; gap:10px; }
+.notes-toolbar { display:flex; gap:10px; }
+.note-card { background:var(--panel); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.note-card-header { padding:12px 14px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; gap:10px; }
+.note-card-title { color:var(--accent); font-weight:bold; }
+.note-card-body { padding:0 14px 14px; display:none; }
+.note-card.open .note-card-body { display:block; }
+.note-actions { display:flex; gap:8px; }
+.note-actions button { padding:6px 10px; }
+.limit-break-row { border-color:#2f5d2f; }
+.limit-break-row .active-name { color:#7f8f7f; }
+.limit-break-ready { animation: pulseGlow 1.6s infinite; border-color:#2e9f52 !important; box-shadow:0 0 0 1px rgba(46,159,82,.2), 0 0 18px rgba(46,159,82,.25); }
+.limit-break-ready .active-name { color:#61ff96 !important; text-shadow:0 0 8px rgba(97,255,150,.45); }
+@keyframes pulseGlow { 0%,100% { box-shadow:0 0 0 1px rgba(46,159,82,.18), 0 0 16px rgba(46,159,82,.18);} 50% { box-shadow:0 0 0 1px rgba(46,159,82,.4), 0 0 26px rgba(46,159,82,.4);} }
+@media (max-width:700px){
+  .sheet-toolbar { padding:0; margin:8px 0 10px; }
+  .toolbar-stack { gap:8px; justify-content:flex-start; }
+  .combat-overview, .combat-row-main, .save-row-display, .stat-display-grid { grid-template-columns:1fr; }
+  .edit-grid-2, .edit-grid-3, .edit-grid-4, .stat-subline { grid-template-columns:1fr; }
+  .edit-stat-btn { display:inline-flex !important; }
+}
+
 </style>
 </head>
 <body>
@@ -282,7 +370,7 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
       <a href="discussions.html">Discussion</a>
       <a href="signin.html" id="authLink">Sign In</a>
     </div>
-    <button class="icon-btn top-nav-only" id="abilityDrawerBtn" onclick="toggleAbilityDrawer()" title="Ability Scores">&#9776;</button>
+    
   </div>
 </nav>
 
@@ -294,19 +382,7 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
   <a href="signin.html" id="mobileAuthLink">Sign In</a>
 </div>
 
-<div id="abilityOverlay" class="ability-overlay" onclick="toggleAbilityDrawer(false)"></div>
-<aside id="abilityDrawer" class="ability-drawer">
-  <div id="abilityDrawerHandle" class="ability-drawer-header">
-    <h3>Ability Scores</h3>
-    <button class="ability-drawer-close" onclick="toggleAbilityDrawer(false)" title="Close">&times;</button>
-  </div>
-  <div class="ability-drawer-body">
-    <table>
-      <tr><th>Stat</th><th>Score</th><th>Mod</th></tr>
-      <tbody id="abilityDrawerBody"></tbody>
-    </table>
-  </div>
-</aside>
+
 
 <div class="main-tabs">
   <button class="tab-btn active" id="btn-character" onclick="switchTab('character')">Character</button>
@@ -315,7 +391,6 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
   <button class="tab-btn" id="btn-items" onclick="switchTab('items')">Items</button>
   <button class="tab-btn" id="btn-notes" onclick="switchTab('notes')">Notes</button>
 </div>
-<div class="sheet-toolbar"><button class="icon-btn" onclick="toggleAbilityDrawer()" title="Ability Scores">&#9776; Ability Scores</button></div>
 
 <div id="character" class="tab-content active">
   <h2 id="sheetTitle">Character Bio</h2>
@@ -343,26 +418,38 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
   <button id="btnDeleteSummon" class="btn-del" style="background:#990000; width:100%; padding:12px; margin-top:20px; display:none;">Delete Summon</button>
 </div>
 
+
 <div id="combat" class="tab-content">
   <button id="mobileHeartBtn" onclick="toggleHeartStats()">❤️</button>
   <div id="heartModalContainer">
       <div id="heartCloseBtn" onclick="toggleHeartStats()">❤️</div>
-      <div class="vital-row">
-          <div class="vital-box">
-              <label>❤️ HP</label>
-              <div class="vital-inputs"><input id="hp_curr" class="live-field" placeholder="Cur"><span>/</span><input id="hp_max" class="live-field" placeholder="Max"></div>
+      <div style="display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
+        <div style="flex:1 1 520px; min-width:280px;">
+      <div class="combat-overview">
+          <div class="stat-card hpmp-card">
+              <div class="stat-head"><span class="stat-title">❤️ HP</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('hp')">✎</button></div>
+              <div class="stat-subline">
+                <div class="stat-subbox"><small>Base</small><input id="hp_curr" type="number" class="live-field main-vital-input"></div>
+                <div class="stat-subbox"><small>Temp</small><input id="hp_temp" type="number" class="live-field main-vital-input"></div>
+                <div class="stat-subbox"><small>Max</small><input id="hp_max" type="number" class="live-field main-vital-input readonly-yellow"></div>
+              </div>
           </div>
-          <div class="vital-box">
-              <label>💧 MP</label>
-              <div class="vital-inputs"><input id="mp_curr" class="live-field" placeholder="Cur"><span>/</span><input id="mp_max" class="live-field" placeholder="Max"></div>
+          <div class="stat-card hpmp-card">
+              <div class="stat-head"><span class="stat-title">💧 MP</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('mp')">✎</button></div>
+              <div class="stat-subline">
+                <div class="stat-subbox"><small>Base</small><input id="mp_curr" type="number" class="live-field main-vital-input"></div>
+                <div class="stat-subbox"><small>Temp</small><input id="mp_temp" type="number" class="live-field main-vital-input"></div>
+                <div class="stat-subbox"><small>Max</small><input id="mp_max" type="number" class="live-field main-vital-input readonly-yellow"></div>
+              </div>
           </div>
       </div>
-      <div class="combat-stats mobile-2col">
-        <div class="stat-box"><label>AC</label><input id="ac_total" class="live-field"></div>
-        <div class="stat-box"><label>AR</label><input id="ar_total" class="live-field"></div>
-        <div class="stat-box"><label>Initiative</label><input id="init_bonus" class="live-field"></div>
-        <div class="stat-box"><label>BAB</label><input id="bab" class="live-field"></div>
-        <div class="stat-box"><label>Speed</label><input id="speed" class="live-field"></div>
+      <div class="combat-row-main">
+        <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Size:</span><div class="inline-value-wrap small"><span id="sizeDisplayMain" class="inline-value">Medium</span></div></div></div>
+        <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Initiative:</span><div class="inline-value-wrap"><span id="initDisplayMain" class="inline-value">+0</span></div></div></div>
+        <div class="stat-card compact"><div class="stat-head"><span class="stat-title">BAB:</span><div class="inline-value-wrap"><span id="babDisplayMain" class="inline-value">+0</span></div></div></div>
+        <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Speed:</span><div class="inline-value-wrap"><span id="speedDisplayMain" class="inline-value">30</span></div></div></div><div class="stat-card compact toolbar-card"><div class="stat-head"><button class="mode-btn icon-only" id="editModeToggleCombat" type="button" title="Edit Mode" aria-label="Edit Mode" onclick="toggleEditMode()">✏️</button><button class="mode-btn icon-only general-edit-btn" id="generalEditCombatBtn" type="button" title="Edit Size / Initiative / BAB / Speed" aria-label="Edit General Stats" onclick="openStatEdit('general')">⚙️</button></div></div>
+      </div>
+        </div>
       </div>
   </div>
   <div class="sub-nav-container">
@@ -374,19 +461,19 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
   </div>
   
   <div id="c-general" class="sub-group active">
-    <div class="combat-stats mobile-2col">
-        <div class="stat-box"><label>CMB</label><input id="cmb" class="live-field"></div>
-        <div class="stat-box"><label>CMD</label><input id="cmd_total" class="live-field"></div>
+    <div class="stat-display-grid">
+      <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Armor Class</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('ac')">✎</button></div><select id="ac_view_mode" class="live-field select-display" onchange="handleDisplayModeChange()"><option value="ac">AC</option><option value="touch">Touch AC</option><option value="flat">Flat-Footed</option><option value="cmd">CMD</option></select><div class="inline-value-wrap" style="margin-top:10px;"><span id="acDisplayMain" class="inline-value">10</span></div></div>
+      <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Attack Roll</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('ar')">✎</button></div><select id="ar_view_mode" class="live-field select-display" onchange="handleDisplayModeChange()"><option value="melee" selected>Melee</option><option value="ranged">Ranged</option><option value="touch">Touch</option><option value="cmb">CMB</option></select><div class="inline-value-wrap" style="margin-top:10px;"><span id="arDisplayMain" class="inline-value">+0</span></div></div>
+    </div>
+    <h3>Saves</h3>
+    <div class="save-row-display">
+      <div class="save-mini"><div class="stat-head"><span class="stat-title">Fort:</span><div class="inline-value-wrap small"><span id="fortDisplayMain" class="inline-value">+0</span></div><button class="edit-stat-btn" type="button" onclick="openStatEdit('saves')">✎</button></div></div>
+      <div class="save-mini"><div class="stat-head"><span class="stat-title">Reflex:</span><div class="inline-value-wrap small"><span id="refDisplayMain" class="inline-value">+0</span></div><button class="edit-stat-btn" type="button" onclick="openStatEdit('saves')">✎</button></div></div>
+      <div class="save-mini"><div class="stat-head"><span class="stat-title">Will:</span><div class="inline-value-wrap small"><span id="willDisplayMain" class="inline-value">+0</span></div><button class="edit-stat-btn" type="button" onclick="openStatEdit('saves')">✎</button></div></div>
     </div>
     <div id="resistancesBox" style="background:var(--panel); padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid var(--border);">
         <label>Resist</label>
         <textarea id="resistances" class="live-field" placeholder="Resistances, Immunities, DR, SR"></textarea>
-    </div>
-    <h3>Saves</h3>
-    <div id="savesContainer" class="combat-stats">
-        <div class="stat-box"><label>Fortitude</label><div class="stat-dual"><input id="fort_bonus" type="number" class="live-field calc-trigger" placeholder="Bonus"><span id="fort_total" style="color:var(--accent); font-weight:bold;">+0</span></div></div>
-        <div class="stat-box"><label>Reflex</label><div class="stat-dual"><input id="ref_bonus" type="number" class="live-field calc-trigger" placeholder="Bonus"><span id="ref_total" style="color:var(--accent); font-weight:bold;">+0</span></div></div>
-        <div class="stat-box"><label>Will</label><div class="stat-dual"><input id="will_bonus" type="number" class="live-field calc-trigger" placeholder="Bonus"><span id="will_total" style="color:var(--accent); font-weight:bold;">+0</span></div></div>
     </div>
     <h3>Weapons</h3>
     <div id="weaponList"></div>
@@ -420,10 +507,25 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
       <div id="spellList"></div>
       <button class="btn-add" onclick="addNewItem('spell')">+ Add Spell</button>
   </div>
+
+  <div style="display:none;">
+    <input id="bab" class="live-field"><input id="speed" class="live-field">
+    <input id="init_temp" class="live-field"><input id="bab_temp" class="live-field"><input id="speed_temp" class="live-field">
+    <input id="size_category" class="live-field"><input id="size_mod" class="live-field"><input id="size_special" class="live-field">
+    <input id="ac_armor" class="live-field"><input id="ac_natural" class="live-field"><input id="ac_deflect" class="live-field"><input id="ac_dodge" class="live-field"><input id="ac_temp" class="live-field">
+    <input id="touch_temp" class="live-field"><input id="flat_temp" class="live-field"><input id="cmd_temp" class="live-field">
+    <input id="ar_melee_temp" class="live-field"><input id="ar_ranged_temp" class="live-field"><input id="ar_touch_temp" class="live-field"><input id="cmb_temp" class="live-field">
+    <input id="fort_base" class="live-field"><input id="fort_enhance" class="live-field"><input id="fort_temp" class="live-field">
+    <input id="ref_base" class="live-field"><input id="ref_enhance" class="live-field"><input id="ref_temp" class="live-field">
+    <input id="will_base" class="live-field"><input id="will_enhance" class="live-field"><input id="will_temp" class="live-field">
+    <input id="ac_total" class="live-field"><input id="touch_ac_total" class="live-field"><input id="flat_ac_total" class="live-field"><input id="cmd_total" class="live-field"><input id="ar_total" class="live-field"><input id="ar_ranged_total" class="live-field"><input id="ar_touch_total" class="live-field"><input id="cmb" class="live-field">
+    <input id="fort_bonus" class="live-field"><input id="ref_bonus" class="live-field"><input id="will_bonus" class="live-field">
+  </div>
 </div>
 
+
 <div id="skills" class="tab-content">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><span>Skill Points Unused:</span><input id="skill_points" class="live-field" style="width:60px; text-align:center;"></div>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><span>Skill Points Unused:</span><input id="skill_points" class="live-field" style="width:60px; text-align:center;" readonly></div>
   <div id="mobileSkillHeader" style="display:none; color:#888; font-size:12px;"><span style="display:inline-block; width:45%;"></span><span style="display:inline-block; width:35%; text-align:right; padding-right: 5px;">RANKS</span><span style="display:inline-block; width:20%; text-align:right;">TOTAL</span></div>
   <div class="skills-container">
     <table id="skillsTable" style="width:100%; border-collapse:collapse; font-size:14px; text-align:center;">
@@ -451,12 +553,22 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
   <button class="btn-add" onclick="addNewItem('item')">+ Add Item</button>
 </div>
 
+
 <div id="notes" class="tab-content">
-    <textarea id="notesArea" class="live-field" placeholder="Type your notes here..."></textarea>
+  <textarea id="notesArea" class="live-field" style="min-height:320px; width:100%; resize:vertical; display:block;"></textarea>
 </div>
 
 <div id="summonMenu"></div>
 <div id="summonFab">◎</div>
+
+
+<div id="statEditOverlay" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header"><h3 id="statEditTitle">Edit Stat</h3><button class="btn-close" onclick="closeStatEdit()">&times;</button></div>
+    <div id="statEditBody" class="modal-body"></div>
+    <div style="padding:15px; border-top:1px solid #333; background:#1a1a1a; border-radius:0 0 8px 8px; text-align:right;"><button class="btn-save" onclick="closeStatEdit()">Done</button></div>
+  </div>
+</div>
 
 <div id="viewModal" class="modal-overlay">
     <div class="modal-content">
@@ -550,6 +662,7 @@ function startSync() {
             fullData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [], slot_cap: 20, ...remote };
             isRemoteUpdate = true;
             loadCurrentSheet();
+            setTimeout(refreshCombatUi, 50);
             updateSummonMenu();
             isRemoteUpdate = false;
         }
@@ -558,8 +671,105 @@ function startSync() {
 
 function getActiveData() { return currentSummonId ? (fullData.summons.find(s => s.id === currentSummonId) || {}) : fullData; }
 
+function stripLimitBreakAbilityEntries(target) {
+    if(!target || !Array.isArray(target.activeAbilities)) return;
+    target.activeAbilities = target.activeAbilities.filter(a => !(a && (a.isLimitBreak || String(a.name || '').trim().toLowerCase() === 'limit break')));
+}
+function normalizeSkillInt(value, fallback = 0) {
+    if(value === '' || value === null || value === undefined) return fallback;
+    const n = Number(value);
+    return Number.isFinite(n) ? Math.trunc(n) : fallback;
+}
+function getSkillPointsEl() { return document.getElementById('skill_points'); }
+function getUnusedSkillPoints() { return normalizeSkillInt(getSkillPointsEl()?.value, 0); }
+function setUnusedSkillPoints(value) {
+    const el = getSkillPointsEl();
+    if(el) el.value = String(normalizeSkillInt(value, 0));
+}
+function sanitizeSkillPoolUi() {
+    const el = getSkillPointsEl();
+    if(!el) return;
+    el.readOnly = true;
+    el.setAttribute('aria-readonly', 'true');
+}
+function applySkillRankChange(input) {
+    if(!input) return;
+    const prev = normalizeSkillInt(input.dataset.prevValue, normalizeSkillInt(input.value, 0));
+    let next = normalizeSkillInt(input.value, prev);
+    if(next < 0) next = 0;
+    let unused = getUnusedSkillPoints();
+    const wantedDiff = next - prev;
+
+    if(wantedDiff > 0) {
+        if(unused <= 0) {
+            next = prev;
+        } else if(wantedDiff > unused) {
+            next = prev + unused;
+        }
+    }
+
+    const actualDiff = next - prev;
+    unused -= actualDiff;
+    if(unused < 0) unused = 0;
+
+    input.value = String(next);
+    input.dataset.prevValue = String(next);
+    setUnusedSkillPoints(unused);
+}
+function bindSkillRowEvents(row) {
+    if(!row) return;
+    const rankInput = row.querySelector('.skill-ranks');
+    const csInput = row.querySelector('.skill-cs');
+    const customInput = row.querySelector('.skill-custom-input');
+
+    if(rankInput && rankInput.dataset.bound !== '1') {
+        rankInput.dataset.bound = '1';
+        rankInput.setAttribute('min', '0');
+        rankInput.addEventListener('focus', () => {
+            rankInput.dataset.prevValue = String(normalizeSkillInt(rankInput.value, 0));
+        });
+        const handleRank = () => {
+            applySkillRankChange(rankInput);
+            updateCalcs();
+            save();
+        };
+        rankInput.addEventListener('input', handleRank);
+        rankInput.addEventListener('change', handleRank);
+        rankInput.addEventListener('blur', handleRank);
+    }
+    if(csInput && csInput.dataset.bound !== '1') {
+        csInput.dataset.bound = '1';
+        const handleCs = () => { updateCalcs(); save(); };
+        csInput.addEventListener('input', handleCs);
+        csInput.addEventListener('change', handleCs);
+    }
+    if(customInput && customInput.dataset.bound !== '1') {
+        customInput.dataset.bound = '1';
+        const handleCustom = () => { updateCalcs(); save(); };
+        customInput.addEventListener('input', handleCustom);
+        customInput.addEventListener('change', handleCustom);
+        customInput.addEventListener('blur', handleCustom);
+    }
+}
+function syncSkillStateAfterLoad() {
+    sanitizeSkillPoolUi();
+    document.querySelectorAll('#skillsTableBody .skill-ranks').forEach(input => {
+        input.dataset.prevValue = String(normalizeSkillInt(input.value, 0));
+        if(input.value === '') input.value = '0';
+    });
+    const skillPoolEl = getSkillPointsEl();
+    if(skillPoolEl && skillPoolEl.value === '') skillPoolEl.value = '0';
+}
+
+function refreshCombatUi() {
+    syncSizeFields();
+    computeDerivedStats();
+    renderSelectedCombatDisplays();
+}
+
 function loadCurrentSheet() {
     const data = getActiveData();
+    stripLimitBreakAbilityEntries(data);
     if(currentSummonId) {
         document.getElementById('sheetTitle').textContent = "Summoning Sheet";
         document.getElementById('btnAddSummon').style.display = 'none';
@@ -582,9 +792,15 @@ function loadCurrentSheet() {
     switchSubSub(localStorage.getItem('activeAbilSub') || 'a-active');
 
     document.querySelectorAll('.live-field').forEach(el => { el.value = (data[el.id] !== undefined) ? data[el.id] : ""; });
+
+    if(data.hp !== undefined && !document.getElementById('hp_curr').value) document.getElementById('hp_curr').value = data.hp;
+    if(data.mp !== undefined && !document.getElementById('mp_curr').value) document.getElementById('mp_curr').value = data.mp;
+    if(data.init !== undefined && !document.getElementById('init_temp').value) document.getElementById('init_temp').value = data.init;
+    if(!document.getElementById('size_category').value) document.getElementById('size_category').value = data.size || 'Medium';
     document.querySelectorAll('textarea.live-field').forEach(tx => { autoExpand(tx); tx.addEventListener('input', () => autoExpand(tx)); });
     
     renderWeapons(); renderSpells(); renderAbilities('active'); renderAbilities('passive'); renderAbilities('feat'); renderItems();
+    refreshCombatUi();
     
     if(data.skills) {
         const rows = document.querySelectorAll('#skillsTableBody tr');
@@ -597,9 +813,16 @@ function loadCurrentSheet() {
             } 
         });
     }
-    updateCalcs();
-    renderAbilityDrawerScores();
-initAbilityDrawerDrag();
+    if(!document.getElementById('ac_view_mode')?.value) document.getElementById('ac_view_mode').value = 'ac';
+    if(!document.getElementById('ar_view_mode')?.value) document.getElementById('ar_view_mode').value = 'melee';
+    syncSkillStateAfterLoad();
+    if (typeof updateCalcs === 'function') updateCalcs();
+    refreshCombatUi();
+    setTimeout(refreshCombatUi, 40);
+    setTimeout(refreshCombatUi, 200);
+    renderNotesList();
+    bindCriticalFieldPersistence();
+    initAbilityDrawerDrag();
     updateSlotUsageDisplay();
 }
 
@@ -609,74 +832,11 @@ const listContainerIds = { weapon: 'weaponList', spell: 'spellList', active: 'ac
 
 let currentItemView = 'storage';
 
-window.toggleAbilityDrawer = (force) => {
-    const drawer = document.getElementById('abilityDrawer');
-    const overlay = document.getElementById('abilityOverlay');
-    if(!drawer || !overlay) return;
-    const desktop = window.innerWidth > 700;
-    const shouldOpen = (typeof force === 'boolean') ? force : !drawer.classList.contains('open');
-    drawer.classList.toggle('open', shouldOpen);
-    overlay.classList.toggle('show', shouldOpen && !desktop);
-    if(!shouldOpen && desktop) {
-        drawer.style.left = '';
-        drawer.style.top = '';
-        drawer.style.right = '18px';
-    }
-};
+window.toggleAbilityDrawer = () => {};
 
-function initAbilityDrawerDrag() {
-    const drawer = document.getElementById('abilityDrawer');
-    const handle = document.getElementById('abilityDrawerHandle');
-    if(!drawer || !handle || drawer.dataset.dragReady === '1') return;
-    drawer.dataset.dragReady = '1';
-    let dragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
-    const move = (e) => {
-        if(!dragging || window.innerWidth <= 700) return;
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        const maxLeft = Math.max(0, window.innerWidth - drawer.offsetWidth - 8);
-        const maxTop = Math.max(60, window.innerHeight - drawer.offsetHeight - 8);
-        const nextLeft = Math.min(Math.max(8, startLeft + dx), maxLeft);
-        const nextTop = Math.min(Math.max(60, startTop + dy), maxTop);
-        drawer.style.left = nextLeft + 'px';
-        drawer.style.top = nextTop + 'px';
-        drawer.style.right = 'auto';
-    };
-    const up = () => { dragging = false; document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
-    handle.addEventListener('mousedown', (e) => {
-        if(window.innerWidth <= 700) return;
-        if(e.target.closest('.ability-drawer-close')) return;
-        if(!drawer.classList.contains('open')) return;
-        dragging = true;
-        const rect = drawer.getBoundingClientRect();
-        startX = e.clientX; startY = e.clientY; startLeft = rect.left; startTop = rect.top;
-        drawer.style.left = rect.left + 'px';
-        drawer.style.top = rect.top + 'px';
-        drawer.style.right = 'auto';
-        document.addEventListener('mousemove', move);
-        document.addEventListener('mouseup', up);
-    });
-    window.addEventListener('resize', () => {
-        if(window.innerWidth <= 700) {
-            drawer.style.left = '';
-            drawer.style.top = '';
-            drawer.style.right = '';
-        } else if(!drawer.style.left && drawer.classList.contains('open')) {
-            drawer.style.right = '18px';
-        }
-    });
-}
+function initAbilityDrawerDrag() { return; }
 
-function renderAbilityDrawerScores() {
-    const body = document.getElementById('abilityDrawerBody');
-    if(!body) return;
-    const stats = ['str','dex','con','int','wis','cha'];
-    body.innerHTML = stats.map(stat => {
-        const score = document.getElementById(stat)?.value || '0';
-        const mod = document.getElementById('mod-' + stat)?.textContent || '+0';
-        return `<tr><td class="drawer-stat">${stat}</td><td>${score}</td><td>${mod}</td></tr>`;
-    }).join('');
-}
+function renderAbilityDrawerScores() { return; }
 
 window.setItemView = (view) => {
     currentItemView = view;
@@ -831,7 +991,8 @@ function renderAbilities(subType) {
         const aDiv = document.createElement('div'); 
         aDiv.className = 'row-actions';
         // Added linkHtml to the output below
-        aDiv.innerHTML = `${inputsHtml}${linkHtml}<button class="btn-edit" onclick="event.stopPropagation(); openEditor('${subType}',${i})">Edit</button>`;
+        const editBtnHtml = (subType === 'active' && a.isLimitBreak) ? '' : `<button class="btn-edit" onclick="event.stopPropagation(); openEditor('${subType}',${i})">Edit</button>`;
+        aDiv.innerHTML = `${inputsHtml}${linkHtml}${editBtnHtml}`;
         
         div.appendChild(cDiv); div.appendChild(aDiv); container.appendChild(div);
     });
@@ -1053,7 +1214,9 @@ function populateEditorModal(type, item, index, col) {
     }
     createTextArea('Description', item.desc, 'desc');
 
-    document.getElementById('modalDeleteBtn').onclick = () => { getActiveData()[col].splice(index, 1); saveDataOnly(); closeModal(); };
+    const deleteBtn = document.getElementById('modalDeleteBtn');
+    if(type === 'active' && item.isLimitBreak) { deleteBtn.style.display='none'; } else { deleteBtn.style.display='block'; }
+    deleteBtn.onclick = () => { getActiveData()[col].splice(index, 1); saveDataOnly(); closeModal(); };
     modal.style.display = 'flex';
 }
 
@@ -1096,7 +1259,7 @@ function scrapeCurrentSheet() {
         p.skills.push({ cs: r.querySelector('.skill-cs').checked, lvl: Number(r.querySelector('.skill-ranks').value)||0, subName: sub }); 
     });
     const m = getActiveData();
-    p.weapons=m.weapons||[]; p.spells=m.spells||[]; p.activeAbilities=m.activeAbilities||[]; p.passiveAbilities=m.passiveAbilities||[]; p.feats=m.feats||[];
+    p.weapons=m.weapons||[]; p.spells=m.spells||[]; p.activeAbilities=(m.activeAbilities||[]).filter(a => !(a && (a.isLimitBreak || String(a.name || '').trim().toLowerCase() === 'limit break'))); p.passiveAbilities=m.passiveAbilities||[]; p.feats=m.feats||[];
     p.items = currentSummonId ? (m.items||[]) : (fullData.items||[]);
     p.slot_cap = fullData.slot_cap || 20;
     return p;
@@ -1177,10 +1340,12 @@ function initSkills() {
         let nameHtml = s.n;
         if(s.custom) nameHtml += ` <input class="skill-custom-input" placeholder="Type">`;
         else nameHtml += ` <small style="color:#888; font-weight:normal;">(${s.s})</small>`;
-        
-        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td style="text-align:left; font-weight:bold;" class="skill-name-cell">${nameHtml}</td><td class="skill-mod">0</td><td><input type="number" class="skill-ranks" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent); font-weight:bold;">0</td>`;
-        cont.appendChild(tr); tr.querySelectorAll('input').forEach(i => i.addEventListener('input', () => { updateCalcs(); save(); }));
+
+        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td style="text-align:left; font-weight:bold;" class="skill-name-cell">${nameHtml}</td><td class="skill-mod">0</td><td><input type="number" class="skill-ranks" value="0" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent); font-weight:bold;">0</td>`;
+        cont.appendChild(tr);
+        bindSkillRowEvents(tr);
     });
+    syncSkillStateAfterLoad();
 }
 function getMod(id) { const v = document.getElementById(id).value; return v ? Math.floor((v-10)/2) : 0; }
 function updateCalcs() {
@@ -1189,7 +1354,7 @@ function updateCalcs() {
     const f = (Number(document.getElementById('fort_bonus').value)||0) + con;
     const r = (Number(document.getElementById('ref_bonus').value)||0) + dex;
     const w = (Number(document.getElementById('will_bonus').value)||0) + wis;
-    document.getElementById('fort_total').textContent = (f>=0?'+':'')+f; document.getElementById('ref_total').textContent = (r>=0?'+':'')+r; document.getElementById('will_total').textContent = (w>=0?'+':'')+w;
+    const fortEl=document.getElementById('fort_total'); const refEl=document.getElementById('ref_total'); const willEl=document.getElementById('will_total'); if(fortEl) fortEl.textContent=(f>=0?'+':'')+f; if(refEl) refEl.textContent=(r>=0?'+':'')+r; if(willEl) willEl.textContent=(w>=0?'+':'')+w;
     
     document.querySelectorAll('#skillsTableBody tr').forEach(row => {
         const mod = getMod(row.dataset.stat); const ranks = Number(row.querySelector('.skill-ranks').value)||0; const cs = row.querySelector('.skill-cs').checked;
@@ -1205,13 +1370,177 @@ function updateCalcs() {
             else { cell.classList.remove('trained-untrained'); cell.classList.add('trained-trained'); }
         }
     });
+    computeDerivedStats();
     renderAbilityDrawerScores();
     updateSlotUsageDisplay();
+    renderNotesList();
+}
+
+const CRITICAL_SYNC_FIELDS = ['hp_curr','hp_temp','hp_max','mp_curr','mp_temp','mp_max','str','dex','con','int','wis','cha'];
+function queueCriticalSave() {
+  if (typeof triggerSave === 'function') triggerSave();
+  else save();
+}
+function bindCriticalFieldPersistence() {
+  CRITICAL_SYNC_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el || el.dataset.persistBound === '1') return;
+    el.dataset.persistBound = '1';
+    const runRefresh = () => {
+      if (typeof updateCalculations === 'function') updateCalculations();
+      if (typeof updateCalcs === 'function') updateCalcs();
+      if (typeof computeDerivedStats === 'function') computeDerivedStats();
+      if (typeof renderSelectedCombatDisplays === 'function') renderSelectedCombatDisplays();
+      if (typeof renderAbilityDrawerScores === 'function') renderAbilityDrawerScores();
+      if (typeof updateLimitBreakState === 'function') updateLimitBreakState();
+    };
+    el.addEventListener('input', () => {
+      runRefresh();
+      queueCriticalSave();
+    });
+    el.addEventListener('change', () => {
+      runRefresh();
+      queueCriticalSave();
+    });
+    el.addEventListener('blur', () => {
+      runRefresh();
+      queueCriticalSave();
+    });
+  });
 }
 
 window.toggleHeartStats = () => document.getElementById('heartModalContainer').classList.toggle('active-heart-modal');
 window.viewCollection = (url) => { document.getElementById('modalImg').src = url; document.getElementById('imageModal').style.display = 'flex'; };
-document.body.addEventListener('input', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); save(); } });
+document.body.addEventListener('input', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(); } });
+document.body.addEventListener('change', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(true); } });
+document.body.addEventListener('focusout', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(true); } });
+window.addEventListener('DOMContentLoaded', () => { ['ac_view_mode','ar_view_mode'].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('change', () => { renderSelectedCombatDisplays(); save(true); }); }); ['hp_curr','hp_temp','hp_max','mp_curr','mp_temp','mp_max','str','dex','con','int','wis','cha'].forEach(id => { const el = document.getElementById(id); if(!el) return; el.addEventListener('input', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(); }); el.addEventListener('change', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(true); }); el.addEventListener('blur', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(true); }); }); });
+window.addEventListener('beforeunload', () => { try { if(typeof save === 'function') save(true); } catch(e) {} });
+window.addEventListener('load', () => { if(typeof refreshCombatUi === 'function') { setTimeout(() => { refreshCombatUi(); renderAbilityDrawerScores(); }, 150); } else { setTimeout(renderAbilityDrawerScores, 150); } });
+
+
+const SIZE_OPTIONS = [{name:'Fine', ac:8, cmd:-8},{name:'Diminutive', ac:4, cmd:-4},{name:'Tiny', ac:2, cmd:-2},{name:'Small', ac:1, cmd:-1},{name:'Medium', ac:0, cmd:0},{name:'Large', ac:-1, cmd:1},{name:'Huge', ac:-2, cmd:2},{name:'Gargantuan', ac:-4, cmd:4},{name:'Colossal', ac:-8, cmd:8}];
+function numVal(id) { return Number(document.getElementById(id)?.value || 0) || 0; }
+function setVal(id, value) { const el = document.getElementById(id); if(el) el.value = value; }
+function modFor(statId) { return getMod ? getMod(statId) : Math.floor((Number(document.getElementById(statId)?.value||0)-10)/2); }
+function syncSizeFields() {
+  const select = document.getElementById('size_category');
+  if(!select) return;
+  let current = select.value || document.getElementById('size')?.value || 'Medium';
+  const found = SIZE_OPTIONS.find(s => s.name === current) || SIZE_OPTIONS.find(s => s.name.toLowerCase() === String(current).toLowerCase()) || SIZE_OPTIONS[4];
+  setVal('size_category', found.name); setVal('size_mod', found.ac); setVal('size_special', found.cmd);
+  const main = document.getElementById('sizeDisplayMain'); if(main) main.textContent = `${found.name}`;
+  const bio = document.getElementById('size'); if(bio) bio.value = found.name;
+}
+function renderSelectedCombatDisplays() {
+  const acMode = document.getElementById('ac_view_mode')?.value || 'ac';
+  const arMode = document.getElementById('ar_view_mode')?.value || 'melee';
+  const acMap = { ac: numVal('ac_total'), touch: numVal('touch_ac_total'), flat: numVal('flat_ac_total'), cmd: numVal('cmd_total') };
+  const arMap = { melee: numVal('ar_total'), ranged: numVal('ar_ranged_total'), touch: numVal('ar_touch_total'), cmb: numVal('cmb') };
+  const acMain = document.getElementById('acDisplayMain');
+  if(acMain) acMain.textContent = String(acMap[acMode] ?? acMap.ac ?? 10);
+  const arMain = document.getElementById('arDisplayMain');
+  const arVal = arMap[arMode] ?? arMap.melee ?? 0;
+  if(arMain) arMain.textContent = arVal>=0 ? `+${arVal}` : `${arVal}`;
+}
+
+function handleDisplayModeChange() { renderSelectedCombatDisplays(); if (typeof triggerSave === 'function') triggerSave(); else save(); }
+function computeDerivedStats() {
+  syncSizeFields();
+  const dex = modFor('dex'), str = modFor('str'), con = modFor('con'), wis = modFor('wis');
+  const sizeMod = numVal('size_mod'), sizeSpecial = numVal('size_special');
+  const hpBase = numVal('hp_curr'), hpTemp = numVal('hp_temp'), hpMax = numVal('hp_max');
+  const mpBase = numVal('mp_curr'), mpTemp = numVal('mp_temp'), mpMax = numVal('mp_max');
+  const init = dex + numVal('init_temp');
+  const babTotal = numVal('bab') + numVal('bab_temp');
+  const speedTotal = numVal('speed') + numVal('speed_temp');
+  const ac = 10 + dex + sizeMod + numVal('ac_armor') + numVal('ac_natural') + numVal('ac_deflect') + numVal('ac_dodge') + numVal('ac_temp');
+  const touch = 10 + dex + sizeMod + numVal('ac_deflect') + numVal('ac_dodge') + numVal('touch_temp');
+  const flat = 10 + sizeMod + numVal('ac_armor') + numVal('ac_natural') + numVal('ac_deflect') + numVal('flat_temp');
+  const cmd = 10 + str + dex + sizeSpecial + numVal('cmd_temp');
+  const melee = numVal('bab') + str + sizeMod + numVal('ar_melee_temp');
+  const ranged = numVal('bab') + dex + sizeMod + numVal('ar_ranged_temp');
+  const touchAttack = numVal('bab') + str + sizeMod + numVal('ar_touch_temp');
+  const cmb = numVal('bab') + str + dex + sizeSpecial + numVal('cmb_temp');
+  const fort = con + numVal('fort_base') + numVal('fort_enhance') + numVal('fort_temp');
+  const ref = dex + numVal('ref_base') + numVal('ref_enhance') + numVal('ref_temp');
+  const will = wis + numVal('will_base') + numVal('will_enhance') + numVal('will_temp');
+  const setText = (id,val,plus=true) => { const el = document.getElementById(id); if(!el) return; const out = plus ? (val>=0?`+${val}`:`${val}`) : String(val); if('value' in el) el.value = out; else el.textContent = out; };
+  const setPlain = (id,val) => { const el = document.getElementById(id); if(!el) return; const out = String(val); if('value' in el) el.value = out; else el.textContent = out; };
+  setPlain('hpBaseDisplay', hpBase); setPlain('hpTempDisplay', hpTemp); setPlain('hpMaxDisplay', hpMax);
+  setPlain('mpBaseDisplay', mpBase); setPlain('mpTempDisplay', mpTemp); setPlain('mpMaxDisplay', mpMax);
+  setText('initDisplayMain', init); setText('babDisplayMain', babTotal); setPlain('speedDisplayMain', speedTotal);
+  setVal('ac_total', ac); setVal('cmd_total', cmd); setVal('ar_total', melee); setVal('cmb', cmb); setVal('touch_ac_total', touch); setVal('flat_ac_total', flat); setVal('ar_ranged_total', ranged); setVal('ar_touch_total', touchAttack);
+  setVal('fort_bonus', fort); setVal('ref_bonus', ref); setVal('will_bonus', will);
+  renderSelectedCombatDisplays();
+  setText('fortDisplayMain', fort); setText('refDisplayMain', ref); setText('willDisplayMain', will);
+  updateLimitBreakState();
+}
+function statField(label,id, opts={}) {
+  const value = document.getElementById(id)?.value || opts.defaultValue || '';
+  const readonly = opts.readonly ? 'readonly' : '';
+  const cls = opts.readonly ? 'graybase' : '';
+  return `<div class="mini-field"><label>${label}</label><input class="${cls}" ${readonly} data-stat-field="${id}" type="number" value="${value}"></div>`;
+}
+function selectField(label,id, options) {
+  const current = document.getElementById(id)?.value || options[0]?.name || options[0] || '';
+  const opts = options.map(opt => { const value = typeof opt === 'string' ? opt : opt.name; return `<option value="${value}" ${value===current?'selected':''}>${value}</option>`; }).join('');
+  return `<div class="mini-field" style="min-width:140px;"><label>${label}</label><select data-stat-field="${id}">${opts}</select></div>`;
+}
+window.openStatEdit = (section) => {
+  const body = document.getElementById('statEditBody'); const title = document.getElementById('statEditTitle'); if(!body) return;
+  let html = '';
+  if(section === 'hp') { title.textContent = 'Edit HP'; html = `<div class="formula-line"><div class="formula-parts">${statField('Base','hp_curr')}${statField('Temp','hp_temp')}${statField('Max','hp_max')}</div></div>`; }
+  if(section === 'mp') { title.textContent = 'Edit MP'; html = `<div class="formula-line"><div class="formula-parts">${statField('Base','mp_curr')}${statField('Temp','mp_temp')}${statField('Max','mp_max')}</div></div>`; }
+  if(section === 'general') { title.textContent = 'Edit General Combat Stats'; html = `<div class="formula-line"><div class="formula-parts">${selectField('Size','size_category', SIZE_OPTIONS)}<div class="mini-field"><label>Size Mod</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>Special Size</label><input value="${document.getElementById('size_special')?.value||0}" readonly class="graybase"></div></div></div><div class="formula-line"><div class="formula-parts">${statField('Initiative Temp','init_temp')}${statField('BAB','bab')}${statField('BAB Temp','bab_temp')}${statField('Speed','speed')}${statField('Speed Temp','speed_temp')}</div></div>`; }
+  if(section === 'ac') { title.textContent = 'Edit AC'; html = `
+    <div class="formula-line"><strong>AC</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Armor','ac_armor')}${statField('Natural','ac_natural')}${statField('Deflect','ac_deflect')}${statField('Dodge','ac_dodge')}${statField('Temp','ac_temp')}<div class="total-pill">${document.getElementById('ac_total')?.value||10}</div></div></div>
+    <div class="formula-line"><strong>Touch AC</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Deflect','ac_deflect')}${statField('Dodge','ac_dodge')}${statField('Temp','touch_temp')}<div class="total-pill">${10 + modFor('dex') + numVal('size_mod') + numVal('ac_deflect') + numVal('ac_dodge') + numVal('touch_temp')}</div></div></div>
+    <div class="formula-line"><strong>Flat-Footed</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Armor','ac_armor')}${statField('Natural','ac_natural')}${statField('Deflect','ac_deflect')}${statField('Temp','flat_temp')}<div class="total-pill">${10 + numVal('size_mod') + numVal('ac_armor') + numVal('ac_natural') + numVal('ac_deflect') + numVal('flat_temp')}</div></div></div>
+    <div class="formula-line"><strong>CMD</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>STR</label><input value="${modFor('str')}" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_special')?.value||0}" readonly class="graybase"></div>${statField('Temp','cmd_temp')}<div class="total-pill">${document.getElementById('cmd_total')?.value||10}</div></div></div>`; }
+  if(section === 'ar') { title.textContent = 'Edit Attack Rolls'; html = `
+    <div class="formula-line"><strong>Melee</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${document.getElementById('bab')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>STR</label><input value="${modFor('str')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Temp','ar_melee_temp')}<div class="total-pill">${(numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_melee_temp'))>=0?`+${numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_melee_temp')}`:`${numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_melee_temp')}`}</div></div></div>
+    <div class="formula-line"><strong>Ranged</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${document.getElementById('bab')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Temp','ar_ranged_temp')}<div class="total-pill">${(numVal('bab') + modFor('dex') + numVal('size_mod') + numVal('ar_ranged_temp'))>=0?`+${numVal('bab') + modFor('dex') + numVal('size_mod') + numVal('ar_ranged_temp')}`:`${numVal('bab') + modFor('dex') + numVal('size_mod') + numVal('ar_ranged_temp')}`}</div></div></div>
+    <div class="formula-line"><strong>Touch</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${document.getElementById('bab')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>STR</label><input value="${modFor('str')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Temp','ar_touch_temp')}<div class="total-pill">${(numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_touch_temp'))>=0?`+${numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_touch_temp')}`:`${numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_touch_temp')}`}</div></div></div>
+    <div class="formula-line"><strong>CMB</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${document.getElementById('bab')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>STR</label><input value="${modFor('str')}" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_special')?.value||0}" readonly class="graybase"></div>${statField('Temp','cmb_temp')}<div class="total-pill">${document.getElementById('cmb')?.value ? ((Number(document.getElementById('cmb').value)>=0?`+${document.getElementById('cmb').value}`:`${document.getElementById('cmb').value}`)) : '+0'}</div></div></div>`; }
+  if(section === 'saves') { title.textContent = 'Edit Saves'; html = `
+    <div class="formula-line"><strong>Fortitude</strong><div class="formula-parts"><div class="mini-field"><label>CON</label><input value="${modFor('con')}" readonly class="graybase"></div>${statField('Base','fort_base')}${statField('Enhance','fort_enhance')}${statField('Temp','fort_temp')}<div class="total-pill">${document.getElementById('fort_bonus')?.value>=0?`+${document.getElementById('fort_bonus').value}`:`${document.getElementById('fort_bonus').value||0}`}</div></div></div>
+    <div class="formula-line"><strong>Reflex</strong><div class="formula-parts"><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div>${statField('Base','ref_base')}${statField('Enhance','ref_enhance')}${statField('Temp','ref_temp')}<div class="total-pill">${document.getElementById('ref_bonus')?.value>=0?`+${document.getElementById('ref_bonus').value}`:`${document.getElementById('ref_bonus').value||0}`}</div></div></div>
+    <div class="formula-line"><strong>Will</strong><div class="formula-parts"><div class="mini-field"><label>WIS</label><input value="${modFor('wis')}" readonly class="graybase"></div>${statField('Base','will_base')}${statField('Enhance','will_enhance')}${statField('Temp','will_temp')}<div class="total-pill">${document.getElementById('will_bonus')?.value>=0?`+${document.getElementById('will_bonus').value}`:`${document.getElementById('will_bonus').value||0}`}</div></div></div>`; }
+  body.innerHTML = html;
+  body.querySelectorAll('[data-stat-field]').forEach(el => {
+    el.addEventListener('input', () => { const id = el.dataset.statField; setVal(id, el.value); if(id === 'size_category') syncSizeFields(); computeDerivedStats(); save(); });
+    el.addEventListener('change', () => { const id = el.dataset.statField; setVal(id, el.value); if(id === 'size_category') { syncSizeFields(); openStatEdit(section); } computeDerivedStats(); save(); });
+  });
+  document.getElementById('statEditOverlay').style.display = 'flex';
+};
+window.closeStatEdit = () => { const o = document.getElementById('statEditOverlay'); if(o) o.style.display = 'none'; };
+function getNotesData() { return document.getElementById('notesArea')?.value || ''; }
+function renderNotesList() { return; }
+function saveNotesData(notes) { const el = document.getElementById('notesArea'); if(el) el.value = String(notes || ''); if (typeof triggerSave === 'function') triggerSave(); else if (typeof save === 'function') save(); }
+window.addNoteCard = () => {};
+function ensureLimitBreak() { return; }
+function updateLimitBreakState() { return; }
+
+window.toggleEditMode = (force) => {
+    const next = (typeof force === 'boolean') ? force : !document.body.classList.contains('edit-mode-active');
+    document.body.classList.toggle('edit-mode-active', next);
+    const buttons = [document.getElementById('editModeToggle'), document.getElementById('editModeToggleCombat')].filter(Boolean);
+    buttons.forEach(btn => {
+      btn.classList.toggle('active', next);
+      btn.innerHTML = '✏️';
+    });
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('editModeToggle');
+    if(btn) btn.innerHTML = '✏️';
+    const btn2 = document.getElementById('editModeToggleCombat');
+    if(btn2) btn2.innerHTML = '✏️';
+    const abilityBtn = document.getElementById('abilityDrawerCombatBtn');
+    if(abilityBtn) abilityBtn.innerHTML = '🎲';
+    syncSizeFields(); computeDerivedStats(); renderSelectedCombatDisplays(); renderNotesList(); bindCriticalFieldPersistence();
+});
 </script>
 </body>
 </html>
