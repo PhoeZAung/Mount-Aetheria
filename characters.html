@@ -1,123 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Admin — Master Editor</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Character Sheet</title>
 <meta name="theme-color" content="#1a1a1a">
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#111; --panel:#222; --muted:#aaa; --accent:#ffcc66; --good:#4caf50; --bad:#ff6666; --input-bg:#111; --border:#333; }
-  body { margin:0; font-family:Arial,Helvetica,sans-serif; background:#0b0b0b; color:#fff; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
-  * { box-sizing: border-box; }
+/* --- BASE VARIABLES & THEME --- */
+:root { --bg: #1a1a1a; --panel: #252525; --border: #333; --accent: #ffcc66; --text: #ddd; --input-bg: #111; }
+body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--text); padding-top: 50px; padding-bottom: 50px; height: 100vh; display: flex; flex-direction: column; }
+* { box-sizing: border-box; }
 
-  header { height:50px; background:var(--panel); display:flex; align-items:center; padding:0 18px; border-bottom:1px solid #333; flex-shrink:0; justify-content: space-between;}
-  header h1 { font-family:'Uncial Antiqua',serif; color:var(--accent); margin:0; font-size:20px; cursor: pointer; text-decoration: none; }
-  
-  #layout { display:flex; flex:1; overflow:hidden; position: relative; }
-  
-  /* --- SIDEBAR --- */
-  #sidebar { width:250px; background:#181818; border-right:1px solid #333; display:flex; flex-direction:column; flex-shrink:0; transition: transform 0.3s ease; }
-  #userSearch { background:#000; border:none; border-bottom:1px solid #333; color:#fff; padding:15px; width:100%; box-sizing:border-box; outline:none; }
-  #usersList { flex:1; overflow-y:auto; }
-  
-  .userItem { padding:10px 15px; cursor:pointer; border-bottom:1px solid #222; transition:0.2s; display:flex; justify-content: space-between; align-items: center; }
-  .userItem:hover { background:#222; }
-  .userItem.selected { background:#333; border-left: 3px solid var(--accent); } /* Visual only for sidebar */
-  .userItem.banned-user { background: #3d0000; border-left: 3px solid #ff4444; }
-  
-  .userItem .uInfo { display: flex; flex-direction: column; overflow: hidden; }
-  .userItem .uName { font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .userItem .uMeta { font-size:11px; opacity:0.7; }
-  
-  .user-actions { display: flex; gap: 5px; }
-  .user-btn-icon { background: none; border: none; color: #666; cursor: pointer; padding: 5px; font-size: 14px; transition: color 0.2s; }
-  .user-btn-icon:hover { color: #fff; }
-  .user-btn-icon.del:hover { color: #ff4444; }
-  .user-btn-icon.ban { color: #aaa; }
-  .user-btn-icon.ban:hover { color: #ffaa44; }
-  
-  .summonItem { padding: 8px 15px 8px 35px; cursor:pointer; border-bottom:1px solid #222; background: #252525; color: #aaa; font-size: 0.95em; position: relative; }
-  .summonItem:before { content:"↳"; position:absolute; left:15px; opacity:0.5; }
-  .summonItem:hover { background: #333; color: #fff; }
+/* --- NAVIGATION --- */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; height: 50px; background: #000; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
+.nav-brand { font-family: 'Uncial Antiqua'; color: var(--accent); font-size: 18px; text-decoration: none; }
+.nav-links { display: flex; gap: 20px; }
+.nav-links a { color: #888; text-decoration: none; font-size: 14px; font-weight: bold; }
+.nav-links a:hover, .nav-links a.active { color: #fff; }
+#hamburgerBtn { display: none; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 0; }
+#mobileMenu { display: none; position: fixed; top: 50px; left: 0; width: 100%; background: #111; border-bottom: 1px solid var(--accent); flex-direction: column; z-index: 1999; }
+#mobileMenu.show { display: flex; }
+#mobileMenu a { padding: 15px 20px; color: #fff; text-decoration: none; border-bottom: 1px solid #333; font-family: 'Uncial Antiqua'; }
 
-  /* --- EDITOR AREA --- */
-  #editorArea { flex:1; display:flex; flex-direction:column; background:#111; position:relative; overflow:hidden; }
-  
-  /* --- NEW TABS BAR --- */
-  #editorTabs { display: flex; background: #000; border-bottom: 1px solid #333; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; height: 36px; align-items: flex-end; }
-  #editorTabs::-webkit-scrollbar { display: none; }
-  
-  .editor-tab {
-      padding: 8px 15px;
-      background: #111;
-      color: #888;
-      border-right: 1px solid #222;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 140px;
-      max-width: 200px;
-      justify-content: space-between;
-      font-size: 13px;
-      user-select: none;
-      height: 35px;
-      border-top: 2px solid transparent;
-  }
-  .editor-tab:hover { background: #1a1a1a; color: #ccc; }
-  .editor-tab.active { background: #222; color: var(--accent); border-top: 2px solid var(--accent); font-weight: bold; }
-  
-  .tab-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .tab-close { 
-      border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 14px; opacity: 0.5; transition: 0.2s; flex-shrink: 0; 
-      margin-right: -5px; /* Pull slightly right */
-  }
-  .tab-close:hover { background: #444; color: #fff; opacity: 1; }
+/* --- MAIN TABS (Sticky) --- */
+.main-tabs { display: flex; width: 100%; background: #000; border-bottom: 1px solid var(--accent); position: sticky; top: 50px; z-index: 900; flex-shrink: 0; overflow-x: auto; scrollbar-width: none; justify-content: flex-start; }
+.tab-btn { flex: 1; min-width: fit-content; border: none; background: transparent; color: #888; padding: 12px 5px; cursor: pointer; font-family: 'Uncial Antiqua'; font-size: 14px; text-align: center; border-bottom: 3px solid transparent; transition: 0.2s; white-space: nowrap; }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: #111; }
 
-  /* ------------------- */
+/* --- CONTENT AREA --- */
+.tab-content { display: none; padding: 15px; max-width: 800px; margin: 0 auto; width: 100%; flex-grow: 1; overflow-y: auto; }
+.tab-content.active { display: block; animation: fade 0.2s; }
+@keyframes fade { from{opacity:0; transform:translateY(5px)} to{opacity:1; transform:translateY(0)} }
+h2, h3, h4 { color: var(--accent); font-family: 'Uncial Antiqua'; margin-top: 0; text-align: center; }
 
-  #emptyState { display:flex; align-items:center; justify-content:center; height:100%; color:#444; font-family:'Uncial Antiqua'; font-size:24px; flex-direction: column; gap: 10px; }
-  #backBtnMobile { display: none; background: #333; color: #fff; border: none; padding: 10px; text-align: left; font-weight: bold; cursor: pointer; border-bottom: 1px solid #444; }
-  
-  #sheetContainer { flex:1; overflow-y:auto; padding-bottom:50px; display:none; }
-  #sheetContainer.active { display:block; }
-  #modalLinkBtn { display: none !important; }
+/* --- FORMS & INPUTS --- */
+input, textarea, select { background: var(--input-bg); border: 1px solid var(--border); color: #fff; padding: 8px; border-radius: 4px; width: 100%; font-size: 14px; }
+input:focus, textarea:focus { border-color: var(--accent); outline: none; }
+label { color: #aaa; font-size: 12px; font-weight: bold; margin-bottom: 4px; display: block; }
+textarea { resize: none; overflow-y: hidden; min-height: 80px; }
 
-  /* Tab Style (Internal Navigation) */
-  .tabs-container { display: flex; width: 100%; max-width: 900px; margin: 0 auto; gap:20px; flex-direction: column; }
-  .main-tabs { display: flex; width: 100%; background: #1a1a1a; border-bottom: 1px solid var(--accent); overflow-x: auto; scrollbar-width: none; }
-  .tab-btn { flex: 1; min-width: fit-content; background: transparent; border: none; color: #888; padding: 12px 5px; cursor: pointer; font-family: 'Uncial Antiqua', serif; text-align: center; border-bottom: 3px solid transparent; }
-  .tab-btn:hover, .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: #222; }
-  
-  .tab-content { display: none; padding: 15px; width: 100%; box-sizing: border-box; max-width: 800px; margin: 0 auto; }
-  .tab-content.active { display: block; animation: fadeIn 0.3s; }
+/* --- BIO GRID --- */
+.bio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.bio-item { display: flex; flex-direction: column; }
 
-  h2, h3, h4 { font-family: 'Uncial Antiqua', serif; color: var(--accent); margin-top:0; text-align: center; }
-  
-  input, textarea, select { background: var(--input-bg); border: 1px solid var(--border); color: #fff; padding: 8px; border-radius: 4px; width: 100%; font-size: 14px; box-sizing: border-box; }
-  input:focus, textarea:focus { border-color: var(--accent); outline: none; }
-  label { color: #aaa; font-size: 12px; font-weight: bold; margin-bottom: 4px; display: block; }
-  
-  .expanded-textarea { min-height: 200px; resize: vertical; }
+/* --- VITALS (HP/MP) --- */
+.vital-row { display: flex; gap: 10px; margin-bottom: 15px; }
+.vital-box { flex: 1; background: var(--panel); padding: 10px; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; }
+.vital-box label { font-size: 14px; color: var(--accent); margin-bottom: 5px; }
+.vital-inputs { display: flex; align-items: center; gap: 5px; width: 100%; }
+.vital-inputs input { text-align: center; font-size: 18px; font-weight: bold; padding: 10px 5px; background: #111; border: 1px solid #444; }
+.vital-inputs span { color: #666; font-size: 20px; }
 
-  .bio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .bio-item { display: flex; flex-direction: column; }
-  
-  .vital-row { display: flex; gap: 10px; margin-bottom: 15px; }
-  .vital-box { flex: 1; background: var(--panel); padding: 10px; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; }
-  .vital-box label { font-size: 14px; color: var(--accent); margin-bottom: 5px; text-align:center; }
-  .vital-inputs { display: flex; align-items: center; gap: 5px; width: 100%; }
-  .vital-inputs input { text-align: center; font-size: 18px; font-weight: bold; padding: 10px 5px; background: #111; border: 1px solid #444; }
-  .vital-inputs span { color: #666; font-size: 20px; }
+/* --- STATS & COMBAT --- */
+.combat-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; background: var(--panel); padding: 10px; border-radius: 8px; margin-bottom: 15px; }
+.stat-box { display: flex; flex-direction: column; align-items: center; }
+.stat-dual { display: flex; align-items: center; gap: 2px; width: 100%; justify-content: center; }
+.stat-dual input { text-align: center; padding: 8px 2px; }
 
-  .combat-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 10px; background: var(--panel); padding: 10px; border-radius: 8px; margin-bottom: 15px; }
-  .stat-box { display: flex; flex-direction: column; align-items: center; }
-  .stat-dual { display: flex; align-items: center; gap: 5px; width:100%; justify-content: center; }
-  .stat-dual input { text-align: center; }
-
-  /* LIST ROWS */
-  .list-row { 
+/* --- LIST ROWS --- */
+.list-row { 
     background: var(--panel); 
     padding: 10px; 
     margin-bottom: 8px; 
@@ -128,88 +70,160 @@
     align-items: center; 
     cursor: pointer; 
     position: relative;
+    /* This line makes the movement smooth */
     transition: margin-top 0.2s cubic-bezier(0.2, 0, 0.2, 1), background 0.2s, opacity 0.2s; 
-    }
-    .list-row:hover { background: #333; border-color: #555; }
-  /* Drag & Drop Visuals */
-  .list-row.dragging { opacity: 0.2; background: #000; border: 1px dashed #555; }
-  .list-row.drag-over { border-top: 2px solid var(--accent); margin-top: 40px; background: #2a2a2a; }
+}
+.list-row:hover { background: #333; border-color: #555; }
+/* Drag & Drop Visuals */
+.list-row.dragging { 
+    opacity: 0.2; 
+    background: #000;
+    border: 1px dashed #555;
+}
+.list-row.drag-over { 
+    border-top: 2px solid var(--accent); 
+    margin-top: 40px; /* Moves the item down visually */
+    background: #2a2a2a;
+}
 
-    .row-content { flex-grow: 1; display: flex; flex-direction: column; padding-right: 10px; min-width: 0; pointer-events: auto; }
-  .row-actions { flex-shrink: 0; display: flex; align-items: center; gap: 5px; pointer-events: auto; }
+/* Find this class and CHANGE pointer-events to auto */
+.row-content { 
+    flex-grow: 1; 
+    display: flex; 
+    flex-direction: column; 
+    padding-right: 10px; 
+    min-width: 0; 
+    pointer-events: auto; /* <--- CHANGED FROM none TO auto */
+}
+.row-actions { flex-shrink: 0; display: flex; align-items: center; gap: 5px; pointer-events: auto; }
+
+.row-content.active-ability-layout { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; }
+.active-name { font-weight: bold; color: var(--accent); flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.active-type { color: #888; font-size: 12px; margin-right: 10px; white-space: nowrap; }
+
+.list-row-title { font-weight: bold; color: var(--accent); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.list-row-meta { color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* --- INLINE INPUTS FOR ABILITIES --- */
+.inline-input-group { display: flex; align-items: center; gap: 2px; margin-right: 5px; }
+.inline-input-group input { width: 35px; padding: 4px 0; text-align: center; background: #111; border: 1px solid #444; border-radius: 4px; font-size: 13px; color: var(--accent); height: 28px; }
+.inline-input-group span { color: #666; font-size: 14px; font-weight: bold; }
+
+/* --- MODALS (Shared) --- */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(3px); }
+.modal-content { background: #222; border: 1px solid var(--accent); border-radius: 8px; width: 100%; max-width: 500px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+.modal-header { padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; border-radius: 8px 8px 0 0; flex-shrink: 0; }
+.modal-header h3 { margin: 0; font-size: 18px; color: var(--accent); font-family: 'Uncial Antiqua'; }
+.modal-body { padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; overflow-x: hidden; } 
+.view-text { color: #eee; font-size: 15px; margin-bottom: 12px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; line-height: 1.5; max-width: 100%; }
+.view-label { color: #888; font-size: 11px; text-transform: uppercase; margin-bottom: 2px; font-weight: bold; }
+.view-attr-block { display: block; background: #333; padding: 6px; border-radius: 4px; font-size: 13px; margin-bottom: 5px; border: 1px solid #444; color: #eee; }
+
+/* --- BUTTONS --- */
+.btn-add { width: 100%; background: var(--accent); border: none; color: #000; padding: 10px; font-weight: bold; margin-top: 10px; border-radius: 4px; cursor: pointer; }
+.btn-del { background: #ff4444; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; cursor:pointer; font-weight: bold; }
+.btn-edit { background: #444; color: #ccc; border: 1px solid #666; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor:pointer; font-weight: bold; transition: 0.2s; }
+.btn-edit:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+.btn-link-small { background: #4488ff; color: #fff; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; text-decoration: none; display: inline-block; font-weight: bold; margin-right: 5px; cursor: pointer;}
+.btn-save { background: var(--accent); color: #000; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer;}
+.btn-close { background: transparent; border: none; color: #888; font-size: 24px; cursor: pointer; padding: 0; line-height: 1; }
+
+/* --- SUB TABS --- */
+.sub-nav-container { margin-bottom: 15px; }
+.sub-nav { display: flex; justify-content: center; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+.sub-btn { background: none; border: 1px solid transparent; color: #888; padding: 6px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 14px; }
+.sub-btn.active { background: var(--accent); color: #000; }
+
+/* --- ATTRIBUTES IN MODAL --- */
+.attr-row { display: flex; gap: 5px; align-items: center; margin-bottom: 5px; }
+.attr-row input { font-size: 13px; padding: 6px; }
+
+/* --- SKILLS TABLE --- */
+.skills-container { background: var(--panel); border-radius: 8px; overflow: hidden; }
+#skillsTable th, #skillsTable td { padding: 8px 5px; border-bottom: 1px solid var(--border); text-align: center; }
+#skillsTable th { background: #000; }
+#skillsTable td:nth-child(2) { text-align: left; } 
+#skillsTable input[type="number"] { max-width: 50px; padding: 4px; text-align: center; }
+.trained-untrained { color: #ff4444; }
+.trained-trained { color: #fff; }
+.skill-custom-input { background: transparent; border: none; border-bottom: 1px solid #444; color: var(--accent); width: 100px; font-size: 13px; padding: 2px; }
+
+/* --- FAB --- */
+#summonFab { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--accent); border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.5); align-items: center; justify-content: center; cursor: pointer; z-index: 2500; font-size: 24px; color: #000; font-weight: bold; border: 2px solid #fff; display: none; }
+#summonMenu { display: none; position: fixed; background: #222; border: 1px solid var(--accent); border-radius: 8px; width: 200px; z-index: 2499; overflow: hidden; flex-direction: column; }
+#summonMenu.show { display: flex; }
+.summon-opt { padding: 12px; border-bottom: 1px solid #333; color: #fff; cursor: pointer; text-align: left; background: none; border:none; }
+.summon-opt.active { background: var(--accent); color: #000; font-weight: bold; }
+
+/* --- IMAGE MODAL --- */
+#imageModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3100; justify-content: center; align-items: center; flex-direction: column; padding: 10px; }
+#imageModal img { max-width: 95vw; max-height: 85vh; border: 2px solid var(--accent); border-radius: 4px; object-fit: contain; }
+
+.status-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; color: #888; font-size: 11px; padding: 4px 10px; text-align: right; border-top: 1px solid #333; z-index: 2000; display: flex; justify-content: space-between; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #444; display: inline-block; margin-right: 5px; }
+.status-dot.live { background: #4caf50; box-shadow: 0 0 5px #4caf50; }
+
+/* --- HEART MODAL (Mobile Only) --- */
+#mobileHeartBtn { display: none; width: 100%; background: none; border: none; font-size: 40px; cursor: pointer; margin-bottom: 10px; animation: heartIdle 3s infinite ease-in-out; }
+@keyframes heartIdle { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }
+
+#heartModalContainer { display: block; }
+#heartCloseBtn { display: none; font-size: 60px; cursor: pointer; margin-bottom: 20px; animation: heartGlow 1.5s infinite alternate; text-shadow: 0 0 20px red; }
+@keyframes heartGlow { 
+    from { transform: scale(1); text-shadow: 0 0 10px red; filter: brightness(1); } 
+    to { transform: scale(1.2); text-shadow: 0 0 30px #ff0055, 0 0 50px red; filter: brightness(1.3); } 
+}
+
+/* --- MOBILE --- */
+@media (max-width: 600px) {
+  .nav-links { display: none; }
+  #hamburgerBtn { display: block; }
+  .tab-btn { font-size: 11px; padding: 12px 2px; }
   
-  .list-row-title { font-weight: bold; color: var(--accent); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .list-row-meta { color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  .row-content.active-ability-layout { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; }
-  .active-name { font-weight: bold; color: var(--accent); flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .active-type { color: #888; font-size: 12px; margin-right: 10px; white-space: nowrap; }
-
-  .inline-input-group { display: flex; align-items: center; gap: 2px; margin-right: 5px; }
-  .inline-input-group input { width: 35px; padding: 4px 0; text-align: center; background: #111; border: 1px solid #444; border-radius: 4px; font-size: 13px; color: var(--accent); height: 28px; }
-
-  /* MODALS */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(3px); }
-  .modal-content { background: #222; border: 1px solid var(--accent); border-radius: 8px; width: 100%; max-width: 500px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-  .modal-header { padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; border-radius: 8px 8px 0 0; flex-shrink: 0; }
-  .modal-header h3 { margin: 0; font-size: 18px; color: var(--accent); font-family: 'Uncial Antiqua'; }
-  .modal-body { padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; overflow-x: hidden; } 
-    .view-text { color: #eee; font-size: 15px; margin-bottom: 12px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; line-height: 1.5; max-width: 100%; }
-  .view-label { color: #888; font-size: 11px; text-transform: uppercase; margin-bottom: 2px; font-weight: bold; }
-  .view-attr-block { display: block; background: #333; padding: 6px; border-radius: 4px; font-size: 13px; margin-bottom: 5px; border: 1px solid #444; color: #eee; }
-
-  .btn-add { width: 100%; background: var(--accent); border: none; color: #000; padding: 10px; font-weight: bold; margin-top: 10px; border-radius: 4px; cursor: pointer; }
-  .btn-del { background: #ff4444; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; cursor:pointer; font-weight: bold; }
-  .btn-edit { background: #444; color: #ccc; border: 1px solid #666; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor:pointer; font-weight: bold; transition: 0.2s; }
-  .btn-edit:hover { background: var(--accent); color: #000; border-color: var(--accent); }
-  .btn-save { background: var(--accent); color: #000; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer;}
-  .btn-close { background: transparent; border: none; color: #888; font-size: 24px; cursor: pointer; padding: 0; line-height: 1; }
-  .btn-link-small { background: #4488ff; color: #fff; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; text-decoration: none; display: inline-block; font-weight: bold; margin-right: 5px; cursor: pointer;}
-
-  .sub-nav-container { margin-bottom: 15px; position: relative; }
-  .sub-nav { display: flex; justify-content: center; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
-  .sub-btn { background: none; border: 1px solid transparent; color: #888; padding: 6px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 14px; }
-  .sub-btn.active { background: var(--accent); color: #000; }
-  .sub-group, .sub-sub-group { display: none; }
-  .sub-group.active, .sub-sub-group.active { display: block; }
+  #mobileHeartBtn { display: block; }
+  #heartModalContainer { display: none; }
   
-  .attr-row { display: flex; gap: 5px; margin-top: 5px; align-items: center; }
-  
-  .skills-table { width:100%; border-collapse:collapse; font-size:13px; text-align: center; }
-  .skills-table th { background: #000; color:var(--accent); border-bottom:1px solid #444; padding:5px; }
-  .skills-table td { padding:4px; border-bottom:1px solid #333; }
-  .skills-table td:nth-child(2) { text-align: left; font-weight: bold; }
-  .skill-custom-input { background: transparent; border: none; border-bottom: 1px solid #444; color: var(--accent); width: 100px; font-size: 12px; padding: 2px; }
-  
-  .trained-untrained { color: #ff4444; }
-  .trained-trained { color: #fff; }
-
-  /* IMAGE MODAL */
-  #imageModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3100; justify-content: center; align-items: center; flex-direction: column; padding: 10px; }
-  #imageModal img { max-width: 95vw; max-height: 85vh; border: 2px solid var(--accent); border-radius: 4px; object-fit: contain; }
-
-  /* Ghost element for touch drag */
-  #dragGhost { position: fixed; top: 0; left: 0; width: 250px; background: #333; padding: 10px; border: 1px solid var(--accent); color: #fff; z-index: 9999; pointer-events: none; opacity: 0.8; display: none; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-weight: bold; }
-
-  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-
-  #adminBar { position:absolute; bottom:0; left:0; right:0; background:var(--accent); color:#000; padding:5px 10px; font-size:12px; font-weight:bold; display:flex; justify-content:space-between; z-index: 100; }
-
-  /* Mobile Tweaks */
-  @media(max-width:768px){
-    #sidebar { width: 100%; position: absolute; z-index: 10; height: 100%; }
-    #editorArea { width: 100%; position: absolute; z-index: 20; height: 100%; transform: translateX(100%); transition: transform 0.3s ease; background: #000; }
-    
-    body.show-editor #sidebar { transform: translateX(-20%); opacity: 0; }
-    body.show-editor #editorArea { transform: translateX(0); }
-    #backBtnMobile { display: block; }
-    #editorTabs { padding-left: 0; }
-
-    .mobile-2col { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 5px !important; padding: 5px !important; }
-    .mobile-2col .stat-box { flex-direction: column !important; justify-content: center !important; width: 100% !important; border-bottom: none !important; padding: 5px !important; background: #2a2a2a; border-radius: 4px; min-height: 50px; }
-    .mobile-2col .stat-box label { text-align: center; width: 100%; font-size: 10px !important; margin-bottom: 2px !important; }
-    .mobile-2col .stat-box input { width: 100% !important; font-size: 12px !important; text-align: center; height: 25px; }
+  #heartModalContainer.active-heart-modal {
+      display: flex; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 5000;
+      flex-direction: column; justify-content: center; align-items: center; padding: 20px;
   }
+  
+  #heartModalContainer.active-heart-modal #heartCloseBtn { display: block; }
+  #heartModalContainer.active-heart-modal .vital-row { width: 100%; margin-bottom: 20px; }
+  #heartModalContainer.active-heart-modal .combat-stats { width: 100%; }
+
+  .mobile-2col { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 5px !important; padding: 5px !important; }
+  .mobile-2col .stat-box { flex-direction: column !important; justify-content: center !important; width: 100% !important; border-bottom: none !important; padding: 5px !important; background: #2a2a2a; border-radius: 4px; min-height: 50px; }
+  .mobile-2col .stat-box label { text-align: center; width: 100%; font-size: 10px !important; margin-bottom: 2px !important; }
+  .mobile-2col .stat-box input { width: 100% !important; font-size: 12px !important; text-align: center; height: 25px; }
+  
+  #savesContainer { grid-template-columns: 1fr !important; }
+  #savesContainer .stat-box { flex-direction: row !important; justify-content: space-between; align-items: center; padding: 10px 15px; width: 100%; background: #2a2a2a; border-radius: 4px; min-height: auto; }
+  #savesContainer label { width: auto !important; margin-bottom: 0 !important; font-size: 14px !important; text-align: left; }
+  #savesContainer .stat-dual { width: auto !important; gap: 10px; }
+  #savesContainer .stat-dual input { width: 50px !important; }
+  
+  .inline-input-group input { width: 30px; font-size: 12px; }
+
+  #mobileSkillHeader { display: flex !important; justify-content: space-between; padding: 0 10px 5px 10px; }
+  #skillsTable thead { display: none; } 
+  #skillsTable tr { display: flex; justify-content: space-between; align-items: center; border: 1px solid #444; margin-bottom: 8px; padding: 10px; border-radius: 6px; background: var(--panel); }
+  #skillsTable td { border: none; padding: 0; }
+  #skillsTable tr td:nth-child(1), #skillsTable tr td:nth-child(3) { display: none; }
+  #skillsTable tr td:nth-child(2) { flex-basis: 40%; font-weight: bold; font-size: 15px; }
+  #skillsTable tr td:nth-child(4) { display: flex; align-items: center; justify-content: flex-end; flex-basis: 18%; }
+  #skillsTable tr td:nth-child(5) { display: flex; align-items: center; justify-content: flex-end; flex-basis: 21%; }
+  #skillsTable tr td:nth-child(6) { flex-basis: 21%; text-align: right; font-size: 16px; }
+  
+}
+
+#notes { display: none; flex-direction: column; height: 100%; box-sizing: border-box; }
+#notes.active { display: flex; }
+#notesArea { flex-grow: 1; border: 1px solid var(--border); border-radius: 6px; background: #111; padding: 10px; font-family: sans-serif; line-height: 1.6; font-size: 16px; width: 100%; margin-bottom: 20px; }
+
+/* Ghost element for touch drag */
+#dragGhost { position: fixed; top: 0; left: 0; width: 250px; background: #333; padding: 10px; border: 1px solid var(--accent); color: #fff; z-index: 9999; pointer-events: none; opacity: 0.8; display: none; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-weight: bold; }
 
 /* --- Ability Drawer --- */
 .top-nav-actions { display:flex; align-items:center; gap:10px; }
@@ -530,13 +544,28 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 </head>
 <body>
 
-<header>
-  <h1 onclick="window.location.href='index.html'">Mount Aetheria</h1>
-  <div style="display:flex; align-items:center; gap:10px;">
-    <div style="font-size:12px; color:#888;">Admin</div>
+<nav class="top-nav">
+  <button id="hamburgerBtn" onclick="document.getElementById('mobileMenu').classList.toggle('show')">&#9776;</button>
+  <a href="index.html" class="nav-brand">Mount Aetheria</a>
+  <div class="top-nav-actions">
+    <div class="nav-links">
+      <a href="story.html">Story</a>
+      <a href="tools.html">Tools</a>
+      <a href="characters.html" class="active" style="color:var(--accent)">Sheet</a>
+      <a href="discussions.html">Discussion</a>
+      <a href="signin.html" id="authLink">Sign In</a>
+    </div>
     
   </div>
-</header>
+</nav>
+
+<div id="mobileMenu">
+  <a href="story.html">Story</a>
+  <a href="tools.html">Tools</a>
+  <a href="characters.html" style="color:var(--accent)">Character Sheet</a>
+  <a href="discussions.html">Discussion</a>
+  <a href="signin.html" id="mobileAuthLink">Sign In</a>
+</div>
 
 
 
@@ -553,54 +582,41 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
   </div>
 </div>
 
-<div id="layout">
-  <div id="sidebar">
-    <input type="text" id="userSearch" placeholder="Search Users...">
-    <div id="usersList"><div style="padding:15px; color:#888;">Loading...</div></div>
+<div class="main-tabs">
+  <button class="tab-btn active" id="btn-character" onclick="switchTab('character')">Character</button>
+  <button class="tab-btn" id="btn-combat" onclick="switchTab('combat')">Combat</button>
+  <button class="tab-btn" id="btn-skills" onclick="switchTab('skills')">Skills</button>
+  <button class="tab-btn" id="btn-items" onclick="switchTab('items')">Items</button>
+  <button class="tab-btn" id="btn-notes" onclick="switchTab('notes')">Notes</button>
+</div>
+
+<div id="character" class="tab-content active">
+  <h2 id="sheetTitle">Character Bio</h2>
+  <div class="bio-grid">
+    <div class="bio-item"><label>Name</label><input id="charName" class="live-field"></div>
+    <div class="bio-item"><label>Race</label><input id="race" class="live-field"></div>
+    <div class="bio-item"><label>Class</label><input id="class" class="live-field"></div>
+    <div class="bio-item"><label>Align</label><input id="alignment" class="live-field"></div>
+    <div class="bio-item"><label>Size</label><input id="size" class="live-field"></div>
+    <div class="bio-item"><label>Languages</label><input id="languages" class="live-field"></div>
+    <div class="bio-item" style="grid-column: 1 / -1;"><label>Senses</label><input id="senses" class="live-field"></div>
   </div>
+  <div class="ability-heading-row"><h3>Ability Scores</h3><button id="abilityDrawerToggle" class="ability-float-toggle" type="button" onclick="toggleAbilityDrawer()" title="Open floating ability scores">🎲</button></div>
+  <div style="background:var(--panel); border-radius:8px; overflow:hidden;">
+    <table style="width:100%; border-collapse:collapse; text-align:center;">
+        <tr style="background:#000; color:#888; font-size:12px;"><th>Stat</th><th>Score</th><th>Mod</th></tr>
+        <script>
+            ['str','dex','con','int','wis','cha'].forEach(s => {
+                document.write(`<tr style="border-top:1px solid #333;"><td style="font-weight:bold; color:var(--accent); text-transform:uppercase;">${s}</td><td style="padding:8px;"><input type="number" id="${s}" class="live-field calc-trigger" style="text-align:center; background:#111; border:1px solid #444; color:#fff; border-radius:4px;"></td><td id="mod-${s}">+0</td></tr>`);
+            });
+        </script>
+    </table>
+  </div>
+  <button class="btn-add" id="btnAddSummon" style="background:#444; color:#ccc; margin-top:20px;">+ Add Summoning</button>
+  <button id="btnDeleteSummon" class="btn-del" style="background:#990000; width:100%; padding:12px; margin-top:20px; display:none;">Delete Summon</button>
+</div>
 
-  <div id="editorArea">
-    <div id="editorTabs"></div>
-    <button id="backBtnMobile" onclick="closeMobileEditor()">← Back to User List</button>
-    
-    <div id="emptyState">
-        <span>Select a user to edit</span>
-        <span style="font-size:14px; opacity:0.5; font-family:sans-serif;">(Tabs will appear above)</span>
-    </div>
-    
-    <div id="sheetContainer">
-      <div class="main-tabs">
-          <button class="tab-btn active" id="btn-character" onclick="switchTab('character')">Character</button>
-          <button class="tab-btn" id="btn-combat" onclick="switchTab('combat')">Combat</button>
-          <button class="tab-btn" id="btn-skills" onclick="switchTab('skills')">Skills</button>
-          <button class="tab-btn" id="btn-items" onclick="switchTab('items')">Items</button>
-          <button class="tab-btn" id="btn-notes" onclick="switchTab('notes')">Notes</button>
-      </div>
-      <div class="tab-content active" id="character">
-          <h2 id="sheetTitle">Bio & Stats</h2>
-          <div class="bio-grid">
-            <div class="bio-item"><label>Name</label><input id="charName" class="save-field"></div>
-            <div class="bio-item"><label>Race</label><input id="race" class="save-field"></div>
-            <div class="bio-item"><label>Class</label><input id="class" class="save-field"></div>
-            <div class="bio-item"><label>Align</label><input id="alignment" class="save-field"></div>
-            <div class="bio-item"><label>Size</label><input id="size" class="save-field"></div>
-            <div class="bio-item"><label>Langs</label><input id="languages" class="save-field"></div>
-            <div class="bio-item" style="grid-column: 1 / -1;"><label>Senses</label><input id="senses" class="save-field"></div>
-          </div>
-          <div class="ability-heading-row"><h3>Ability Scores</h3><button id="abilityDrawerToggle" class="ability-float-toggle" type="button" onclick="toggleAbilityDrawer()" title="Open floating ability scores">🎲</button></div>
-          <div style="background:var(--panel); border-radius:8px; overflow:hidden;">
-            <table style="width:100%; border-collapse:collapse; text-align:center;">
-                <tr style="background:#000; color:#888; font-size:12px;"><th>Stat</th><th>Score</th><th>Mod</th></tr>
-                <script>
-                    ['str','dex','con','int','wis','cha'].forEach(s => {
-                        document.write(`<tr style="border-top:1px solid #333;"><td style="font-weight:bold; color:var(--accent); text-transform:uppercase;">${s}</td><td style="padding:8px;"><input type="number" id="${s}" class="save-field calc-trigger" style="text-align:center; background:#111; border:1px solid #444; color:#fff; border-radius:4px;"></td><td id="mod-${s}">+0</td></tr>`);
-                    });
-                </script>
-            </table>
-          </div>
-      </div>
 
-      
 <div id="combat" class="tab-content">
   <button id="mobileHeartBtn" onclick="toggleHeartStats()">❤️</button>
   <div id="heartModalContainer">
@@ -611,17 +627,17 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
           <div class="stat-card hpmp-card">
               <div class="stat-head"><span class="stat-title">❤️ HP</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('hp')">✎</button></div>
               <div class="stat-subline">
-                <div class="stat-subbox"><small>Base</small><input id="hp_curr" type="number" class="save-field main-vital-input"></div>
-                <div class="stat-subbox"><small>Temp</small><input id="hp_temp" type="number" class="save-field main-vital-input"></div>
-                <div class="stat-subbox"><small>Max</small><input id="hp_max" type="number" class="save-field main-vital-input readonly-yellow"></div>
+                <div class="stat-subbox"><small>Base</small><input id="hp_curr" type="number" class="live-field main-vital-input"></div>
+                <div class="stat-subbox"><small>Temp</small><input id="hp_temp" type="number" class="live-field main-vital-input"></div>
+                <div class="stat-subbox"><small>Max</small><input id="hp_max" type="number" class="live-field main-vital-input readonly-yellow"></div>
               </div>
           </div>
           <div class="stat-card hpmp-card">
               <div class="stat-head"><span class="stat-title">💧 MP</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('mp')">✎</button></div>
               <div class="stat-subline">
-                <div class="stat-subbox"><small>Base</small><input id="mp_curr" type="number" class="save-field main-vital-input"></div>
-                <div class="stat-subbox"><small>Temp</small><input id="mp_temp" type="number" class="save-field main-vital-input"></div>
-                <div class="stat-subbox"><small>Max</small><input id="mp_max" type="number" class="save-field main-vital-input readonly-yellow"></div>
+                <div class="stat-subbox"><small>Base</small><input id="mp_curr" type="number" class="live-field main-vital-input"></div>
+                <div class="stat-subbox"><small>Temp</small><input id="mp_temp" type="number" class="live-field main-vital-input"></div>
+                <div class="stat-subbox"><small>Max</small><input id="mp_max" type="number" class="live-field main-vital-input readonly-yellow"></div>
               </div>
           </div>
       </div>
@@ -644,8 +660,8 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
   
   <div id="c-general" class="sub-group active">
     <div class="stat-display-grid">
-      <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Armor Class</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('ac')">✎</button></div><select id="ac_view_mode" class="save-field select-display" onchange="handleDisplayModeChange()"><option value="ac">AC</option><option value="touch">Touch AC</option><option value="flat">Flat-Footed</option><option value="cmd">CMD</option></select><div class="inline-value-wrap" style="margin-top:10px;"><span id="acDisplayMain" class="inline-value">10</span></div></div>
-      <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Attack Roll</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('ar')">✎</button></div><select id="ar_view_mode" class="save-field select-display" onchange="handleDisplayModeChange()"><option value="melee" selected>Melee</option><option value="ranged">Ranged</option><option value="touch">Touch</option><option value="ranged_touch">Ranged Touch</option><option value="cmb">CMB</option></select><div class="inline-value-wrap" style="margin-top:10px;"><span id="arDisplayMain" class="inline-value">+0</span></div></div>
+      <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Armor Class</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('ac')">✎</button></div><select id="ac_view_mode" class="live-field select-display" onchange="handleDisplayModeChange()"><option value="ac">AC</option><option value="touch">Touch AC</option><option value="flat">Flat-Footed</option><option value="cmd">CMD</option></select><div class="inline-value-wrap" style="margin-top:10px;"><span id="acDisplayMain" class="inline-value">10</span></div></div>
+      <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Attack Roll</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('ar')">✎</button></div><select id="ar_view_mode" class="live-field select-display" onchange="handleDisplayModeChange()"><option value="melee" selected>Melee</option><option value="ranged">Ranged</option><option value="touch">Touch</option><option value="ranged_touch">Ranged Touch</option><option value="cmb">CMB</option></select><div class="inline-value-wrap" style="margin-top:10px;"><span id="arDisplayMain" class="inline-value">+0</span></div></div>
     </div>
     <h3>Saves</h3>
     <div class="save-row-display">
@@ -655,7 +671,7 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
     </div>
     <div id="resistancesBox" style="background:var(--panel); padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid var(--border);">
         <label>Resist</label>
-        <textarea id="resistances" class="save-field" placeholder="Resistances, Immunities, DR, SR"></textarea>
+        <textarea id="resistances" class="live-field" placeholder="Resistances, Immunities, DR, SR"></textarea>
     </div>
     <h3>Weapons</h3>
     <div id="weaponList"></div>
@@ -670,7 +686,7 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
             <button class="sub-btn" onclick="switchSubSub('a-feats')">Feats</button>
         </div>
       </div>
-      <div id="a-active" class="sub-sub-group active"><div id="activeList"></div><button class="btn-add" onclick="addNewItem('active')">+ Add Active</button></div>
+      <div id="a-active" class="sub-sub-group active"><div id="activeList"></div><button class="btn-add" onclick="addNewItem('active')">+ Add Active Ability</button></div>
       <div id="a-passive" class="sub-sub-group" style="display:none"><div id="passiveList"></div><button class="btn-add" onclick="addNewItem('passive')">+ Add Passive Ability</button></div>
       <div id="a-feats" class="sub-sub-group" style="display:none">
           <div id="featList"></div>
@@ -678,85 +694,72 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
           <br><br>
           <div style="background:var(--panel); padding:10px; border-radius:8px; border:1px solid var(--border);">
             <label>Proficiencies</label>
-            <textarea id="proficiencies" class="save-field"></textarea>
+            <textarea id="proficiencies" class="live-field"></textarea>
           </div>
       </div>
   </div>
 
   <div id="c-spells" class="sub-group" style="display:none">
       <h3>Spells</h3>
-      <div class="stat-box" style="margin-bottom:10px;"><label>Spell DC Base</label><input id="spell_dc_base" class="save-field"></div>
+      <div class="stat-box" style="margin-bottom:10px;"><label>Spell DC Base</label><input id="spell_dc_base" class="live-field"></div>
       <div id="spellList"></div>
       <button class="btn-add" onclick="addNewItem('spell')">+ Add Spell</button>
   </div>
 
   <div style="display:none;">
-    <input id="bab" class="save-field"><input id="speed" class="save-field">
-    <input id="init_temp" class="save-field"><input id="bab_temp" class="save-field"><input id="speed_temp" class="save-field">
-    <input id="size_category" class="save-field"><input id="size_mod" class="save-field"><input id="size_special" class="save-field">
-    <input id="ac_armor" class="save-field"><input id="ac_natural" class="save-field"><input id="ac_deflect" class="save-field"><input id="ac_dodge" class="save-field"><input id="ac_temp" class="save-field">
-    <input id="touch_temp" class="save-field"><input id="flat_temp" class="save-field"><input id="cmd_temp" class="save-field">
-    <input id="ar_melee_temp" class="save-field"><input id="ar_ranged_temp" class="save-field"><input id="ar_touch_temp" class="save-field"><input id="ar_ranged_touch_temp" class="save-field"><input id="cmb_temp" class="save-field">
-    <input id="fort_base" class="save-field"><input id="fort_enhance" class="save-field"><input id="fort_temp" class="save-field">
-    <input id="ref_base" class="save-field"><input id="ref_enhance" class="save-field"><input id="ref_temp" class="save-field">
-    <input id="will_base" class="save-field"><input id="will_enhance" class="save-field"><input id="will_temp" class="save-field">
-    <input id="ac_total" class="save-field"><input id="touch_ac_total" class="save-field"><input id="flat_ac_total" class="save-field"><input id="cmd_total" class="save-field"><input id="ar_total" class="save-field"><input id="ar_ranged_total" class="save-field"><input id="ar_touch_total" class="save-field"><input id="ar_ranged_touch_total" class="save-field"><input id="cmb" class="save-field">
-    <input id="fort_bonus" class="save-field"><input id="ref_bonus" class="save-field"><input id="will_bonus" class="save-field">
+    <input id="bab" class="live-field"><input id="speed" class="live-field">
+    <input id="init_temp" class="live-field"><input id="bab_temp" class="live-field"><input id="speed_temp" class="live-field">
+    <input id="size_category" class="live-field"><input id="size_mod" class="live-field"><input id="size_special" class="live-field">
+    <input id="ac_armor" class="live-field"><input id="ac_natural" class="live-field"><input id="ac_deflect" class="live-field"><input id="ac_dodge" class="live-field"><input id="ac_temp" class="live-field">
+    <input id="touch_temp" class="live-field"><input id="flat_temp" class="live-field"><input id="cmd_temp" class="live-field">
+    <input id="ar_melee_temp" class="live-field"><input id="ar_ranged_temp" class="live-field"><input id="ar_touch_temp" class="live-field"><input id="ar_ranged_touch_temp" class="live-field"><input id="cmb_temp" class="live-field">
+    <input id="fort_base" class="live-field"><input id="fort_enhance" class="live-field"><input id="fort_temp" class="live-field">
+    <input id="ref_base" class="live-field"><input id="ref_enhance" class="live-field"><input id="ref_temp" class="live-field">
+    <input id="will_base" class="live-field"><input id="will_enhance" class="live-field"><input id="will_temp" class="live-field">
+    <input id="ac_total" class="live-field"><input id="touch_ac_total" class="live-field"><input id="flat_ac_total" class="live-field"><input id="cmd_total" class="live-field"><input id="ar_total" class="live-field"><input id="ar_ranged_total" class="live-field"><input id="ar_touch_total" class="live-field"><input id="ar_ranged_touch_total" class="live-field"><input id="cmb" class="live-field">
+    <input id="fort_bonus" class="live-field"><input id="ref_bonus" class="live-field"><input id="will_bonus" class="live-field">
   </div>
 </div>
 
 
-      <div class="tab-content" id="skills">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><span>Unused Pts:</span><input id="skill_points" class="save-field" style="width:60px; text-align:center;"></div>
-          <div class="skills-container">
-              <table class="skills-table">
-                  <thead><tr><th style="width:30px">CS</th><th style="text-align:left;">Skill Name</th><th style="width:40px">Mod</th><th style="width:50px">Temp</th><th style="width:50px">Ranks</th><th style="width:40px">Tot</th></tr></thead>
-                  <tbody id="skillsTableBody"></tbody>
-              </table>
-          </div>
-      </div>
-
-      <div class="tab-content" id="items">
-          <div class="item-top-grid">
-            <div class="stat-box"><label>💰 Gil</label><input id="currency_gil" class="save-field"></div>
-            <div class="stat-box"><label>Moogle Pts</label><input id="currency_moogle" class="save-field"></div>
-            <div class="stat-box">
-              <label>Slot</label>
-              <select id="slot_cap" class="save-field" onchange="renderItems()">
-                <option value="20">20</option><option value="40">40</option><option value="80">80</option><option value="120">120</option>
-                <option value="200">200</option><option value="300">300</option><option value="500">500</option>
-                <option value="5000">5000</option><option value="50000">50000</option>
-              </select>
-              <div id="slotUsageDisplay" class="slot-box-value" style="margin-top:8px;">0/20</div>
-            </div>
-          </div>
-          <div class="items-panel-shell">
-  <div class="item-section-tabs">
-            <button class="sub-btn active" id="itemView-storage" onclick="setItemView('storage')">Storage</button>
-            <button class="sub-btn" id="itemView-equipped" onclick="setItemView('equipped')">Equipped</button>
-          </div>
-          <div style="display:flex; gap:10px; margin-bottom:10px;">
-            <select id="itemFilterTag" onchange="renderItems()" style="flex:1;"><option value="All">All Tags</option><option value="Weapons">Weapons</option><option value="Armor">Armor</option><option value="Gear">Gear</option><option value="Consumables">Consumables</option><option value="Magic Items">Magic Items</option><option value="Collections">Collections</option><option value="Misc">Misc</option></select>
-            <select id="itemSort" onchange="renderItems()" style="flex:1;"><option value="recent">Recent</option><option value="abc">A-Z</option></select>
-          </div>
-          <div id="itemList"></div><button class="btn-add" onclick="addNewItem('item')">+ Add Item</button>
+<div id="skills" class="tab-content">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><span>Skill Points Unused:</span><input id="skill_points" class="live-field" style="width:60px; text-align:center;" readonly></div>
+  <div id="mobileSkillHeader" style="display:none; color:#888; font-size:12px;"><span style="display:inline-block; width:40%;"></span><span style="display:inline-block; width:18%; text-align:right;">TEMP</span><span style="display:inline-block; width:21%; text-align:right;">RANKS</span><span style="display:inline-block; width:21%; text-align:right;">TOTAL</span></div>
+  <div class="skills-container">
+    <table id="skillsTable" style="width:100%; border-collapse:collapse; font-size:14px; text-align:center;">
+        <thead><tr style="background:#000; color:var(--accent); font-weight:bold;"><th style="width:30px">CS</th><th style="text-align:left;">Skill Name</th><th style="width:40px">Mod</th><th style="width:50px">Temp</th><th style="width:50px">Ranks</th><th style="width:40px" id="skillHeaderTotal">Total</th></tr></thead>
+        <tbody id="skillsTableBody"></tbody>
+    </table>
   </div>
-      </div>
-
-      
-<div id="notes" class="tab-content">
-  <textarea id="notesArea" class="save-field" style="min-height:320px; width:100%; resize:vertical; display:block;"></textarea>
 </div>
 
-
-    </div> 
-    
-    <div id="adminBar">
-      <span id="statusText">Ready</span>
-      <span id="targetUserUID">No User Selected</span>
+<div id="items" class="tab-content">
+  <div class="item-top-grid">
+    <div class="stat-box"><label>💰 Gil</label><input id="currency_gil" class="live-field"></div>
+    <div class="stat-box"><label>Moogle Pts</label><input id="currency_moogle" class="live-field"></div>
+    <div class="stat-box"><label>Slot</label><div id="slotUsageDisplay" class="slot-box-value">0/20</div></div>
+  </div>
+  <div class="items-panel-shell">
+    <div class="item-section-tabs">
+      <button class="sub-btn active" id="itemView-storage" onclick="setItemView('storage')">Storage</button>
+      <button class="sub-btn" id="itemView-equipped" onclick="setItemView('equipped')">Equipped</button>
     </div>
+    <div style="display:flex; gap:10px; margin-bottom:10px;">
+      <select id="itemFilterTag" onchange="renderItems()" style="flex:1;"><option value="All">All Tags</option><option value="Weapons">Weapons</option><option value="Armor">Armor</option><option value="Gear">Gear</option><option value="Consumables">Consumables</option><option value="Magic Items">Magic Items</option><option value="Collections">Collections</option><option value="Misc">Misc</option></select>
+      <select id="itemSort" onchange="renderItems()" style="flex:1;"><option value="recent">Recent</option><option value="abc">A-Z</option></select>
+    </div>
+    <div id="itemList"></div>
+    <button class="btn-add" onclick="addNewItem('item')">+ Add Item</button>
   </div>
 </div>
+
+
+<div id="notes" class="tab-content">
+  <textarea id="notesArea" class="live-field" style="min-height:320px; width:100%; resize:vertical; display:block;"></textarea>
+</div>
+
+<div id="summonMenu"></div>
+<div id="summonFab">◎</div>
 
 
 <div id="statEditOverlay" class="modal-overlay">
@@ -779,7 +782,7 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
     <div class="modal-content">
         <div class="modal-header">
             <h3 id="modalTitle">Edit</h3>
-            <div class="modal-actions"><a id="modalLinkBtn" href="#" target="_blank" class="btn-link-small" style="display:none">Link</a><button class="btn-save" onclick="closeModal()">Done</button></div>
+            <div class="modal-actions"><a id="modalLinkBtn" href="#" target="_blank" class="btn-link" style="display:none"></a><button class="btn-save" onclick="closeModal()">Done</button></div>
         </div>
         <div id="modalBody" class="modal-body"></div>
         <div style="padding:15px; border-top:1px solid #333; background:#1a1a1a; border-radius:0 0 8px 8px;"><button id="modalDeleteBtn" class="btn-del" style="width:100%">Delete</button></div>
@@ -793,29 +796,23 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 
 <div id="dragGhost"></div>
 
+<div class="status-bar"><span id="uidDisplay">Loading...</span><div><span class="status-dot" id="statusDot"></span><span id="statusText">Connecting</span></div></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, getDocs, doc, onSnapshot, setDoc, getDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", authDomain: "mount-aetheria.firebaseapp.com", projectId: "mount-aetheria", storageBucket: "mount-aetheria.firebasestorage.app", messagingSenderId: "492855693446", appId: "1:492855693446:web:f99485569254a7220c38107", measurementId: "G-0PF84KDN7L" };
-const ADMIN_UID = "U7uyfcMtULSLJvXD0HzJaiMIeGE3";
-const ADMIN_EMAIL = "phoeaung2076@gmail.com";
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let allUsers = [];
-let currentParentUid = null;
-let currentSummonId = null;
-let fullSheetData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [], slot_cap: 20 }; 
-let unsubscribeSheet = null;
+let currentUser = null;
 let saveTimeout = null;
-let isInternalUpdate = false;
-
-// TABS STATE
-let openTabs = []; // { uid, sid, name }
+let isRemoteUpdate = false;
+let fullData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [], slot_cap: 20 }; 
+let currentSummonId = null; 
 
 window.switchTab = (id) => { 
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
@@ -829,281 +826,50 @@ window.switchSub = (id) => {
     Array.from(container.children).forEach(b => b.classList.remove('active'));
     const targetBtn = Array.from(container.children).find(b => b.getAttribute('onclick').includes(id));
     if(targetBtn) targetBtn.classList.add('active');
-    const parentTab = document.getElementById('combat');
-    parentTab.querySelectorAll('.sub-group').forEach(c => c.style.display = 'none');
+    document.getElementById('combat').querySelectorAll('.sub-group').forEach(c => c.style.display = 'none');
     document.getElementById(id).style.display = 'block';
-    localStorage.setItem('adminCombatSub', id);
+    localStorage.setItem('activeCombatSub', id);
 };
 window.switchSubSub = (id) => {
     const container = document.getElementById('abilitiesSubSubNav');
     Array.from(container.children).forEach(b => b.classList.remove('active'));
     const targetBtn = Array.from(container.children).find(b => b.getAttribute('onclick').includes(id));
     if(targetBtn) targetBtn.classList.add('active');
-    const parent = document.getElementById('c-abilities-main');
-    parent.querySelectorAll('.sub-sub-group').forEach(c => c.style.display = 'none');
+    document.getElementById('c-abilities-main').querySelectorAll('.sub-sub-group').forEach(c => c.style.display = 'none');
     document.getElementById(id).style.display = 'block'; 
-    localStorage.setItem('adminAbilSub', id);
+    localStorage.setItem('activeAbilSub', id);
 };
 
-// Close mobile editor now acts as close tab for the current tab on mobile
-window.closeMobileEditor = () => { 
-    if(currentParentUid) closeTab(currentParentUid, currentSummonId);
-    document.body.classList.remove('show-editor'); 
-};
-
-const SKILLS_DB = [
-    {n:"Acrobatics",s:"dex"}, {n:"Appraise",s:"int"}, {n:"Bluff",s:"cha"}, {n:"Climb",s:"str"},
-    {n:"Craft",s:"int", custom:true}, {n:"Craft",s:"int", custom:true}, {n:"Craft",s:"int", custom:true},
-    {n:"Diplomacy",s:"cha"}, {n:"Disable Device",s:"dex"}, {n:"Disguise",s:"cha"}, {n:"Drive",s:"dex"}, 
-    {n:"Escape Artist",s:"dex"}, {n:"Fly",s:"dex"}, {n:"Handle Animal",s:"cha"}, {n:"Heal",s:"wis"}, 
-    {n:"Intimidate",s:"cha"}, {n:"Knw: Arcana",s:"int"}, {n:"Knw: Dungeoneering",s:"int"}, {n:"Knw: Engineering",s:"int"}, 
-    {n:"Knw: Geography",s:"int"}, {n:"Knw: History",s:"int"}, {n:"Knw: Local",s:"int"}, {n:"Knw: Nature",s:"int"}, 
-    {n:"Knw: Nobility",s:"int"}, {n:"Knw: Planes",s:"int"}, {n:"Knw: Religion",s:"int"},{n:"Knw: Technology",s:"int"}, {n:"Linguistics",s:"int"}, 
-    {n:"Navigate",s:"int"}, {n:"Perception",s:"wis"}, 
-    {n:"Perform",s:"cha", custom:true}, {n:"Perform",s:"cha", custom:true}, {n:"Perform",s:"cha", custom:true},
-    {n:"Pilot",s:"dex"},
-    {n:"Profession",s:"wis", custom:true}, {n:"Profession",s:"wis", custom:true}, {n:"Profession",s:"wis", custom:true}, 
-    {n:"Repair",s:"int"},
-    {n:"Ride",s:"dex"}, {n:"Sense Motive",s:"wis"}, {n:"Sleight of Hand",s:"dex"}, {n:"Spellcraft",s:"int"}, 
-    {n:"Stealth",s:"dex"}, {n:"Survival",s:"wis"}, {n:"Swim",s:"str"}, {n:"Use Magic Device",s:"cha"}
-];
-const TRAINED_ONLY_LIST = ["Disable Device", "Handle Animal", "Knw: Arcana", "Knw: Dungeoneering", "Knw: Engineering", "Knw: Geography", "Knw: History", "Knw: Local", "Knw: Nature", "Knw: Nobility", "Knw: Planes", "Knw: Religion", "Knw: Technology", "Linguistics", "Profession", "Use Magic Device"];
-
-onAuthStateChanged(auth, async (user) => {
-  if(!user) { window.location.href="signin.html"; return; }
-  if(user.uid !== ADMIN_UID && user.email !== ADMIN_EMAIL) { document.body.innerHTML = "<h2 style='color:red;padding:20px'>Access Denied: Admin Only</h2>"; return; }
-  loadUserList();
+onAuthStateChanged(auth, (user) => {
+    if(user){
+        currentUser = user;
+        document.getElementById('uidDisplay').textContent = user.email;
+        document.getElementById('authLink').textContent = "My Account"; document.getElementById('authLink').href = "account.html";
+        document.getElementById('mobileAuthLink').textContent = "My Account"; document.getElementById('mobileAuthLink').href = "account.html";
+        initSkills();
+        startSync();
+    } else { window.location.href = "signin.html"; }
 });
 
-async function loadUserList(){
-    const listEl = document.getElementById('usersList');
-    listEl.innerHTML = '<div style="padding:15px">Fetching users...</div>';
-    try {
-        const snap = await getDocs(collection(db, 'users'));
-        allUsers = [];
-        for (const d of snap.docs) {
-            const data = d.data();
-            const uid = d.id;
-            const name = data.displayName || data.name || "Unknown";
-            const email = data.email || "No Email";
-            const isBanned = data.isBanned || false;
-            let summons = [];
-            try {
-                const sheetSnap = await getDoc(doc(db, 'users', uid, 'sheet', 'character'));
-                if(sheetSnap.exists() && sheetSnap.data().summons) { summons = sheetSnap.data().summons; }
-            } catch(e) { console.log("No sheet for " + name); }
-            allUsers.push({ uid, name, email, isBanned, summons });
-        }
-        allUsers.sort((a,b) => a.name.localeCompare(b.name));
-        renderUserList(allUsers);
-    } catch(e) { listEl.innerHTML = `<div style="padding:15px;color:red">Error: ${e.message}</div>`; }
-}
-
-function renderUserList(users){
-    const listEl = document.getElementById('usersList'); listEl.innerHTML = '';
-    users.forEach(u => {
-        const div = document.createElement('div'); 
-        div.className = 'userItem' + (u.isBanned ? ' banned-user' : '');
-        div.innerHTML = `
-            <div class="uInfo">
-                <span class="uName">${u.name} ${u.isBanned ? '(BANNED)' : ''}</span>
-                <span class="uMeta">${u.email}</span>
-            </div>
-            <div class="user-actions">
-                <button class="user-btn-icon ban" title="${u.isBanned ? 'Unban' : 'Ban'} User">${u.isBanned ? '✅' : '🚫'}</button>
-                <button class="user-btn-icon del" title="Delete Data">🗑️</button>
-            </div>
-        `;
-        
-        div.onclick = (e) => { 
-            if(e.target.closest('.user-actions')) return; 
-            openTab(u.uid, null, u.name); // CHANGED TO OPEN TAB
-        };
-        
-        const btnDel = div.querySelector('.del');
-        btnDel.onclick = (e) => { e.stopPropagation(); deleteUserDoc(u.uid, u.name); };
-        
-        const btnBan = div.querySelector('.ban');
-        btnBan.onclick = (e) => { e.stopPropagation(); toggleUserBan(u.uid, u.name, !u.isBanned); };
-
-        div.dataset.uid = u.uid; 
-        listEl.appendChild(div);
-
-        if(u.summons && u.summons.length > 0) {
-            u.summons.forEach(s => {
-                const sDiv = document.createElement('div'); sDiv.className = 'summonItem'; sDiv.dataset.sid = s.id;
-                sDiv.textContent = s.charName || "Unnamed Summon";
-                sDiv.onclick = (e) => { e.stopPropagation(); openTab(u.uid, s.id, s.charName || "Summon"); }; // CHANGED TO OPEN TAB
-                listEl.appendChild(sDiv);
-            });
+function startSync() {
+    const docRef = doc(db, 'users', currentUser.uid, 'sheet', 'character');
+    onSnapshot(docRef, (snap) => {
+        if(snap.metadata.hasPendingWrites) return;
+        if(snap.exists()) {
+            document.getElementById('statusDot').classList.add('live');
+            document.getElementById('statusText').textContent = "Live Sync";
+            const remote = snap.data();
+            fullData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [], slot_cap: 20, ...remote };
+            isRemoteUpdate = true;
+            loadCurrentSheet();
+            setTimeout(refreshCombatUi, 50);
+            updateSummonMenu();
+            isRemoteUpdate = false;
         }
     });
 }
 
-// --- TABS LOGIC ---
-
-window.openTab = (uid, sid, name) => {
-    // Check if exists
-    const existing = openTabs.find(t => t.uid === uid && t.sid === sid);
-    if (!existing) {
-        openTabs.push({ uid, sid, name });
-        renderTabs();
-    }
-    activateTab(uid, sid);
-    document.body.classList.add('show-editor'); // for mobile
-};
-
-window.closeTab = (uid, sid) => {
-    const idx = openTabs.findIndex(t => t.uid === uid && t.sid === sid);
-    if (idx === -1) return;
-    
-    const wasActive = (currentParentUid === uid && currentSummonId === sid);
-    openTabs.splice(idx, 1);
-    renderTabs();
-
-    if (wasActive) {
-        // If we closed the active tab, switch to the last one, or empty state
-        if (openTabs.length > 0) {
-            const last = openTabs[openTabs.length - 1];
-            activateTab(last.uid, last.sid);
-        } else {
-            // No tabs left
-            if(unsubscribeSheet) unsubscribeSheet();
-            unsubscribeSheet = null;
-            currentParentUid = null;
-            currentSummonId = null;
-            document.getElementById('sheetContainer').style.display = 'none';
-            document.getElementById('emptyState').style.display = 'flex';
-            document.getElementById('targetUserUID').textContent = "No User Selected";
-        }
-    }
-};
-
-function renderTabs() {
-    const container = document.getElementById('editorTabs');
-    container.innerHTML = '';
-    openTabs.forEach(t => {
-        const div = document.createElement('div');
-        div.className = 'editor-tab';
-        if (t.uid === currentParentUid && t.sid === currentSummonId) div.classList.add('active');
-        
-        div.innerHTML = `<span class="tab-title">${t.name}</span><span class="tab-close">×</span>`;
-        div.onclick = (e) => {
-            if(e.target.classList.contains('tab-close')) {
-                e.stopPropagation();
-                closeTab(t.uid, t.sid);
-            } else {
-                activateTab(t.uid, t.sid);
-            }
-        };
-        container.appendChild(div);
-    });
-}
-
-function activateTab(uid, sid) {
-    if(currentParentUid === uid && currentSummonId === sid) return; // Already active
-
-    // 1. CLEAR OLD DATA VISUALLY AND INTERNALLY
-    if(unsubscribeSheet) unsubscribeSheet();
-    unsubscribeSheet = null;
-    
-    // Wipe global data
-    fullSheetData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [] };
-    
-    // Wipe UI Inputs immediately to prevent bleed
-    document.querySelectorAll('.save-field').forEach(el => el.value = "");
-    document.querySelectorAll('#skillsTableBody input[type="number"]').forEach(el => el.value = "");
-    document.querySelectorAll('#skillsTableBody input[type="checkbox"]').forEach(el => el.checked = false);
-    document.getElementById('weaponList').innerHTML = '';
-    document.getElementById('spellList').innerHTML = '';
-    document.getElementById('activeList').innerHTML = '';
-    document.getElementById('passiveList').innerHTML = '';
-    document.getElementById('featList').innerHTML = '';
-    document.getElementById('itemList').innerHTML = '';
-
-    // 2. Set new State
-    currentParentUid = uid; 
-    currentSummonId = sid;
-
-    // 3. Update UI Wrapper
-    renderTabs(); // Highlights new tab
-    document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('sheetContainer').style.display = 'block';
-    document.getElementById('sheetContainer').classList.add('active');
-    
-    const typeLabel = sid ? " (Summon)" : " (Main)";
-    document.getElementById('targetUserUID').textContent = "Editing: " + uid + typeLabel;
-    
-    // 4. Highlight Sidebar (Visual only)
-    document.querySelectorAll('.userItem, .summonItem').forEach(d => d.classList.remove('selected'));
-    if(!sid) {
-        const row = document.querySelector(`.userItem[data-uid="${uid}"]`);
-        if(row) row.classList.add('selected');
-    } else {
-        const row = document.querySelector(`.summonItem[data-sid="${sid}"]`);
-        if(row) row.classList.add('selected');
-    }
-
-    // 5. Restore Sub-Tabs Preference
-    initSkillsTable(); 
-    const savedCombat = localStorage.getItem('adminCombatSub') || 'c-general';
-    const savedAbil = localStorage.getItem('adminAbilSub') || 'a-active';
-    switchSub(savedCombat); 
-    switchSubSub(savedAbil);
-
-    // 6. Start Listening
-    startListening(uid);
-}
-
-// ---------------------------
-
-window.deleteUserDoc = async (uid, name) => {
-    if(!confirm(`Delete user data for "${name}"?`)) return;
-    try { await deleteDoc(doc(db, "users", uid)); loadUserList(); } catch(e) { alert("Error: " + e.message); }
-};
-
-window.toggleUserBan = async (uid, name, newBanStatus) => {
-    const action = newBanStatus ? "BAN" : "UNBAN";
-    if(!confirm(`${action} user "${name}"?`)) return;
-    try { 
-        await updateDoc(doc(db, "users", uid), { isBanned: newBanStatus }); 
-        loadUserList(); 
-    } catch(e) { alert("Error updating ban status: " + e.message); }
-};
-
-document.getElementById('userSearch').addEventListener('input', (e)=>{
-    const txt = e.target.value.toLowerCase();
-    const filtered = allUsers.filter(u => u.name.toLowerCase().includes(txt) || u.email.toLowerCase().includes(txt));
-    renderUserList(filtered);
-});
-
-function startListening(uid){
-    const docRef = doc(db, 'users', uid, 'sheet', 'character');
-    document.getElementById('statusText').textContent = "Syncing...";
-    
-    unsubscribeSheet = onSnapshot(docRef, (docSnap) => {
-        if(docSnap.metadata.hasPendingWrites) return;
-        if (document.querySelector('.save-field:focus') || document.querySelector('input:focus') || document.querySelector('textarea:focus')) { return; }
-        
-        if(docSnap.exists()){
-            fullSheetData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [], slot_cap: 20, ...docSnap.data() };
-            isInternalUpdate = true;
-            populateSheet(); // Logic moved here ensures we populate with fresh data
-            isInternalUpdate = false;
-            document.getElementById('statusText').textContent = "Synced";
-            document.getElementById('statusText').style.color = "#4caf50";
-        } else {
-            // DATA IS EMPTY/NEW USER
-            document.getElementById('statusText').textContent = "No Sheet Data";
-            fullSheetData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [] };
-            isInternalUpdate = true;
-            populateSheet(); // CRITICAL: Run populate even if empty to clear the UI
-            isInternalUpdate = false;
-        }
-    });
-}
-
-function getActiveData() { return currentSummonId ? (fullSheetData.summons.find(s => s.id === currentSummonId) || {}) : fullSheetData; }
+function getActiveData() { return currentSummonId ? (fullData.summons.find(s => s.id === currentSummonId) || {}) : fullData; }
 
 function stripLimitBreakAbilityEntries(target) {
     if(!target || !Array.isArray(target.activeAbilities)) return;
@@ -1123,15 +889,29 @@ function setUnusedSkillPoints(value) {
 function sanitizeSkillPoolUi() {
     const el = getSkillPointsEl();
     if(!el) return;
-    el.readOnly = false;
-    el.removeAttribute('aria-readonly');
-    el.setAttribute('step', '1');
+    el.readOnly = true;
+    el.setAttribute('aria-readonly', 'true');
 }
 function applySkillRankChange(input) {
     if(!input) return;
     const prev = normalizeSkillInt(input.dataset.prevValue, normalizeSkillInt(input.value, 0));
-    const next = normalizeSkillInt(input.value, prev);
-    const unused = getUnusedSkillPoints() - (next - prev);
+    let next = normalizeSkillInt(input.value, prev);
+    if(next < 0) next = 0;
+    let unused = getUnusedSkillPoints();
+    const wantedDiff = next - prev;
+
+    if(wantedDiff > 0) {
+        if(unused <= 0) {
+            next = prev;
+        } else if(wantedDiff > unused) {
+            next = prev + unused;
+        }
+    }
+
+    const actualDiff = next - prev;
+    unused -= actualDiff;
+    if(unused < 0) unused = 0;
+
     input.value = String(next);
     input.dataset.prevValue = String(next);
     setUnusedSkillPoints(unused);
@@ -1145,13 +925,14 @@ function bindSkillRowEvents(row) {
 
     if(rankInput && rankInput.dataset.bound !== '1') {
         rankInput.dataset.bound = '1';
+        rankInput.setAttribute('min', '0');
         rankInput.addEventListener('focus', () => {
             rankInput.dataset.prevValue = String(normalizeSkillInt(rankInput.value, 0));
         });
         const handleRank = () => {
             applySkillRankChange(rankInput);
-            updateCalculations();
-            triggerSave();
+            updateCalcs();
+            save();
         };
         rankInput.addEventListener('input', handleRank);
         rankInput.addEventListener('change', handleRank);
@@ -1159,20 +940,20 @@ function bindSkillRowEvents(row) {
     }
     if(tempInput && tempInput.dataset.bound !== '1') {
         tempInput.dataset.bound = '1';
-        const handleTemp = () => { updateCalculations(); triggerSave(); };
+        const handleTemp = () => { updateCalcs(); save(); };
         tempInput.addEventListener('input', handleTemp);
         tempInput.addEventListener('change', handleTemp);
         tempInput.addEventListener('blur', handleTemp);
     }
     if(csInput && csInput.dataset.bound !== '1') {
         csInput.dataset.bound = '1';
-        const handleCs = () => { updateCalculations(); triggerSave(); };
+        const handleCs = () => { updateCalcs(); save(); };
         csInput.addEventListener('input', handleCs);
         csInput.addEventListener('change', handleCs);
     }
     if(customInput && customInput.dataset.bound !== '1') {
         customInput.dataset.bound = '1';
-        const handleCustom = () => { updateCalculations(); triggerSave(); };
+        const handleCustom = () => { updateCalcs(); save(); };
         customInput.addEventListener('input', handleCustom);
         customInput.addEventListener('change', handleCustom);
         customInput.addEventListener('blur', handleCustom);
@@ -1191,76 +972,79 @@ function syncSkillStateAfterLoad() {
     if(skillPoolEl && skillPoolEl.value === '') skillPoolEl.value = '0';
 }
 
+function refreshCombatUi() {
+    syncSizeFields();
+    computeDerivedStats();
+    renderSelectedCombatDisplays();
+}
 
-function populateSheet(){
+function loadCurrentSheet() {
     const data = getActiveData();
     stripLimitBreakAbilityEntries(data);
-    if (currentSummonId) {
-        document.getElementById('sheetTitle').textContent = "Summon Bio";
+    if(currentSummonId) {
+        document.getElementById('sheetTitle').textContent = "Summoning Sheet";
+        document.getElementById('btnAddSummon').style.display = 'none';
+        document.getElementById('btnDeleteSummon').style.display = 'block';
+        document.getElementById('btnDeleteSummon').onclick = deleteCurrentSummon;
         ['btn-skills','btn-items'].forEach(id => document.getElementById(id).style.display = 'none');
-        document.getElementById('spellsSubBtn').style.display = 'none'; 
+        document.getElementById('spellsSubBtn').style.display = 'none';
         document.getElementById('btn-sub-passive').style.display = 'none';
-        const activeTab = document.querySelector('.tab-content.active').id;
-        if(['skills','items','notes'].includes(activeTab)) switchTab('combat');
     } else {
-        document.getElementById('sheetTitle').textContent = "Character Bio";
+        document.getElementById('sheetTitle').textContent = "Character Sheet";
+        document.getElementById('btnAddSummon').style.display = 'block';
+        document.getElementById('btnAddSummon').onclick = createNewSummon;
+        document.getElementById('btnDeleteSummon').style.display = 'none';
         document.querySelectorAll('.tab-btn').forEach(b => b.style.display = '');
         document.getElementById('spellsSubBtn').style.display = 'block';
         document.getElementById('btn-sub-passive').style.display = 'block';
     }
-
-    // Force clear then fill
-    document.querySelectorAll('.save-field').forEach(el => { el.value = ""; if(data[el.id] !== undefined) el.value = data[el.id]; });
-    const slotCapEl = document.getElementById('slot_cap'); if(slotCapEl && !slotCapEl.value) slotCapEl.value = String(data.slot_cap || fullSheetData.slot_cap || 20);
     
-    document.querySelectorAll('textarea.save-field').forEach(tx => { 
-        if(!tx.classList.contains('expanded-textarea') && tx.id !== 'notesArea') autoExpand(tx); 
-    });
+    switchSub(localStorage.getItem('activeCombatSub') || 'c-general');
+    switchSubSub(localStorage.getItem('activeAbilSub') || 'a-active');
+
+    document.querySelectorAll('.live-field').forEach(el => { el.value = (data[el.id] !== undefined) ? data[el.id] : ""; });
+
+    if(data.hp !== undefined && !document.getElementById('hp_curr').value) document.getElementById('hp_curr').value = data.hp;
+    if(data.mp !== undefined && !document.getElementById('mp_curr').value) document.getElementById('mp_curr').value = data.mp;
+    if(data.init !== undefined && !document.getElementById('init_temp').value) document.getElementById('init_temp').value = data.init;
+    if(!document.getElementById('size_category').value) document.getElementById('size_category').value = data.size || 'Medium';
+    document.querySelectorAll('textarea.live-field').forEach(tx => { autoExpand(tx); tx.addEventListener('input', () => autoExpand(tx)); });
     
     renderWeapons(); renderSpells(); renderAbilities('active'); renderAbilities('passive'); renderAbilities('feat'); renderItems();
-    updateCalculations(); renderSelectedCombatDisplays();
-
-    // Skills
-    if(!currentSummonId){
-        const rows = document.querySelectorAll('.skill-row-data');
-        // Reset skills first
-        rows.forEach(r => {
-             r.querySelector('.skill-cs').checked = false;
-             r.querySelector('.skill-temp').value = "";
-             r.querySelector('.skill-ranks').value = "";
-             if(r.querySelector('.skill-custom-input')) r.querySelector('.skill-custom-input').value = "";
+    refreshCombatUi();
+    
+    if(data.skills) {
+        const rows = document.querySelectorAll('#skillsTableBody tr');
+        rows.forEach(r => { r.querySelector('.skill-cs').checked = false; r.querySelector('.skill-temp').value = ""; r.querySelector('.skill-ranks').value = ""; if(r.querySelector('.skill-custom-input')) r.querySelector('.skill-custom-input').value = ""; });
+        data.skills.forEach((s, i) => { 
+            if(rows[i]) { 
+                rows[i].querySelector('.skill-cs').checked = !!s.cs; 
+                rows[i].querySelector('.skill-temp').value = (s.temp ?? 0);
+                rows[i].querySelector('.skill-ranks').value = s.lvl; 
+                if(s.subName && rows[i].querySelector('.skill-custom-input')) rows[i].querySelector('.skill-custom-input').value = s.subName;
+            } 
         });
-
-        if (data.skills) {
-            data.skills.forEach((s, i) => { 
-                if(rows[i]){ 
-                    rows[i].querySelector('.skill-cs').checked = s.cs; 
-                    rows[i].querySelector('.skill-temp').value = (s.temp ?? 0);
-                    rows[i].querySelector('.skill-ranks').value = s.lvl; 
-                    if(s.subName && rows[i].querySelector('.skill-custom-input')) rows[i].querySelector('.skill-custom-input').value = s.subName;
-                } 
-            });
-        }
     }
     if(!document.getElementById('ac_view_mode')?.value) document.getElementById('ac_view_mode').value = 'ac';
     if(!document.getElementById('ar_view_mode')?.value) document.getElementById('ar_view_mode').value = 'melee';
     syncSkillStateAfterLoad();
-    updateCalculations();
+    if (typeof updateCalcs === 'function') updateCalcs();
+    refreshCombatUi();
+    setTimeout(refreshCombatUi, 40);
+    setTimeout(refreshCombatUi, 200);
+    renderNotesList();
     bindCriticalFieldPersistence();
     initAbilityDrawerDrag();
     updateSlotUsageDisplay();
 }
 
-function autoExpand(el) { 
-    el.style.height = 'auto'; 
-    el.style.height = (el.scrollHeight + 5) + 'px'; 
-}
+function autoExpand(el) { el.style.height = 'auto'; el.style.height = (el.scrollHeight + 5) + 'px'; }
 
 const listContainerIds = { weapon: 'weaponList', spell: 'spellList', active: 'activeList', passive: 'passiveList', feat: 'featList', item: 'itemList' };
 
 let currentItemView = 'storage';
 
-const ABILITY_DRAWER_STORAGE_KEY = 'mountAetheriaAbilityDrawerAdmin';
+const ABILITY_DRAWER_STORAGE_KEY = 'mountAetheriaAbilityDrawerPlayer';
 function getAbilityDrawerState() {
   try {
     const raw = localStorage.getItem(ABILITY_DRAWER_STORAGE_KEY);
@@ -1447,7 +1231,7 @@ window.toggleItemEquipped = (idx, checked) => {
 
 
 window.openView = (type, index) => {
-    // Prevent view if dragging
+    // Prevent view from opening if we are dragging
     if(isDragging) return;
     const data = getActiveData();
     let col = type === 'active' ? 'activeAbilities' : type === 'passive' ? 'passiveAbilities' : type === 'feat' ? 'feats' : type + 's';
@@ -1499,47 +1283,63 @@ let touchStartCoords = {x:0, y:0};
 
 function renderAbilities(subType) {
     let prop = subType === 'active' ? 'activeAbilities' : subType === 'passive' ? 'passiveAbilities' : 'feats';
+    // Get the correct array, default to empty
     const data = getActiveData()[prop] || [];
+    // Get the correct container ID
     const container = document.getElementById(listContainerIds[subType]); 
     container.innerHTML = '';
     
     data.forEach((a, i) => {
         const div = document.createElement('div'); 
         div.className = 'list-row';
+        
+        // Desktop DnD Attributes
         div.draggable = true;
         div.dataset.index = i;
         div.dataset.type = subType;
+        
+        // Drag Events
         div.addEventListener('dragstart', handleDragStart);
         div.addEventListener('dragover', handleDragOver);
         div.addEventListener('drop', handleDrop);
         div.addEventListener('dragend', handleDragEnd);
+        
+        // Touch Events
         div.addEventListener('touchstart', handleTouchStart, {passive: false});
         div.addEventListener('touchmove', handleTouchMove, {passive: false});
         div.addEventListener('touchend', handleTouchEnd);
 
+        // Content HTML
         let contentHtml = `<span class="list-row-title">${a.name||`New ${subType}`}</span>`;
         if(subType === 'active') { 
             contentHtml = `<span class="active-name">${a.name||'New Ability'}</span><span class="active-type">${a.type||''}</span>`; 
         }
         
+        // Inputs HTML (for Active uses)
         let inputsHtml = '';
         if(subType === 'active') {
             inputsHtml = `<div class="inline-input-group"><input type="number" value="${a.u_curr||0}" onchange="updateAbilityUse(${i},'u_curr',this.value)" onclick="event.stopPropagation()"><span>/</span><input type="number" value="${a.u_max||0}" onchange="updateAbilityUse(${i},'u_max',this.value)" onclick="event.stopPropagation()"></div>`;
         }
 
+        // --- NEW: FEAT LINK LOGIC ---
         let linkHtml = '';
         if(subType === 'feat' && a.link) {
             linkHtml = `<a class="btn-link-small" href="${a.link}" target="_blank" onclick="event.stopPropagation()">Link</a>`;
-        
         }
+        // ----------------------------
 
         const cDiv = document.createElement('div'); 
         cDiv.className = `row-content ${subType==='active'?'active-ability-layout':''}`;
         cDiv.innerHTML = contentHtml; 
-        cDiv.onclick = (e) => { if(!isDragging) openView(subType, i); };
+        
+        // Ensure click opens view only if we aren't dragging
+        cDiv.onclick = (e) => { 
+            if(!isDragging) openView(subType, i); 
+        };
         
         const aDiv = document.createElement('div'); 
         aDiv.className = 'row-actions';
+        // Added linkHtml to the output below
         const editBtnHtml = (subType === 'active' && a.isLimitBreak) ? '' : `<button class="btn-edit" onclick="event.stopPropagation(); openEditor('${subType}',${i})">Edit</button>`;
         aDiv.innerHTML = `${inputsHtml}${linkHtml}${editBtnHtml}`;
         
@@ -1569,6 +1369,7 @@ function handleDrop(e) {
     if (dragType !== targetType) return false;
     if (dragSrcIndex === targetIndex) return false;
 
+    // Swap Data
     const data = getActiveData();
     let col = dragType === 'active' ? 'activeAbilities' : dragType === 'passive' ? 'passiveAbilities' : 'feats';
     const arr = data[col];
@@ -1577,7 +1378,7 @@ function handleDrop(e) {
     arr.splice(dragSrcIndex, 1);
     arr.splice(targetIndex, 0, item);
     
-    triggerSave();
+    saveDataOnly();
     renderAbilities(dragType);
     return false;
 }
@@ -1598,26 +1399,29 @@ function handleTouchStart(e) {
     touchTimer = setTimeout(() => {
         isDragging = true;
         el.classList.add('dragging');
-        navigator.vibrate(50);
+        navigator.vibrate(50); // Haptic feedback
+        // Create ghost
         const ghost = document.getElementById('dragGhost');
         ghost.textContent = "Moving: " + (el.querySelector('.list-row-title, .active-name')?.textContent || "Item");
         ghost.style.display = 'block';
         ghost.style.left = (e.touches[0].clientX + 15) + 'px';
         ghost.style.top = (e.touches[0].clientY + 15) + 'px';
-    }, 500); 
+    }, 500); // 500ms hold
 }
 function handleTouchMove(e) {
     if(!isDragging) {
+        // If moved significantly before timer, cancel timer
         const dx = Math.abs(e.touches[0].clientX - touchStartCoords.x);
         const dy = Math.abs(e.touches[0].clientY - touchStartCoords.y);
         if(dx > 10 || dy > 10) clearTimeout(touchTimer);
         return;
     }
-    e.preventDefault();
+    e.preventDefault(); // Prevent scroll
     const ghost = document.getElementById('dragGhost');
     ghost.style.left = (e.touches[0].clientX + 15) + 'px';
     ghost.style.top = (e.touches[0].clientY + 15) + 'px';
     
+    // Highlight potential drop target
     const target = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
     const row = target?.closest('.list-row');
     document.querySelectorAll('.list-row').forEach(r => r.classList.remove('drag-over'));
@@ -1634,6 +1438,7 @@ function handleTouchEnd(e) {
     });
     
     if(isDragging) {
+        // Find drop target
         const touch = e.changedTouches[0];
         const target = document.elementFromPoint(touch.clientX, touch.clientY);
         const targetRow = target?.closest('.list-row');
@@ -1650,7 +1455,7 @@ function handleTouchEnd(e) {
                 const item = arr[srcIdx];
                 arr.splice(srcIdx, 1);
                 arr.splice(tgtIdx, 0, item);
-                triggerSave();
+                saveDataOnly();
                 renderAbilities(type);
             }
         }
@@ -1658,7 +1463,7 @@ function handleTouchEnd(e) {
     }
 }
 
-window.updateAbilityUse = (idx, key, val) => { const d = getActiveData().activeAbilities[idx]; d[key] = Number(val); triggerSave(); };
+window.updateAbilityUse = (idx, key, val) => { const d = getActiveData().activeAbilities[idx]; d[key] = Number(val); saveDataOnly(); };
 
 
 window.renderItems = () => {
@@ -1699,16 +1504,13 @@ function populateViewModal(type, item) {
     document.getElementById('viewModal').style.display = 'flex';
     const add = (l, t) => { if(t){ body.innerHTML += `<div class="view-label">${l}</div><div class="view-text">${t}</div>`; } };
     
-    if(item.gm_notes) {
-        body.innerHTML += `<div class="view-label" style="color:#ff6666;">GM Notes (Hidden)</div><div class="view-text" style="color:#ffaaaa; border:1px dashed #ff6666; padding:5px;">${item.gm_notes}</div>`;
-    }
-
     if(type === 'weapon' && item.attrs) {
         body.innerHTML += `<div class="view-label">Attributes</div>`;
         item.attrs.forEach(a => body.innerHTML += `<div class="view-attr-block">${a.name}: ${a.val}</div>`);
     }
+    // Updated Spell View: Hides explicit Level text, keeps Link button if exists
     if(type === 'spell') { 
-        if(item.link) body.innerHTML += `<a href="${item.link}" target="_blank" class="btn-link-small" style="display:inline-block; margin-bottom:15px; color:#fff;">Open Link</a>`; 
+        if(item.link) body.innerHTML += `<a href="${item.link}" target="_blank" class="btn-link-small" style="margin-bottom:15px; display:inline-block;">Open Link</a>`; 
     }
     if(type === 'item') { if(item.tags) add("Type", item.tags); add("Amount", String(getItemAmount(item))); if(item.cost) add("Cost", item.cost); add("Slot", String(getItemSlot(item))); add("Location", item.equipped ? 'Equipped' : 'Storage'); }
     add("Description", item.desc);
@@ -1732,15 +1534,17 @@ function populateEditorModal(type, item, index, col) {
         modalBody.appendChild(document.createElement('label')).textContent = "Attributes"; modalBody.appendChild(attrC);
         (item.attrs||[]).forEach((a,i) => addAttrRow(attrC, a, i));
         const btn = document.createElement('button'); btn.className='btn-add'; btn.textContent='+ Add Attribute'; btn.style.fontSize='12px'; btn.style.padding='5px';
-        btn.onclick=()=>{ if(!item.attrs) item.attrs=[]; item.attrs.push({name:'',val:''}); addAttrRow(attrC, item.attrs[item.attrs.length-1], item.attrs.length-1); triggerSave(); };
+        btn.onclick=()=>{ if(!item.attrs) item.attrs=[]; item.attrs.push({name:'',val:''}); addAttrRow(attrC, item.attrs[item.attrs.length-1], item.attrs.length-1); saveDataOnly(); };
         modalBody.appendChild(btn);
     }
+    // Updated Spell Editor with Action Type
     if(type === 'spell') { 
         createSelect('Level', item.lvl, 'lvl', ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"]); 
         createSelect('Action Type', item.type, 'type', ["Standard","Move","Swift","Full","Round","Minute","10 Min","Free","Immediate","Reaction"]);
         createInput('Link URL', item.link, 'link'); 
     }
     if(type === 'active') {
+        // ADDED 'Other' to this list
         createSelect('Type', item.type, 'type', ["Standard","Move","Swift","Full","Free","Immediate","Reaction","Other"]);
         modalBody.appendChild(document.createElement('label')).textContent = "Uses (Cur/Max)";
         const d = document.createElement('div'); d.style.cssText="display:flex;gap:5px";
@@ -1750,8 +1554,8 @@ function populateEditorModal(type, item, index, col) {
     }
     if(type === 'feat') createInput('Link URL', item.link, 'link');
     if(type === 'item') {
-        createSelect('Tag', item.tags, 'tags', ["Weapons", "Armor", "Gear", "Consumables", "Magic Items", "Collections", "Misc"]);
-        if(item.tags === "Collections") { createInput('Image URL', item.img, 'img'); }
+        if(item.tags==='Collections') { modalBody.appendChild(document.createElement('label')).textContent="Tag"; const i=document.createElement('input'); i.value="Collections"; i.disabled=true; modalBody.appendChild(i); if(item.img) createInput('Image URL', item.img, 'img'); }
+        else createSelect('Tag', item.tags, 'tags', ["Weapons", "Armor", "Gear", "Consumables", "Magic Items", "Collections", "Misc"]);
         createInput('Amount', getItemAmount(item), 'amount');
         createInput('Cost', item.cost, 'cost');
         createInput('Slot', getItemSlot(item), 'slot');
@@ -1759,42 +1563,21 @@ function populateEditorModal(type, item, index, col) {
     }
     createTextArea('Description', item.desc, 'desc');
 
-    if(['active', 'passive', 'feat', 'spell'].includes(type)) {
-        const lb = document.createElement('label'); lb.textContent = "GM Notes (Hidden from Player)"; lb.style.color = "#ff6666"; 
-        const t = document.createElement('textarea'); t.value = item.gm_notes || ''; t.style.borderColor = "#ff4444"; 
-        setTimeout(()=>autoExpand(t),0); 
-        t.oninput = e => { autoExpand(t); updateCurrentItem('gm_notes', e.target.value) }; 
-        modalBody.appendChild(lb); modalBody.appendChild(t);
-    }
-
     const deleteBtn = document.getElementById('modalDeleteBtn');
     if(type === 'active' && item.isLimitBreak) { deleteBtn.style.display='none'; } else { deleteBtn.style.display='block'; }
-    deleteBtn.onclick = () => { getActiveData()[col].splice(index, 1); triggerSave(); closeModal(); };
+    deleteBtn.onclick = () => { getActiveData()[col].splice(index, 1); saveDataOnly(); closeModal(); };
     modal.style.display = 'flex';
 }
 
 function createInput(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const i=document.createElement('input'); i.value=v||''; i.oninput=e=>updateCurrentItem(k,e.target.value); modalBody.appendChild(lb); modalBody.appendChild(i); }
 function createTextArea(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const t=document.createElement('textarea'); t.value=v||''; setTimeout(()=>autoExpand(t),0); t.oninput=e=>{autoExpand(t); updateCurrentItem(k,e.target.value)}; modalBody.appendChild(lb); modalBody.appendChild(t); }
-function createSelect(l, v, k, ops) { 
-    const lb=document.createElement('label'); lb.textContent=l; 
-    const s=document.createElement('select'); 
-    ops.forEach(o=>{
-        const op=document.createElement('option'); op.text=o; op.value=o; 
-        if(o===v) op.selected=true; 
-        s.appendChild(op)
-    }); 
-    s.onchange = e => {
-        updateCurrentItem(k,e.target.value);
-        if(currentEditContext.type === 'item') { populateEditorModal('item', getActiveData().items[currentEditContext.index], currentEditContext.index, 'items'); }
-    }; 
-    modalBody.appendChild(lb); modalBody.appendChild(s); 
-}
+function createSelect(l, v, k, ops) { const lb=document.createElement('label'); lb.textContent=l; const s=document.createElement('select'); ops.forEach(o=>{const op=document.createElement('option'); op.text=o; op.value=o; if(o===v) op.selected=true; s.appendChild(op)}); s.onchange=e=>updateCurrentItem(k,e.target.value); modalBody.appendChild(lb); modalBody.appendChild(s); }
 function createCheckbox(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const w=document.createElement('div'); w.style.cssText='display:flex; align-items:center; gap:10px;'; const i=document.createElement('input'); i.type='checkbox'; i.checked=!!v; i.style.width='18px'; i.style.height='18px'; i.onchange=e=>updateCurrentItem(k,e.target.checked); w.appendChild(i); modalBody.appendChild(lb); modalBody.appendChild(w); }
 function addAttrRow(c, d, i) {
     const r=document.createElement('div'); r.className='attr-row';
-    const n=document.createElement('input'); n.placeholder="Attr"; n.value=d.name||''; n.oninput=e=>{d.name=e.target.value; triggerSave()};
-    const v=document.createElement('input'); v.placeholder="Val"; v.value=d.val||''; v.oninput=e=>{d.val=e.target.value; triggerSave()};
-    const b=document.createElement('button'); b.className='btn-del'; b.textContent='x'; b.onclick=()=>{getActiveData().weapons[currentEditContext.index].attrs.splice(i,1); r.remove(); triggerSave()};
+    const n=document.createElement('input'); n.placeholder="Attr"; n.value=d.name||''; n.oninput=e=>{d.name=e.target.value; saveDataOnly()};
+    const v=document.createElement('input'); v.placeholder="Val"; v.value=d.val||''; v.oninput=e=>{d.val=e.target.value; saveDataOnly()};
+    const b=document.createElement('button'); b.className='btn-del'; b.textContent='x'; b.onclick=()=>{getActiveData().weapons[currentEditContext.index].attrs.splice(i,1); r.remove(); saveDataOnly()};
     r.appendChild(n); r.appendChild(v); r.appendChild(b); c.appendChild(r);
 }
 
@@ -1803,7 +1586,7 @@ function updateCurrentItem(k, v) {
     item[k] = v;
     if(k==='link') { const b=document.getElementById('modalLinkBtn'); b.href=v; b.style.display=v?'inline-block':'none'; }
     if(['name','lvl','tags','type','u_curr','u_max','amount','slot','equipped'].includes(k)) refreshList(currentEditContext.type);
-    triggerSave();
+    saveDataOnly();
 }
 window.closeModal = () => { modal.style.display='none'; refreshList(currentEditContext.type); };
 function refreshList(t) { if(t==='weapon') renderWeapons(); else if(t==='spell') renderSpells(); else if(t==='item') renderItems(); else renderAbilities(t); }
@@ -1813,12 +1596,12 @@ window.addNewItem = (t) => {
     let n={name:''}, c='';
     if(t==='weapon'){c='weapons';n.mod='STR';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;} else if(t==='passive')c='passiveAbilities'; else if(t==='feat')c='feats'; else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
     if(!d[c]) d[c]=[]; d[c].push(n);
-    triggerSave(); refreshList(t); openEditor(t, d[c].length-1);
+    saveDataOnly(); refreshList(t); openEditor(t, d[c].length-1);
 };
 
 function scrapeCurrentSheet() {
     const p = {};
-    document.querySelectorAll('.save-field').forEach(el => p[el.id] = el.value);
+    document.querySelectorAll('.live-field').forEach(el => p[el.id] = el.value);
     p.skills = [];
     document.querySelectorAll('#skillsTableBody tr').forEach(r => { 
         const sub = r.querySelector('.skill-custom-input') ? r.querySelector('.skill-custom-input').value : null;
@@ -1826,102 +1609,139 @@ function scrapeCurrentSheet() {
     });
     const m = getActiveData();
     p.weapons=m.weapons||[]; p.spells=m.spells||[]; p.activeAbilities=(m.activeAbilities||[]).filter(a => !(a && (a.isLimitBreak || String(a.name || '').trim().toLowerCase() === 'limit break'))); p.passiveAbilities=m.passiveAbilities||[]; p.feats=m.feats||[];
-    p.items = currentSummonId ? (m.items||[]) : (fullSheetData.items||[]);
-    p.slot_cap = Number(document.getElementById('slot_cap')?.value || fullSheetData.slot_cap || 20);
+    p.items = currentSummonId ? (m.items||[]) : (fullData.items||[]);
+    p.slot_cap = fullData.slot_cap || 20;
     return p;
 }
 
-function getMod(id) { const val = document.getElementById(id).value; return val ? Math.floor((Number(val)-10)/2) : 0; }
-function updateCalculations(){
-    ['str','dex','con','int','wis','cha'].forEach(stat => { document.getElementById('mod-'+stat).textContent = (getMod(stat)>=0?'+':'')+getMod(stat); });
-    const con = getMod('con'), dex = getMod('dex'), wis = getMod('wis');
-    const fB = Number(document.getElementById('fort_bonus').value)||0, rB = Number(document.getElementById('ref_bonus').value)||0, wB = Number(document.getElementById('will_bonus').value)||0;
-    const fortEl=document.getElementById('fort_total'); const refEl=document.getElementById('ref_total'); const willEl=document.getElementById('will_total');
-    if(fortEl) fortEl.textContent = (con+fB >=0?'+':'')+(con+fB);
-    if(refEl) refEl.textContent = (dex+rB >=0?'+':'')+(dex+rB);
-    if(willEl) willEl.textContent = (wis+wB >=0?'+':'')+(wis+wB);
-    
-    if(!currentSummonId) {
-        document.querySelectorAll('.skill-row-data').forEach(row => {
-            const stat = row.dataset.stat, mod = getMod(stat), temp = Number(row.querySelector('.skill-temp').value)||0, ranks = Number(row.querySelector('.skill-ranks').value)||0, isCs = row.querySelector('.skill-cs').checked;
-            const total = mod + temp + ranks + ((isCs && ranks > 0) ? 3 : 0);
-            row.querySelector('.skill-mod').textContent = mod;
-            row.querySelector('.skill-total').textContent = (total>=0?'+':'')+total;
+function saveDataOnly() { save(); }
+function save(force=false) {
+    if(isRemoteUpdate && !force) return;
+    document.getElementById('statusDot').className = 'status-dot'; clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(async () => {
+        const cur = scrapeCurrentSheet();
+        if(currentSummonId) { cur.id = currentSummonId; const i = fullData.summons.findIndex(s=>s.id===currentSummonId); if(i>=0) fullData.summons[i]=cur; }
+        else { const sb = fullData.summons; fullData = { ...cur, summons: sb, items: cur.items }; }
+        await setDoc(doc(db,'users',currentUser.uid,'sheet','character'), fullData);
+        document.getElementById('statusDot').classList.add('live'); if(!force) updateSummonMenu();
+    }, 1000);
+}
 
-            const nameCell = row.querySelector('.skill-name-cell');
-            if(TRAINED_ONLY_LIST.some(t => nameCell.innerText.includes(t))) {
-                if(ranks < 1) { nameCell.classList.add('trained-untrained'); nameCell.classList.remove('trained-trained'); }
-                else { nameCell.classList.remove('trained-untrained'); nameCell.classList.add('trained-trained'); }
-            }
-        });
-    }
+window.createNewSummon = async () => {
+    const newId = 'sum_' + Date.now();
+    if(!fullData.summons) fullData.summons = [];
+    fullData.summons.push({ id: newId, charName: 'New Summon', summons: [] });
+    currentSummonId = newId; save(true); loadCurrentSheet(); updateSummonMenu();
+}
+window.deleteCurrentSummon = async () => {
+    if(!confirm("Delete this Summon?")) return;
+    fullData.summons = fullData.summons.filter(s => s.id !== currentSummonId);
+    currentSummonId = null; save(true); loadCurrentSheet(); updateSummonMenu();
+}
+function updateSummonMenu() {
+    const fab = document.getElementById('summonFab');
+    if(fullData.summons && fullData.summons.length > 0) { fab.style.display = 'flex'; } else { fab.style.display = 'none'; document.getElementById('summonMenu').classList.remove('show'); }
+    const m = document.getElementById('summonMenu'); m.innerHTML = '';
+    const main = document.createElement('button'); main.className = `summon-opt ${currentSummonId===null?'active':''}`; main.textContent = fullData.charName || "Main Character"; main.onclick=()=>{currentSummonId=null;loadCurrentSheet();m.classList.remove('show')}; m.appendChild(main);
+    fullData.summons.forEach(s => {
+        const b = document.createElement('button'); b.className = `summon-opt ${currentSummonId===s.id?'active':''}`; b.textContent = s.charName || "Unnamed"; b.onclick=()=>{currentSummonId=s.id;loadCurrentSheet();m.classList.remove('show')}; m.appendChild(b);
+    });
+}
+
+const fab = document.getElementById('summonFab'); const menu = document.getElementById('summonMenu');
+fab.onclick = (e) => {
+    if(fab.dataset.dragging === "true") return;
+    const r = fab.getBoundingClientRect();
+    menu.style.bottom='auto'; menu.style.top='auto'; menu.style.left='auto'; menu.style.right='auto';
+    if(window.innerHeight-r.bottom >= 250) menu.style.top=(r.bottom+10)+'px'; else menu.style.bottom=(window.innerHeight-r.top+10)+'px';
+    if(window.innerWidth-r.right >= 200) menu.style.left=r.left+'px'; else menu.style.right=(window.innerWidth-r.right)+'px';
+    menu.classList.toggle('show');
+};
+let isD=false, dof={x:0,y:0};
+fab.addEventListener('mousedown', sD); fab.addEventListener('touchstart', sD, {passive:false});
+function sD(e) { isD=true; fab.dataset.dragging="false"; const c=e.touches?e.touches[0]:e; const r=fab.getBoundingClientRect(); dof.x=c.clientX-r.left; dof.y=c.clientY-r.top; document.addEventListener('mousemove', oD); document.addEventListener('touchmove', oD, {passive:false}); document.addEventListener('mouseup', eD); document.addEventListener('touchend', eD); }
+function oD(e) { if(!isD)return; e.preventDefault(); fab.dataset.dragging="true"; const c=e.touches?e.touches[0]:e; fab.style.left=Math.max(0,Math.min(window.innerWidth-fab.offsetWidth,c.clientX-dof.x))+'px'; fab.style.top=Math.max(0,Math.min(window.innerHeight-fab.offsetHeight,c.clientY-dof.y))+'px'; }
+function eD() { isD=false; document.removeEventListener('mousemove', oD); document.removeEventListener('touchmove', oD); document.removeEventListener('mouseup', eD); document.removeEventListener('touchend', eD); }
+
+// In characters.html
+const SKILLS_DB = [
+    {n:"Acrobatics",s:"dex"}, {n:"Appraise",s:"int"}, {n:"Bluff",s:"cha"}, {n:"Climb",s:"str"},
+    {n:"Craft",s:"int", custom:true}, {n:"Craft",s:"int", custom:true}, {n:"Craft",s:"int", custom:true},
+    {n:"Diplomacy",s:"cha"}, {n:"Disable Device",s:"dex"}, {n:"Disguise",s:"cha"}, {n:"Drive",s:"dex"}, 
+    {n:"Escape Artist",s:"dex"}, {n:"Fly",s:"dex"}, {n:"Handle Animal",s:"cha"}, {n:"Heal",s:"wis"}, 
+    {n:"Intimidate",s:"cha"}, {n:"Knw: Arcana",s:"int"}, {n:"Knw: Dungeoneering",s:"int"}, {n:"Knw: Engineering",s:"int"}, 
+    {n:"Knw: Geography",s:"int"}, {n:"Knw: History",s:"int"}, {n:"Knw: Local",s:"int"}, {n:"Knw: Nature",s:"int"}, 
+    {n:"Knw: Nobility",s:"int"}, {n:"Knw: Planes",s:"int"}, {n:"Knw: Religion",s:"int"}, {n:"Knw: Technology",s:"int"}, 
+    {n:"Linguistics",s:"int"}, {n:"Navigate",s:"int"}, {n:"Perception",s:"wis"}, 
+    {n:"Perform",s:"cha", custom:true}, {n:"Perform",s:"cha", custom:true}, {n:"Perform",s:"cha", custom:true},
+    {n:"Pilot",s:"dex"},
+    {n:"Profession",s:"wis", custom:true}, {n:"Profession",s:"wis", custom:true}, {n:"Profession",s:"wis", custom:true}, 
+    {n:"Repair",s:"int"},
+    {n:"Ride",s:"dex"}, {n:"Sense Motive",s:"wis"}, {n:"Sleight of Hand",s:"dex"}, {n:"Spellcraft",s:"int"}, 
+    {n:"Stealth",s:"dex"}, {n:"Survival",s:"wis"}, {n:"Swim",s:"str"}, {n:"Use Magic Device",s:"cha"}
+];
+// In characters.html
+const TRAINED_ONLY = ["Disable Device", "Handle Animal", "Knw: Arcana", "Knw: Dungeoneering", "Knw: Engineering", "Knw: Geography", "Knw: History", "Knw: Local", "Knw: Nature", "Knw: Nobility", "Knw: Planes", "Knw: Religion", "Knw: Technology", "Linguistics", "Profession", "Use Magic Device"];
+function getSkillBonus(row) {
+    if(!row) return { mod:0, temp:0, ranks:0, cs:false, classBonus:0, total:0 };
+    const mod = getMod(row.dataset.stat);
+    const temp = Number(row.querySelector('.skill-temp')?.value) || 0;
+    const ranks = Number(row.querySelector('.skill-ranks')?.value) || 0;
+    const cs = !!row.querySelector('.skill-cs')?.checked;
+    const classBonus = (cs && ranks >= 1) ? 3 : 0;
+    return { mod, temp, ranks, cs, classBonus, total: mod + temp + ranks + classBonus };
+}
+function initSkills() {
+    const cont = document.getElementById('skillsTableBody'); cont.innerHTML = '';
+    SKILLS_DB.forEach(s => {
+        const tr = document.createElement('tr'); tr.className = 'skill-row-data'; tr.dataset.stat = s.s;
+        let nameHtml = s.n;
+        if(s.custom) nameHtml += ` <input class="skill-custom-input" placeholder="Type">`;
+        else nameHtml += ` <small style="color:#888; font-weight:normal;">(${s.s})</small>`;
+
+        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td style="text-align:left; font-weight:bold;" class="skill-name-cell">${nameHtml}</td><td class="skill-mod">0</td><td><input type="number" class="skill-temp" value="0" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td><input type="number" class="skill-ranks" value="0" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent); font-weight:bold;">0</td>`;
+        cont.appendChild(tr);
+        bindSkillRowEvents(tr);
+    });
+    syncSkillStateAfterLoad();
+}
+function getMod(id) { const v = document.getElementById(id).value; return v ? Math.floor((v-10)/2) : 0; }
+function updateCalcs() {
+    ['str','dex','con','int','wis','cha'].forEach(s => { const m = getMod(s); document.getElementById('mod-'+s).textContent = (m>=0?'+':'')+m; });
+    const con = getMod('con'), dex = getMod('dex'), wis = getMod('wis');
+    const f = (Number(document.getElementById('fort_bonus').value)||0) + con;
+    const r = (Number(document.getElementById('ref_bonus').value)||0) + dex;
+    const w = (Number(document.getElementById('will_bonus').value)||0) + wis;
+    const fortEl=document.getElementById('fort_total'); const refEl=document.getElementById('ref_total'); const willEl=document.getElementById('will_total'); if(fortEl) fortEl.textContent=(f>=0?'+':'')+f; if(refEl) refEl.textContent=(r>=0?'+':'')+r; if(willEl) willEl.textContent=(w>=0?'+':'')+w;
+    
+    document.querySelectorAll('#skillsTableBody tr').forEach(row => {
+        const { mod, temp, ranks, classBonus, total } = getSkillBonus(row);
+        row.querySelector('.skill-mod').textContent = mod;
+        const totalEl = row.querySelector('.skill-total');
+        totalEl.textContent = (total>=0?'+':'')+total;
+        totalEl.dataset.classBonus = String(classBonus);
+        totalEl.title = classBonus ? `Includes +${classBonus} class skill bonus` : 'No class skill bonus';
+        
+        const cell = row.querySelector('.skill-name-cell');
+        // Handle "Trained Only" logic simply by checking base name
+        let baseName = cell.innerText.split(' ')[0].trim();
+        if(cell.querySelector('input')) baseName = cell.firstChild.textContent.trim();
+
+        if(TRAINED_ONLY.some(t => cell.innerText.includes(t))) {
+            if(ranks < 1) { cell.classList.add('trained-untrained'); cell.classList.remove('trained-trained'); } 
+            else { cell.classList.remove('trained-untrained'); cell.classList.add('trained-trained'); }
+        }
+    });
     computeDerivedStats();
     renderAbilityDrawerScores();
     updateSlotUsageDisplay();
     renderNotesList();
 }
 
-function triggerSave(){
-    if(isInternalUpdate || !currentParentUid) return;
-    document.getElementById('statusText').textContent = "Saving...";
-    document.getElementById('statusText').style.color = "yellow";
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(saveData, 1000);
-}
-
-async function saveData(){
-    if(!currentParentUid) return;
-    const cur = scrapeCurrentSheet();
-    if(currentSummonId) { cur.id = currentSummonId; const i = fullSheetData.summons.findIndex(s=>s.id===currentSummonId); if(i>=0) fullSheetData.summons[i]=cur; }
-    else { const sb = fullSheetData.summons; fullSheetData = { ...cur, summons: sb, items: cur.items }; }
-    
-    try {
-        await setDoc(doc(db, 'users', currentParentUid, 'sheet', 'character'), fullSheetData);
-        document.getElementById('statusText').textContent = "Saved";
-        document.getElementById('statusText').style.color = "#4caf50";
-    } catch(e) {
-        console.error(e);
-        document.getElementById('statusText').textContent = "Save Failed";
-        document.getElementById('statusText').style.color = "red";
-    }
-}
-
-function initSkillsTable(){
-    const body = document.getElementById('skillsTableBody'); body.innerHTML = '';
-    SKILLS_DB.forEach(s => {
-        const tr = document.createElement('tr'); tr.className = 'skill-row-data'; tr.dataset.stat = s.s;
-        let nameHtml = s.n;
-        if(s.custom) nameHtml += ` <input class="skill-custom-input" placeholder="Type">`;
-        else nameHtml += ` <small style="color:#888; font-weight:normal;">(${s.s})</small>`;
-        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td class="skill-name-cell">${nameHtml}</td><td class="skill-mod">0</td><td><input type="number" class="skill-temp" value="0" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td><input type="number" class="skill-ranks" value="0" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent);font-weight:bold">0</td>`;
-        body.appendChild(tr);
-        bindSkillRowEvents(tr);
-    });
-    syncSkillStateAfterLoad();
-}
-
-document.body.addEventListener('input', (e) => { 
-    if(e.target.classList.contains('save-field') || e.target.classList.contains('calc-trigger')) { 
-        updateCalculations(); triggerSave(); 
-    }
-    if(e.target.id === 'charName') {
-        const newVal = e.target.value || (currentSummonId ? "Unnamed Summon" : "Unknown");
-        const tab = openTabs.find(t => t.uid === currentParentUid && t.sid === currentSummonId);
-        if(tab) { tab.name = newVal; renderTabs(); }
-        if(currentSummonId) { const el = document.querySelector(`.summonItem[data-sid="${currentSummonId}"]`); if(el) el.innerText = newVal; } 
-        else { const el = document.querySelector(`.userItem[data-uid="${currentParentUid}"] .uName`); if(el) el.innerText = newVal; }
-    }
-});
-document.body.addEventListener('change', (e) => { if(e.target.classList.contains('save-field') || e.target.classList.contains('calc-trigger')) { updateCalculations(); saveData(); } });
-document.body.addEventListener('focusout', (e) => { if(e.target.classList.contains('save-field') || e.target.classList.contains('calc-trigger')) { updateCalculations(); saveData(); } });
-window.addEventListener('DOMContentLoaded', () => { ['hp_curr','hp_temp','hp_max','mp_curr','mp_temp','mp_max','str','dex','con','int','wis','cha'].forEach(id => { const el = document.getElementById(id); if(!el) return; el.addEventListener('input', () => { updateCalculations(); computeDerivedStats(); renderAbilityDrawerScores(); triggerSave(); }); el.addEventListener('change', () => { updateCalculations(); computeDerivedStats(); renderAbilityDrawerScores(); saveData(); }); el.addEventListener('blur', () => { updateCalculations(); computeDerivedStats(); renderAbilityDrawerScores(); saveData(); }); }); ['ac_view_mode','ar_view_mode'].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('change', () => { updateCalculations(); saveData(); }); }); });
-window.addEventListener('beforeunload', () => { try { if(typeof saveData === 'function') saveData(); } catch(e) {} });
-window.addEventListener('load', () => { if(typeof computeDerivedStats === 'function') { setTimeout(() => { updateCalculations(); computeDerivedStats(); renderSelectedCombatDisplays(); }, 150); } });
-
 const CRITICAL_SYNC_FIELDS = ['hp_curr','hp_temp','hp_max','mp_curr','mp_temp','mp_max','str','dex','con','int','wis','cha'];
 function queueCriticalSave() {
   if (typeof triggerSave === 'function') triggerSave();
-  else if (typeof saveData === 'function') saveData();
+  else save();
 }
 function bindCriticalFieldPersistence() {
   CRITICAL_SYNC_FIELDS.forEach(id => {
@@ -1930,6 +1750,7 @@ function bindCriticalFieldPersistence() {
     el.dataset.persistBound = '1';
     const runRefresh = () => {
       if (typeof updateCalculations === 'function') updateCalculations();
+      if (typeof updateCalcs === 'function') updateCalcs();
       if (typeof computeDerivedStats === 'function') computeDerivedStats();
       if (typeof renderSelectedCombatDisplays === 'function') renderSelectedCombatDisplays();
       if (typeof renderAbilityDrawerScores === 'function') renderAbilityDrawerScores();
@@ -1952,7 +1773,28 @@ function bindCriticalFieldPersistence() {
 
 window.toggleHeartStats = () => document.getElementById('heartModalContainer').classList.toggle('active-heart-modal');
 window.viewCollection = (url) => { document.getElementById('modalImg').src = url; document.getElementById('imageModal').style.display = 'flex'; };
+document.body.addEventListener('input', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(); } });
+document.body.addEventListener('change', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(true); } });
+document.body.addEventListener('focusout', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(true); } });
+const skillsBodyEl = document.getElementById('skillsTableBody');
+if(skillsBodyEl && skillsBodyEl.dataset.delegateBound !== '1') {
+  skillsBodyEl.dataset.delegateBound = '1';
+  const runSkillRefresh = () => { updateCalcs(); save(); };
+  skillsBodyEl.addEventListener('input', e => {
+    if(e.target.closest('tr') && (e.target.classList.contains('skill-cs') || e.target.classList.contains('skill-temp') || e.target.classList.contains('skill-ranks') || e.target.classList.contains('skill-custom-input'))) {
+      updateCalcs();
+    }
+  });
+  skillsBodyEl.addEventListener('change', e => {
+    if(e.target.closest('tr') && (e.target.classList.contains('skill-cs') || e.target.classList.contains('skill-temp') || e.target.classList.contains('skill-ranks') || e.target.classList.contains('skill-custom-input'))) {
+      runSkillRefresh();
+    }
+  });
+}
 
+window.addEventListener('DOMContentLoaded', () => { ['ac_view_mode','ar_view_mode'].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('change', () => { renderSelectedCombatDisplays(); save(true); }); }); ['hp_curr','hp_temp','hp_max','mp_curr','mp_temp','mp_max','str','dex','con','int','wis','cha'].forEach(id => { const el = document.getElementById(id); if(!el) return; el.addEventListener('input', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(); }); el.addEventListener('change', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(true); }); el.addEventListener('blur', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(true); }); }); });
+window.addEventListener('beforeunload', () => { try { if(typeof save === 'function') save(true); } catch(e) {} });
+window.addEventListener('load', () => { if(typeof refreshCombatUi === 'function') { setTimeout(() => { refreshCombatUi(); renderAbilityDrawerScores(); }, 150); } else { setTimeout(renderAbilityDrawerScores, 150); } });
 
 
 const SIZE_OPTIONS = [{name:'Fine', ac:8, cmd:-8},{name:'Diminutive', ac:4, cmd:-4},{name:'Tiny', ac:2, cmd:-2},{name:'Small', ac:1, cmd:-1},{name:'Medium', ac:0, cmd:0},{name:'Large', ac:-1, cmd:1},{name:'Huge', ac:-2, cmd:2},{name:'Gargantuan', ac:-4, cmd:4},{name:'Colossal', ac:-8, cmd:8}];
@@ -2047,8 +1889,8 @@ window.openStatEdit = (section) => {
     <div class="formula-line"><strong>Will</strong><div class="formula-parts"><div class="mini-field"><label>WIS</label><input value="${modFor('wis')}" readonly class="graybase"></div>${statField('Base','will_base')}${statField('Enhance','will_enhance')}${statField('Temp','will_temp')}<div class="total-pill">${document.getElementById('will_bonus')?.value>=0?`+${document.getElementById('will_bonus').value}`:`${document.getElementById('will_bonus').value||0}`}</div></div></div>`; }
   body.innerHTML = html;
   body.querySelectorAll('[data-stat-field]').forEach(el => {
-    el.addEventListener('input', () => { const id = el.dataset.statField; setVal(id, el.value); if(id === 'size_category') syncSizeFields(); computeDerivedStats(); triggerSave(); });
-    el.addEventListener('change', () => { const id = el.dataset.statField; setVal(id, el.value); if(id === 'size_category') { syncSizeFields(); openStatEdit(section); } computeDerivedStats(); triggerSave(); });
+    el.addEventListener('input', () => { const id = el.dataset.statField; setVal(id, el.value); if(id === 'size_category') syncSizeFields(); computeDerivedStats(); save(); });
+    el.addEventListener('change', () => { const id = el.dataset.statField; setVal(id, el.value); if(id === 'size_category') { syncSizeFields(); openStatEdit(section); } computeDerivedStats(); save(); });
   });
   document.getElementById('statEditOverlay').style.display = 'flex';
 };
