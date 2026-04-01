@@ -710,7 +710,7 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><span>Unused Pts:</span><input id="skill_points" class="save-field" style="width:60px; text-align:center;"></div>
           <div class="skills-container">
               <table class="skills-table">
-                  <thead><tr><th style="width:30px">CS</th><th style="text-align:left;">Skill Name</th><th style="width:40px">Mod</th><th style="width:50px">Ranks</th><th style="width:40px">Tot</th></tr></thead>
+                  <thead><tr><th style="width:30px">CS</th><th style="text-align:left;">Skill Name</th><th style="width:40px">Mod</th><th style="width:50px">Temp</th><th style="width:50px">Ranks</th><th style="width:40px">Tot</th></tr></thead>
                   <tbody id="skillsTableBody"></tbody>
               </table>
           </div>
@@ -1139,6 +1139,7 @@ function applySkillRankChange(input) {
 function bindSkillRowEvents(row) {
     if(!row) return;
     const rankInput = row.querySelector('.skill-ranks');
+    const tempInput = row.querySelector('.skill-temp');
     const csInput = row.querySelector('.skill-cs');
     const customInput = row.querySelector('.skill-custom-input');
 
@@ -1155,6 +1156,13 @@ function bindSkillRowEvents(row) {
         rankInput.addEventListener('input', handleRank);
         rankInput.addEventListener('change', handleRank);
         rankInput.addEventListener('blur', handleRank);
+    }
+    if(tempInput && tempInput.dataset.bound !== '1') {
+        tempInput.dataset.bound = '1';
+        const handleTemp = () => { updateCalculations(); triggerSave(); };
+        tempInput.addEventListener('input', handleTemp);
+        tempInput.addEventListener('change', handleTemp);
+        tempInput.addEventListener('blur', handleTemp);
     }
     if(csInput && csInput.dataset.bound !== '1') {
         csInput.dataset.bound = '1';
@@ -1174,6 +1182,9 @@ function syncSkillStateAfterLoad() {
     sanitizeSkillPoolUi();
     document.querySelectorAll('#skillsTableBody .skill-ranks').forEach(input => {
         input.dataset.prevValue = String(normalizeSkillInt(input.value, 0));
+        if(input.value === '') input.value = '0';
+    });
+    document.querySelectorAll('#skillsTableBody .skill-temp').forEach(input => {
         if(input.value === '') input.value = '0';
     });
     const skillPoolEl = getSkillPointsEl();
@@ -1215,6 +1226,7 @@ function populateSheet(){
         // Reset skills first
         rows.forEach(r => {
              r.querySelector('.skill-cs').checked = false;
+             r.querySelector('.skill-temp').value = "";
              r.querySelector('.skill-ranks').value = "";
              if(r.querySelector('.skill-custom-input')) r.querySelector('.skill-custom-input').value = "";
         });
@@ -1223,6 +1235,7 @@ function populateSheet(){
             data.skills.forEach((s, i) => { 
                 if(rows[i]){ 
                     rows[i].querySelector('.skill-cs').checked = s.cs; 
+                    rows[i].querySelector('.skill-temp').value = (s.temp ?? 0);
                     rows[i].querySelector('.skill-ranks').value = s.lvl; 
                     if(s.subName && rows[i].querySelector('.skill-custom-input')) rows[i].querySelector('.skill-custom-input').value = s.subName;
                 } 
@@ -1809,7 +1822,7 @@ function scrapeCurrentSheet() {
     p.skills = [];
     document.querySelectorAll('#skillsTableBody tr').forEach(r => { 
         const sub = r.querySelector('.skill-custom-input') ? r.querySelector('.skill-custom-input').value : null;
-        p.skills.push({ cs: r.querySelector('.skill-cs').checked, lvl: Number(r.querySelector('.skill-ranks').value)||0, subName: sub }); 
+        p.skills.push({ cs: r.querySelector('.skill-cs').checked, temp: Number(r.querySelector('.skill-temp').value)||0, lvl: Number(r.querySelector('.skill-ranks').value)||0, subName: sub }); 
     });
     const m = getActiveData();
     p.weapons=m.weapons||[]; p.spells=m.spells||[]; p.activeAbilities=(m.activeAbilities||[]).filter(a => !(a && (a.isLimitBreak || String(a.name || '').trim().toLowerCase() === 'limit break'))); p.passiveAbilities=m.passiveAbilities||[]; p.feats=m.feats||[];
@@ -1830,8 +1843,8 @@ function updateCalculations(){
     
     if(!currentSummonId) {
         document.querySelectorAll('.skill-row-data').forEach(row => {
-            const stat = row.dataset.stat, mod = getMod(stat), ranks = Number(row.querySelector('.skill-ranks').value)||0, isCs = row.querySelector('.skill-cs').checked;
-            const total = mod + ranks + ((isCs && ranks>0) ? 3 : 0);
+            const stat = row.dataset.stat, mod = getMod(stat), temp = Number(row.querySelector('.skill-temp').value)||0, ranks = Number(row.querySelector('.skill-ranks').value)||0, isCs = row.querySelector('.skill-cs').checked;
+            const total = mod + temp + ranks + ((isCs && ranks > 0) ? 3 : 0);
             row.querySelector('.skill-mod').textContent = mod;
             row.querySelector('.skill-total').textContent = (total>=0?'+':'')+total;
 
@@ -1880,7 +1893,7 @@ function initSkillsTable(){
         let nameHtml = s.n;
         if(s.custom) nameHtml += ` <input class="skill-custom-input" placeholder="Type">`;
         else nameHtml += ` <small style="color:#888; font-weight:normal;">(${s.s})</small>`;
-        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td class="skill-name-cell">${nameHtml}</td><td class="skill-mod">0</td><td><input type="number" class="skill-ranks" value="0" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent);font-weight:bold">0</td>`;
+        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td class="skill-name-cell">${nameHtml}</td><td class="skill-mod">0</td><td><input type="number" class="skill-temp" value="0" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td><input type="number" class="skill-ranks" value="0" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent);font-weight:bold">0</td>`;
         body.appendChild(tr);
         bindSkillRowEvents(tr);
     });
