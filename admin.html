@@ -484,6 +484,48 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
   }
 }
 
+/* --- Floating Ability Overlay Patch --- */
+.ability-heading-row{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 10px;}
+.ability-heading-row h3{margin:0;}
+.ability-float-toggle{
+  width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:999px;border:1px solid #666;background:#1a1a1a;color:var(--accent);
+  cursor:pointer;font-size:18px;line-height:1;flex:0 0 34px;
+}
+.ability-float-toggle:hover,.ability-float-toggle.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.ability-drawer{
+  position:fixed !important; top:86px !important; right:18px !important; left:auto !important;
+  width:min(320px, calc(100vw - 16px)) !important; height:auto !important; max-height:min(70vh, 430px) !important;
+  background:#111 !important; border:1px solid var(--accent) !important; border-radius:12px !important;
+  box-shadow:0 12px 30px rgba(0,0,0,0.45) !important; overflow:hidden !important;
+  opacity:0 !important; transform:translateY(-6px) scale(.98) !important; pointer-events:none !important;
+  z-index:2400 !important; transition:opacity .18s ease, transform .18s ease !important;
+}
+.ability-drawer.open{opacity:1 !important; transform:translateY(0) scale(1) !important; pointer-events:auto !important;}
+.ability-drawer-header{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;
+  background:#0b0b0b;border-bottom:1px solid #333;cursor:grab;user-select:none;touch-action:none;
+}
+.ability-drawer-header:active{cursor:grabbing;}
+.ability-drawer-header h3{margin:0;font-size:16px;text-align:left;}
+.ability-drawer-close{
+  background:none;border:none;color:#fff;font-size:20px;line-height:1;cursor:pointer;padding:0 2px;
+}
+.ability-drawer-body{padding:12px 14px;overflow:auto;max-height:calc(min(70vh, 430px) - 49px);}
+.ability-drawer table{width:100%;border-collapse:collapse;text-align:center;}
+.ability-drawer th,.ability-drawer td{padding:9px 6px;border-top:1px solid #333;}
+.ability-drawer th{background:#000;color:#888;font-size:12px;border-top:none;}
+.ability-drawer .drawer-stat{color:var(--accent);font-weight:bold;text-transform:uppercase;}
+@media (max-width:700px){
+  .ability-heading-row{justify-content:center;}
+  .ability-float-toggle{width:32px;height:32px;flex-basis:32px;font-size:17px;}
+  .ability-drawer{
+    top:76px !important; right:8px !important; left:8px !important; width:auto !important; max-width:none !important;
+    max-height:min(60vh, 360px) !important;
+  }
+  .ability-drawer-body{max-height:calc(min(60vh, 360px) - 49px);}
+}
+
 </style>
 </head>
 <body>
@@ -497,6 +539,19 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 </header>
 
 
+
+<div id="abilityDrawer" class="ability-drawer" aria-hidden="true">
+  <div id="abilityDrawerHandle" class="ability-drawer-header">
+    <h3>Ability Scores</h3>
+    <button class="ability-drawer-close" type="button" onclick="toggleAbilityDrawer(false)" title="Close">&times;</button>
+  </div>
+  <div class="ability-drawer-body">
+    <table>
+      <thead><tr><th>Stat</th><th>Score</th><th>Mod</th></tr></thead>
+      <tbody id="abilityDrawerBody"></tbody>
+    </table>
+  </div>
+</div>
 
 <div id="layout">
   <div id="sidebar">
@@ -532,7 +587,7 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
             <div class="bio-item"><label>Langs</label><input id="languages" class="save-field"></div>
             <div class="bio-item" style="grid-column: 1 / -1;"><label>Senses</label><input id="senses" class="save-field"></div>
           </div>
-          <h3>Ability Scores</h3>
+          <div class="ability-heading-row"><h3>Ability Scores</h3><button id="abilityDrawerToggle" class="ability-float-toggle" type="button" onclick="toggleAbilityDrawer()" title="Open floating ability scores">🎲</button></div>
           <div style="background:var(--panel); border-radius:8px; overflow:hidden;">
             <table style="width:100%; border-collapse:collapse; text-align:center;">
                 <tr style="background:#000; color:#888; font-size:12px;"><th>Stat</th><th>Score</th><th>Mod</th></tr>
@@ -1192,11 +1247,142 @@ const listContainerIds = { weapon: 'weaponList', spell: 'spellList', active: 'ac
 
 let currentItemView = 'storage';
 
-window.toggleAbilityDrawer = () => {};
+const ABILITY_DRAWER_STORAGE_KEY = 'mountAetheriaAbilityDrawerAdmin';
+function getAbilityDrawerState() {
+  try {
+    const raw = localStorage.getItem(ABILITY_DRAWER_STORAGE_KEY);
+    if(!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (e) { return {}; }
+}
+function setAbilityDrawerState(nextState) {
+  try { localStorage.setItem(ABILITY_DRAWER_STORAGE_KEY, JSON.stringify(nextState)); } catch (e) {}
+}
+function clampAbilityDrawerPosition(left, top) {
+  const drawer = document.getElementById('abilityDrawer');
+  const width = drawer?.offsetWidth || Math.min(window.innerWidth - 16, 320);
+  const height = drawer?.offsetHeight || Math.min(window.innerHeight - 100, 320);
+  const maxLeft = Math.max(8, window.innerWidth - width - 8);
+  const maxTop = Math.max(58, window.innerHeight - height - 8);
+  return {
+    left: Math.min(Math.max(8, Number.isFinite(left) ? left : maxLeft), maxLeft),
+    top: Math.min(Math.max(58, Number.isFinite(top) ? top : 86), maxTop)
+  };
+}
+function defaultAbilityDrawerState() {
+  const drawer = document.getElementById('abilityDrawer');
+  const width = drawer?.offsetWidth || Math.min(window.innerWidth - 16, 320);
+  const defaultLeft = window.innerWidth <= 700 ? 8 : Math.max(8, window.innerWidth - width - 18);
+  const defaultTop = window.innerWidth <= 700 ? 76 : 86;
+  return clampAbilityDrawerPosition(defaultLeft, defaultTop);
+}
+function applyAbilityDrawerState(state = {}) {
+  const drawer = document.getElementById('abilityDrawer');
+  const button = document.getElementById('abilityDrawerToggle');
+  if(!drawer) return;
+  const isOpen = !!state.open;
+  if(isOpen) {
+    const pos = (Number.isFinite(state.left) && Number.isFinite(state.top))
+      ? clampAbilityDrawerPosition(Number(state.left), Number(state.top))
+      : defaultAbilityDrawerState();
+    drawer.style.left = pos.left + 'px';
+    drawer.style.top = pos.top + 'px';
+    drawer.style.right = 'auto';
+    drawer.classList.add('open');
+    drawer.setAttribute('aria-hidden', 'false');
+    if(button) button.classList.add('active');
+  } else {
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden', 'true');
+    if(button) button.classList.remove('active');
+  }
+}
+function ensureAbilityDrawerInit() {
+  const drawer = document.getElementById('abilityDrawer');
+  const handle = document.getElementById('abilityDrawerHandle');
+  if(!drawer || !handle || drawer.dataset.drawerReady === '1') return;
+  drawer.dataset.drawerReady = '1';
+  applyAbilityDrawerState(getAbilityDrawerState());
 
-function initAbilityDrawerDrag() { return; }
+  let dragging = false;
+  let pointerId = null;
+  let startX = 0, startY = 0, startLeft = 0, startTop = 0;
 
-function renderAbilityDrawerScores() { return; }
+  const onPointerMove = (e) => {
+    if(!dragging || (pointerId !== null && e.pointerId !== pointerId)) return;
+    const next = clampAbilityDrawerPosition(startLeft + (e.clientX - startX), startTop + (e.clientY - startY));
+    drawer.style.left = next.left + 'px';
+    drawer.style.top = next.top + 'px';
+    drawer.style.right = 'auto';
+  };
+  const endDrag = (e) => {
+    if(!dragging || (pointerId !== null && e.pointerId !== pointerId)) return;
+    dragging = false;
+    try { handle.releasePointerCapture?.(pointerId); } catch (err) {}
+    pointerId = null;
+    const saved = getAbilityDrawerState();
+    const next = clampAbilityDrawerPosition(parseFloat(drawer.style.left), parseFloat(drawer.style.top));
+    setAbilityDrawerState({ ...saved, open: drawer.classList.contains('open'), left: next.left, top: next.top });
+  };
+
+  handle.addEventListener('pointerdown', (e) => {
+    if(e.button !== undefined && e.button !== 0) return;
+    if(e.target.closest('.ability-drawer-close')) return;
+    if(!drawer.classList.contains('open')) return;
+    dragging = true;
+    pointerId = e.pointerId ?? null;
+    startX = e.clientX;
+    startY = e.clientY;
+    const rect = drawer.getBoundingClientRect();
+    startLeft = rect.left;
+    startTop = rect.top;
+    try { handle.setPointerCapture?.(pointerId); } catch (err) {}
+    e.preventDefault();
+  });
+
+  window.addEventListener('pointermove', onPointerMove, { passive: true });
+  window.addEventListener('pointerup', endDrag, { passive: true });
+  window.addEventListener('pointercancel', endDrag, { passive: true });
+  window.addEventListener('resize', () => {
+    const current = getAbilityDrawerState();
+    if(!current.open) return;
+    const pos = clampAbilityDrawerPosition(parseFloat(drawer.style.left), parseFloat(drawer.style.top));
+    const next = { ...current, left: pos.left, top: pos.top };
+    setAbilityDrawerState(next);
+    applyAbilityDrawerState(next);
+  }, { passive: true });
+}
+window.toggleAbilityDrawer = (force) => {
+  ensureAbilityDrawerInit();
+  renderAbilityDrawerScores();
+  const current = getAbilityDrawerState();
+  const shouldOpen = (typeof force === 'boolean') ? force : !document.getElementById('abilityDrawer')?.classList.contains('open');
+  const next = { ...current, open: shouldOpen };
+  if(shouldOpen && (!Number.isFinite(next.left) || !Number.isFinite(next.top))) {
+    const pos = defaultAbilityDrawerState();
+    next.left = pos.left;
+    next.top = pos.top;
+  }
+  setAbilityDrawerState(next);
+  applyAbilityDrawerState(next);
+};
+
+function initAbilityDrawerDrag() { ensureAbilityDrawerInit(); }
+
+function renderAbilityDrawerScores() {
+  ensureAbilityDrawerInit();
+  const body = document.getElementById('abilityDrawerBody');
+  if(!body) return;
+  const stats = ['str','dex','con','int','wis','cha'];
+  body.innerHTML = stats.map(stat => {
+    const scoreEl = document.getElementById(stat);
+    const modEl = document.getElementById('mod-' + stat);
+    const score = scoreEl && scoreEl.value !== '' ? scoreEl.value : '0';
+    const mod = modEl ? modEl.textContent : '+0';
+    return `<tr><td class="drawer-stat">${stat}</td><td>${score}</td><td>${mod}</td></tr>`;
+  }).join('');
+}
 
 window.setItemView = (view) => {
     currentItemView = view;
