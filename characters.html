@@ -659,7 +659,7 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
   <div id="c-general" class="sub-group active">
     <div class="stat-display-grid">
       <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Armor Class</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('ac')">✎</button></div><select id="ac_view_mode" class="live-field select-display" onchange="handleDisplayModeChange()"><option value="ac">AC</option><option value="touch">Touch AC</option><option value="flat">Flat-Footed</option><option value="cmd">CMD</option></select><div class="inline-value-wrap" style="margin-top:10px;"><span id="acDisplayMain" class="inline-value">10</span></div></div>
-      <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Attack Roll</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('ar')">✎</button></div><select id="ar_view_mode" class="live-field select-display" onchange="handleDisplayModeChange()"><option value="melee" selected>Melee</option><option value="ranged">Ranged</option><option value="touch">Touch</option><option value="cmb">CMB</option></select><div class="inline-value-wrap" style="margin-top:10px;"><span id="arDisplayMain" class="inline-value">+0</span></div></div>
+      <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Attack Roll</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('ar')">✎</button></div><select id="ar_view_mode" class="live-field select-display" onchange="handleDisplayModeChange()"><option value="melee" selected>Melee</option><option value="ranged">Ranged</option><option value="touch">Touch</option><option value="ranged_touch">Ranged Touch</option><option value="cmb">CMB</option></select><div class="inline-value-wrap" style="margin-top:10px;"><span id="arDisplayMain" class="inline-value">+0</span></div></div>
     </div>
     <h3>Saves</h3>
     <div class="save-row-display">
@@ -710,11 +710,11 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
     <input id="size_category" class="live-field"><input id="size_mod" class="live-field"><input id="size_special" class="live-field">
     <input id="ac_armor" class="live-field"><input id="ac_natural" class="live-field"><input id="ac_deflect" class="live-field"><input id="ac_dodge" class="live-field"><input id="ac_temp" class="live-field">
     <input id="touch_temp" class="live-field"><input id="flat_temp" class="live-field"><input id="cmd_temp" class="live-field">
-    <input id="ar_melee_temp" class="live-field"><input id="ar_ranged_temp" class="live-field"><input id="ar_touch_temp" class="live-field"><input id="cmb_temp" class="live-field">
+    <input id="ar_melee_temp" class="live-field"><input id="ar_ranged_temp" class="live-field"><input id="ar_touch_temp" class="live-field"><input id="ar_ranged_touch_temp" class="live-field"><input id="cmb_temp" class="live-field">
     <input id="fort_base" class="live-field"><input id="fort_enhance" class="live-field"><input id="fort_temp" class="live-field">
     <input id="ref_base" class="live-field"><input id="ref_enhance" class="live-field"><input id="ref_temp" class="live-field">
     <input id="will_base" class="live-field"><input id="will_enhance" class="live-field"><input id="will_temp" class="live-field">
-    <input id="ac_total" class="live-field"><input id="touch_ac_total" class="live-field"><input id="flat_ac_total" class="live-field"><input id="cmd_total" class="live-field"><input id="ar_total" class="live-field"><input id="ar_ranged_total" class="live-field"><input id="ar_touch_total" class="live-field"><input id="cmb" class="live-field">
+    <input id="ac_total" class="live-field"><input id="touch_ac_total" class="live-field"><input id="flat_ac_total" class="live-field"><input id="cmd_total" class="live-field"><input id="ar_total" class="live-field"><input id="ar_ranged_total" class="live-field"><input id="ar_touch_total" class="live-field"><input id="ar_ranged_touch_total" class="live-field"><input id="cmb" class="live-field">
     <input id="fort_bonus" class="live-field"><input id="ref_bonus" class="live-field"><input id="will_bonus" class="live-field">
   </div>
 </div>
@@ -1190,6 +1190,12 @@ function getSlotCap() {
     const cap = Number(raw);
     return Number.isFinite(cap) && cap > 0 ? cap : 20;
 }
+function formatSlotNumber(value) {
+    const num = Number(value);
+    if(!Number.isFinite(num)) return '0';
+    const rounded = Math.round(num * 100) / 100;
+    return Number.isInteger(rounded) ? String(rounded) : String(rounded);
+}
 function updateSlotUsageDisplay() {
     const data = getActiveData();
     const items = data.items || [];
@@ -1197,7 +1203,7 @@ function updateSlotUsageDisplay() {
     const cap = getSlotCap();
     const display = document.getElementById('slotUsageDisplay');
     if(display) {
-        display.textContent = `${used}/${cap}`;
+        display.textContent = `${formatSlotNumber(used)}/${formatSlotNumber(cap)}`;
         display.classList.toggle('over', used > cap);
     }
 }
@@ -1765,7 +1771,7 @@ function renderSelectedCombatDisplays() {
   const acMode = document.getElementById('ac_view_mode')?.value || 'ac';
   const arMode = document.getElementById('ar_view_mode')?.value || 'melee';
   const acMap = { ac: numVal('ac_total'), touch: numVal('touch_ac_total'), flat: numVal('flat_ac_total'), cmd: numVal('cmd_total') };
-  const arMap = { melee: numVal('ar_total'), ranged: numVal('ar_ranged_total'), touch: numVal('ar_touch_total'), cmb: numVal('cmb') };
+  const arMap = { melee: numVal('ar_total'), ranged: numVal('ar_ranged_total'), touch: numVal('ar_touch_total'), ranged_touch: numVal('ar_ranged_touch_total'), cmb: numVal('cmb') };
   const acMain = document.getElementById('acDisplayMain');
   if(acMain) acMain.textContent = String(acMap[acMode] ?? acMap.ac ?? 10);
   const arMain = document.getElementById('arDisplayMain');
@@ -1790,6 +1796,7 @@ function computeDerivedStats() {
   const melee = numVal('bab') + str + sizeMod + numVal('ar_melee_temp');
   const ranged = numVal('bab') + dex + sizeMod + numVal('ar_ranged_temp');
   const touchAttack = numVal('bab') + str + sizeMod + numVal('ar_touch_temp');
+  const rangedTouchAttack = numVal('bab') + dex + sizeMod + numVal('ar_ranged_touch_temp');
   const cmb = numVal('bab') + str + dex + sizeSpecial + numVal('cmb_temp');
   const fort = con + numVal('fort_base') + numVal('fort_enhance') + numVal('fort_temp');
   const ref = dex + numVal('ref_base') + numVal('ref_enhance') + numVal('ref_temp');
@@ -1799,7 +1806,7 @@ function computeDerivedStats() {
   setPlain('hpBaseDisplay', hpBase); setPlain('hpTempDisplay', hpTemp); setPlain('hpMaxDisplay', hpMax);
   setPlain('mpBaseDisplay', mpBase); setPlain('mpTempDisplay', mpTemp); setPlain('mpMaxDisplay', mpMax);
   setText('initDisplayMain', init); setText('babDisplayMain', babTotal); setPlain('speedDisplayMain', speedTotal);
-  setVal('ac_total', ac); setVal('cmd_total', cmd); setVal('ar_total', melee); setVal('cmb', cmb); setVal('touch_ac_total', touch); setVal('flat_ac_total', flat); setVal('ar_ranged_total', ranged); setVal('ar_touch_total', touchAttack);
+  setVal('ac_total', ac); setVal('cmd_total', cmd); setVal('ar_total', melee); setVal('cmb', cmb); setVal('touch_ac_total', touch); setVal('flat_ac_total', flat); setVal('ar_ranged_total', ranged); setVal('ar_touch_total', touchAttack); setVal('ar_ranged_touch_total', rangedTouchAttack);
   setVal('fort_bonus', fort); setVal('ref_bonus', ref); setVal('will_bonus', will);
   renderSelectedCombatDisplays();
   setText('fortDisplayMain', fort); setText('refDisplayMain', ref); setText('willDisplayMain', will);
@@ -1831,6 +1838,7 @@ window.openStatEdit = (section) => {
     <div class="formula-line"><strong>Melee</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${document.getElementById('bab')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>STR</label><input value="${modFor('str')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Temp','ar_melee_temp')}<div class="total-pill">${(numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_melee_temp'))>=0?`+${numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_melee_temp')}`:`${numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_melee_temp')}`}</div></div></div>
     <div class="formula-line"><strong>Ranged</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${document.getElementById('bab')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Temp','ar_ranged_temp')}<div class="total-pill">${(numVal('bab') + modFor('dex') + numVal('size_mod') + numVal('ar_ranged_temp'))>=0?`+${numVal('bab') + modFor('dex') + numVal('size_mod') + numVal('ar_ranged_temp')}`:`${numVal('bab') + modFor('dex') + numVal('size_mod') + numVal('ar_ranged_temp')}`}</div></div></div>
     <div class="formula-line"><strong>Touch</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${document.getElementById('bab')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>STR</label><input value="${modFor('str')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Temp','ar_touch_temp')}<div class="total-pill">${(numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_touch_temp'))>=0?`+${numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_touch_temp')}`:`${numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_touch_temp')}`}</div></div></div>
+    <div class="formula-line"><strong>Ranged Touch</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${document.getElementById('bab')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Temp','ar_ranged_touch_temp')}<div class="total-pill">${(numVal('bab') + modFor('dex') + numVal('size_mod') + numVal('ar_ranged_touch_temp'))>=0?`+${numVal('bab') + modFor('dex') + numVal('size_mod') + numVal('ar_ranged_touch_temp')}`:`${numVal('bab') + modFor('dex') + numVal('size_mod') + numVal('ar_ranged_touch_temp')}`}</div></div></div>
     <div class="formula-line"><strong>CMB</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${document.getElementById('bab')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>STR</label><input value="${modFor('str')}" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_special')?.value||0}" readonly class="graybase"></div>${statField('Temp','cmb_temp')}<div class="total-pill">${document.getElementById('cmb')?.value ? ((Number(document.getElementById('cmb').value)>=0?`+${document.getElementById('cmb').value}`:`${document.getElementById('cmb').value}`)) : '+0'}</div></div></div>`; }
   if(section === 'saves') { title.textContent = 'Edit Saves'; html = `
     <div class="formula-line"><strong>Fortitude</strong><div class="formula-parts"><div class="mini-field"><label>CON</label><input value="${modFor('con')}" readonly class="graybase"></div>${statField('Base','fort_base')}${statField('Enhance','fort_enhance')}${statField('Temp','fort_temp')}<div class="total-pill">${document.getElementById('fort_bonus')?.value>=0?`+${document.getElementById('fort_bonus').value}`:`${document.getElementById('fort_bonus').value||0}`}</div></div></div>
