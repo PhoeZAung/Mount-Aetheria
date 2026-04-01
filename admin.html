@@ -262,6 +262,42 @@ input.readonly-yellow[type=number] {
 .slot-box-value { width:100%; min-height:40px; display:flex; align-items:center; justify-content:center; background:#111; border:1px solid #444; border-radius:4px; font-weight:bold; }
 .slot-box-value.over { color:#ff6b6b; border-color:#b33; }
 .item-section-tabs { display:flex; gap:10px; margin-bottom:10px; }
+
+.items-panel-shell { border:1px solid rgba(255,204,102,0.75); border-radius:12px; padding:12px; background:#1b1b1b; }
+.items-panel-shell #itemList { margin-top:4px; }
+.items-panel-shell .btn-add { margin-top:12px; }
+.combat-row-main { grid-template-columns:repeat(4,minmax(78px,96px)) minmax(112px,auto); gap:8px; margin-bottom:12px; justify-content:flex-start; align-items:stretch; }
+.combat-row-main .stat-card.compact { padding:8px 10px; min-width:0; }
+.combat-row-main .stat-card.compact .stat-head { justify-content:center; gap:6px; }
+.combat-row-main .stat-card.compact .stat-title { font-size:11px; }
+.combat-row-main .inline-value-wrap { font-size:17px; }
+.combat-row-main .inline-value-wrap.small { font-size:15px; }
+.toolbar-card .stat-head { height:100%; }
+.toolbar-card .mode-btn { min-width:38px; padding:8px 10px; }
+@media (max-width:700px){
+  .combat-row-main{ grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px; }
+  .combat-row-main .toolbar-card{ grid-column:1 / -1; }
+  .combat-row-main .stat-card.compact{ padding:9px 10px; }
+  .combat-row-main .stat-card.compact .stat-head{ justify-content:space-between; }
+  .combat-row-main .stat-title{ font-size:11px; }
+  .combat-row-main .inline-value-wrap{ font-size:16px; }
+  .toolbar-card .stat-head{ justify-content:center; flex-wrap:wrap; }
+  .edit-stat-btn{ width:28px; height:28px; font-size:13px; }
+}
+@media (max-width:600px){
+  #heartModalContainer.active-heart-modal{ justify-content:flex-start; overflow-y:auto; padding:16px 14px 28px; }
+  #heartModalContainer.active-heart-modal #heartCloseBtn{ position:sticky; top:8px; align-self:center; margin-bottom:12px; font-size:54px; z-index:2; }
+  #heartModalContainer.active-heart-modal > div{ width:min(100%,560px); }
+  #heartModalContainer.active-heart-modal .combat-overview{ grid-template-columns:1fr; gap:10px; width:100%; }
+  #heartModalContainer.active-heart-modal .combat-row-main{ grid-template-columns:repeat(2,minmax(0,1fr)) !important; width:100%; }
+  #heartModalContainer.active-heart-modal .toolbar-card{ grid-column:1 / -1; }
+  #heartModalContainer.active-heart-modal .toolbar-card .stat-head{ justify-content:center; flex-wrap:wrap; }
+  #heartModalContainer.active-heart-modal .stat-card.compact{ padding:10px; }
+  #heartModalContainer.active-heart-modal .stat-card.compact .stat-title{ font-size:11px; }
+  #heartModalContainer.active-heart-modal .inline-value-wrap{ font-size:16px; }
+  #heartModalContainer.active-heart-modal .edit-stat-btn{ width:28px; height:28px; font-size:13px; }
+}
+
 .item-section-tabs .sub-btn { flex:1; }
 .item-toggle-wrap { display:flex; align-items:center; gap:10px; }
 .item-equip-check { width:18px; height:18px; flex:0 0 18px; accent-color: var(--accent); }
@@ -341,6 +377,111 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
   .combat-overview, .combat-row-main, .save-row-display, .stat-display-grid { grid-template-columns:1fr; }
   .edit-grid-2, .edit-grid-3, .edit-grid-4, .stat-subline { grid-template-columns:1fr; }
   .edit-stat-btn { display:inline-flex !important; }
+}
+
+
+/* --- UI fit overrides --- */
+.items-panel-shell { border:1px solid rgba(255,204,102,0.75); border-radius:12px; padding:12px; background:#1b1b1b; }
+.items-panel-shell #itemList { margin-top:4px; }
+.items-panel-shell .btn-add { margin-top:12px; }
+
+.combat-row-main{
+  grid-template-columns:repeat(4,minmax(78px,96px)) minmax(112px,auto) !important;
+  gap:8px !important;
+  margin-bottom:12px !important;
+  justify-content:flex-start !important;
+  align-items:stretch !important;
+}
+.combat-row-main .stat-card.compact{ padding:8px 10px !important; min-width:0; }
+.combat-row-main .stat-card.compact .stat-head{ justify-content:center; gap:6px; }
+.combat-row-main .stat-card.compact .stat-title{ font-size:11px; }
+.combat-row-main .inline-value-wrap{ font-size:17px; }
+.combat-row-main .inline-value-wrap.small{ font-size:15px; }
+.toolbar-card .stat-head{ height:100%; }
+.toolbar-card .mode-btn{ min-width:38px; padding:8px 10px; }
+
+@media (max-width:700px){
+  .combat-row-main{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+  }
+  .combat-row-main .toolbar-card{ grid-column:1 / -1; }
+  .combat-row-main .stat-card.compact{ padding:9px 10px !important; }
+  .combat-row-main .stat-card.compact .stat-head{ justify-content:space-between; }
+  .combat-row-main .stat-title{ font-size:11px; }
+  .combat-row-main .inline-value-wrap{ font-size:16px; }
+  .toolbar-card .stat-head{ justify-content:center; flex-wrap:wrap; }
+  .edit-stat-btn{ width:28px !important; height:28px !important; font-size:13px !important; }
+}
+
+@media (max-width:600px){
+  #heartModalContainer.active-heart-modal{
+    justify-content:flex-start !important;
+    overflow-y:auto !important;
+    padding:16px 14px 28px !important;
+  }
+  #heartModalContainer.active-heart-modal #heartCloseBtn{
+    position:sticky;
+    top:8px;
+    align-self:center;
+    margin-bottom:12px;
+    font-size:54px;
+    z-index:2;
+  }
+  #heartModalContainer.active-heart-modal > div{ width:min(100%,560px); }
+  #heartModalContainer.active-heart-modal .combat-overview{
+    grid-template-columns:1fr !important;
+    gap:10px;
+    width:100%;
+  }
+  #heartModalContainer.active-heart-modal .combat-row-main{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    width:100%;
+  }
+  #heartModalContainer.active-heart-modal .toolbar-card{ grid-column:1 / -1; }
+  #heartModalContainer.active-heart-modal .toolbar-card .stat-head{ justify-content:center; flex-wrap:wrap; }
+  #heartModalContainer.active-heart-modal .stat-card.compact{ padding:10px !important; }
+  #heartModalContainer.active-heart-modal .stat-card.compact .stat-title{ font-size:11px; }
+  #heartModalContainer.active-heart-modal .inline-value-wrap{ font-size:16px; }
+}
+
+
+/* --- UI OPT PATCH: modal above heart overlay + saner PC combat row --- */
+.modal-overlay { z-index: 6000 !important; }
+#imageModal { z-index: 6100 !important; }
+
+@media (min-width: 701px) {
+  .combat-row-main {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    margin-bottom: 14px !important;
+  }
+  .combat-row-main .stat-card.compact {
+    padding: 10px 12px !important;
+    min-width: 0;
+  }
+  .combat-row-main .stat-card.compact .stat-head {
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+  .combat-row-main .stat-card.compact .stat-title {
+    font-size: 12px !important;
+  }
+  .combat-row-main .inline-value-wrap {
+    font-size: 18px !important;
+  }
+  .combat-row-main .inline-value-wrap.small {
+    font-size: 16px !important;
+  }
+  .toolbar-card .stat-head {
+    height: auto !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+  .toolbar-card .mode-btn {
+    min-width: 40px !important;
+    padding: 9px 11px !important;
+  }
 }
 
 </style>
@@ -495,6 +636,7 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
   </div>
 
   <div style="display:none;">
+    <input id="bab" class="save-field"><input id="speed" class="save-field">
     <input id="init_temp" class="save-field"><input id="bab_temp" class="save-field"><input id="speed_temp" class="save-field">
     <input id="size_category" class="save-field"><input id="size_mod" class="save-field"><input id="size_special" class="save-field">
     <input id="ac_armor" class="save-field"><input id="ac_natural" class="save-field"><input id="ac_deflect" class="save-field"><input id="ac_dodge" class="save-field"><input id="ac_temp" class="save-field">
@@ -533,7 +675,8 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
               <div id="slotUsageDisplay" class="slot-box-value" style="margin-top:8px;">0/20</div>
             </div>
           </div>
-          <div class="item-section-tabs">
+          <div class="items-panel-shell">
+  <div class="item-section-tabs">
             <button class="sub-btn active" id="itemView-storage" onclick="setItemView('storage')">Storage</button>
             <button class="sub-btn" id="itemView-equipped" onclick="setItemView('equipped')">Equipped</button>
           </div>
@@ -542,6 +685,7 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
             <select id="itemSort" onchange="renderItems()" style="flex:1;"><option value="recent">Recent</option><option value="abc">A-Z</option></select>
           </div>
           <div id="itemList"></div><button class="btn-add" onclick="addNewItem('item')">+ Add Item</button>
+  </div>
       </div>
 
       
@@ -1567,7 +1711,41 @@ document.body.addEventListener('change', (e) => { if(e.target.classList.contains
 document.body.addEventListener('focusout', (e) => { if(e.target.classList.contains('save-field') || e.target.classList.contains('calc-trigger')) { updateCalculations(); saveData(); } });
 window.addEventListener('DOMContentLoaded', () => { ['hp_curr','hp_temp','hp_max','mp_curr','mp_temp','mp_max','str','dex','con','int','wis','cha'].forEach(id => { const el = document.getElementById(id); if(!el) return; el.addEventListener('input', () => { updateCalculations(); computeDerivedStats(); renderAbilityDrawerScores(); triggerSave(); }); el.addEventListener('change', () => { updateCalculations(); computeDerivedStats(); renderAbilityDrawerScores(); saveData(); }); el.addEventListener('blur', () => { updateCalculations(); computeDerivedStats(); renderAbilityDrawerScores(); saveData(); }); }); ['ac_view_mode','ar_view_mode'].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('change', () => { updateCalculations(); saveData(); }); }); });
 window.addEventListener('beforeunload', () => { try { if(typeof saveData === 'function') saveData(); } catch(e) {} });
+window.addEventListener('load', () => { if(typeof computeDerivedStats === 'function') { setTimeout(() => { updateCalculations(); computeDerivedStats(); renderSelectedCombatDisplays(); }, 150); } });
 
+const CRITICAL_SYNC_FIELDS = ['hp_curr','hp_temp','hp_max','mp_curr','mp_temp','mp_max','str','dex','con','int','wis','cha'];
+function queueCriticalSave() {
+  if (typeof triggerSave === 'function') triggerSave();
+  else if (typeof saveData === 'function') saveData();
+}
+function bindCriticalFieldPersistence() {
+  CRITICAL_SYNC_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el || el.dataset.persistBound === '1') return;
+    el.dataset.persistBound = '1';
+    const runRefresh = () => {
+      if (typeof updateCalculations === 'function') updateCalculations();
+      if (typeof computeDerivedStats === 'function') computeDerivedStats();
+      if (typeof renderSelectedCombatDisplays === 'function') renderSelectedCombatDisplays();
+      if (typeof renderAbilityDrawerScores === 'function') renderAbilityDrawerScores();
+      if (typeof updateLimitBreakState === 'function') updateLimitBreakState();
+    };
+    el.addEventListener('input', () => {
+      runRefresh();
+      queueCriticalSave();
+    });
+    el.addEventListener('change', () => {
+      runRefresh();
+      queueCriticalSave();
+    });
+    el.addEventListener('blur', () => {
+      runRefresh();
+      queueCriticalSave();
+    });
+  });
+}
+
+window.toggleHeartStats = () => document.getElementById('heartModalContainer').classList.toggle('active-heart-modal');
 window.viewCollection = (url) => { document.getElementById('modalImg').src = url; document.getElementById('imageModal').style.display = 'flex'; };
 
 
