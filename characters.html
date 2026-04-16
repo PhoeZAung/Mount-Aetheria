@@ -221,6 +221,15 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
 #notes { display: none; flex-direction: column; height: 100%; box-sizing: border-box; }
 #notes.active { display: flex; }
 #notesArea { flex-grow: 1; border: 1px solid var(--border); border-radius: 6px; background: #111; padding: 10px; font-family: sans-serif; line-height: 1.6; font-size: 16px; width: 100%; margin-bottom: 20px; }
+.empty-sheet-state { display:none; max-width:720px; margin:30px auto; background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:28px 22px; text-align:center; }
+.empty-sheet-state h3 { margin:0 0 10px; color:var(--accent); font-family:'Uncial Antiqua'; }
+.empty-sheet-state p { margin:0 0 18px; color:#bbb; }
+body.no-character-mode .main-tabs { display:none !important; }
+body.no-character-mode .tab-content { display:none !important; }
+body.no-character-mode #character { display:block !important; }
+body.no-character-mode #character > :not(#noCharacterState) { display:none !important; }
+body.no-character-mode #noCharacterState { display:block !important; }
+
 
 /* Ghost element for touch drag */
 #dragGhost { position: fixed; top: 0; left: 0; width: 250px; background: #333; padding: 10px; border: 1px solid var(--accent); color: #fff; z-index: 9999; pointer-events: none; opacity: 0.8; display: none; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-weight: bold; }
@@ -540,7 +549,57 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
   .ability-drawer-body{max-height:calc(min(60vh, 360px) - 49px);}
 }
 
+
+
+/* --- Stable spell groups --- */
+.spell-level-group{margin:16px 0 18px;}
+.spell-level-head{width:100%;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;background:#141414;border:1px solid var(--accent);border-radius:10px;padding:10px 12px;margin-bottom:8px;appearance:none;-webkit-appearance:none;color:inherit;text-align:center;}
+.spell-level-head-main{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;min-width:0;flex:1;width:100%;text-align:center;}
+.spell-level-name{font-family:'Uncial Antiqua',serif;color:var(--accent);font-size:15px;}
+.spell-level-dc{color:#e8e8e8;font-size:12px;font-weight:bold;letter-spacing:.03em;}
+.spell-level-toggle{display:inline-flex;align-items:center;justify-content:center;min-width:20px;font-size:18px;color:var(--accent);font-weight:bold;line-height:1;}
+.spell-level-body[hidden]{display:none !important;}
+.spell-level-empty{background:#171717;border:1px dashed #343434;border-radius:10px;padding:10px 12px;color:#8c8c8c;font-size:12px;margin-bottom:8px;}
+.spell-row .row-actions{gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+.spell-action-chip{display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:4px 10px;border-radius:999px;background:#f3f3f3;color:#111;border:1px solid #cfcfcf;font-size:11px;font-weight:700;white-space:nowrap;}
+.spell-link-btn{background:#4488ff;color:#fff;border:none;padding:6px 10px;border-radius:4px;font-size:11px;text-decoration:none;display:inline-block;font-weight:bold;cursor:pointer;}
+@media (max-width:700px){
+  .spell-level-head{padding:9px 10px;}
+  .spell-level-name{font-size:14px;}
+  .spell-level-dc{font-size:11px;}
+  .spell-row .row-actions{justify-content:flex-start;}
+}
+
+
+
+/* --- Spell preview cards --- */
+.spell-view-shell{display:flex;flex-direction:column;gap:14px;}
+.spell-view-top{display:flex;flex-direction:column;gap:10px;}
+.spell-view-subtitle{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.spell-view-section-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.spell-view-section{background:#1a1a1a;border:1px solid #3a3a3a;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;}
+.spell-view-section h4{margin:0;text-align:left;font-size:15px;}
+.spell-view-tag-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.spell-view-tag{background:#121212;border:1px solid #2f2f2f;border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:4px;min-height:58px;justify-content:center;}
+.spell-tag-label{font-size:10px;color:#9f9f9f;text-transform:uppercase;letter-spacing:.06em;font-weight:700;}
+.spell-tag-value{font-size:14px;color:#f3f3f3;font-weight:700;word-break:break-word;}
+.spell-view-section.spell-view-wide{grid-column:1 / -1;}
+.spell-view-copy{line-height:1.55;color:#ececec;white-space:pre-wrap;word-break:break-word;}
+@media (max-width:700px){
+  .spell-view-section-grid{grid-template-columns:1fr;}
+  .spell-view-tag-grid{grid-template-columns:1fr;}
+}
+
 </style>
+
+<style>
+#simpleConfirmModal .confirm-shell { max-width: 420px; }
+#simpleConfirmModal .confirm-text { color:#ddd; line-height:1.5; }
+#simpleConfirmModal .confirm-actions { display:flex; gap:10px; justify-content:flex-end; padding:15px; border-top:1px solid #333; background:#1a1a1a; border-radius:0 0 8px 8px; }
+#simpleConfirmCancel { background:#333; color:#fff; border:1px solid #555; padding:10px 14px; border-radius:6px; cursor:pointer; font-weight:bold; }
+#simpleConfirmOk { background:#ff4444; color:#fff; border:none; padding:10px 14px; border-radius:6px; cursor:pointer; font-weight:bold; }
+</style>
+
 </head>
 <body>
 
@@ -591,6 +650,12 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 </div>
 
 <div id="character" class="tab-content active">
+
+  <div id="noCharacterState" class="empty-sheet-state">
+    <h3>No Character Selected</h3>
+    <p>Create a new character to begin.</p>
+    <button class="btn-add" id="btnCreateFirstCharacter" type="button">+ Create New Character</button>
+  </div>
   <h2 id="sheetTitle">Character Bio</h2>
   <div class="bio-grid">
     <div class="bio-item"><label>Name</label><input id="charName" class="live-field"></div>
@@ -609,11 +674,20 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
             ['str','dex','con','int','wis','cha'].forEach(s => {
                 document.write(`<tr style="border-top:1px solid #333;"><td style="font-weight:bold; color:var(--accent); text-transform:uppercase;">${s}</td><td style="padding:8px;"><input type="number" id="${s}" class="live-field calc-trigger" style="text-align:center; background:#111; border:1px solid #444; color:#fff; border-radius:4px;"></td><td id="mod-${s}">+0</td></tr>`);
             });
-        </script>
+        
+setTimeout(() => {
+    try {
+        if (!blankSheetTemplate) blankSheetTemplate = captureBlankSheetTemplate();
+    } catch (e) {
+        console.warn('Blank template capture failed', e);
+    }
+}, 0);
+
+</script>
     </table>
   </div>
-  <button class="btn-add" id="btnAddSummon" style="background:#444; color:#ccc; margin-top:20px;">+ Add Summoning</button>
-  <button id="btnDeleteSummon" class="btn-del" style="background:#990000; width:100%; padding:12px; margin-top:20px; display:none;">Delete Summon</button>
+  <button class="btn-add" id="btnAddSummon" style="background:#444; color:#ccc; margin-top:20px;">+ Add Character</button>
+  <button id="btnDeleteSummon" class="btn-del" style="background:#990000; width:100%; padding:12px; margin-top:20px; display:none;">Delete Character</button>
 </div>
 
 
@@ -701,7 +775,7 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 
   <div id="c-spells" class="sub-group" style="display:none">
       <h3>Spells</h3>
-      <div class="stat-box" style="margin-bottom:10px;"><label>Spell DC Base</label><input id="spell_dc_base" class="live-field"></div>
+      <div class="stat-box" style="margin-bottom:10px;"><label>Spell DC Base</label><select id="spell_dc_base" class="live-field"><option value="">Select Ability</option><option value="str">STR</option><option value="dex">DEX</option><option value="con">CON</option><option value="int">INT</option><option value="wis">WIS</option><option value="cha">CHA</option></select></div>
       <div id="spellList"></div>
       <button class="btn-add" onclick="addNewItem('spell')">+ Add Spell</button>
   </div>
@@ -712,7 +786,7 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
     <input id="size_category" class="live-field"><input id="size_mod" class="live-field"><input id="size_special" class="live-field">
     <input id="ac_armor" class="live-field"><input id="ac_natural" class="live-field"><input id="ac_deflect" class="live-field"><input id="ac_dodge" class="live-field"><input id="ac_temp" class="live-field">
     <input id="touch_temp" class="live-field"><input id="flat_temp" class="live-field"><input id="cmd_temp" class="live-field">
-    <input id="ar_melee_temp" class="live-field"><input id="ar_ranged_temp" class="live-field"><input id="ar_touch_temp" class="live-field"><input id="ar_ranged_touch_temp" class="live-field"><input id="cmb_temp" class="live-field">
+    <input id="ar_melee_ability" class="live-field"><input id="ar_ranged_ability" class="live-field"><input id="ar_touch_ability" class="live-field"><input id="ar_ranged_touch_ability" class="live-field"><input id="ar_melee_temp" class="live-field"><input id="ar_ranged_temp" class="live-field"><input id="ar_touch_temp" class="live-field"><input id="ar_ranged_touch_temp" class="live-field"><input id="cmb_temp" class="live-field">
     <input id="fort_base" class="live-field"><input id="fort_enhance" class="live-field"><input id="fort_temp" class="live-field">
     <input id="ref_base" class="live-field"><input id="ref_enhance" class="live-field"><input id="ref_temp" class="live-field">
     <input id="will_base" class="live-field"><input id="will_enhance" class="live-field"><input id="will_temp" class="live-field">
@@ -798,10 +872,27 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 
 <div class="status-bar"><span id="uidDisplay">Loading...</span><div><span class="status-dot" id="statusDot"></span><span id="statusText">Connecting</span></div></div>
 
+
+<div id="simpleConfirmModal" class="modal-overlay" style="display:none;z-index:7000;">
+  <div class="modal-content confirm-shell">
+    <div class="modal-header">
+      <h3 id="simpleConfirmTitle">Confirm</h3>
+      <button class="btn-close" id="simpleConfirmClose">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="simpleConfirmText" class="confirm-text"></div>
+    </div>
+    <div class="confirm-actions">
+      <button id="simpleConfirmCancel">Cancel</button>
+      <button id="simpleConfirmOk">Delete</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, deleteDoc, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", authDomain: "mount-aetheria.firebaseapp.com", projectId: "mount-aetheria", storageBucket: "mount-aetheria.firebasestorage.app", messagingSenderId: "492855693446", appId: "1:492855693446:web:f99485569254a7220c38107", measurementId: "G-0PF84KDN7L" };
 const app = initializeApp(firebaseConfig);
@@ -811,8 +902,121 @@ const db = getFirestore(app);
 let currentUser = null;
 let saveTimeout = null;
 let isRemoteUpdate = false;
-let fullData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [], slot_cap: 20 }; 
-let currentSummonId = null; 
+let fullData = { items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [], slot_cap: 20 };
+let currentSummonId = null; // selected character id
+let characterSheets = [];
+let unsubscribeCharacters = null;
+
+let blankSheetTemplate = null;
+function clonePlain(obj) {
+    return JSON.parse(JSON.stringify(obj || {}));
+}
+function captureBlankSheetTemplate() {
+    try { if (typeof initSkillsTable === 'function') initSkillsTable(); } catch (e) {}
+    const data = {
+        items: [],
+        weapons: [],
+        spells: [],
+        activeAbilities: [],
+        passiveAbilities: [],
+        feats: [],
+        skills: [],
+        slot_cap: 20
+    };
+    document.querySelectorAll('.save-field, .live-field').forEach(el => {
+        if (!el.id) return;
+        if (el.type === 'checkbox') data[el.id] = !!el.checked;
+        else data[el.id] = el.value ?? '';
+    });
+    document.querySelectorAll('.skill-row-data').forEach(r => {
+        const customInput = r.querySelector('.skill-custom-input');
+        data.skills.push({
+            cs: !!r.querySelector('.skill-cs')?.checked,
+            temp: Number(r.querySelector('.skill-temp')?.value) || 0,
+            lvl: Number(r.querySelector('.skill-ranks')?.value) || 0,
+            subName: customInput ? (customInput.value || '') : ''
+        });
+    });
+    if (data.slot_cap === '' || data.slot_cap === undefined || data.slot_cap === null) data.slot_cap = 20;
+    return data;
+}
+function createBlankCharacterData(name = 'New Character') {
+    const base = blankSheetTemplate ? clonePlain(blankSheetTemplate) : captureBlankSheetTemplate();
+    base.charName = name;
+    base.items = [];
+    base.weapons = [];
+    base.spells = [];
+    base.activeAbilities = [];
+    base.passiveAbilities = [];
+    base.feats = [];
+    base.skills = Array.isArray(base.skills) ? base.skills : [];
+    base.slot_cap = (base.slot_cap === '' || base.slot_cap === undefined || base.slot_cap === null) ? 20 : (Number(base.slot_cap) || 20);
+    base.createdAt = new Date();
+    base.updatedAt = new Date();
+    return base;
+}
+function sanitizeCharacterDoc(raw = {}, fallbackName = 'New Character') {
+    const data = {
+        items: [],
+        weapons: [],
+        spells: [],
+        activeAbilities: [],
+        passiveAbilities: [],
+        feats: [],
+        slot_cap: 20,
+        ...raw
+    };
+    delete data.summons;
+    if (!Array.isArray(data.items)) data.items = [];
+    if (!Array.isArray(data.weapons)) data.weapons = [];
+    if (!Array.isArray(data.spells)) data.spells = [];
+    if (!Array.isArray(data.activeAbilities)) data.activeAbilities = [];
+    if (!Array.isArray(data.passiveAbilities)) data.passiveAbilities = [];
+    if (!Array.isArray(data.feats)) data.feats = [];
+    if (!data.charName) data.charName = fallbackName;
+    if (data.slot_cap === undefined || data.slot_cap === null || data.slot_cap === '') data.slot_cap = 20;
+    return data;
+}
+function sortCharacterSheets(list) {
+    return [...(list || [])].sort((a, b) => String(a.charName || '').localeCompare(String(b.charName || ''), undefined, { sensitivity: 'base' }));
+}
+async function ensureCharacterCollection() {
+    const userRef = doc(db, 'users', currentUser.uid);
+    const charsCol = collection(db, 'users', currentUser.uid, 'characters');
+    const [userSnap, currentSnap] = await Promise.all([getDoc(userRef), getDocs(charsCol)]);
+    const migrated = !!(userSnap.exists() && userSnap.data()?.charactersMigrated);
+
+    if (!currentSnap.empty) {
+        if (!migrated) {
+            try { await setDoc(userRef, { charactersMigrated: true }, { merge: true }); } catch (e) { console.warn('Could not set charactersMigrated flag', e); }
+        }
+        return;
+    }
+
+    if (migrated) return;
+
+    let created = false;
+    try {
+        const legacySnap = await getDoc(doc(db, 'users', currentUser.uid, 'sheet', 'character'));
+        if (legacySnap.exists()) {
+            const legacy = legacySnap.data() || {};
+            const summons = Array.isArray(legacy.summons) ? legacy.summons : [];
+            const { summons: _ignored, ...mainData } = legacy;
+            await addDoc(charsCol, sanitizeCharacterDoc({ ...mainData, updatedAt: new Date(), createdAt: legacy.createdAt || new Date() }, mainData.charName || 'Main Character'));
+            created = true;
+            for (const oldChar of summons) {
+                const { summons: _nestedIgnored, ...charData } = (oldChar || {});
+                await addDoc(charsCol, sanitizeCharacterDoc({ ...charData, updatedAt: new Date(), createdAt: charData.createdAt || new Date() }, charData.charName || 'New Character'));
+                created = true;
+            }
+        }
+        if (created || !legacySnap.exists()) {
+            await setDoc(userRef, { charactersMigrated: true }, { merge: true });
+        }
+    } catch (e) {
+        console.error('Legacy character migration failed', e);
+    }
+}
 
 window.switchTab = (id) => { 
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
@@ -851,25 +1055,60 @@ onAuthStateChanged(auth, (user) => {
     } else { window.location.href = "signin.html"; }
 });
 
-function startSync() {
-    const docRef = doc(db, 'users', currentUser.uid, 'sheet', 'character');
-    onSnapshot(docRef, (snap) => {
-        if(snap.metadata.hasPendingWrites) return;
-        if(snap.exists()) {
+
+function showNoCharacterState(show) {
+    document.body.classList.toggle('no-character-mode', !!show);
+    const deleteBtn = document.getElementById('btnDeleteSummon');
+    const createBtn = document.getElementById('btnCreateFirstCharacter');
+    const addBtn = document.getElementById('btnAddSummon');
+    const title = document.getElementById('sheetTitle');
+    if (title && show) title.textContent = 'Character Bio';
+    if (deleteBtn) deleteBtn.style.display = show ? 'none' : 'block';
+    if (createBtn) createBtn.onclick = createNewSummon;
+    if (addBtn) {
+        addBtn.style.display = show ? 'none' : 'block';
+        addBtn.textContent = show ? '+ Create New Character' : '+ Add Character';
+    }
+}
+
+async function startSync() {
+    if (unsubscribeCharacters) unsubscribeCharacters();
+    await ensureCharacterCollection();
+
+    const charsRef = collection(db, 'users', currentUser.uid, 'characters');
+    unsubscribeCharacters = onSnapshot(charsRef, (snap) => {
+        if (snap.metadata.hasPendingWrites) return;
+        characterSheets = sortCharacterSheets(snap.docs.map(d => ({ ...sanitizeCharacterDoc(d.data(), 'New Character'), id: d.id })));
+        if (!characterSheets.length) {
+            currentSummonId = null;
+            fullData = sanitizeCharacterDoc(createBlankCharacterData('New Character'), 'New Character');
             document.getElementById('statusDot').classList.add('live');
-            document.getElementById('statusText').textContent = "Live Sync";
-            const remote = snap.data();
-            fullData = { summons: [], items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [], slot_cap: 20, ...remote };
+            document.getElementById('statusText').textContent = "No Characters";
             isRemoteUpdate = true;
             loadCurrentSheet();
-            setTimeout(refreshCombatUi, 50);
             updateSummonMenu();
+            showNoCharacterState(true);
             isRemoteUpdate = false;
+            return;
         }
+
+        showNoCharacterState(false);
+        if (!currentSummonId || !characterSheets.some(c => c.id === currentSummonId)) {
+            currentSummonId = characterSheets[0].id;
+        }
+        const remote = characterSheets.find(c => c.id === currentSummonId) || characterSheets[0];
+        document.getElementById('statusDot').classList.add('live');
+        document.getElementById('statusText').textContent = "Live Sync";
+        fullData = sanitizeCharacterDoc(remote, remote?.charName || 'New Character');
+        isRemoteUpdate = true;
+        loadCurrentSheet();
+        setTimeout(refreshCombatUi, 50);
+        updateSummonMenu();
+        isRemoteUpdate = false;
     });
 }
 
-function getActiveData() { return currentSummonId ? (fullData.summons.find(s => s.id === currentSummonId) || {}) : fullData; }
+function getActiveData() { return fullData; }
 
 function stripLimitBreakAbilityEntries(target) {
     if(!target || !Array.isArray(target.activeAbilities)) return;
@@ -981,23 +1220,17 @@ function refreshCombatUi() {
 function loadCurrentSheet() {
     const data = getActiveData();
     stripLimitBreakAbilityEntries(data);
-    if(currentSummonId) {
-        document.getElementById('sheetTitle').textContent = "Summoning Sheet";
-        document.getElementById('btnAddSummon').style.display = 'none';
-        document.getElementById('btnDeleteSummon').style.display = 'block';
-        document.getElementById('btnDeleteSummon').onclick = deleteCurrentSummon;
-        ['btn-skills','btn-items'].forEach(id => document.getElementById(id).style.display = 'none');
-        document.getElementById('spellsSubBtn').style.display = 'none';
-        document.getElementById('btn-sub-passive').style.display = 'none';
-    } else {
-        document.getElementById('sheetTitle').textContent = "Character Sheet";
-        document.getElementById('btnAddSummon').style.display = 'block';
-        document.getElementById('btnAddSummon').onclick = createNewSummon;
-        document.getElementById('btnDeleteSummon').style.display = 'none';
-        document.querySelectorAll('.tab-btn').forEach(b => b.style.display = '');
-        document.getElementById('spellsSubBtn').style.display = 'block';
-        document.getElementById('btn-sub-passive').style.display = 'block';
-    }
+
+    document.getElementById('sheetTitle').textContent = "Character Sheet";
+    document.getElementById('btnAddSummon').style.display = 'block';
+    document.getElementById('btnAddSummon').textContent = '+ Add Character';
+    document.getElementById('btnAddSummon').onclick = createNewSummon;
+    document.getElementById('btnDeleteSummon').style.display = currentSummonId ? 'block' : 'none';
+    document.getElementById('btnDeleteSummon').textContent = 'Delete Character';
+    document.getElementById('btnDeleteSummon').onclick = deleteCurrentSummon;
+    document.querySelectorAll('.tab-btn').forEach(b => b.style.display = '');
+    document.getElementById('spellsSubBtn').style.display = 'block';
+    document.getElementById('btn-sub-passive').style.display = 'block';
     
     switchSub(localStorage.getItem('activeCombatSub') || 'c-general');
     switchSubSub(localStorage.getItem('activeAbilSub') || 'a-active');
@@ -1007,7 +1240,11 @@ function loadCurrentSheet() {
     if(data.hp !== undefined && !document.getElementById('hp_curr').value) document.getElementById('hp_curr').value = data.hp;
     if(data.mp !== undefined && !document.getElementById('mp_curr').value) document.getElementById('mp_curr').value = data.mp;
     if(data.init !== undefined && !document.getElementById('init_temp').value) document.getElementById('init_temp').value = data.init;
-    if(!document.getElementById('size_category').value) document.getElementById('size_category').value = data.size || 'Medium';
+    if(!document.getElementById('size_category').value) document.getElementById('size_category').value = data.size || data.size_category || 'Medium';
+    if(!document.getElementById('ar_melee_ability').value) document.getElementById('ar_melee_ability').value = 'str';
+    if(!document.getElementById('ar_ranged_ability').value) document.getElementById('ar_ranged_ability').value = 'dex';
+    if(!document.getElementById('ar_touch_ability').value) document.getElementById('ar_touch_ability').value = 'str';
+    if(!document.getElementById('ar_ranged_touch_ability').value) document.getElementById('ar_ranged_touch_ability').value = 'dex';
     document.querySelectorAll('textarea.live-field').forEach(tx => { autoExpand(tx); tx.addEventListener('input', () => autoExpand(tx)); });
     
     renderWeapons(); renderSpells(); renderAbilities('active'); renderAbilities('passive'); renderAbilities('feat'); renderItems();
@@ -1254,24 +1491,92 @@ function renderWeapons() {
     });
 }
 
+
+function spellLevelToNumber(level){
+    const map = { "Cantrip":0, "0":0, "1st":1, "2nd":2, "3rd":3, "4th":4, "5th":5, "6th":6, "7th":7, "8th":8, "9th":9 };
+    if(level in map) return map[level];
+    const n = Number(level);
+    return Number.isFinite(n) ? Math.max(0, Math.trunc(n)) : 0;
+}
+function spellLevelLabel(levelNum){
+    if(levelNum === 0) return 'Cantrip';
+    return `${levelNum}${levelNum === 1 ? 'st' : levelNum === 2 ? 'nd' : levelNum === 3 ? 'rd' : 'th'}`;
+}
+function getSpellDcBaseValue(){
+    const raw = String(document.getElementById('spell_dc_base')?.value || '').trim().toLowerCase();
+    if(!raw) return null;
+    if(['str','dex','con','int','wis','cha'].includes(raw)) return getMod(raw);
+    const parsed = Number(raw.replace(/[^0-9+\-\.]/g, ''));
+    return Number.isFinite(parsed) ? parsed : null;
+}
+function spellHeaderFormula(levelNum){
+    const base = getSpellDcBaseValue();
+    return base === null ? 'DC Total' : `DC ${10 + base + levelNum}`;
+}
+function isSpellGroupOpen(levelNum){
+    const key = `spellGroupOpen:${levelNum}`;
+    const saved = localStorage.getItem(key);
+    return saved === null ? true : saved === '1';
+}
+function toggleSpellGroup(levelNum){
+    const next = !isSpellGroupOpen(levelNum);
+    localStorage.setItem(`spellGroupOpen:${levelNum}`, next ? '1' : '0');
+    renderSpells();
+}
+
 function renderSpells() {
     const data = getActiveData().spells || [];
-    const sorted = [...data].sort((a,b) => { const map = { "Cantrip":0, "1st":1, "2nd":2, "3rd":3, "4th":4, "5th":5, "6th":6, "7th":7, "8th":8, "9th":9 }; return (map[a.lvl]||0)-(map[b.lvl]||0); });
-    const container = document.getElementById('spellList'); container.innerHTML = '';
-    sorted.forEach((s) => {
-        const idx = data.indexOf(s);
-        const div = document.createElement('div'); div.className = 'list-row';
-        let linkHtml = s.link ? `<a class="btn-link-small" href="${s.link}" target="_blank" onclick="event.stopPropagation()">Link</a>` : '';
-        const actionType = s.type || "Standard";
-        
-        div.innerHTML = `<div class="row-content active-ability-layout" onclick="openView('spell',${idx})">
-            <span class="active-name">[${s.lvl||'-'}] ${s.name||'New Spell'}</span>
-            <span class="active-type">${actionType}</span>
-        </div>
-        <div class="row-actions">${linkHtml}<button class="btn-edit" onclick="openEditor('spell',${idx})">Edit</button></div>`;
-        container.appendChild(div);
-    });
+    const container = document.getElementById('spellList');
+    if(!container) return;
+    container.innerHTML = '';
+
+    for(let levelNum = 0; levelNum <= 9; levelNum++) {
+        const items = data
+            .filter(spell => spellLevelToNumber(spell?.lvl) === levelNum)
+            .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
+
+        const wrap = document.createElement('div');
+        wrap.className = 'spell-level-group';
+        const open = isSpellGroupOpen(levelNum);
+        const levelName = spellLevelLabel(levelNum);
+        wrap.innerHTML = `
+          <button type="button" class="spell-level-head" data-spell-level="${levelNum}" aria-expanded="${open ? 'true' : 'false'}" onclick="toggleSpellGroup(${levelNum})">
+            <span class="spell-level-head-main">
+              <span class="spell-level-name">${levelName}:</span>
+              <span class="spell-level-dc">${spellHeaderFormula(levelNum)}</span>
+              <span class="spell-level-toggle" aria-hidden="true">${open ? '▾' : '▸'}</span>
+            </span>
+          </button>
+          <div class="spell-level-body" ${open ? '' : 'hidden'}></div>
+        `;
+        const bodyEl = wrap.querySelector('.spell-level-body');
+
+        if(!items.length) {
+            const empty = document.createElement('div');
+            empty.className = 'spell-level-empty';
+            empty.textContent = `No ${levelName} spells yet.`;
+            bodyEl.appendChild(empty);
+        }
+
+        items.forEach((s) => {
+            const idx = data.indexOf(s);
+            const div = document.createElement('div');
+            div.className = 'list-row spell-row';
+            const linkHtml = s.link ? `<a class="spell-link-btn" href="${s.link}" target="_blank" onclick="event.stopPropagation()">Link</a>` : '';
+            const actionType = s.type || 'Standard';
+            div.innerHTML = `
+              <div class="row-content active-ability-layout" onclick="openView('spell',${idx})">
+                  <span class="active-name">${s.name||'New Spell'}</span>
+                  <span class="spell-action-chip">${actionType}</span>
+              </div>
+              <div class="row-actions">${linkHtml}<button type="button" class="btn-edit" onclick="openEditor('spell',${idx})">Edit</button></div>`;
+            bodyEl.appendChild(div);
+        });
+
+        container.appendChild(wrap);
+    }
 }
+
 
 // DRAG AND DROP LOGIC
 let dragSrcIndex = null;
@@ -1502,21 +1807,116 @@ function populateViewModal(type, item) {
     document.getElementById('viewTitle').textContent = item.name || "Unnamed";
     const body = document.getElementById('viewBody'); body.innerHTML = '';
     document.getElementById('viewModal').style.display = 'flex';
-    const add = (l, t) => { if(t){ body.innerHTML += `<div class="view-label">${l}</div><div class="view-text">${t}</div>`; } };
-    
+    const add = (l, t) => { if(t !== undefined && t !== null && String(t).trim() !== ''){ body.innerHTML += `<div class="view-label">${l}</div><div class="view-text">${t}</div>`; } };
+
     if(type === 'weapon' && item.attrs) {
         body.innerHTML += `<div class="view-label">Attributes</div>`;
         item.attrs.forEach(a => body.innerHTML += `<div class="view-attr-block">${a.name}: ${a.val}</div>`);
     }
-    // Updated Spell View: Hides explicit Level text, keeps Link button if exists
-    if(type === 'spell') { 
-        if(item.link) body.innerHTML += `<a href="${item.link}" target="_blank" class="btn-link-small" style="margin-bottom:15px; display:inline-block;">Open Link</a>`; 
+    if(type === 'spell') {
+        const esc = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+        const nl2br = (value) => esc(value).replace(/\n/g, '<br>');
+        const asText = (value, fallback = '—') => {
+            const text = String(value ?? '').trim();
+            return text ? text : fallback;
+        };
+        const spellLevelNum = (lvl) => {
+            const raw = String(lvl || 'Cantrip').trim().toLowerCase();
+            if(!raw || raw.includes('cantrip')) return 0;
+            const match = raw.match(/\d+/);
+            return match ? Number(match[0]) || 0 : 0;
+        };
+        const spellDcValue = (() => {
+            const abilityKey = String(document.getElementById('spell_dc_base')?.value || '').trim().toLowerCase();
+            if(!abilityKey) return '';
+            const scoreEl = document.getElementById(abilityKey);
+            if(!scoreEl) return '';
+            const mod = (typeof modFor === 'function') ? modFor(abilityKey) : Math.floor((Number(scoreEl.value || 0) - 10) / 2);
+            return String(10 + mod + spellLevelNum(item.lvl));
+        })();
+        const tag = (label, value) => `<div class="spell-view-tag"><span class="spell-tag-label">${esc(label)}</span><span class="spell-tag-value">${esc(asText(value))}</span></div>`;
+        body.innerHTML = `
+          <div class="spell-view-shell">
+            <div class="spell-view-top">
+              <div class="spell-view-subtitle">
+                ${item.link ? `<a class="spell-link-btn" href="${esc(item.link)}" target="_blank">Open Link</a>` : '<span></span>'}
+                <span class="spell-action-chip">${esc(asText(item.type, 'Standard'))}</span>
+              </div>
+            </div>
+            <div class="spell-view-section-grid">
+              <div class="spell-view-section">
+                <h4>Core</h4>
+                <div class="spell-view-tag-grid">
+                  ${tag('Level', item.lvl || 'Cantrip')}
+                  ${tag('Action Type', item.type || 'Standard')}
+                </div>
+              </div>
+              <div class="spell-view-section">
+                <h4>Targeting</h4>
+                <div class="spell-view-tag-grid">
+                  ${tag('Range', item.range)}
+                  ${tag('Target', item.target)}
+                  ${tag('Duration', item.duration)}
+                </div>
+              </div>
+              <div class="spell-view-section">
+                <h4>Combat</h4>
+                <div class="spell-view-tag-grid">
+                  ${tag('Attack Type', item.attack_type)}
+                  ${tag('Saving Throw', item.saving_throw)}
+                  ${tag('DC', spellDcValue)}
+                  ${tag('Spell Resistance', item.spell_resist)}
+                </div>
+              </div>
+              <div class="spell-view-section">
+                <h4>Extra</h4>
+                <div class="spell-view-tag-grid">
+                  ${tag('School', item.school)}
+                </div>
+              </div>
+              ${String(item.desc ?? '').trim() ? `<div class="spell-view-section spell-view-wide"><h4>Description</h4><div class="spell-view-copy">${nl2br(item.desc)}</div></div>` : ''}
+              ${String(item.at_higher_lvls ?? item.at_higher ?? '').trim() ? `<div class="spell-view-section spell-view-wide"><h4>At Higher Levels</h4><div class="spell-view-copy">${nl2br(item.at_higher_lvls ?? item.at_higher)}</div></div>` : ''}
+              ${String(item.gm_notes ?? '').trim() ? `<div class="spell-view-section spell-view-wide"><h4 style="color:#ff8e8e;">GM Notes</h4><div class="spell-view-copy">${nl2br(item.gm_notes)}</div></div>` : ''}
+            </div>
+          </div>`;
+        return;
     }
     if(type === 'item') { if(item.tags) add("Type", item.tags); add("Amount", String(getItemAmount(item))); if(item.cost) add("Cost", item.cost); add("Slot", String(getItemSlot(item))); add("Location", item.equipped ? 'Equipped' : 'Storage'); }
     add("Description", item.desc);
 }
 
 let currentEditContext = null;
+
+
+const simpleConfirmModal = document.getElementById('simpleConfirmModal');
+const simpleConfirmText = document.getElementById('simpleConfirmText');
+const simpleConfirmTitle = document.getElementById('simpleConfirmTitle');
+const simpleConfirmOk = document.getElementById('simpleConfirmOk');
+const simpleConfirmCancel = document.getElementById('simpleConfirmCancel');
+const simpleConfirmClose = document.getElementById('simpleConfirmClose');
+let simpleConfirmResolver = null;
+function closeSimpleConfirm(result = false) {
+  if (simpleConfirmResolver) {
+    const resolve = simpleConfirmResolver;
+    simpleConfirmResolver = null;
+    simpleConfirmModal.style.display = 'none';
+    resolve(result);
+  } else {
+    simpleConfirmModal.style.display = 'none';
+  }
+}
+function openSimpleConfirm(message, okLabel = 'Delete', title = 'Confirm') {
+  simpleConfirmTitle.textContent = title;
+  simpleConfirmText.textContent = message;
+  simpleConfirmOk.textContent = okLabel;
+  simpleConfirmModal.style.display = 'flex';
+  return new Promise(resolve => { simpleConfirmResolver = resolve; });
+}
+simpleConfirmOk.onclick = () => closeSimpleConfirm(true);
+simpleConfirmCancel.onclick = () => closeSimpleConfirm(false);
+simpleConfirmClose.onclick = () => closeSimpleConfirm(false);
+simpleConfirmModal.addEventListener('click', (e) => { if (e.target === simpleConfirmModal) closeSimpleConfirm(false); });
+
 const modal = document.getElementById('editorModal');
 const modalBody = document.getElementById('modalBody');
 
@@ -1537,11 +1937,18 @@ function populateEditorModal(type, item, index, col) {
         btn.onclick=()=>{ if(!item.attrs) item.attrs=[]; item.attrs.push({name:'',val:''}); addAttrRow(attrC, item.attrs[item.attrs.length-1], item.attrs.length-1); saveDataOnly(); };
         modalBody.appendChild(btn);
     }
-    // Updated Spell Editor with Action Type
-    if(type === 'spell') { 
-        createSelect('Level', item.lvl, 'lvl', ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"]); 
+    // Stable spell editor with extended metadata
+    if(type === 'spell') {
+        createSelect('Level', item.lvl, 'lvl', ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"]);
         createSelect('Action Type', item.type, 'type', ["Standard","Move","Swift","Full","Round","Minute","10 Min","Free","Immediate","Reaction"]);
-        createInput('Link URL', item.link, 'link'); 
+        createSelect('Attack Type', item.attack_type || 'None', 'attack_type', ["None","Touch","Ranged Touch"]);
+        createInput('Saving Throw', item.saving_throw, 'saving_throw');
+        createSelect('Spell Resistance', item.spell_resist || 'No', 'spell_resist', ["No","Yes","Yes Harmless","Yes Object"]);
+        createInput('School', item.school, 'school');
+        createInput('Target', item.target, 'target');
+        createInput('Duration', item.duration, 'duration');
+        createInput('Link URL', item.link, 'link');
+        createTextArea('At Higher Levels', item.at_higher_lvls, 'at_higher_lvls');
     }
     if(type === 'active') {
         // ADDED 'Other' to this list
@@ -1571,7 +1978,7 @@ function populateEditorModal(type, item, index, col) {
 
 function createInput(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const i=document.createElement('input'); i.value=v||''; i.oninput=e=>updateCurrentItem(k,e.target.value); modalBody.appendChild(lb); modalBody.appendChild(i); }
 function createTextArea(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const t=document.createElement('textarea'); t.value=v||''; setTimeout(()=>autoExpand(t),0); t.oninput=e=>{autoExpand(t); updateCurrentItem(k,e.target.value)}; modalBody.appendChild(lb); modalBody.appendChild(t); }
-function createSelect(l, v, k, ops) { const lb=document.createElement('label'); lb.textContent=l; const s=document.createElement('select'); ops.forEach(o=>{const op=document.createElement('option'); op.text=o; op.value=o; if(o===v) op.selected=true; s.appendChild(op)}); s.onchange=e=>updateCurrentItem(k,e.target.value); modalBody.appendChild(lb); modalBody.appendChild(s); }
+function createSelect(l, v, k, ops) { const lb=document.createElement('label'); lb.textContent=l; const s=document.createElement('select'); ops.forEach(o=>{const op=document.createElement('option'); op.text=o; op.value=o; if(o===v) op.selected=true; s.appendChild(op)}); s.onchange=e=>{ updateCurrentItem(k,e.target.value); if(currentEditContext && currentEditContext.type === 'item') populateEditorModal('item', getActiveData().items[currentEditContext.index], currentEditContext.index, 'items'); }; modalBody.appendChild(lb); modalBody.appendChild(s); }
 function createCheckbox(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const w=document.createElement('div'); w.style.cssText='display:flex; align-items:center; gap:10px;'; const i=document.createElement('input'); i.type='checkbox'; i.checked=!!v; i.style.width='18px'; i.style.height='18px'; i.onchange=e=>updateCurrentItem(k,e.target.checked); w.appendChild(i); modalBody.appendChild(lb); modalBody.appendChild(w); }
 function addAttrRow(c, d, i) {
     const r=document.createElement('div'); r.className='attr-row';
@@ -1585,7 +1992,7 @@ function updateCurrentItem(k, v) {
     const item = getActiveData()[currentEditContext.col][currentEditContext.index];
     item[k] = v;
     if(k==='link') { const b=document.getElementById('modalLinkBtn'); b.href=v; b.style.display=v?'inline-block':'none'; }
-    if(['name','lvl','tags','type','u_curr','u_max','amount','slot','equipped'].includes(k)) refreshList(currentEditContext.type);
+    if(['name','lvl','tags','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','amount','slot','equipped'].includes(k)) refreshList(currentEditContext.type);
     saveDataOnly();
 }
 window.closeModal = () => { modal.style.display='none'; refreshList(currentEditContext.type); };
@@ -1594,7 +2001,7 @@ function refreshList(t) { if(t==='weapon') renderWeapons(); else if(t==='spell')
 window.addNewItem = (t) => {
     const d = getActiveData();
     let n={name:''}, c='';
-    if(t==='weapon'){c='weapons';n.mod='STR';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;} else if(t==='passive')c='passiveAbilities'; else if(t==='feat')c='feats'; else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
+    if(t==='weapon'){c='weapons';n.mod='STR';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';n.attack_type='None';n.spell_resist='No';n.saving_throw='';n.school='';n.target='';n.duration='';n.at_higher_lvls='';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;} else if(t==='passive')c='passiveAbilities'; else if(t==='feat')c='feats'; else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
     if(!d[c]) d[c]=[]; d[c].push(n);
     saveDataOnly(); refreshList(t); openEditor(t, d[c].length-1);
 };
@@ -1603,52 +2010,101 @@ function scrapeCurrentSheet() {
     const p = {};
     document.querySelectorAll('.live-field').forEach(el => p[el.id] = el.value);
     p.skills = [];
-    document.querySelectorAll('#skillsTableBody tr').forEach(r => { 
+    document.querySelectorAll('#skillsTableBody tr').forEach(r => {
         const sub = r.querySelector('.skill-custom-input') ? r.querySelector('.skill-custom-input').value : null;
-        p.skills.push({ cs: r.querySelector('.skill-cs').checked, temp: Number(r.querySelector('.skill-temp').value)||0, lvl: Number(r.querySelector('.skill-ranks').value)||0, subName: sub }); 
+        p.skills.push({ cs: r.querySelector('.skill-cs').checked, temp: Number(r.querySelector('.skill-temp').value)||0, lvl: Number(r.querySelector('.skill-ranks').value)||0, subName: sub });
     });
     const m = getActiveData();
-    p.weapons=m.weapons||[]; p.spells=m.spells||[]; p.activeAbilities=(m.activeAbilities||[]).filter(a => !(a && (a.isLimitBreak || String(a.name || '').trim().toLowerCase() === 'limit break'))); p.passiveAbilities=m.passiveAbilities||[]; p.feats=m.feats||[];
-    p.items = currentSummonId ? (m.items||[]) : (fullData.items||[]);
+    p.weapons = m.weapons || [];
+    p.spells = m.spells || [];
+    p.activeAbilities = (m.activeAbilities || []).filter(a => !(a && (a.isLimitBreak || String(a.name || '').trim().toLowerCase() === 'limit break')));
+    p.passiveAbilities = m.passiveAbilities || [];
+    p.feats = m.feats || [];
+    p.items = m.items || [];
     p.slot_cap = fullData.slot_cap || 20;
     return p;
 }
 
 function saveDataOnly() { save(); }
 function save(force=false) {
-    if(isRemoteUpdate && !force) return;
-    document.getElementById('statusDot').className = 'status-dot'; clearTimeout(saveTimeout);
+    if (isRemoteUpdate && !force) return;
+    if (!currentSummonId) return;
+    document.getElementById('statusDot').className = 'status-dot';
+    clearTimeout(saveTimeout);
     saveTimeout = setTimeout(async () => {
-        const cur = scrapeCurrentSheet();
-        if(currentSummonId) { cur.id = currentSummonId; const i = fullData.summons.findIndex(s=>s.id===currentSummonId); if(i>=0) fullData.summons[i]=cur; }
-        else { const sb = fullData.summons; fullData = { ...cur, summons: sb, items: cur.items }; }
-        await setDoc(doc(db,'users',currentUser.uid,'sheet','character'), fullData);
-        document.getElementById('statusDot').classList.add('live'); if(!force) updateSummonMenu();
+        const cur = sanitizeCharacterDoc({ ...fullData, ...scrapeCurrentSheet(), updatedAt: new Date() }, fullData.charName || 'New Character');
+        fullData = cur;
+        await setDoc(doc(db, 'users', currentUser.uid, 'characters', currentSummonId), cur);
+        document.getElementById('statusDot').classList.add('live');
+        if (!force) updateSummonMenu();
     }, 1000);
 }
 
 window.createNewSummon = async () => {
-    const newId = 'sum_' + Date.now();
-    if(!fullData.summons) fullData.summons = [];
-    fullData.summons.push({ id: newId, charName: 'New Summon', summons: [] });
-    currentSummonId = newId; save(true); loadCurrentSheet(); updateSummonMenu();
+    if (!currentUser) return;
+    const nextIndex = (characterSheets?.length || 0) + 1;
+    const newName = `New Character ${nextIndex}`;
+    try {
+        const newData = createBlankCharacterData(newName);
+        const ref = await addDoc(collection(db, 'users', currentUser.uid, 'characters'), newData);
+        try { await setDoc(doc(db, 'users', currentUser.uid), { charactersMigrated: true }, { merge: true }); } catch (e) { console.warn('Could not set charactersMigrated flag', e); }
+        currentSummonId = ref.id;
+        fullData = sanitizeCharacterDoc({ id: ref.id, ...newData }, newName);
+        showNoCharacterState(false);
+        loadCurrentSheet();
+        updateSummonMenu();
+        document.getElementById('summonMenu').classList.remove('show');
+    } catch (err) {
+        console.error('Error adding character', err);
+        alert('Error adding character: ' + (err?.message || err));
+    }
 }
 window.deleteCurrentSummon = async () => {
-    if(!confirm("Delete this Summon?")) return;
-    fullData.summons = fullData.summons.filter(s => s.id !== currentSummonId);
-    currentSummonId = null; save(true); loadCurrentSheet(); updateSummonMenu();
+    if (!currentSummonId) return;
+    const currentName = fullData.charName || 'this character';
+    if (!(await openSimpleConfirm(`Delete "${currentName}"?`, 'Delete', 'Delete Character'))) return;
+    const deleteId = currentSummonId;
+    const remaining = characterSheets.filter(s => s.id !== deleteId);
+    currentSummonId = remaining[0]?.id || null;
+    await setDoc(doc(db, 'users', currentUser.uid), { charactersMigrated: true }, { merge: true });
+    await deleteDoc(doc(db, 'users', currentUser.uid, 'characters', deleteId));
+    if (!remaining.length) {
+        showNoCharacterState(true);
+    }
+    document.getElementById('summonMenu').classList.remove('show');
 }
 function updateSummonMenu() {
     const fab = document.getElementById('summonFab');
-    if(fullData.summons && fullData.summons.length > 0) { fab.style.display = 'flex'; } else { fab.style.display = 'none'; document.getElementById('summonMenu').classList.remove('show'); }
-    const m = document.getElementById('summonMenu'); m.innerHTML = '';
-    const main = document.createElement('button'); main.className = `summon-opt ${currentSummonId===null?'active':''}`; main.textContent = fullData.charName || "Main Character"; main.onclick=()=>{currentSummonId=null;loadCurrentSheet();m.classList.remove('show')}; m.appendChild(main);
-    fullData.summons.forEach(s => {
-        const b = document.createElement('button'); b.className = `summon-opt ${currentSummonId===s.id?'active':''}`; b.textContent = s.charName || "Unnamed"; b.onclick=()=>{currentSummonId=s.id;loadCurrentSheet();m.classList.remove('show')}; m.appendChild(b);
+    const m = document.getElementById('summonMenu');
+    const deleteBtn = document.getElementById('btnDeleteSummon');
+    const list = sortCharacterSheets(characterSheets);
+    fab.style.display = list.length ? 'flex' : 'none';
+    if (deleteBtn) deleteBtn.style.display = list.length ? 'block' : 'none';
+    if (!list.length) {
+        m.classList.remove('show');
+        m.innerHTML = '';
+        return;
+    }
+    m.innerHTML = '';
+    list.forEach(char => {
+        const b = document.createElement('button');
+        b.className = `summon-opt ${currentSummonId === char.id ? 'active' : ''}`;
+        b.textContent = char.charName || 'Unnamed Character';
+        b.onclick = () => {
+            currentSummonId = char.id;
+            fullData = sanitizeCharacterDoc(char, char.charName || 'New Character');
+            showNoCharacterState(false);
+            loadCurrentSheet();
+            m.classList.remove('show');
+        };
+        m.appendChild(b);
     });
 }
 
 const fab = document.getElementById('summonFab'); const menu = document.getElementById('summonMenu');
+const addCharacterBtn = document.getElementById('btnAddSummon'); if(addCharacterBtn) addCharacterBtn.textContent = '+ Add Character';
+const createFirstCharacterBtn = document.getElementById('btnCreateFirstCharacter'); if(createFirstCharacterBtn) createFirstCharacterBtn.onclick = createNewSummon;
+const deleteCharacterBtn = document.getElementById('btnDeleteSummon'); if(deleteCharacterBtn) deleteCharacterBtn.textContent = 'Delete Character';
 fab.onclick = (e) => {
     if(fab.dataset.dragging === "true") return;
     const r = fab.getBoundingClientRect();
@@ -1771,11 +2227,17 @@ function bindCriticalFieldPersistence() {
   });
 }
 
+const SPELL_DC_TRIGGER_FIELDS = new Set(['spell_dc_base','str','dex','con','int','wis','cha']);
+function refreshSpellDcDisplays(fieldId) {
+  if (!SPELL_DC_TRIGGER_FIELDS.has(fieldId)) return;
+  if (typeof renderSpells === 'function') renderSpells();
+}
+
 window.toggleHeartStats = () => document.getElementById('heartModalContainer').classList.toggle('active-heart-modal');
 window.viewCollection = (url) => { document.getElementById('modalImg').src = url; document.getElementById('imageModal').style.display = 'flex'; };
-document.body.addEventListener('input', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(); } });
-document.body.addEventListener('change', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(true); } });
-document.body.addEventListener('focusout', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(true); } });
+document.body.addEventListener('input', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(e.target.id); save(); } });
+document.body.addEventListener('change', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(e.target.id); save(true); } });
+document.body.addEventListener('focusout', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(e.target.id); save(true); } });
 const skillsBodyEl = document.getElementById('skillsTableBody');
 if(skillsBodyEl && skillsBodyEl.dataset.delegateBound !== '1') {
   skillsBodyEl.dataset.delegateBound = '1';
@@ -1792,7 +2254,7 @@ if(skillsBodyEl && skillsBodyEl.dataset.delegateBound !== '1') {
   });
 }
 
-window.addEventListener('DOMContentLoaded', () => { ['ac_view_mode','ar_view_mode'].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('change', () => { renderSelectedCombatDisplays(); save(true); }); }); ['hp_curr','hp_temp','hp_max','mp_curr','mp_temp','mp_max','str','dex','con','int','wis','cha'].forEach(id => { const el = document.getElementById(id); if(!el) return; el.addEventListener('input', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(); }); el.addEventListener('change', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(true); }); el.addEventListener('blur', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); save(true); }); }); });
+window.addEventListener('DOMContentLoaded', () => { ['ac_view_mode','ar_view_mode'].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('change', () => { renderSelectedCombatDisplays(); save(true); }); }); ['hp_curr','hp_temp','hp_max','mp_curr','mp_temp','mp_max','str','dex','con','int','wis','cha'].forEach(id => { const el = document.getElementById(id); if(!el) return; el.addEventListener('input', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); save(); }); el.addEventListener('change', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); save(true); }); el.addEventListener('blur', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); save(true); }); }); const spellDcBaseEl = document.getElementById('spell_dc_base'); if(spellDcBaseEl){ spellDcBaseEl.addEventListener('input', () => { refreshSpellDcDisplays('spell_dc_base'); }); spellDcBaseEl.addEventListener('change', () => { refreshSpellDcDisplays('spell_dc_base'); }); } });
 window.addEventListener('beforeunload', () => { try { if(typeof save === 'function') save(true); } catch(e) {} });
 window.addEventListener('load', () => { if(typeof refreshCombatUi === 'function') { setTimeout(() => { refreshCombatUi(); renderAbilityDrawerScores(); }, 150); } else { setTimeout(renderAbilityDrawerScores, 150); } });
 
@@ -1835,12 +2297,16 @@ function computeDerivedStats() {
   const ac = 10 + dex + sizeMod + numVal('ac_armor') + numVal('ac_natural') + numVal('ac_deflect') + numVal('ac_dodge') + numVal('ac_temp');
   const touch = 10 + dex + sizeMod + numVal('ac_deflect') + numVal('ac_dodge') + numVal('touch_temp');
   const flat = 10 + sizeMod + numVal('ac_armor') + numVal('ac_natural') + numVal('ac_deflect') + numVal('flat_temp');
+  const meleeAbility = attackAbilityMod('ar_melee_ability', 'str');
+  const rangedAbility = attackAbilityMod('ar_ranged_ability', 'dex');
+  const touchAbility = attackAbilityMod('ar_touch_ability', 'str');
+  const rangedTouchAbility = attackAbilityMod('ar_ranged_touch_ability', 'dex');
   const cmd = 10 + str + dex + sizeSpecial + numVal('cmd_temp');
-  const melee = numVal('bab') + str + sizeMod + numVal('ar_melee_temp');
-  const ranged = numVal('bab') + dex + sizeMod + numVal('ar_ranged_temp');
-  const touchAttack = numVal('bab') + str + sizeMod + numVal('ar_touch_temp');
-  const rangedTouchAttack = numVal('bab') + dex + sizeMod + numVal('ar_ranged_touch_temp');
-  const cmb = numVal('bab') + str + dex + sizeSpecial + numVal('cmb_temp');
+  const melee = babTotal + meleeAbility + sizeMod + numVal('ar_melee_temp');
+  const ranged = babTotal + rangedAbility + sizeMod + numVal('ar_ranged_temp');
+  const touchAttack = babTotal + touchAbility + sizeMod + numVal('ar_touch_temp');
+  const rangedTouchAttack = babTotal + rangedTouchAbility + sizeMod + numVal('ar_ranged_touch_temp');
+  const cmb = babTotal + str + dex + sizeSpecial + numVal('cmb_temp');
   const fort = con + numVal('fort_base') + numVal('fort_enhance') + numVal('fort_temp');
   const ref = dex + numVal('ref_base') + numVal('ref_enhance') + numVal('ref_temp');
   const will = wis + numVal('will_base') + numVal('will_enhance') + numVal('will_temp');
@@ -1866,6 +2332,21 @@ function selectField(label,id, options) {
   const opts = options.map(opt => { const value = typeof opt === 'string' ? opt : opt.name; return `<option value="${value}" ${value===current?'selected':''}>${value}</option>`; }).join('');
   return `<div class="mini-field" style="min-width:140px;"><label>${label}</label><select data-stat-field="${id}">${opts}</select></div>`;
 }
+
+function getAttackAbility(id, fallback='str') {
+  const raw = String(document.getElementById(id)?.value || '').toLowerCase();
+  return (raw === 'str' || raw === 'dex') ? raw : fallback;
+}
+function attackAbilityMod(id, fallback='str') {
+  return modFor(getAttackAbility(id, fallback));
+}
+function attackAbilityField(label, id, fallback='str') {
+  const current = getAttackAbility(id, fallback);
+  return `<div class="mini-field" style="min-width:120px;"><label>${label}</label><select data-stat-field="${id}"><option value="str" ${current==='str'?'selected':''}>STR</option><option value="dex" ${current==='dex'?'selected':''}>DEX</option></select></div>`;
+}
+function signedAttackTotal(val) {
+  return val >= 0 ? `+${val}` : `${val}`;
+}
 window.openStatEdit = (section) => {
   const body = document.getElementById('statEditBody'); const title = document.getElementById('statEditTitle'); if(!body) return;
   let html = '';
@@ -1877,20 +2358,44 @@ window.openStatEdit = (section) => {
     <div class="formula-line"><strong>Touch AC</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Deflect','ac_deflect')}${statField('Dodge','ac_dodge')}${statField('Temp','touch_temp')}<div class="total-pill">${10 + modFor('dex') + numVal('size_mod') + numVal('ac_deflect') + numVal('ac_dodge') + numVal('touch_temp')}</div></div></div>
     <div class="formula-line"><strong>Flat-Footed</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Armor','ac_armor')}${statField('Natural','ac_natural')}${statField('Deflect','ac_deflect')}${statField('Temp','flat_temp')}<div class="total-pill">${10 + numVal('size_mod') + numVal('ac_armor') + numVal('ac_natural') + numVal('ac_deflect') + numVal('flat_temp')}</div></div></div>
     <div class="formula-line"><strong>CMD</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>STR</label><input value="${modFor('str')}" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_special')?.value||0}" readonly class="graybase"></div>${statField('Temp','cmd_temp')}<div class="total-pill">${document.getElementById('cmd_total')?.value||10}</div></div></div>`; }
-  if(section === 'ar') { title.textContent = 'Edit Attack Rolls'; html = `
-    <div class="formula-line"><strong>Melee</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${document.getElementById('bab')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>STR</label><input value="${modFor('str')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Temp','ar_melee_temp')}<div class="total-pill">${(numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_melee_temp'))>=0?`+${numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_melee_temp')}`:`${numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_melee_temp')}`}</div></div></div>
-    <div class="formula-line"><strong>Ranged</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${document.getElementById('bab')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Temp','ar_ranged_temp')}<div class="total-pill">${(numVal('bab') + modFor('dex') + numVal('size_mod') + numVal('ar_ranged_temp'))>=0?`+${numVal('bab') + modFor('dex') + numVal('size_mod') + numVal('ar_ranged_temp')}`:`${numVal('bab') + modFor('dex') + numVal('size_mod') + numVal('ar_ranged_temp')}`}</div></div></div>
-    <div class="formula-line"><strong>Touch</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${document.getElementById('bab')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>STR</label><input value="${modFor('str')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Temp','ar_touch_temp')}<div class="total-pill">${(numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_touch_temp'))>=0?`+${numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_touch_temp')}`:`${numVal('bab') + modFor('str') + numVal('size_mod') + numVal('ar_touch_temp')}`}</div></div></div>
-    <div class="formula-line"><strong>Ranged Touch</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${document.getElementById('bab')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Temp','ar_ranged_touch_temp')}<div class="total-pill">${(numVal('bab') + modFor('dex') + numVal('size_mod') + numVal('ar_ranged_touch_temp'))>=0?`+${numVal('bab') + modFor('dex') + numVal('size_mod') + numVal('ar_ranged_touch_temp')}`:`${numVal('bab') + modFor('dex') + numVal('size_mod') + numVal('ar_ranged_touch_temp')}`}</div></div></div>
-    <div class="formula-line"><strong>CMB</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${document.getElementById('bab')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>STR</label><input value="${modFor('str')}" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_special')?.value||0}" readonly class="graybase"></div>${statField('Temp','cmb_temp')}<div class="total-pill">${document.getElementById('cmb')?.value ? ((Number(document.getElementById('cmb').value)>=0?`+${document.getElementById('cmb').value}`:`${document.getElementById('cmb').value}`)) : '+0'}</div></div></div>`; }
+  if(section === 'ar') { 
+    title.textContent = 'Edit Attack Rolls'; 
+    const babShown = numVal('bab') + numVal('bab_temp');
+    const sizeShown = numVal('size_mod');
+    const meleeAbilityKey = getAttackAbility('ar_melee_ability', 'str');
+    const rangedAbilityKey = getAttackAbility('ar_ranged_ability', 'dex');
+    const touchAbilityKey = getAttackAbility('ar_touch_ability', 'str');
+    const rangedTouchAbilityKey = getAttackAbility('ar_ranged_touch_ability', 'dex');
+    const meleeTotal = babShown + modFor(meleeAbilityKey) + sizeShown + numVal('ar_melee_temp');
+    const rangedTotal = babShown + modFor(rangedAbilityKey) + sizeShown + numVal('ar_ranged_temp');
+    const touchTotal = babShown + modFor(touchAbilityKey) + sizeShown + numVal('ar_touch_temp');
+    const rangedTouchTotal = babShown + modFor(rangedTouchAbilityKey) + sizeShown + numVal('ar_ranged_touch_temp');
+    const cmbTotal = babShown + modFor('str') + modFor('dex') + numVal('size_special') + numVal('cmb_temp');
+    html = `
+    <div class="formula-line"><strong>Melee</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${babShown}" readonly class="graybase"></div>${attackAbilityField('Ability','ar_melee_ability','str')}<div class="mini-field"><label>Ability Mod</label><input value="${modFor(meleeAbilityKey)}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${sizeShown}" readonly class="graybase"></div>${statField('Temp','ar_melee_temp')}<div class="total-pill">${signedAttackTotal(meleeTotal)}</div></div></div>
+    <div class="formula-line"><strong>Ranged</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${babShown}" readonly class="graybase"></div>${attackAbilityField('Ability','ar_ranged_ability','dex')}<div class="mini-field"><label>Ability Mod</label><input value="${modFor(rangedAbilityKey)}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${sizeShown}" readonly class="graybase"></div>${statField('Temp','ar_ranged_temp')}<div class="total-pill">${signedAttackTotal(rangedTotal)}</div></div></div>
+    <div class="formula-line"><strong>Touch</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${babShown}" readonly class="graybase"></div>${attackAbilityField('Ability','ar_touch_ability','str')}<div class="mini-field"><label>Ability Mod</label><input value="${modFor(touchAbilityKey)}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${sizeShown}" readonly class="graybase"></div>${statField('Temp','ar_touch_temp')}<div class="total-pill">${signedAttackTotal(touchTotal)}</div></div></div>
+    <div class="formula-line"><strong>Ranged Touch</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${babShown}" readonly class="graybase"></div>${attackAbilityField('Ability','ar_ranged_touch_ability','dex')}<div class="mini-field"><label>Ability Mod</label><input value="${modFor(rangedTouchAbilityKey)}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${sizeShown}" readonly class="graybase"></div>${statField('Temp','ar_ranged_touch_temp')}<div class="total-pill">${signedAttackTotal(rangedTouchTotal)}</div></div></div>
+    <div class="formula-line"><strong>CMB</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${babShown}" readonly class="graybase"></div><div class="mini-field"><label>STR</label><input value="${modFor('str')}" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_special')?.value||0}" readonly class="graybase"></div>${statField('Temp','cmb_temp')}<div class="total-pill">${signedAttackTotal(cmbTotal)}</div></div></div>`; 
+  }
   if(section === 'saves') { title.textContent = 'Edit Saves'; html = `
     <div class="formula-line"><strong>Fortitude</strong><div class="formula-parts"><div class="mini-field"><label>CON</label><input value="${modFor('con')}" readonly class="graybase"></div>${statField('Base','fort_base')}${statField('Enhance','fort_enhance')}${statField('Temp','fort_temp')}<div class="total-pill">${document.getElementById('fort_bonus')?.value>=0?`+${document.getElementById('fort_bonus').value}`:`${document.getElementById('fort_bonus').value||0}`}</div></div></div>
     <div class="formula-line"><strong>Reflex</strong><div class="formula-parts"><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div>${statField('Base','ref_base')}${statField('Enhance','ref_enhance')}${statField('Temp','ref_temp')}<div class="total-pill">${document.getElementById('ref_bonus')?.value>=0?`+${document.getElementById('ref_bonus').value}`:`${document.getElementById('ref_bonus').value||0}`}</div></div></div>
     <div class="formula-line"><strong>Will</strong><div class="formula-parts"><div class="mini-field"><label>WIS</label><input value="${modFor('wis')}" readonly class="graybase"></div>${statField('Base','will_base')}${statField('Enhance','will_enhance')}${statField('Temp','will_temp')}<div class="total-pill">${document.getElementById('will_bonus')?.value>=0?`+${document.getElementById('will_bonus').value}`:`${document.getElementById('will_bonus').value||0}`}</div></div></div>`; }
   body.innerHTML = html;
   body.querySelectorAll('[data-stat-field]').forEach(el => {
-    el.addEventListener('input', () => { const id = el.dataset.statField; setVal(id, el.value); if(id === 'size_category') syncSizeFields(); computeDerivedStats(); save(); });
-    el.addEventListener('change', () => { const id = el.dataset.statField; setVal(id, el.value); if(id === 'size_category') { syncSizeFields(); openStatEdit(section); } computeDerivedStats(); save(); });
+    const applyStatField = () => {
+      const id = el.dataset.statField;
+      setVal(id, el.value);
+      if(id === 'size_category') syncSizeFields();
+      computeDerivedStats();
+      save();
+      if(section === 'ar' || section === 'ac' || section === 'saves' || section === 'general' || id === 'size_category' || id === 'init_temp' || id === 'bab' || id === 'bab_temp' || id === 'speed' || id === 'speed_temp' || /_ability$/.test(id) || /_(base|enhance|temp)$/.test(id)) {
+        openStatEdit(section);
+      }
+    };
+    el.addEventListener('input', applyStatField);
+    el.addEventListener('change', applyStatField);
   });
   document.getElementById('statEditOverlay').style.display = 'flex';
 };
