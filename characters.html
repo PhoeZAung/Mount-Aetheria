@@ -101,7 +101,7 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
 .active-name { font-weight: bold; color: var(--accent); flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .active-type { color: #888; font-size: 12px; margin-right: 10px; white-space: nowrap; }
 
-.list-row-title { font-weight: bold; color: var(--accent); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.list-row-title { font-weight: bold; color: var(--accent); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width:0; flex:1; }
 .list-row-meta { color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* --- INLINE INPUTS FOR ABILITIES --- */
@@ -590,6 +590,115 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
   .spell-view-tag-grid{grid-template-columns:1fr;}
 }
 
+
+
+/* --- Chat + Roll Pass 1 --- */
+.chat-icon-btn,.roll-icon-btn,.mini-action-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:999px;border:1px solid #575757;background:#151515;color:var(--accent);cursor:pointer;font-size:14px;line-height:1;flex:0 0 auto;}
+.chat-icon-btn:hover,.roll-icon-btn:hover,.mini-action-btn:hover{background:var(--accent);color:#000;border-color:var(--accent);}
+#spell_dc_base{max-width:96px;margin:0 auto;text-align:center;text-align-last:center;}
+.editor-section-title{margin:14px 0 8px;padding:8px 10px;border:1px solid #3a3a3a;border-radius:8px;background:#171717;color:var(--accent);font-family:'Uncial Antiqua',serif;font-size:15px;text-align:center;}
+.spell-view-titlebar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.spell-view-titleline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.spell-view-titleline h3{margin:0;color:var(--accent);font-family:'Uncial Antiqua',serif;font-size:22px;line-height:1.2;}
+.spell-view-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.section-action-head{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.section-action-head h3{margin:0;}
+.section-action-buttons{display:flex;align-items:center;gap:8px;}
+.roll-menu{position:fixed;z-index:5400;display:none;flex-direction:column;min-width:150px;background:#151515;border:1px solid var(--accent);border-radius:12px;box-shadow:0 16px 32px rgba(0,0,0,0.42);padding:8px;gap:6px;}
+.roll-menu.show{display:flex;}
+.roll-menu button{background:#232323;border:1px solid #3d3d3d;color:#f2f2f2;padding:8px 10px;border-radius:10px;cursor:pointer;text-align:left;font-weight:700;}
+.roll-menu button:hover{background:var(--accent);color:#000;border-color:var(--accent);}
+.ability-roll-link,.skill-name-cell.rollable{cursor:pointer;transition:color .18s ease, text-shadow .18s ease;}
+.ability-roll-link:hover,.skill-name-cell.rollable:hover{color:var(--accent);text-shadow:0 0 10px rgba(255,204,102,.15);}
+.initiative-roll-link{cursor:pointer;}
+.initiative-roll-link:hover{color:var(--accent);text-shadow:0 0 10px rgba(255,204,102,.15);}
+.weapon-meta-line{color:#888;font-size:12px;display:flex;flex-wrap:wrap;gap:8px;}
+.weapon-meta-chip{display:inline-flex;align-items:center;gap:4px;background:#181818;border:1px solid #343434;border-radius:999px;padding:2px 8px;}
+.weapon-row-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+.weapon-ammo-inline{display:inline-flex;align-items:center;gap:6px;background:#181818;border:1px solid #393939;border-radius:999px;padding:2px 8px;color:#d4d4d4;font-size:12px;}
+.weapon-ammo-inline input{width:56px;padding:4px 6px;text-align:center;background:#0f0f0f;border:1px solid #4a4a4a;border-radius:8px;color:var(--accent);}
+.weapon-view-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.weapon-view-card{background:#171717;border:1px solid #343434;border-radius:10px;padding:10px;}
+.weapon-view-card h4{margin:0 0 8px;text-align:left;font-size:14px;}
+.weapon-view-stat{display:flex;justify-content:space-between;gap:12px;padding:4px 0;border-top:1px solid #2d2d2d;}
+.weapon-view-stat:first-child{border-top:none;padding-top:0;}
+.weapon-view-stat span:last-child{color:var(--accent);font-weight:700;text-align:right;}
+@media (max-width: 700px){.weapon-view-grid{grid-template-columns:1fr;}.weapon-row-actions{justify-content:flex-start;}}
+.local-chat-panel{position:fixed;right:16px;bottom:16px;width:min(380px,calc(100vw - 24px));height:min(68vh,560px);background:#111;border:1px solid rgba(255,204,102,.75);border-radius:18px;box-shadow:0 18px 40px rgba(0,0,0,.46);z-index:5200;display:flex;flex-direction:column;transform:translateY(20px);opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease;overflow:hidden;}
+.local-chat-panel.open{transform:translateY(0);opacity:1;pointer-events:auto;}
+.local-chat-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);z-index:5190;display:none;}
+.local-chat-backdrop.show{display:block;}
+.local-chat-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:#0a0a0a;border-bottom:1px solid #2f2f2f;}
+.local-chat-title-wrap{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.local-chat-title{font-family:'Uncial Antiqua',serif;color:var(--accent);font-size:16px;line-height:1.1;}
+.local-chat-subtitle{color:#8e8e8e;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;}
+.local-chat-header-actions{display:flex;align-items:center;gap:8px;}
+.local-chat-target{min-width:112px;max-width:135px;padding:6px 28px 6px 10px;border-radius:999px;background:#181818;color:#f4f4f4;border:1px solid #3d3d3d;font-size:12px;font-weight:700;}
+.local-chat-log{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,#111 0%,#101010 100%);}
+.local-chat-empty{margin:auto 0;border:1px dashed #3b3b3b;border-radius:14px;padding:16px 14px;text-align:center;color:#8e8e8e;background:#141414;}
+.chat-entry{border:1px solid #2f2f2f;border-radius:14px;background:#171717;padding:12px 12px 10px;display:flex;flex-direction:column;gap:8px;}
+.chat-entry.system{background:#141414;border-style:dashed;}
+.chat-entry-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.chat-entry-title{font-weight:800;color:var(--accent);font-size:15px;line-height:1.15;}
+.chat-entry-stamp{font-size:10px;color:#8e8e8e;white-space:nowrap;}
+.chat-entry-subtitle{font-size:12px;color:#d2d2d2;}
+.chat-entry-lines,.chat-entry-results{display:flex;flex-direction:column;gap:6px;}
+.chat-entry-line{font-size:12px;color:#d9d9d9;line-height:1.45;}
+.chat-entry-line.quote{padding-left:10px;border-left:2px solid rgba(255,204,102,.42);color:#ececec;}
+.chat-entry-result{background:#0f0f0f;border:1px solid #2e2e2e;border-radius:12px;padding:8px 10px;font-size:13px;color:#fff;line-height:1.4;}
+.chat-entry-result strong{color:var(--accent);}
+.local-chat-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-top:1px solid #2f2f2f;background:#0b0b0b;}
+.local-chat-footer-note{color:#8a8a8a;font-size:11px;}
+.local-chat-actions{display:flex;align-items:center;gap:8px;}
+.local-chat-actions button{background:#232323;border:1px solid #3c3c3c;color:#f1f1f1;padding:7px 12px;border-radius:999px;cursor:pointer;font-weight:700;}
+.local-chat-actions button:hover{background:var(--accent);color:#000;border-color:var(--accent);}
+.local-chat-fab{position:fixed;left:16px;bottom:18px;width:56px;height:56px;border-radius:50%;border:1px solid rgba(255,204,102,.9);background:#111;color:var(--accent);font-size:22px;box-shadow:0 14px 30px rgba(0,0,0,.38);z-index:5180;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.local-chat-fab:hover{background:var(--accent);color:#000;}
+
+/* --- Floating menu + shared panels --- */
+.local-chat-backdrop{display:none !important;pointer-events:none !important;background:transparent !important;}
+.panel-menu-shell{position:fixed;left:16px;bottom:18px;z-index:5185;display:flex;flex-direction:column;align-items:flex-start;gap:10px;}
+.panel-menu-fab{width:56px;height:56px;border-radius:50%;border:1px solid rgba(255,204,102,.9);background:#111;color:var(--accent);font-size:24px;box-shadow:0 14px 30px rgba(0,0,0,.38);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.panel-menu-fab:hover{background:var(--accent);color:#000;}
+.panel-menu-popover{display:none;flex-direction:column;gap:8px;padding:10px;background:#111;border:1px solid rgba(255,204,102,.85);border-radius:16px;box-shadow:0 14px 30px rgba(0,0,0,.34);}
+.panel-menu-popover.open{display:flex;}
+.panel-menu-btn{background:#1b1b1b;border:1px solid #3b3b3b;color:#f3f3f3;padding:9px 12px;border-radius:12px;cursor:pointer;font-weight:700;min-width:140px;text-align:left;}
+.panel-menu-btn:hover{background:var(--accent);color:#000;border-color:var(--accent);}
+.chat-view-toggle{display:flex;align-items:center;gap:6px;}
+.chat-view-btn{background:#171717;border:1px solid #343434;color:#dadada;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;}
+.chat-view-btn.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.floating-panel-open{pointer-events:auto;}
+.character-quick-panel{position:fixed;left:24px;top:84px;width:min(340px,calc(100vw - 24px));max-height:min(72vh,520px);background:#111;border:1px solid rgba(255,204,102,.75);border-radius:18px;box-shadow:0 18px 40px rgba(0,0,0,.46);z-index:5200;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateY(20px);transition:opacity .22s ease,transform .22s ease;overflow:hidden;}
+.character-quick-panel.open{transform:translateY(0);opacity:1;pointer-events:auto;}
+.character-quick-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:#0a0a0a;border-bottom:1px solid #2f2f2f;cursor:move;user-select:none;}
+.character-quick-header h3{margin:0;font-size:16px;color:var(--accent);}
+.character-quick-body{padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,#111 0%,#101010 100%);}
+.character-quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.character-quick-card{background:#171717;border:1px solid #2f2f2f;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:5px;}
+.character-quick-card.full{grid-column:1 / -1;}
+.character-quick-card small{font-size:11px;color:#8d8d8d;text-transform:uppercase;letter-spacing:.04em;}
+.character-quick-card span{font-size:14px;color:#fff;word-break:break-word;}
+.local-chat-header{cursor:move;user-select:none;}
+.local-chat-header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+.local-chat-panel{left:24px;top:146px;right:auto;bottom:auto;max-height:min(72vh,560px);}
+.local-chat-footer-note strong{color:var(--accent);}
+@media (max-width:700px){
+  .panel-menu-shell{left:auto;right:16px;bottom:84px;}
+  .local-chat-panel{left:8px;right:8px;top:auto;bottom:8px;width:auto;}
+  .character-quick-panel{left:8px;right:8px;top:76px;width:auto;}
+  .panel-menu-btn{min-width:132px;}
+}
+
+@media (max-width:700px){
+  .section-action-head{justify-content:space-between;}
+  .local-chat-panel{right:8px;left:8px;bottom:8px;width:auto;height:min(62vh,520px);border-radius:18px 18px 12px 12px;}
+  .local-chat-title{font-size:15px;}
+  .local-chat-subtitle{max-width:120px;}
+  .local-chat-header{padding:11px 12px;}
+  .local-chat-target{min-width:98px;max-width:112px;font-size:11px;}
+  .local-chat-fab{left:auto;right:16px;bottom:84px;width:52px;height:52px;}
+}
+
 </style>
 
 <style>
@@ -597,8 +706,7 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 #simpleConfirmModal .confirm-text { color:#ddd; line-height:1.5; }
 #simpleConfirmModal .confirm-actions { display:flex; gap:10px; justify-content:flex-end; padding:15px; border-top:1px solid #333; background:#1a1a1a; border-radius:0 0 8px 8px; }
 #simpleConfirmCancel { background:#333; color:#fff; border:1px solid #555; padding:10px 14px; border-radius:6px; cursor:pointer; font-weight:bold; }
-#simpleConfirmOk { background:#ff4444; color:#fff; border:none; padding:10px 14px; border-radius:6px; cursor:pointer; font-weight:bold; }
-</style>
+#simpleConfirmOk { background:#ff4444; color:#fff; border:none; padding:10px 14px; border-radius:6px; cursor:pointer; font-weight:bold; }</style>
 
 </head>
 <body>
@@ -666,13 +774,13 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
     <div class="bio-item"><label>Languages</label><input id="languages" class="live-field"></div>
     <div class="bio-item" style="grid-column: 1 / -1;"><label>Senses</label><input id="senses" class="live-field"></div>
   </div>
-  <div class="ability-heading-row"><h3>Ability Scores</h3><button id="abilityDrawerToggle" class="ability-float-toggle" type="button" onclick="toggleAbilityDrawer()" title="Open floating ability scores">🎲</button></div>
+  <div class="ability-heading-row"><h3>Ability Scores</h3></div>
   <div style="background:var(--panel); border-radius:8px; overflow:hidden;">
     <table style="width:100%; border-collapse:collapse; text-align:center;">
         <tr style="background:#000; color:#888; font-size:12px;"><th>Stat</th><th>Score</th><th>Mod</th></tr>
         <script>
             ['str','dex','con','int','wis','cha'].forEach(s => {
-                document.write(`<tr style="border-top:1px solid #333;"><td style="font-weight:bold; color:var(--accent); text-transform:uppercase;">${s}</td><td style="padding:8px;"><input type="number" id="${s}" class="live-field calc-trigger" style="text-align:center; background:#111; border:1px solid #444; color:#fff; border-radius:4px;"></td><td id="mod-${s}">+0</td></tr>`);
+                document.write(`<tr style="border-top:1px solid #333;"><td class="ability-roll-link" data-stat="${s}" onclick="sendAbilityCheck('${s}')" style="font-weight:bold; color:var(--accent); text-transform:uppercase;">${s}</td><td style="padding:8px;"><input type="number" id="${s}" class="live-field calc-trigger" style="text-align:center; background:#111; border:1px solid #444; color:#fff; border-radius:4px;"></td><td id="mod-${s}">+0</td></tr>`);
             });
         
 setTimeout(() => {
@@ -717,7 +825,7 @@ setTimeout(() => {
       </div>
       <div class="combat-row-main">
         <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Size:</span><div class="inline-value-wrap small"><span id="sizeDisplayMain" class="inline-value">Medium</span></div></div></div>
-        <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Initiative:</span><div class="inline-value-wrap"><span id="initDisplayMain" class="inline-value">+0</span></div></div></div>
+        <div class="stat-card compact"><div class="stat-head"><span class="stat-title ability-roll-link initiative-roll-link" onclick="sendInitiativeRoll()" title="Roll initiative to chat">Initiative:</span><div class="inline-value-wrap"><span id="initDisplayMain" class="inline-value">+0</span></div></div></div>
         <div class="stat-card compact"><div class="stat-head"><span class="stat-title">BAB:</span><div class="inline-value-wrap"><span id="babDisplayMain" class="inline-value">+0</span></div></div></div>
         <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Speed:</span><div class="inline-value-wrap"><span id="speedDisplayMain" class="inline-value">30</span></div></div></div><div class="stat-card compact toolbar-card"><div class="stat-head"><button class="mode-btn icon-only" id="editModeToggleCombat" type="button" title="Edit Mode" aria-label="Edit Mode" onclick="toggleEditMode()">✏️</button><button class="mode-btn icon-only general-edit-btn" id="generalEditCombatBtn" type="button" title="Edit Size / Initiative / BAB / Speed" aria-label="Edit General Stats" onclick="openStatEdit('general')">⚙️</button></div></div>
       </div>
@@ -735,9 +843,9 @@ setTimeout(() => {
   <div id="c-general" class="sub-group active">
     <div class="stat-display-grid">
       <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Armor Class</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('ac')">✎</button></div><select id="ac_view_mode" class="live-field select-display" onchange="handleDisplayModeChange()"><option value="ac">AC</option><option value="touch">Touch AC</option><option value="flat">Flat-Footed</option><option value="cmd">CMD</option></select><div class="inline-value-wrap" style="margin-top:10px;"><span id="acDisplayMain" class="inline-value">10</span></div></div>
-      <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Attack Roll</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('ar')">✎</button></div><select id="ar_view_mode" class="live-field select-display" onchange="handleDisplayModeChange()"><option value="melee" selected>Melee</option><option value="ranged">Ranged</option><option value="touch">Touch</option><option value="ranged_touch">Ranged Touch</option><option value="cmb">CMB</option></select><div class="inline-value-wrap" style="margin-top:10px;"><span id="arDisplayMain" class="inline-value">+0</span></div></div>
+      <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Attack Roll</span><div style="display:flex;align-items:center;gap:6px;"><button id="attackRollMenuBtn" class="roll-icon-btn" type="button" onclick="toggleAttackRollMenu(event)" title="Roll an attack">🎲</button><button class="edit-stat-btn" type="button" onclick="openStatEdit('ar')">✎</button></div></div><select id="ar_view_mode" class="live-field select-display" onchange="handleDisplayModeChange()"><option value="melee" selected>Melee</option><option value="ranged">Ranged</option><option value="touch">Touch</option><option value="ranged_touch">Ranged Touch</option><option value="cmb">CMB</option></select><div class="inline-value-wrap" style="margin-top:10px;"><span id="arDisplayMain" class="inline-value">+0</span></div></div>
     </div>
-    <h3>Saves</h3>
+    <div class="section-action-head"><h3>Saves</h3><div class="section-action-buttons"><button class="chat-icon-btn" type="button" onclick="sendSavesOverview()" title="Send save summary">💬</button><button id="saveRollMenuBtn" class="roll-icon-btn" type="button" onclick="toggleSaveRollMenu(event)" title="Roll a save">🎲</button></div></div>
     <div class="save-row-display">
       <div class="save-mini"><div class="stat-head"><span class="stat-title">Fort:</span><div class="inline-value-wrap small"><span id="fortDisplayMain" class="inline-value">+0</span></div><button class="edit-stat-btn" type="button" onclick="openStatEdit('saves')">✎</button></div></div>
       <div class="save-mini"><div class="stat-head"><span class="stat-title">Reflex:</span><div class="inline-value-wrap small"><span id="refDisplayMain" class="inline-value">+0</span></div><button class="edit-stat-btn" type="button" onclick="openStatEdit('saves')">✎</button></div></div>
@@ -775,7 +883,7 @@ setTimeout(() => {
 
   <div id="c-spells" class="sub-group" style="display:none">
       <h3>Spells</h3>
-      <div class="stat-box" style="margin-bottom:10px;"><label>Spell DC Base</label><select id="spell_dc_base" class="live-field"><option value="">Select Ability</option><option value="str">STR</option><option value="dex">DEX</option><option value="con">CON</option><option value="int">INT</option><option value="wis">WIS</option><option value="cha">CHA</option></select></div>
+      <div class="stat-box" style="margin-bottom:10px;"><label>Spell DC Base</label><select id="spell_dc_base" class="live-field"><option value="str">STR</option><option value="dex">DEX</option><option value="con">CON</option><option value="int" selected>INT</option><option value="wis">WIS</option><option value="cha">CHA</option></select></div>
       <div id="spellList"></div>
       <button class="btn-add" onclick="addNewItem('spell')">+ Add Spell</button>
   </div>
@@ -889,6 +997,68 @@ setTimeout(() => {
   </div>
 </div>
 
+
+<div id="saveRollMenu" class="roll-menu" aria-hidden="true">
+  <button type="button" onclick="rollSaveCheck('fort')">🎲 Roll Fortitude</button>
+  <button type="button" onclick="rollSaveCheck('ref')">🎲 Roll Reflex</button>
+  <button type="button" onclick="rollSaveCheck('will')">🎲 Roll Will</button>
+</div>
+<div id="attackRollMenu" class="roll-menu" aria-hidden="true">
+  <button type="button" onclick="rollAttackCheck('melee')">🎲 Roll Melee</button>
+  <button type="button" onclick="rollAttackCheck('ranged')">🎲 Roll Ranged</button>
+  <button type="button" onclick="rollAttackCheck('touch')">🎲 Roll Touch</button>
+  <button type="button" onclick="rollAttackCheck('ranged_touch')">🎲 Roll Ranged Touch</button>
+  <button type="button" onclick="rollAttackCheck('cmb')">🎲 Roll CMB</button>
+</div>
+<div id="localChatBackdrop" class="local-chat-backdrop" onclick="toggleLocalChat(false)"></div>
+<aside id="localChatPanel" class="local-chat-panel" aria-hidden="true">
+  <div id="localChatHeader" class="local-chat-header">
+    <div class="local-chat-title-wrap">
+      <div class="local-chat-title">Chat &amp; Rolls</div>
+      <div id="localChatSubtitle" class="local-chat-subtitle">Current sheet output</div>
+    </div>
+    <div class="local-chat-header-actions">
+      <div class="chat-view-toggle">
+        <button id="chatViewLocalBtn" class="chat-view-btn" type="button" onclick="setChatView('local')">Local</button>
+        <button id="chatViewGlobalBtn" class="chat-view-btn" type="button" onclick="setChatView('global')">Global</button>
+      </div>
+      <select id="chatTargetSelect" class="local-chat-target" onchange="persistChatTarget()">
+        <option value="discord">Discord</option>
+        <option value="local">Local</option>
+        <option value="global">Global</option>
+        <option value="owlbear">Owlbear</option>
+      </select>
+      <button class="chat-icon-btn" type="button" onclick="toggleLocalChat(false)" title="Close chat">×</button>
+    </div>
+  </div>
+  <div id="localChatLog" class="local-chat-log"></div>
+  <div class="local-chat-footer">
+    <div class="local-chat-footer-note"><strong>Target:</strong> Discord by default. Open this window manually from the menu.</div>
+    <div class="local-chat-actions">
+      <button id="localChatClearBtn" type="button" onclick="clearLocalChat()">Clear</button>
+      <button type="button" onclick="toggleLocalChat(false)">Close</button>
+    </div>
+  </div>
+</aside>
+
+<div id="characterQuickPanel" class="character-quick-panel" aria-hidden="true">
+  <div id="characterQuickPanelHandle" class="character-quick-header">
+    <h3>Character</h3>
+    <button class="ability-drawer-close" type="button" onclick="toggleCharacterQuickPanel(false)" title="Close">&times;</button>
+  </div>
+  <div id="characterQuickPanelBody" class="character-quick-body"></div>
+</div>
+<div id="panelMenuShell" class="panel-menu-shell">
+  <div id="panelMenuPopover" class="panel-menu-popover" aria-hidden="true">
+    <button class="panel-menu-btn" type="button" onclick="toggleLocalChat(true); togglePanelMenu(false)">💬 Chat</button>
+    <button class="panel-menu-btn" type="button" onclick="toggleCharacterQuickPanel(); togglePanelMenu(false)">🪪 Character</button>
+    <button class="panel-menu-btn" type="button" onclick="toggleAbilityDrawer(); togglePanelMenu(false)">🎲 Ability Scores</button>
+  </div>
+  <button id="panelMenuFab" class="panel-menu-fab" type="button" onclick="togglePanelMenu()" title="Open floating panels">☰</button>
+</div>
+
+
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -969,6 +1139,7 @@ function sanitizeCharacterDoc(raw = {}, fallbackName = 'New Character') {
     delete data.summons;
     if (!Array.isArray(data.items)) data.items = [];
     if (!Array.isArray(data.weapons)) data.weapons = [];
+    data.weapons = data.weapons.map(weapon => normalizeWeaponData(weapon));
     if (!Array.isArray(data.spells)) data.spells = [];
     if (!Array.isArray(data.activeAbilities)) data.activeAbilities = [];
     if (!Array.isArray(data.passiveAbilities)) data.passiveAbilities = [];
@@ -1052,6 +1223,7 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById('mobileAuthLink').textContent = "My Account"; document.getElementById('mobileAuthLink').href = "account.html";
         initSkills();
         startSync();
+        subscribeGlobalChat();
     } else { window.location.href = "signin.html"; }
 });
 
@@ -1472,7 +1644,8 @@ window.openView = (type, index) => {
     if(isDragging) return;
     const data = getActiveData();
     let col = type === 'active' ? 'activeAbilities' : type === 'passive' ? 'passiveAbilities' : type === 'feat' ? 'feats' : type + 's';
-    populateViewModal(type, data[col][index]);
+    currentViewContext = { type, index, col };
+    populateViewModal(type, data[col][index], index);
 };
 
 window.openEditor = (type, index) => {
@@ -1481,13 +1654,75 @@ window.openEditor = (type, index) => {
     populateEditorModal(type, data[col][index], index, col);
 };
 
+function normalizeWeaponData(item = {}) {
+    const attrs = Array.isArray(item.attrs) ? item.attrs : [];
+    const attrMap = {};
+    attrs.forEach(entry => {
+        const key = String(entry?.name || '').trim().toLowerCase();
+        if (!key) return;
+        attrMap[key] = entry?.val ?? '';
+    });
+    const pickAttr = (...keys) => {
+        for (const key of keys) {
+            const hit = attrMap[String(key).trim().toLowerCase()];
+            if (hit !== undefined && hit !== null && String(hit).trim() !== '') return hit;
+        }
+        return '';
+    };
+    const normalized = {
+        ...item,
+        name: item.name || '',
+        ability_mod: item.ability_mod || item.mod || pickAttr('ability modifier', 'modifier', 'mod') || 'STR',
+        attack_misc: item.attack_misc ?? pickAttr('attack misc', 'misc', 'attack bonus', 'attack'),
+        damage: item.damage ?? pickAttr('damage', 'dmg'),
+        type: item.type ?? pickAttr('type'),
+        crit_range: item.crit_range || pickAttr('crit range', 'critical range') || '20',
+        crit_mult: item.crit_mult || item.crit_dmg || pickAttr('crit dmg', 'crit mult', 'crit multiplier') || 'x2',
+        range: item.range ?? pickAttr('range'),
+        ammo: item.ammo ?? pickAttr('ammo')
+    };
+    normalized.mod = normalized.ability_mod;
+    return normalized;
+}
+
+function signedNumberText(value) {
+    const num = Number(value);
+    if (!Number.isFinite(num) || num === 0) return '+0';
+    return num > 0 ? `+${num}` : `${num}`;
+}
+
+function shouldShowWeaponAmmo(value) {
+    return value !== undefined && value !== null && String(value).trim() !== '';
+}
+
 function renderWeapons() {
     const data = getActiveData().weapons || [];
-    document.getElementById('weaponList').innerHTML = '';
+    const list = document.getElementById('weaponList');
+    if (!list) return;
+    list.innerHTML = '';
     data.forEach((w, i) => {
-        const div = document.createElement('div'); div.className = 'list-row';
-        div.innerHTML = `<div class="row-content" onclick="openView('weapon',${i})"><span class="list-row-title">${w.name||'New Weapon'}</span><span class="list-row-meta">${w.mod||''}</span></div><div class="row-actions"><button class="btn-edit" onclick="openEditor('weapon',${i})">Edit</button></div>`;
-        document.getElementById('weaponList').appendChild(div);
+        const weapon = normalizeWeaponData(w);
+        Object.assign(w, weapon);
+        const div = document.createElement('div');
+        div.className = 'list-row';
+        const typeMeta = weapon.type ? `<span class="weapon-meta-chip">${chatEscapeHtml(weapon.type)}</span>` : '';
+        const dmgMeta = weapon.damage ? `<span class="weapon-meta-chip">${chatEscapeHtml(weapon.damage)}</span>` : '';
+        const rangeMeta = weapon.range ? `<span class="weapon-meta-chip">Range ${chatEscapeHtml(String(weapon.range))}</span>` : '';
+        const ammoHtml = shouldShowWeaponAmmo(weapon.ammo)
+          ? `<label class="weapon-ammo-inline" title="Current ammo"><span>Ammo</span><input type="number" value="${chatEscapeHtml(String(weapon.ammo))}" onchange="event.stopPropagation(); updateWeaponAmmo(${i}, this.value)" onclick="event.stopPropagation()"></label>`
+          : '';
+        div.innerHTML = `
+          <div class="row-content" onclick="openView('weapon',${i})">
+            <span class="list-row-title">${chatEscapeHtml(weapon.name || 'New Weapon')}</span>
+            <span class="weapon-meta-line">${typeMeta}${dmgMeta}${rangeMeta}</span>
+          </div>
+          <div class="row-actions weapon-row-actions">
+            <button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollWeaponAttack(${i})" title="Roll weapon attack">🎲</button>
+            <button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendWeaponCard(${i})" title="Send weapon to chat">💬</button>
+            ${ammoHtml}
+            <button class="btn-edit" onclick="event.stopPropagation(); openEditor('weapon',${i})">Edit</button>
+          </div>`;
+        list.appendChild(div);
     });
 }
 
@@ -1503,16 +1738,33 @@ function spellLevelLabel(levelNum){
     return `${levelNum}${levelNum === 1 ? 'st' : levelNum === 2 ? 'nd' : levelNum === 3 ? 'rd' : 'th'}`;
 }
 function getSpellDcBaseValue(){
-    const raw = String(document.getElementById('spell_dc_base')?.value || '').trim().toLowerCase();
-    if(!raw) return null;
+    const raw = String(document.getElementById('spell_dc_base')?.value || 'int').trim().toLowerCase();
     if(['str','dex','con','int','wis','cha'].includes(raw)) return getMod(raw);
     const parsed = Number(raw.replace(/[^0-9+\-\.]/g, ''));
-    return Number.isFinite(parsed) ? parsed : null;
+    return Number.isFinite(parsed) ? parsed : getMod('int');
+}
+function spellDcDisplayValue(spell){
+    return 10 + getSpellDcBaseValue() + spellLevelToNumber(spell?.lvl);
 }
 function spellHeaderFormula(levelNum){
-    const base = getSpellDcBaseValue();
-    return base === null ? 'DC Total' : `DC ${10 + base + levelNum}`;
+    return `DC ${10 + getSpellDcBaseValue() + levelNum}`;
 }
+function spellAttackMode(spell){
+    const raw = String(spell?.attack_type || '').trim().toLowerCase().replace(/\s+/g, '_');
+    if(raw === 'touch') return 'touch';
+    if(raw === 'ranged_touch') return 'ranged_touch';
+    return null;
+}
+function spellIsRollable(spell){
+    return !!spellAttackMode(spell) || String(spell?.damage || '').trim() !== '';
+}
+function spellAttackConfig(spell){
+    const mode = spellAttackMode(spell);
+    if(mode === 'touch') return { label: 'Touch', total: readNumericValue('ar_touch_total', 0) };
+    if(mode === 'ranged_touch') return { label: 'Ranged Touch', total: readNumericValue('ar_ranged_touch_total', 0) };
+    return null;
+}
+
 function isSpellGroupOpen(levelNum){
     const key = `spellGroupOpen:${levelNum}`;
     const saved = localStorage.getItem(key);
@@ -1563,13 +1815,17 @@ function renderSpells() {
             const div = document.createElement('div');
             div.className = 'list-row spell-row';
             const linkHtml = s.link ? `<a class="spell-link-btn" href="${s.link}" target="_blank" onclick="event.stopPropagation()">Link</a>` : '';
+            const rollHtml = spellIsRollable(s) ? `<button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollSpellAction(${idx})" title="Roll spell attack or damage">🎲</button>` : '';
+            const sendHtml = `<button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendSpellCard(${idx})" title="Send spell to chat">💬</button>`;
             const actionType = s.type || 'Standard';
             div.innerHTML = `
-              <div class="row-content active-ability-layout" onclick="openView('spell',${idx})">
-                  <span class="active-name">${s.name||'New Spell'}</span>
-                  <span class="spell-action-chip">${actionType}</span>
+              <div class="row-content" onclick="openView('spell',${idx})">
+                  <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                    <span class="list-row-title">${chatEscapeHtml(s.name||'New Spell')}</span>
+                    ${sendHtml}
+                  </div>
               </div>
-              <div class="row-actions">${linkHtml}<button type="button" class="btn-edit" onclick="openEditor('spell',${idx})">Edit</button></div>`;
+              <div class="row-actions">${rollHtml}<span class="spell-action-chip">${chatEscapeHtml(actionType)}</span>${linkHtml}<button type="button" class="btn-edit" onclick="event.stopPropagation(); openEditor('spell',${idx})">Edit</button></div>`;
             bodyEl.appendChild(div);
         });
 
@@ -1644,9 +1900,10 @@ function renderAbilities(subType) {
         
         const aDiv = document.createElement('div'); 
         aDiv.className = 'row-actions';
+        const sendBtnHtml = `<button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendAbilityCard('${subType}',${i})" title="Send to chat">💬</button>`;
         // Added linkHtml to the output below
         const editBtnHtml = (subType === 'active' && a.isLimitBreak) ? '' : `<button class="btn-edit" onclick="event.stopPropagation(); openEditor('${subType}',${i})">Edit</button>`;
-        aDiv.innerHTML = `${inputsHtml}${linkHtml}${editBtnHtml}`;
+        aDiv.innerHTML = `${inputsHtml}${sendBtnHtml}${linkHtml}${editBtnHtml}`;
         
         div.appendChild(cDiv); div.appendChild(aDiv); container.appendChild(div);
     });
@@ -1803,15 +2060,38 @@ window.renderItems = () => {
 };
 
 
-function populateViewModal(type, item) {
+function populateViewModal(type, item, index = -1) {
     document.getElementById('viewTitle').textContent = item.name || "Unnamed";
     const body = document.getElementById('viewBody'); body.innerHTML = '';
     document.getElementById('viewModal').style.display = 'flex';
     const add = (l, t) => { if(t !== undefined && t !== null && String(t).trim() !== ''){ body.innerHTML += `<div class="view-label">${l}</div><div class="view-text">${t}</div>`; } };
 
-    if(type === 'weapon' && item.attrs) {
-        body.innerHTML += `<div class="view-label">Attributes</div>`;
-        item.attrs.forEach(a => body.innerHTML += `<div class="view-attr-block">${a.name}: ${a.val}</div>`);
+    if(type === 'weapon') {
+        const weapon = normalizeWeaponData(item);
+        const esc = (value) => chatEscapeHtml(String(value ?? '—'));
+        const show = (value, fallback = '—') => {
+            const text = String(value ?? '').trim();
+            return text ? text : fallback;
+        };
+        body.innerHTML = `
+          <div class="weapon-view-grid">
+            <div class="weapon-view-card">
+              <h4>Core</h4>
+              <div class="weapon-view-stat"><span>Type</span><span>${esc(show(weapon.type))}</span></div>
+              <div class="weapon-view-stat"><span>Ability Modifier</span><span>${esc(show(String(weapon.ability_mod || 'STR').toUpperCase()))}</span></div>
+              <div class="weapon-view-stat"><span>Attack Misc</span><span>${esc(signedNumberText(Number(weapon.attack_misc || 0)))}</span></div>
+              <div class="weapon-view-stat"><span>Damage</span><span>${esc(show(weapon.damage))}</span></div>
+            </div>
+            <div class="weapon-view-card">
+              <h4>Combat</h4>
+              <div class="weapon-view-stat"><span>Crit Range</span><span>${esc(show(weapon.crit_range, '20'))}</span></div>
+              <div class="weapon-view-stat"><span>Crit Dmg</span><span>${esc(show(weapon.crit_mult, 'x2'))}</span></div>
+              <div class="weapon-view-stat"><span>Range</span><span>${esc(show(weapon.range))}</span></div>
+              ${shouldShowWeaponAmmo(weapon.ammo) ? `<div class="weapon-view-stat"><span>Ammo</span><span>${esc(String(weapon.ammo))}</span></div>` : ''}
+            </div>
+          </div>`;
+        add("Description", weapon.desc);
+        return;
     }
     if(type === 'spell') {
         const esc = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -1820,27 +2100,25 @@ function populateViewModal(type, item) {
             const text = String(value ?? '').trim();
             return text ? text : fallback;
         };
-        const spellLevelNum = (lvl) => {
-            const raw = String(lvl || 'Cantrip').trim().toLowerCase();
-            if(!raw || raw.includes('cantrip')) return 0;
-            const match = raw.match(/\d+/);
-            return match ? Number(match[0]) || 0 : 0;
-        };
-        const spellDcValue = (() => {
-            const abilityKey = String(document.getElementById('spell_dc_base')?.value || '').trim().toLowerCase();
-            if(!abilityKey) return '';
-            const scoreEl = document.getElementById(abilityKey);
-            if(!scoreEl) return '';
-            const mod = (typeof modFor === 'function') ? modFor(abilityKey) : Math.floor((Number(scoreEl.value || 0) - 10) / 2);
-            return String(10 + mod + spellLevelNum(item.lvl));
-        })();
+        const dcValue = spellDcDisplayValue(item);
         const tag = (label, value) => `<div class="spell-view-tag"><span class="spell-tag-label">${esc(label)}</span><span class="spell-tag-value">${esc(asText(value))}</span></div>`;
+        const canRoll = spellIsRollable(item);
         body.innerHTML = `
           <div class="spell-view-shell">
             <div class="spell-view-top">
+              <div class="spell-view-titlebar">
+                <div class="spell-view-titleline">
+                  <h3>${esc(asText(item.name, 'Unnamed Spell'))}</h3>
+                </div>
+                <div class="spell-view-actions">
+                  ${canRoll && index > -1 ? `<button class="roll-icon-btn" type="button" onclick="rollSpellAction(${index})" title="Roll spell">🎲</button>` : ''}
+                  ${index > -1 ? `<button class="chat-icon-btn" type="button" onclick="sendSpellCard(${index})" title="Send spell to chat">💬</button>` : ''}
+                  ${item.link ? `<a class="spell-link-btn" href="${esc(item.link)}" target="_blank">Open Link</a>` : ''}
+                </div>
+              </div>
               <div class="spell-view-subtitle">
-                ${item.link ? `<a class="spell-link-btn" href="${esc(item.link)}" target="_blank">Open Link</a>` : '<span></span>'}
                 <span class="spell-action-chip">${esc(asText(item.type, 'Standard'))}</span>
+                <span class="spell-action-chip">DC ${esc(String(dcValue))}</span>
               </div>
             </div>
             <div class="spell-view-section-grid">
@@ -1849,6 +2127,7 @@ function populateViewModal(type, item) {
                 <div class="spell-view-tag-grid">
                   ${tag('Level', item.lvl || 'Cantrip')}
                   ${tag('Action Type', item.type || 'Standard')}
+                  ${tag('School', item.school)}
                 </div>
               </div>
               <div class="spell-view-section">
@@ -1863,15 +2142,16 @@ function populateViewModal(type, item) {
                 <h4>Combat</h4>
                 <div class="spell-view-tag-grid">
                   ${tag('Attack Type', item.attack_type)}
+                  ${tag('Damage', item.damage)}
                   ${tag('Saving Throw', item.saving_throw)}
-                  ${tag('DC', spellDcValue)}
                   ${tag('Spell Resistance', item.spell_resist)}
                 </div>
               </div>
               <div class="spell-view-section">
                 <h4>Extra</h4>
                 <div class="spell-view-tag-grid">
-                  ${tag('School', item.school)}
+                  ${tag('DC', dcValue)}
+                  ${tag('Link', item.link ? 'Available' : '')}
                 </div>
               </div>
               ${String(item.desc ?? '').trim() ? `<div class="spell-view-section spell-view-wide"><h4>Description</h4><div class="spell-view-copy">${nl2br(item.desc)}</div></div>` : ''}
@@ -1881,11 +2161,47 @@ function populateViewModal(type, item) {
           </div>`;
         return;
     }
+    if(type === 'active' || type === 'passive' || type === 'feat') {
+        const esc = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+        const nl2br = (value) => esc(value).replace(/\n/g, '<br>');
+        const show = (value, fallback = '—') => {
+            const text = String(value ?? '').trim();
+            return text ? text : fallback;
+        };
+        const categoryLabel = type === 'active' ? 'Active Ability' : type === 'passive' ? 'Passive Ability' : 'Feat';
+        body.innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <div class="view-label">Category</div>
+                <div class="view-text" style="margin-bottom:0;">${esc(categoryLabel)}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                ${index > -1 ? `<button class="chat-icon-btn" type="button" onclick="sendAbilityCard('${type}',${index})" title="Send to chat">💬</button>` : ''}
+                ${item.link ? `<a class="spell-link-btn" href="${esc(item.link)}" target="_blank">Open Link</a>` : ''}
+              </div>
+            </div>
+            <div class="spell-view-section-grid">
+              <div class="spell-view-section">
+                <h4>Core</h4>
+                <div class="spell-view-tag-grid">
+                  <div class="spell-view-tag"><span class="spell-tag-label">Category</span><span class="spell-tag-value">${esc(categoryLabel)}</span></div>
+                  ${type === 'active' ? `<div class="spell-view-tag"><span class="spell-tag-label">Type</span><span class="spell-tag-value">${esc(show(item.type, 'Standard'))}</span></div>` : ''}
+                  ${type === 'active' ? `<div class="spell-view-tag"><span class="spell-tag-label">Uses</span><span class="spell-tag-value">${esc(`${item.u_curr ?? 0}/${item.u_max ?? 0}`)}</span></div>` : ''}
+                  ${item.link ? `<div class="spell-view-tag"><span class="spell-tag-label">Link</span><span class="spell-tag-value">Available</span></div>` : ''}
+                </div>
+              </div>
+              ${String(item.desc ?? '').trim() ? `<div class="spell-view-section spell-view-wide"><h4>Description</h4><div class="spell-view-copy">${nl2br(item.desc)}</div></div>` : ''}
+            </div>
+          </div>`;
+        return;
+    }
     if(type === 'item') { if(item.tags) add("Type", item.tags); add("Amount", String(getItemAmount(item))); if(item.cost) add("Cost", item.cost); add("Slot", String(getItemSlot(item))); add("Location", item.equipped ? 'Equipped' : 'Storage'); }
     add("Description", item.desc);
 }
 
 let currentEditContext = null;
+let currentViewContext = null;
 
 
 const simpleConfirmModal = document.getElementById('simpleConfirmModal');
@@ -1929,26 +2245,36 @@ function populateEditorModal(type, item, index, col) {
 
     createInput('Name', item.name, 'name');
     if(type === 'weapon') {
-        createSelect('Modifier', item.mod, 'mod', ['STR','DEX','CON','INT','WIS','CHA']);
-        const attrC = document.createElement('div'); 
-        modalBody.appendChild(document.createElement('label')).textContent = "Attributes"; modalBody.appendChild(attrC);
-        (item.attrs||[]).forEach((a,i) => addAttrRow(attrC, a, i));
-        const btn = document.createElement('button'); btn.className='btn-add'; btn.textContent='+ Add Attribute'; btn.style.fontSize='12px'; btn.style.padding='5px';
-        btn.onclick=()=>{ if(!item.attrs) item.attrs=[]; item.attrs.push({name:'',val:''}); addAttrRow(attrC, item.attrs[item.attrs.length-1], item.attrs.length-1); saveDataOnly(); };
-        modalBody.appendChild(btn);
+        const weapon = normalizeWeaponData(item);
+        Object.assign(item, weapon);
+        createInput('Type', weapon.type, 'type');
+        createSelect('Ability Modifier', weapon.ability_mod, 'ability_mod', ['STR','DEX','CON','INT','WIS','CHA']);
+        createInput('Attack Misc', weapon.attack_misc, 'attack_misc');
+        createInput('Damage', weapon.damage, 'damage');
+        createSelect('Crit Range', weapon.crit_range, 'crit_range', ['20','19-20','18-20','17-20','16-20','15-20','14-20','13-20','12-20','11-20','10-20','9-20','8-20','7-20','6-20','5-20','4-20','3-20','2-20']);
+        createSelect('Crit Dmg', weapon.crit_mult, 'crit_mult', ['x2','x3','x4']);
+        createInput('Range', weapon.range, 'range');
+        createInput('Ammo', weapon.ammo, 'ammo');
     }
-    // Stable spell editor with extended metadata
     if(type === 'spell') {
-        createSelect('Level', item.lvl, 'lvl', ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"]);
-        createSelect('Action Type', item.type, 'type', ["Standard","Move","Swift","Full","Round","Minute","10 Min","Free","Immediate","Reaction"]);
+        createEditorSection('Core');
+        createSelect('Level', item.lvl || 'Cantrip', 'lvl', ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"]);
+        createSelect('Action Type', item.type || 'Standard', 'type', ["Standard","Move","Swift","Full","Round","Minute","10 Min","Free","Immediate","Reaction"]);
+        createInput('School', item.school, 'school');
+
+        createEditorSection('Combat');
         createSelect('Attack Type', item.attack_type || 'None', 'attack_type', ["None","Touch","Ranged Touch"]);
+        createInput('Damage', item.damage, 'damage');
         createInput('Saving Throw', item.saving_throw, 'saving_throw');
         createSelect('Spell Resistance', item.spell_resist || 'No', 'spell_resist', ["No","Yes","Yes Harmless","Yes Object"]);
-        createInput('School', item.school, 'school');
+
+        createEditorSection('Targeting');
+        createInput('Range', item.range, 'range');
         createInput('Target', item.target, 'target');
         createInput('Duration', item.duration, 'duration');
+
+        createEditorSection('Extra');
         createInput('Link URL', item.link, 'link');
-        createTextArea('At Higher Levels', item.at_higher_lvls, 'at_higher_lvls');
     }
     if(type === 'active') {
         // ADDED 'Other' to this list
@@ -1968,7 +2294,14 @@ function populateEditorModal(type, item, index, col) {
         createInput('Slot', getItemSlot(item), 'slot');
         createCheckbox('Equipped', !!item.equipped, 'equipped');
     }
-    createTextArea('Description', item.desc, 'desc');
+    if(type === 'spell') {
+        createEditorSection('Description');
+        createTextArea('Description', item.desc, 'desc');
+        createEditorSection('At Higher Levels');
+        createTextArea('At Higher Levels', item.at_higher_lvls || item.at_higher, 'at_higher_lvls');
+    } else {
+        createTextArea('Description', item.desc, 'desc');
+    }
 
     const deleteBtn = document.getElementById('modalDeleteBtn');
     if(type === 'active' && item.isLimitBreak) { deleteBtn.style.display='none'; } else { deleteBtn.style.display='block'; }
@@ -1980,6 +2313,7 @@ function createInput(l, v, k) { const lb=document.createElement('label'); lb.tex
 function createTextArea(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const t=document.createElement('textarea'); t.value=v||''; setTimeout(()=>autoExpand(t),0); t.oninput=e=>{autoExpand(t); updateCurrentItem(k,e.target.value)}; modalBody.appendChild(lb); modalBody.appendChild(t); }
 function createSelect(l, v, k, ops) { const lb=document.createElement('label'); lb.textContent=l; const s=document.createElement('select'); ops.forEach(o=>{const op=document.createElement('option'); op.text=o; op.value=o; if(o===v) op.selected=true; s.appendChild(op)}); s.onchange=e=>{ updateCurrentItem(k,e.target.value); if(currentEditContext && currentEditContext.type === 'item') populateEditorModal('item', getActiveData().items[currentEditContext.index], currentEditContext.index, 'items'); }; modalBody.appendChild(lb); modalBody.appendChild(s); }
 function createCheckbox(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const w=document.createElement('div'); w.style.cssText='display:flex; align-items:center; gap:10px;'; const i=document.createElement('input'); i.type='checkbox'; i.checked=!!v; i.style.width='18px'; i.style.height='18px'; i.onchange=e=>updateCurrentItem(k,e.target.checked); w.appendChild(i); modalBody.appendChild(lb); modalBody.appendChild(w); }
+function createEditorSection(title) { const div = document.createElement('div'); div.className = 'editor-section-title'; div.textContent = title; modalBody.appendChild(div); }
 function addAttrRow(c, d, i) {
     const r=document.createElement('div'); r.className='attr-row';
     const n=document.createElement('input'); n.placeholder="Attr"; n.value=d.name||''; n.oninput=e=>{d.name=e.target.value; saveDataOnly()};
@@ -1992,7 +2326,8 @@ function updateCurrentItem(k, v) {
     const item = getActiveData()[currentEditContext.col][currentEditContext.index];
     item[k] = v;
     if(k==='link') { const b=document.getElementById('modalLinkBtn'); b.href=v; b.style.display=v?'inline-block':'none'; }
-    if(['name','lvl','tags','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','amount','slot','equipped'].includes(k)) refreshList(currentEditContext.type);
+    if(currentEditContext?.type === 'weapon' && k === 'ability_mod') item.mod = v;
+    if(['name','lvl','tags','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','amount','slot','equipped','ability_mod','attack_misc','damage','crit_range','crit_mult','range','ammo','link'].includes(k)) refreshList(currentEditContext.type);
     saveDataOnly();
 }
 window.closeModal = () => { modal.style.display='none'; refreshList(currentEditContext.type); };
@@ -2001,7 +2336,7 @@ function refreshList(t) { if(t==='weapon') renderWeapons(); else if(t==='spell')
 window.addNewItem = (t) => {
     const d = getActiveData();
     let n={name:''}, c='';
-    if(t==='weapon'){c='weapons';n.mod='STR';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';n.attack_type='None';n.spell_resist='No';n.saving_throw='';n.school='';n.target='';n.duration='';n.at_higher_lvls='';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;} else if(t==='passive')c='passiveAbilities'; else if(t==='feat')c='feats'; else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
+    if(t==='weapon'){c='weapons';n.mod='STR';n.ability_mod='STR';n.attack_misc='';n.damage='';n.type='';n.crit_range='20';n.crit_mult='x2';n.range='';n.ammo='';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';n.attack_type='None';n.spell_resist='No';n.saving_throw='';n.school='';n.target='';n.range='';n.duration='';n.damage='';n.at_higher_lvls='';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;} else if(t==='passive')c='passiveAbilities'; else if(t==='feat')c='feats'; else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
     if(!d[c]) d[c]=[]; d[c].push(n);
     saveDataOnly(); refreshList(t); openEditor(t, d[c].length-1);
 };
@@ -2160,6 +2495,7 @@ function initSkills() {
         bindSkillRowEvents(tr);
     });
     syncSkillStateAfterLoad();
+    if (typeof bindSkillRollTargets === 'function') bindSkillRollTargets(cont);
 }
 function getMod(id) { const v = document.getElementById(id).value; return v ? Math.floor((v-10)/2) : 0; }
 function updateCalcs() {
@@ -2407,6 +2743,975 @@ window.addNoteCard = () => {};
 function ensureLimitBreak() { return; }
 function updateLimitBreakState() { return; }
 
+
+
+/* --- Chat + Roll Pass 1 --- */
+const CHAT_TARGET_STORAGE_KEY = 'mountAetheriaChatTarget';
+const CHAT_LOG_STORAGE_PREFIX = 'mountAetheriaChatLog';
+let localChatMessages = [];
+let activeChatStorageKey = '';
+
+const CHAT_VIEW_STORAGE_KEY = 'mountAetheriaChatView';
+const GLOBAL_CHAT_COLLECTION = 'globalRollFeed';
+const CHAT_PANEL_STORAGE_KEY = 'mountAetheriaChatPanelState';
+const CHARACTER_PANEL_STORAGE_KEY = 'mountAetheriaCharacterQuickState';
+let currentChatView = (() => { try { return localStorage.getItem(CHAT_VIEW_STORAGE_KEY) || 'local'; } catch(_err) { return 'local'; } })();
+let globalChatMessages = [];
+let unsubscribeGlobalChat = null;
+function persistChatView(){ try { localStorage.setItem(CHAT_VIEW_STORAGE_KEY, currentChatView); } catch(_err) {} }
+function getPanelState(key){ try { return JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch(_err) { return {}; } }
+function setPanelState(key, state){ try { localStorage.setItem(key, JSON.stringify(state || {})); } catch(_err) {} }
+function clampFloatingPosition(panel, left, top, minTop = 58){
+  const width = panel?.offsetWidth || 340;
+  const height = panel?.offsetHeight || 420;
+  const maxLeft = Math.max(8, window.innerWidth - width - 8);
+  const maxTop = Math.max(minTop, window.innerHeight - height - 8);
+  return { left: Math.min(Math.max(8, Number.isFinite(left) ? left : maxLeft), maxLeft), top: Math.min(Math.max(minTop, Number.isFinite(top) ? top : minTop + 20), maxTop) };
+}
+function initDraggableFloatingPanel(panelId, handleId, storageKey, defaultFactory){
+  const panel = document.getElementById(panelId);
+  const handle = document.getElementById(handleId);
+  if(!panel || !handle || panel.dataset.dragReady === '1') return;
+  panel.dataset.dragReady = '1';
+  let dragging = false, pointerId = null, startX = 0, startY = 0, startLeft = 0, startTop = 0;
+  const move = (e) => {
+    if(!dragging || (pointerId !== null && e.pointerId !== pointerId)) return;
+    const pos = clampFloatingPosition(panel, startLeft + (e.clientX - startX), startTop + (e.clientY - startY), panelId === 'localChatPanel' ? 72 : 58);
+    panel.style.left = pos.left + 'px';
+    panel.style.top = pos.top + 'px';
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
+  };
+  const end = (e) => {
+    if(!dragging || (pointerId !== null && e.pointerId !== pointerId)) return;
+    dragging = false;
+    try { handle.releasePointerCapture?.(pointerId); } catch(_err) {}
+    pointerId = null;
+    const state = getPanelState(storageKey);
+    const pos = clampFloatingPosition(panel, parseFloat(panel.style.left), parseFloat(panel.style.top), panelId === 'localChatPanel' ? 72 : 58);
+    setPanelState(storageKey, { ...state, open: panel.classList.contains('open'), left: pos.left, top: pos.top });
+  };
+  handle.addEventListener('pointerdown', (e) => {
+    if(e.button !== undefined && e.button !== 0) return;
+    if(e.target.closest('button,select,input,textarea,a')) return;
+    if(!panel.classList.contains('open')) return;
+    dragging = true;
+    pointerId = e.pointerId ?? null;
+    startX = e.clientX; startY = e.clientY;
+    const rect = panel.getBoundingClientRect();
+    startLeft = rect.left; startTop = rect.top;
+    try { handle.setPointerCapture?.(pointerId); } catch(_err) {}
+    e.preventDefault();
+  });
+  window.addEventListener('pointermove', move, { passive:true });
+  window.addEventListener('pointerup', end, { passive:true });
+  window.addEventListener('pointercancel', end, { passive:true });
+  window.addEventListener('resize', () => {
+    const state = getPanelState(storageKey);
+    if(!state.open) return;
+    const pos = clampFloatingPosition(panel, parseFloat(panel.style.left), parseFloat(panel.style.top), panelId === 'localChatPanel' ? 72 : 58);
+    setPanelState(storageKey, { ...state, left: pos.left, top: pos.top });
+    applyFloatingPanelState(panelId, storageKey, defaultFactory);
+  }, { passive:true });
+}
+function applyFloatingPanelState(panelId, storageKey, defaultFactory){
+  const panel = document.getElementById(panelId);
+  if(!panel) return;
+  const state = getPanelState(storageKey);
+  const isOpen = !!state.open;
+  if(isOpen){
+    const base = (Number.isFinite(state.left) && Number.isFinite(state.top)) ? { left:Number(state.left), top:Number(state.top) } : defaultFactory();
+    const pos = clampFloatingPosition(panel, base.left, base.top, panelId === 'localChatPanel' ? 72 : 58);
+    panel.style.left = pos.left + 'px';
+    panel.style.top = pos.top + 'px';
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
+  }
+  panel.classList.toggle('open', isOpen);
+  panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+}
+function toggleFloatingPanel(panelId, storageKey, force, defaultFactory, onOpen){
+  initDraggableFloatingPanel(panelId, panelId === 'localChatPanel' ? 'localChatHeader' : 'characterQuickPanelHandle', storageKey, defaultFactory);
+  const state = getPanelState(storageKey);
+  const shouldOpen = (typeof force === 'boolean') ? force : !document.getElementById(panelId)?.classList.contains('open');
+  const next = { ...state, open: shouldOpen };
+  if(shouldOpen && (!Number.isFinite(next.left) || !Number.isFinite(next.top))){
+    const pos = defaultFactory();
+    next.left = pos.left; next.top = pos.top;
+  }
+  setPanelState(storageKey, next);
+  applyFloatingPanelState(panelId, storageKey, defaultFactory);
+  if(shouldOpen && typeof onOpen === 'function') onOpen();
+}
+function defaultChatPanelPosition(){
+  const panel = document.getElementById('localChatPanel');
+  const width = panel?.offsetWidth || 380;
+  const height = panel?.offsetHeight || 520;
+  const left = window.innerWidth <= 700 ? 8 : Math.max(8, window.innerWidth - width - 16);
+  const top = window.innerWidth <= 700 ? Math.max(72, window.innerHeight - height - 8) : 146;
+  return clampFloatingPosition(panel, left, top, 72);
+}
+function defaultCharacterPanelPosition(){
+  const panel = document.getElementById('characterQuickPanel');
+  const width = panel?.offsetWidth || 340;
+  const left = window.innerWidth <= 700 ? 8 : 24;
+  return clampFloatingPosition(panel, left, 84, 58);
+}
+function setChatView(view){
+  currentChatView = view === 'global' ? 'global' : 'local';
+  persistChatView();
+  renderChatViewControls();
+  renderLocalChat();
+}
+function renderChatViewControls(){
+  const localBtn = document.getElementById('chatViewLocalBtn');
+  const globalBtn = document.getElementById('chatViewGlobalBtn');
+  if(localBtn) localBtn.classList.toggle('active', currentChatView !== 'global');
+  if(globalBtn) globalBtn.classList.toggle('active', currentChatView === 'global');
+  const clearBtn = document.getElementById('localChatClearBtn');
+  if(clearBtn) clearBtn.disabled = currentChatView === 'global';
+}
+function subscribeGlobalChat(){
+  if(typeof collection !== 'function' || typeof onSnapshot !== 'function' || !db) return;
+  try { if (unsubscribeGlobalChat) unsubscribeGlobalChat(); } catch(_err) {}
+  try {
+    unsubscribeGlobalChat = onSnapshot(collection(db, GLOBAL_CHAT_COLLECTION), (snap) => {
+      globalChatMessages = snap.docs.map(docSnap => {
+        const data = docSnap.data() || {};
+        let createdMs = 0;
+        const createdAt = data.createdAt;
+        if (createdAt && typeof createdAt.toMillis === 'function') createdMs = createdAt.toMillis();
+        else if (createdAt && typeof createdAt.seconds === 'number') createdMs = createdAt.seconds * 1000;
+        else if (typeof data.clientTs === 'number') createdMs = data.clientTs;
+        const stamp = data.stamp || (createdMs ? new Date(createdMs).toLocaleTimeString([], { hour:'numeric', minute:'2-digit' }) : '');
+        return {
+          kind: data.kind || 'roll',
+          title: data.title || 'Entry',
+          subtitle: data.subtitle || data.sheet || '',
+          lines: Array.isArray(data.lines) ? data.lines : [],
+          results: Array.isArray(data.results) ? data.results : [],
+          stamp,
+          _sortTs: createdMs || 0,
+          author: data.author || ''
+        };
+      }).sort((a,b) => (a._sortTs || 0) - (b._sortTs || 0)).slice(-120);
+      if (currentChatView === 'global') renderLocalChat();
+    }, (err) => console.warn('Global chat subscription failed', err));
+  } catch (err) {
+    console.warn('Global chat setup failed', err);
+  }
+}
+async function sendGlobalEntry(entry){
+  if(typeof addDoc !== 'function' || typeof collection !== 'function' || !db) throw new Error('Global feed is not available in this build.');
+  await addDoc(collection(db, GLOBAL_CHAT_COLLECTION), {
+    kind: entry?.kind || 'roll',
+    title: entry?.title || 'Entry',
+    subtitle: entry?.subtitle || '',
+    lines: Array.isArray(entry?.lines) ? entry.lines : [],
+    results: Array.isArray(entry?.results) ? entry.results : [],
+    stamp: entry?.stamp || chatStamp(),
+    author: (typeof currentUser !== 'undefined' && currentUser?.email) ? currentUser.email : ((typeof currentParentUid !== 'undefined' && currentParentUid) ? currentParentUid : 'Unknown'),
+    sheet: currentChatSheetLabel(),
+    source: location.pathname.split('/').pop() || '',
+    clientTs: Date.now(),
+    createdAt: new Date()
+  });
+}
+function renderCharacterQuickPanel(){
+  const body = document.getElementById('characterQuickPanelBody');
+  if(!body) return;
+  const field = (id, fallback='—') => {
+    const el = document.getElementById(id);
+    const value = (el && 'value' in el) ? el.value : (el?.textContent || '');
+    return String(value || '').trim() || fallback;
+  };
+  body.innerHTML = `<div class="character-quick-grid">
+    <div class="character-quick-card"><small>Name</small><span>${chatEscapeHtml(field('charName'))}</span></div>
+    <div class="character-quick-card"><small>Race</small><span>${chatEscapeHtml(field('race'))}</span></div>
+    <div class="character-quick-card"><small>Class</small><span>${chatEscapeHtml(field('class'))}</span></div>
+    <div class="character-quick-card"><small>Alignment</small><span>${chatEscapeHtml(field('alignment'))}</span></div>
+    <div class="character-quick-card"><small>Size</small><span>${chatEscapeHtml(field('size'))}</span></div>
+    <div class="character-quick-card"><small>Languages</small><span>${chatEscapeHtml(field('languages'))}</span></div>
+    <div class="character-quick-card full"><small>Senses</small><span>${chatEscapeHtml(field('senses'))}</span></div>
+  </div>`;
+}
+function toggleCharacterQuickPanel(force){
+  renderCharacterQuickPanel();
+  toggleFloatingPanel('characterQuickPanel', CHARACTER_PANEL_STORAGE_KEY, force, defaultCharacterPanelPosition, renderCharacterQuickPanel);
+}
+function togglePanelMenu(force){
+  const pop = document.getElementById('panelMenuPopover');
+  if(!pop) return;
+  const next = (typeof force === 'boolean') ? force : !pop.classList.contains('open');
+  pop.classList.toggle('open', next);
+  pop.setAttribute('aria-hidden', next ? 'false' : 'true');
+}
+window.toggleCharacterQuickPanel = toggleCharacterQuickPanel;
+window.togglePanelMenu = togglePanelMenu;
+
+
+function chatEscapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch] || ch));
+}
+function signedChatNumber(value) {
+  const num = Number(value) || 0;
+  return num >= 0 ? `+${num}` : `${num}`;
+}
+function readNumericValue(id, fallback = 0) {
+  const el = document.getElementById(id);
+  if (!el) return fallback;
+  const raw = ('value' in el && el.value !== undefined && el.value !== '') ? el.value : (el.textContent || '');
+  const match = String(raw).match(/[-+]?\d+/);
+  const parsed = match ? Number(match[0]) : Number(raw);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+function currentChatSheetLabel() {
+  const data = (typeof getActiveData === 'function') ? (getActiveData() || {}) : {};
+  const name = String(data.charName || document.getElementById('charName')?.value || document.getElementById('sheetTitle')?.textContent || 'Character').trim();
+  return name || 'Character';
+}
+function currentChatStorageKey() {
+  const data = (typeof getActiveData === 'function') ? (getActiveData() || {}) : {};
+  const owner = (typeof currentUser !== 'undefined' && currentUser?.uid) ? currentUser.uid : ((typeof currentParentUid !== 'undefined' && currentParentUid) ? currentParentUid : 'local');
+  const characterId = (typeof currentSummonId !== 'undefined' && currentSummonId) ? currentSummonId : String(data.charName || document.getElementById('charName')?.value || 'sheet');
+  return `${CHAT_LOG_STORAGE_PREFIX}:${owner}:${characterId}`;
+}
+function ensureChatStateLoaded() {
+  const key = currentChatStorageKey();
+  if (key === activeChatStorageKey) return;
+  activeChatStorageKey = key;
+  try {
+    const raw = localStorage.getItem(key);
+    const parsed = raw ? JSON.parse(raw) : [];
+    localChatMessages = Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    console.warn('Could not load local chat history', err);
+    localChatMessages = [];
+  }
+  renderLocalChat();
+}
+function persistLocalChat() {
+  try { localStorage.setItem(activeChatStorageKey || currentChatStorageKey(), JSON.stringify(localChatMessages.slice(-80))); }
+  catch (err) { console.warn('Could not persist local chat history', err); }
+}
+function persistChatTarget() {
+  const el = document.getElementById('chatTargetSelect');
+  if (!el) return;
+  localStorage.setItem(CHAT_TARGET_STORAGE_KEY, el.value || 'discord');
+}
+function setChatSubtitle() {
+  const sub = document.getElementById('localChatSubtitle');
+  if (sub) sub.textContent = currentChatSheetLabel();
+}
+function renderLocalChat() {
+  setChatSubtitle();
+  renderChatViewControls();
+  const log = document.getElementById('localChatLog');
+  if (!log) return;
+  const useGlobal = currentChatView === 'global';
+  const messages = useGlobal ? globalChatMessages : localChatMessages;
+  if (!messages.length) {
+    log.innerHTML = useGlobal
+      ? '<div class="local-chat-empty">When target is set to Global, rolls posted there will appear here for everyone using the site.</div>'
+      : '<div class="local-chat-empty">Use the roll and send actions to post Initiative, Saves, Skills, Ability checks, spells, weapons, and abilities here.</div>';
+    return;
+  }
+  log.innerHTML = messages.map(entry => {
+    const title = chatEscapeHtml(entry.title || 'Entry');
+    const stamp = chatEscapeHtml(entry.stamp || '');
+    const subtitleParts = [];
+    if (entry.subtitle) subtitleParts.push(chatEscapeHtml(entry.subtitle));
+    if (useGlobal && entry.author) subtitleParts.push(chatEscapeHtml(entry.author));
+    const subtitle = subtitleParts.length ? `<div class="chat-entry-subtitle">${subtitleParts.join(' • ')}</div>` : '';
+    const lines = (entry.lines || []).map(line => `<div class="chat-entry-line quote">${chatEscapeHtml(line)}</div>`).join('');
+    const results = (entry.results || []).map(line => `<div class="chat-entry-result">${line}</div>`).join('');
+    const extraClass = entry.kind === 'system' ? ' system' : '';
+    return `<div class="chat-entry${extraClass}"><div class="chat-entry-top"><div class="chat-entry-title"># ${title}</div><div class="chat-entry-stamp">${stamp}</div></div>${subtitle}${lines ? `<div class="chat-entry-lines">${lines}</div>` : ''}${results ? `<div class="chat-entry-results">${results}</div>` : ''}</div>`;
+  }).join('');
+  log.scrollTop = log.scrollHeight;
+}
+function toggleLocalChat(force) {
+  ensureChatStateLoaded();
+  toggleFloatingPanel('localChatPanel', CHAT_PANEL_STORAGE_KEY, force, defaultChatPanelPosition, renderLocalChat);
+}
+function initChatPanelDrag(){ initDraggableFloatingPanel('localChatPanel', 'localChatHeader', CHAT_PANEL_STORAGE_KEY, defaultChatPanelPosition); applyFloatingPanelState('localChatPanel', CHAT_PANEL_STORAGE_KEY, defaultChatPanelPosition); }
+function clearLocalChat() {
+  if (currentChatView === 'global') return;
+  ensureChatStateLoaded();
+  localChatMessages = [];
+  persistLocalChat();
+  renderLocalChat();
+}
+function closeAllRollMenus() {
+  document.querySelectorAll('.roll-menu.show').forEach(menu => menu.classList.remove('show'));
+}
+function toggleSaveRollMenu(event) {
+  const menu = document.getElementById('saveRollMenu');
+  if (!menu) return;
+  const next = !menu.classList.contains('show');
+  closeAllRollMenus();
+  if (!next) return;
+  const rect = event.currentTarget.getBoundingClientRect();
+  const left = Math.min(window.innerWidth - 170, Math.max(12, rect.left));
+  menu.style.left = `${left}px`;
+  menu.style.top = `${Math.min(window.innerHeight - 170, rect.bottom + 8)}px`;
+  menu.classList.add('show');
+}
+function toggleAttackRollMenu(event) {
+  const menu = document.getElementById('attackRollMenu');
+  if (!menu) return;
+  const next = !menu.classList.contains('show');
+  closeAllRollMenus();
+  if (!next) return;
+  const rect = event.currentTarget.getBoundingClientRect();
+  const left = Math.min(window.innerWidth - 170, Math.max(12, rect.left));
+  menu.style.left = `${left}px`;
+  menu.style.top = `${Math.min(window.innerHeight - 220, rect.bottom + 8)}px`;
+  menu.classList.add('show');
+}
+function rollAttackCheck(kind) {
+  closeAllRollMenus();
+  const map = {
+    melee: { label: 'Melee Attack', id: 'ar_total' },
+    ranged: { label: 'Ranged Attack', id: 'ar_ranged_total' },
+    touch: { label: 'Touch Attack', id: 'ar_touch_total' },
+    ranged_touch: { label: 'Ranged Touch Attack', id: 'ar_ranged_touch_total' },
+    cmb: { label: 'CMB', id: 'cmb' }
+  };
+  const cfg = map[kind];
+  if (!cfg) return;
+  const total = readNumericValue(cfg.id, 0);
+  const roll = rollD20WithModifier(total);
+  routeChatEntry({
+    kind: 'roll',
+    title: cfg.label,
+    subtitle: currentChatSheetLabel(),
+    lines: [],
+    results: simpleRollResultLines(roll)
+  });
+}
+
+function chatStamp() {
+  try {
+    return new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  } catch (_) {
+    return '';
+  }
+}
+function postChatEntry(entry, options = {}) {
+  ensureChatStateLoaded();
+  localChatMessages.push({ ...entry, stamp: entry.stamp || chatStamp(), _sortTs: Date.now() });
+  localChatMessages = localChatMessages.slice(-80);
+  persistLocalChat();
+  if (currentChatView !== 'global') renderLocalChat();
+  if (options.open) {
+    currentChatView = 'local';
+    persistChatView();
+    toggleLocalChat(true);
+  }
+}
+
+const DISCORD_WORKER_URL = "https://weathered-term-1e39.phoeaung2076.workers.dev";
+const DISCORD_CLIENT_COOLDOWN_MS = 2000;
+const DISCORD_COOLDOWN_STORAGE_KEY = 'mountAetheriaDiscordCooldownUntil';
+
+function entryHtmlToDiscordText(htmlValue = '') {
+  const holder = document.createElement('div');
+  holder.innerHTML = String(htmlValue || '')
+    .replace(/<strong>(.*?)<\/strong>/gi, '**$1**')
+    .replace(/<em>(.*?)<\/em>/gi, '*$1*')
+    .replace(/<br\s*\/?>/gi, '\n');
+  return (holder.textContent || holder.innerText || '')
+    .replace(/\u2212/g, '-')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+function formatDiscordEntryContent(entry) {
+  const parts = [];
+  const title = String(entry?.title || 'Entry').trim();
+  if (title) parts.push(`# ${title}`);
+  const subtitle = String(entry?.subtitle || '').trim();
+  if (subtitle) parts.push(subtitle);
+  (entry?.lines || []).forEach(line => {
+    const text = String(line || '').trim();
+    if (text) parts.push(text);
+  });
+  (entry?.results || []).forEach(line => {
+    const text = entryHtmlToDiscordText(line);
+    if (text) parts.push(text);
+  });
+  return parts.join('\n').trim();
+}
+function splitDiscordContent(content, maxLen = 1800) {
+  const text = String(content || '').trim();
+  if (!text) return [];
+  if (text.length <= maxLen) return [text];
+  const rawLines = text.split('\n');
+  const chunks = [];
+  let current = '';
+  rawLines.forEach(line => {
+    const safeLine = String(line);
+    if (!current) {
+      if (safeLine.length <= maxLen) {
+        current = safeLine;
+      } else {
+        for (let i = 0; i < safeLine.length; i += maxLen) chunks.push(safeLine.slice(i, i + maxLen));
+      }
+      return;
+    }
+    const next = `${current}\n${safeLine}`;
+    if (next.length <= maxLen) {
+      current = next;
+    } else {
+      chunks.push(current);
+      if (safeLine.length <= maxLen) {
+        current = safeLine;
+      } else {
+        for (let i = 0; i < safeLine.length; i += maxLen) chunks.push(safeLine.slice(i, i + maxLen));
+        current = '';
+      }
+    }
+  });
+  if (current) chunks.push(current);
+  return chunks;
+}
+function getDiscordCooldownRemaining() {
+  const until = Number(localStorage.getItem(DISCORD_COOLDOWN_STORAGE_KEY) || 0);
+  return Math.max(0, until - Date.now());
+}
+function markDiscordCooldown() {
+  localStorage.setItem(DISCORD_COOLDOWN_STORAGE_KEY, String(Date.now() + DISCORD_CLIENT_COOLDOWN_MS));
+}
+async function sendDiscordEntry(entry) {
+  if (!DISCORD_WORKER_URL) throw new Error('Discord worker URL is missing.');
+  const remaining = getDiscordCooldownRemaining();
+  if (remaining > 0) {
+    throw new Error(`Please wait ${(remaining / 1000).toFixed(1)}s before sending another Discord message.`);
+  }
+  const content = formatDiscordEntryContent(entry);
+  if (!content) throw new Error('Nothing to send.');
+  const chunks = splitDiscordContent(content, 1800);
+  for (const chunk of chunks) {
+    markDiscordCooldown();
+    const response = await fetch(DISCORD_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content: chunk
+      })
+    });
+    if (!response.ok) {
+      let message = `Discord relay returned ${response.status}`;
+      try {
+        const text = await response.text();
+        if (text) message += `: ${text.slice(0, 220)}`;
+      } catch (_err) {}
+      throw new Error(message);
+    }
+  }
+}
+function routeChatEntry(entry) {
+  const target = document.getElementById('chatTargetSelect')?.value || 'discord';
+  if (target === 'local') {
+    setChatView('local');
+    postChatEntry(entry, { open: true });
+    return;
+  }
+  if (target === 'discord') {
+    postChatEntry(entry);
+    if (entry?.kind === 'system') return;
+    sendDiscordEntry(entry).catch(err => {
+      console.error('Discord send failed', err);
+      postChatEntry({
+        kind: 'system',
+        title: 'Discord send failed',
+        subtitle: 'Local only',
+        lines: [String(err?.message || 'Could not reach the Discord relay.')],
+        results: []
+      });
+    });
+    return;
+  }
+  if (target === 'global') {
+    postChatEntry(entry);
+    if (entry?.kind === 'system') return;
+    sendGlobalEntry(entry).catch(err => {
+      console.error('Global send failed', err);
+      postChatEntry({
+        kind: 'system',
+        title: 'Global send failed',
+        subtitle: 'Local only',
+        lines: [String(err?.message || 'Could not write to the shared website feed.')],
+        results: []
+      });
+    });
+    return;
+  }
+  postChatEntry({ kind: 'system', title: `${target[0].toUpperCase()}${target.slice(1)} bridge not connected`, subtitle: 'Local preview only', lines: ['This target is planned for a later pass. The action was rendered locally so you can verify the output first.'], results: [] });
+  postChatEntry(entry);
+}
+
+function secureRandomInt(maxExclusive) {
+  const max = Number(maxExclusive);
+  if (!Number.isFinite(max) || max <= 0) return 0;
+  if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+    const maxUint = 0x100000000;
+    const limit = Math.floor(maxUint / max) * max;
+    const buffer = new Uint32Array(1);
+    let value = 0;
+    do {
+      window.crypto.getRandomValues(buffer);
+      value = buffer[0];
+    } while (value >= limit);
+    return value % max;
+  }
+  return Math.floor(Math.random() * max);
+}
+function rollD20WithModifier(modifier) {
+  const die = secureRandomInt(20) + 1;
+  const mod = Number(modifier) || 0;
+  return { die, modifier: mod, total: die + mod };
+}
+function makeRollResultHtml(roll) {
+  return `<strong>Total: ${roll.total}</strong> <span style="color:#9e9e9e;">(d20 ${roll.die} ${roll.modifier >= 0 ? '+' : '−'} ${Math.abs(roll.modifier)})</span>`;
+}
+function naturalRollNoteHtml(roll) {
+  if (!roll) return '';
+  if (roll.die === 20) return '<strong>Natural 20</strong>';
+  if (roll.die === 1) return '<strong>Natural 1</strong>';
+  return '';
+}
+function simpleRollResultLines(roll, label = 'Rolled Total') {
+  const out = [`<strong>${chatEscapeHtml(label)}:</strong> ${chatEscapeHtml(String(roll?.total ?? 0))}`];
+  const nat = naturalRollNoteHtml(roll);
+  if (nat) out.push(nat);
+  return out;
+}
+function normalizeAbilityKey(value, fallback = 'STR') {
+  const raw = String(value || fallback || 'STR').trim();
+  return raw ? raw.toLowerCase() : String(fallback || 'STR').toLowerCase();
+}
+function readWeaponAbilityModifier(weapon) {
+  const ability = normalizeAbilityKey(weapon?.ability_mod || weapon?.mod || 'STR', 'STR');
+  return (typeof modFor === 'function') ? modFor(ability) : getMod(ability);
+}
+function readWeaponAttackBonus(weapon) {
+  const bab = readNumericValue('bab', 0);
+  const misc = Number(weapon?.attack_misc || 0) || 0;
+  const size = readNumericValue('size_mod', 0);
+  const abilityMod = readWeaponAbilityModifier(weapon);
+  return { bab, misc, size, abilityMod, total: bab + misc + size + abilityMod };
+}
+function parseCritRangeMin(value) {
+  const raw = String(value || '20').trim();
+  const match = raw.match(/(\d+)\s*-\s*20$/);
+  if (match) return Number(match[1]) || 20;
+  const single = Number(raw);
+  return Number.isFinite(single) ? single : 20;
+}
+function parseCritMultiplier(value) {
+  const raw = String(value || 'x2').trim().toLowerCase();
+  const match = raw.match(/x(\d+)/);
+  const mult = match ? Number(match[1]) : 2;
+  return Number.isFinite(mult) && mult > 1 ? mult : 2;
+}
+function splitDamageSegments(expr) {
+  return String(expr || '')
+    .replace(/−/g, '-')
+    .split('+')
+    .map(part => part.trim())
+    .filter(Boolean);
+}
+function rollDiceCount(count, sides) {
+  const rolls = [];
+  for (let i = 0; i < count; i += 1) rolls.push(secureRandomInt(sides) + 1);
+  return rolls;
+}
+function rollDamageExpression(expr) {
+  const segments = splitDamageSegments(expr);
+  const breakdown = [];
+  const typedTotals = {};
+  const typedLabels = {};
+  const typeOrder = [];
+  let untypedTotal = 0;
+  let total = 0;
+  segments.forEach(segment => {
+    let match = segment.match(/^(\d*)d(\d+)(?:\s+([A-Za-z][A-Za-z0-9\s\/-]*))?$/i);
+    if (match) {
+      const count = Number(match[1] || 1);
+      const sides = Number(match[2] || 0);
+      const damageType = String(match[3] || '').trim();
+      if (!count || !sides) return;
+      const rolls = rollDiceCount(count, sides);
+      const subtotal = rolls.reduce((sum, value) => sum + value, 0);
+      total += subtotal;
+      if (damageType) {
+        const key = damageType.toLowerCase();
+        if (!(key in typedTotals)) {
+          typedTotals[key] = 0;
+          typedLabels[key] = damageType;
+          typeOrder.push(key);
+        }
+        typedTotals[key] += subtotal;
+      } else {
+        untypedTotal += subtotal;
+      }
+      breakdown.push({
+        text: `${count}d${sides}${damageType ? ` ${damageType}` : ''}: [${rolls.join(', ')}] = ${subtotal}`,
+        total: subtotal
+      });
+      return;
+    }
+    match = segment.match(/^([-+]?\d+)(?:\s+([A-Za-z][A-Za-z0-9\s\/-]*))?$/);
+    if (match) {
+      const flat = Number(match[1] || 0);
+      const damageType = String(match[2] || '').trim();
+      total += flat;
+      if (damageType) {
+        const key = damageType.toLowerCase();
+        if (!(key in typedTotals)) {
+          typedTotals[key] = 0;
+          typedLabels[key] = damageType;
+          typeOrder.push(key);
+        }
+        typedTotals[key] += flat;
+      } else {
+        untypedTotal += flat;
+      }
+      breakdown.push({
+        text: `${flat >= 0 ? '+' : ''}${flat}${damageType ? ` ${damageType}` : ''}`,
+        total: flat
+      });
+      return;
+    }
+    breakdown.push({ text: segment, total: 0 });
+  });
+  return { formula: String(expr || '').trim(), total, untypedTotal, breakdown, typedTotals, typedLabels, typeOrder };
+}
+function formatDamageTotalText(result) {
+  if (!result || !result.formula) return '—';
+  const parts = [];
+  if (result.untypedTotal) parts.push(String(result.untypedTotal));
+  (result.typeOrder || []).forEach(key => {
+    const value = Number(result.typedTotals?.[key] || 0);
+    if (!value) return;
+    const label = String(result.typedLabels?.[key] || key).trim();
+    parts.push(`${value} ${label}`.trim());
+  });
+  const hasTyped = (result.typeOrder || []).some(key => Number(result.typedTotals?.[key] || 0));
+  const needsBreakdown = hasTyped || parts.length > 1;
+  return `${result.total}${needsBreakdown ? ` (${parts.join(' + ')})` : ''}`;
+}
+function scaleDamageResult(result, multiplier) {
+  if (!result) return null;
+  const mult = Number(multiplier || 1) || 1;
+  const typedTotals = {};
+  Object.keys(result.typedTotals || {}).forEach(key => {
+    typedTotals[key] = (Number(result.typedTotals[key] || 0) || 0) * mult;
+  });
+  return {
+    ...result,
+    total: (Number(result.total || 0) || 0) * mult,
+    untypedTotal: (Number(result.untypedTotal || 0) || 0) * mult,
+    typedTotals
+  };
+}
+function formatDamageRollHtml(result) {
+  if (!result || !result.formula) return '<strong>—</strong>';
+  return `<strong>Total: ${chatEscapeHtml(formatDamageTotalText(result))}</strong>`;
+}
+function updateWeaponAmmo(index, value) {
+  const list = getActiveData().weapons || [];
+  if (!list[index]) return;
+  if (value === '') {
+    list[index].ammo = '';
+  } else {
+    const parsed = Number(value);
+    list[index].ammo = Number.isFinite(parsed) ? String(parsed) : String(value);
+  }
+  if (typeof triggerSave === 'function') triggerSave(); else if (typeof saveDataOnly === 'function') saveDataOnly(); else if (typeof save === 'function') save();
+  renderWeapons();
+}
+function weaponAttackTitle(weapon) {
+  return `${weapon?.name || 'Weapon'} Attack`;
+}
+function sendWeaponCard(index) {
+  const list = getActiveData().weapons || [];
+  const source = list[index];
+  if (!source) return;
+  const weapon = normalizeWeaponData(source);
+  Object.assign(source, weapon);
+  const attack = readWeaponAttackBonus(weapon);
+  routeChatEntry({
+    kind: 'info',
+    title: weapon.name || 'Weapon',
+    subtitle: currentChatSheetLabel(),
+    lines: [
+      `> Type: ${weapon.type || '—'}`,
+      `> Attack Roll: d20 + BAB + attack misc + ${String(weapon.ability_mod || 'STR').toUpperCase()} + size`,
+      `> Attack Total: ${signedChatNumber(attack.total)} (${signedChatNumber(attack.bab)} BAB, ${signedChatNumber(attack.misc)} misc, ${signedChatNumber(attack.abilityMod)} ${String(weapon.ability_mod || 'STR').toUpperCase()}, ${signedChatNumber(attack.size)} size)`,
+      `> Damage: ${weapon.damage || '—'}`,
+      `> Crit: ${weapon.crit_range || '20'} / ${weapon.crit_mult || 'x2'}`,
+      `> Range: ${weapon.range || '—'}${shouldShowWeaponAmmo(weapon.ammo) ? ` | Ammo: ${weapon.ammo}` : ''}`
+    ],
+    results: []
+  });
+}
+function rollWeaponAttack(index) {
+  const list = getActiveData().weapons || [];
+  const source = list[index];
+  if (!source) return;
+  const weapon = normalizeWeaponData(source);
+  Object.assign(source, weapon);
+  const attack = readWeaponAttackBonus(weapon);
+  const attackRoll = rollD20WithModifier(attack.total);
+  const critMin = parseCritRangeMin(weapon.crit_range);
+  const critMult = parseCritMultiplier(weapon.crit_mult);
+  const damageResult = weapon.damage ? rollDamageExpression(weapon.damage) : null;
+  const results = [
+    `<strong>Attack Roll:</strong> ${chatEscapeHtml(String(attackRoll.total))}`
+  ];
+  if (damageResult) results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
+  if (attackRoll.die >= critMin) {
+    const confirmRoll = rollD20WithModifier(attack.total);
+    results.push('<strong>Crit !!!</strong>');
+    results.push(`<strong>Crit Attack Roll:</strong> ${chatEscapeHtml(String(confirmRoll.total))}`);
+    if (damageResult) results.push(`<strong>Crit Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(scaleDamageResult(damageResult, critMult)))}`);
+  }
+  routeChatEntry({
+    kind: 'roll',
+    title: weapon.name || 'Weapon',
+    subtitle: currentChatSheetLabel(),
+    lines: [
+      `> Range: ${weapon.range || '—'}${shouldShowWeaponAmmo(weapon.ammo) ? ` | Ammo: ${weapon.ammo}` : ''}`
+    ],
+    results
+  });
+}
+window.sendWeaponCard = sendWeaponCard;
+window.rollWeaponAttack = rollWeaponAttack;
+window.updateWeaponAmmo = updateWeaponAmmo;
+function skillRowName(row) {
+  const cell = row?.querySelector('.skill-name-cell');
+  if (!cell) return 'Skill Check';
+  const customInput = cell.querySelector('input');
+  if (customInput && customInput.value.trim()) return customInput.value.trim();
+  const clone = cell.cloneNode(true);
+  clone.querySelectorAll('small,input').forEach(el => el.remove());
+  const name = clone.textContent.replace(/\s+/g, ' ').trim();
+  return name || 'Skill Check';
+}
+function spellChatTitle(spell) {
+  return `${spell?.name || 'Spell'}`;
+}
+function spellSendLines(spell) {
+  const lines = [
+    `> Level: ${spell?.lvl || 'Cantrip'} | Action: ${spell?.type || 'Standard'}`,
+    `> Range: ${spell?.range || '—'} | Target: ${spell?.target || '—'} | Duration: ${spell?.duration || '—'}`,
+    `> Attack Type: ${spell?.attack_type || '—'} | Damage: ${spell?.damage || '—'}`,
+    `> Save: ${spell?.saving_throw || '—'} | DC: ${spellDcDisplayValue(spell)} | SR: ${spell?.spell_resist || '—'}`,
+    `> School: ${spell?.school || '—'}`
+  ];
+  if (String(spell?.desc || '').trim()) lines.push(`> Description: ${String(spell.desc).trim()}`);
+  if (String(spell?.at_higher_lvls || spell?.at_higher || '').trim()) lines.push(`> At Higher Levels: ${String(spell.at_higher_lvls || spell.at_higher).trim()}`);
+  return lines;
+}
+function sendSpellCard(index) {
+  const list = getActiveData().spells || [];
+  const spell = list[index];
+  if (!spell) return;
+  routeChatEntry({
+    kind: 'info',
+    title: spellChatTitle(spell),
+    subtitle: currentChatSheetLabel(),
+    lines: spellSendLines(spell),
+    results: []
+  });
+}
+function rollSpellAction(index) {
+  const list = getActiveData().spells || [];
+  const spell = list[index];
+  if (!spell) return;
+  const attack = spellAttackConfig(spell);
+  const damageResult = String(spell?.damage || '').trim() ? rollDamageExpression(spell.damage) : null;
+  const results = [];
+  if (attack) {
+    const attackRoll = rollD20WithModifier(attack.total);
+    results.push(`<strong>Attack Roll (${chatEscapeHtml(attack.label)}):</strong> ${chatEscapeHtml(String(attackRoll.total))}`);
+    if (damageResult) results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
+    if (attackRoll.die === 20) {
+      const confirmRoll = rollD20WithModifier(attack.total);
+      results.push('<strong>Crit !!!</strong>');
+      results.push(`<strong>Crit ${chatEscapeHtml(attack.label)} Roll:</strong> ${chatEscapeHtml(String(confirmRoll.total))}`);
+      if (damageResult) results.push(`<strong>Crit Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(scaleDamageResult(damageResult, 2)))}`);
+    }
+  } else if (damageResult) {
+    results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
+  }
+  routeChatEntry({
+    kind: 'roll',
+    title: spellChatTitle(spell),
+    subtitle: currentChatSheetLabel(),
+    lines: [],
+    results
+  });
+}
+window.sendSpellCard = sendSpellCard;
+window.rollSpellAction = rollSpellAction;
+function sendInitiativeRoll() {
+  const total = readNumericValue('initDisplayMain', 0);
+  const roll = rollD20WithModifier(total);
+  routeChatEntry({
+    kind: 'roll',
+    title: 'Initiative',
+    subtitle: currentChatSheetLabel(),
+    lines: [],
+    results: simpleRollResultLines(roll, 'Total')
+  });
+}
+function sendSavesOverview() {
+  routeChatEntry({
+    kind: 'info',
+    title: 'Saves',
+    subtitle: currentChatSheetLabel(),
+    lines: [
+      `> Fortitude: ${signedChatNumber(readNumericValue('fortDisplayMain', 0))}`,
+      `> Reflex: ${signedChatNumber(readNumericValue('refDisplayMain', 0))}`,
+      `> Will: ${signedChatNumber(readNumericValue('willDisplayMain', 0))}`
+    ],
+    results: []
+  });
+}
+function rollSaveCheck(kind) {
+  closeAllRollMenus();
+  const map = {
+    fort: { label: 'Fortitude Save', id: 'fortDisplayMain' },
+    ref: { label: 'Reflex Save', id: 'refDisplayMain' },
+    will: { label: 'Will Save', id: 'willDisplayMain' }
+  };
+  const cfg = map[kind];
+  if (!cfg) return;
+  const total = readNumericValue(cfg.id, 0);
+  const roll = rollD20WithModifier(total);
+  routeChatEntry({
+    kind: 'roll',
+    title: cfg.label,
+    subtitle: currentChatSheetLabel(),
+    lines: [],
+    results: simpleRollResultLines(roll)
+  });
+}
+function sendSkillCheck(row) {
+  if (!row) return;
+  const name = skillRowName(row);
+  const total = readNumericValueFromElement(row.querySelector('.skill-total'));
+  const roll = rollD20WithModifier(total);
+  routeChatEntry({
+    kind: 'roll',
+    title: name,
+    subtitle: currentChatSheetLabel(),
+    lines: [],
+    results: simpleRollResultLines(roll, 'Total')
+  });
+}
+function readNumericValueFromElement(el, fallback = 0) {
+  if (!el) return fallback;
+  const raw = ('value' in el && el.value !== undefined && el.value !== '') ? el.value : (el.textContent || '');
+  const match = String(raw).match(/[-+]?\d+/);
+  const parsed = match ? Number(match[0]) : Number(raw);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+function getAbilityChatBundle(subType) {
+  if (subType === 'active') return { key: 'activeAbilities', label: 'Active Ability' };
+  if (subType === 'passive') return { key: 'passiveAbilities', label: 'Passive Ability' };
+  return { key: 'feats', label: 'Feat' };
+}
+function sendAbilityCard(subType, index) {
+  const bundle = getAbilityChatBundle(subType);
+  const list = getActiveData()[bundle.key] || [];
+  const item = list[index];
+  if (!item) return;
+  const lines = [`> Category: ${bundle.label}`];
+  if (subType === 'active') {
+    lines.push(`> Type: ${item.type || 'Standard'}`);
+    lines.push(`> Uses: ${item.u_curr ?? 0}/${item.u_max ?? 0}`);
+  } else if (item.type) {
+    lines.push(`> Type: ${item.type}`);
+  }
+  if (item.link) lines.push(`> Link: ${item.link}`);
+  if (String(item.desc || '').trim()) lines.push(`> Description: ${String(item.desc).trim()}`);
+  routeChatEntry({
+    kind: 'info',
+    title: item.name || bundle.label,
+    subtitle: currentChatSheetLabel(),
+    lines,
+    results: []
+  });
+}
+function sendAbilityCheck(stat) {
+  const upper = String(stat || '').toUpperCase();
+  const mod = (typeof getMod === 'function') ? getMod(stat) : readNumericValue(`mod-${stat}`, 0);
+  const roll = rollD20WithModifier(mod);
+  routeChatEntry({
+    kind: 'roll',
+    title: upper,
+    subtitle: currentChatSheetLabel(),
+    lines: [],
+    results: simpleRollResultLines(roll, 'Total')
+  });
+}
+function bindSkillRollTargets(scope = document) {
+  scope.querySelectorAll('#skillsTableBody .skill-name-cell').forEach(cell => {
+    if (cell.dataset.rollBound === '1') return;
+    cell.dataset.rollBound = '1';
+    cell.classList.add('rollable');
+    cell.title = 'Click to roll this skill to chat';
+    cell.addEventListener('click', event => {
+      if (event.target.closest('input,button,textarea,select')) return;
+      sendSkillCheck(cell.closest('tr'));
+    });
+  });
+}
+function refreshAbilityRollTargets() {
+  document.querySelectorAll('.ability-roll-link').forEach(cell => {
+    const stat = cell.dataset.stat;
+    cell.title = stat ? `Click to roll ${String(stat).toUpperCase()} to chat` : 'Click to roll';
+  });
+}
+window.sendInitiativeRoll = sendInitiativeRoll;
+window.sendSavesOverview = sendSavesOverview;
+window.rollSaveCheck = rollSaveCheck;
+window.sendAbilityCheck = sendAbilityCheck;
+window.sendAbilityCard = sendAbilityCard;
+window.toggleSaveRollMenu = toggleSaveRollMenu;
+window.toggleAttackRollMenu = toggleAttackRollMenu;
+window.rollAttackCheck = rollAttackCheck;
+window.toggleLocalChat = toggleLocalChat;
+window.clearLocalChat = clearLocalChat;
+window.persistChatTarget = persistChatTarget;
+window.setChatView = setChatView;
+window.togglePanelMenu = togglePanelMenu;
+window.toggleCharacterQuickPanel = toggleCharacterQuickPanel;
+
+window.addEventListener('click', event => {
+  if (!event.target.closest('.roll-menu') && !event.target.closest('#saveRollMenuBtn') && !event.target.closest('#attackRollMenuBtn')) closeAllRollMenus();
+  if (!event.target.closest('#panelMenuShell')) togglePanelMenu(false);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const targetSelect = document.getElementById('chatTargetSelect');
+  if (targetSelect) targetSelect.value = localStorage.getItem(CHAT_TARGET_STORAGE_KEY) || 'discord';
+  ensureChatStateLoaded();
+  bindSkillRollTargets();
+  refreshAbilityRollTargets();
+  renderChatViewControls();
+  initChatPanelDrag();
+  renderCharacterQuickPanel();
+  initDraggableFloatingPanel('characterQuickPanel', 'characterQuickPanelHandle', CHARACTER_PANEL_STORAGE_KEY, defaultCharacterPanelPosition);
+  applyFloatingPanelState('characterQuickPanel', CHARACTER_PANEL_STORAGE_KEY, defaultCharacterPanelPosition);
+  applyFloatingPanelState('localChatPanel', CHAT_PANEL_STORAGE_KEY, defaultChatPanelPosition);
+});
+
 window.toggleEditMode = (force) => {
     const next = (typeof force === 'boolean') ? force : !document.body.classList.contains('edit-mode-active');
     document.body.classList.toggle('edit-mode-active', next);
@@ -2424,8 +3729,123 @@ document.addEventListener('DOMContentLoaded', () => {
     if(btn2) btn2.innerHTML = '✏️';
     const abilityBtn = document.getElementById('abilityDrawerCombatBtn');
     if(abilityBtn) abilityBtn.innerHTML = '🎲';
-    syncSizeFields(); computeDerivedStats(); renderSelectedCombatDisplays(); renderNotesList(); bindCriticalFieldPersistence();
+    syncSizeFields(); computeDerivedStats(); renderSelectedCombatDisplays(); renderNotesList(); bindCriticalFieldPersistence(); ensureChatStateLoaded(); bindSkillRollTargets(); refreshAbilityRollTargets();
 });
+</script>
+
+<script>
+(function(){
+  const drawerStorageKey = document.title && document.title.includes('Admin')
+    ? 'mountAetheriaAbilityDrawerAdmin'
+    : 'mountAetheriaAbilityDrawerPlayer';
+
+  function saveAbilityDrawerState(drawer){
+    try {
+      const raw = localStorage.getItem(drawerStorageKey);
+      let cur = {};
+      if (raw) cur = JSON.parse(raw) || {};
+      const rect = drawer.getBoundingClientRect();
+      localStorage.setItem(drawerStorageKey, JSON.stringify({
+        ...cur,
+        open: drawer.classList.contains('open'),
+        left: parseFloat(drawer.style.left) || rect.left || 16,
+        top: parseFloat(drawer.style.top) || rect.top || 86
+      }));
+    } catch(_err) {}
+  }
+
+  function clampAbilityDrawer(drawer, left, top){
+    const width = drawer.offsetWidth || 320;
+    const height = drawer.offsetHeight || 320;
+    const maxLeft = Math.max(8, window.innerWidth - width - 8);
+    const maxTop = Math.max(58, window.innerHeight - height - 8);
+    return {
+      left: Math.min(Math.max(8, Number.isFinite(left) ? left : maxLeft), maxLeft),
+      top: Math.min(Math.max(58, Number.isFinite(top) ? top : 86), maxTop)
+    };
+  }
+
+  function enableMouseTouchDrag(){
+    const drawer = document.getElementById('abilityDrawer');
+    const handle = document.getElementById('abilityDrawerHandle');
+    if(!drawer || !handle || handle.dataset.dragPatchReady === '1') return;
+    handle.dataset.dragPatchReady = '1';
+    handle.style.touchAction = 'none';
+    let dragging = false;
+    let startX = 0, startY = 0, baseLeft = 0, baseTop = 0;
+
+    const start = (clientX, clientY) => {
+      if(!drawer.classList.contains('open')) return;
+      dragging = true;
+      const rect = drawer.getBoundingClientRect();
+      startX = clientX; startY = clientY;
+      baseLeft = parseFloat(drawer.style.left) || rect.left;
+      baseTop = parseFloat(drawer.style.top) || rect.top;
+    };
+    const move = (clientX, clientY) => {
+      if(!dragging) return;
+      const pos = clampAbilityDrawer(drawer, baseLeft + (clientX - startX), baseTop + (clientY - startY));
+      drawer.style.left = pos.left + 'px';
+      drawer.style.top = pos.top + 'px';
+      drawer.style.right = 'auto';
+      drawer.style.bottom = 'auto';
+    };
+    const end = () => {
+      if(!dragging) return;
+      dragging = false;
+      saveAbilityDrawerState(drawer);
+    };
+
+    handle.addEventListener('mousedown', (e) => {
+      if(e.button !== 0) return;
+      if(e.target.closest('button,a,input,select,textarea')) return;
+      start(e.clientX, e.clientY);
+      if(dragging) e.preventDefault();
+    });
+    window.addEventListener('mousemove', (e) => move(e.clientX, e.clientY), { passive: true });
+    window.addEventListener('mouseup', end, { passive: true });
+
+    handle.addEventListener('touchstart', (e) => {
+      if(e.target.closest('button,a,input,select,textarea')) return;
+      const t = e.touches && e.touches[0];
+      if(!t) return;
+      start(t.clientX, t.clientY);
+      if(dragging) e.preventDefault();
+    }, { passive: false });
+    window.addEventListener('touchmove', (e) => {
+      const t = e.touches && e.touches[0];
+      if(!t) return;
+      move(t.clientX, t.clientY);
+      if(dragging) e.preventDefault();
+    }, { passive: false });
+    window.addEventListener('touchend', end, { passive: true });
+    window.addEventListener('touchcancel', end, { passive: true });
+
+    window.addEventListener('resize', () => {
+      if(!drawer.classList.contains('open')) return;
+      const pos = clampAbilityDrawer(drawer, parseFloat(drawer.style.left), parseFloat(drawer.style.top));
+      drawer.style.left = pos.left + 'px';
+      drawer.style.top = pos.top + 'px';
+      saveAbilityDrawerState(drawer);
+    }, { passive: true });
+  }
+
+  function removeInlineAbilityToggle(){
+    const btn = document.getElementById('abilityDrawerToggle');
+    if(btn) btn.remove();
+  }
+
+  function initAbilityDrawerPatch(){
+    removeInlineAbilityToggle();
+    enableMouseTouchDrag();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initAbilityDrawerPatch, { once:true });
+  } else {
+    initAbilityDrawerPatch();
+  }
+})();
 </script>
 </body>
 </html>
