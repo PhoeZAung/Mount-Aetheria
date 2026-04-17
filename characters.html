@@ -884,8 +884,8 @@ setTimeout(() => {
   <div id="c-spells" class="sub-group" style="display:none">
       <h3>Spells</h3>
       <div class="stat-box" style="margin-bottom:10px;"><label>Spell DC Base</label><select id="spell_dc_base" class="live-field"><option value="str">STR</option><option value="dex">DEX</option><option value="con">CON</option><option value="int" selected>INT</option><option value="wis">WIS</option><option value="cha">CHA</option></select></div>
-      <div id="spellList"></div>
       <button class="btn-add" onclick="addNewItem('spell')">+ Add Spell</button>
+      <div id="spellList"></div>
   </div>
 
   <div style="display:none;">
@@ -1773,8 +1773,16 @@ function isSpellGroupOpen(levelNum){
 function toggleSpellGroup(levelNum){
     const next = !isSpellGroupOpen(levelNum);
     localStorage.setItem(`spellGroupOpen:${levelNum}`, next ? '1' : '0');
-    renderSpells();
+    const head = document.querySelector(`.spell-level-head[data-spell-level="${levelNum}"]`);
+    const group = head ? head.closest('.spell-level-group') : null;
+    const body = group ? group.querySelector('.spell-level-body') : null;
+    const icon = head ? head.querySelector('.spell-level-toggle') : null;
+    if(head) head.setAttribute('aria-expanded', next ? 'true' : 'false');
+    if(icon) icon.textContent = next ? '▾' : '▸';
+    if(body) body.hidden = !next;
+    else renderSpells();
 }
+window.toggleSpellGroup = toggleSpellGroup;
 
 function renderSpells() {
     const data = getActiveData().spells || [];
@@ -2163,37 +2171,15 @@ function populateViewModal(type, item, index = -1) {
     }
     if(type === 'active' || type === 'passive' || type === 'feat') {
         const esc = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-        const nl2br = (value) => esc(value).replace(/\n/g, '<br>');
+        const nl2br = (value) => esc(value).replace(/\\n/g, '<br>');
         const show = (value, fallback = '—') => {
             const text = String(value ?? '').trim();
             return text ? text : fallback;
         };
-        const categoryLabel = type === 'active' ? 'Active Ability' : type === 'passive' ? 'Passive Ability' : 'Feat';
         body.innerHTML = `
           <div style="display:flex;flex-direction:column;gap:14px;">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-              <div style="display:flex;flex-direction:column;gap:6px;">
-                <div class="view-label">Category</div>
-                <div class="view-text" style="margin-bottom:0;">${esc(categoryLabel)}</div>
-              </div>
-              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                ${index > -1 ? `<button class="chat-icon-btn" type="button" onclick="sendAbilityCard('${type}',${index})" title="Send to chat">💬</button>` : ''}
-                ${item.link ? `<a class="spell-link-btn" href="${esc(item.link)}" target="_blank">Open Link</a>` : ''}
-              </div>
-            </div>
-            <div class="spell-view-section-grid">
-              <div class="spell-view-section">
-                <h4>Core</h4>
-                <div class="spell-view-tag-grid">
-                  <div class="spell-view-tag"><span class="spell-tag-label">Category</span><span class="spell-tag-value">${esc(categoryLabel)}</span></div>
-                  ${type === 'active' ? `<div class="spell-view-tag"><span class="spell-tag-label">Type</span><span class="spell-tag-value">${esc(show(item.type, 'Standard'))}</span></div>` : ''}
-                  ${type === 'active' ? `<div class="spell-view-tag"><span class="spell-tag-label">Uses</span><span class="spell-tag-value">${esc(`${item.u_curr ?? 0}/${item.u_max ?? 0}`)}</span></div>` : ''}
-                  ${item.link ? `<div class="spell-view-tag"><span class="spell-tag-label">Link</span><span class="spell-tag-value">Available</span></div>` : ''}
-                </div>
-              </div>
-              ${String(item.desc ?? '').trim() ? `<div class="spell-view-section spell-view-wide"><h4>Description</h4><div class="spell-view-copy">${nl2br(item.desc)}</div></div>` : ''}
-              ${String(item.at_higher_lvls ?? item.at_higher ?? '').trim() ? `<div class="spell-view-section spell-view-wide"><h4>At Higher Levels</h4><div class="spell-view-copy">${nl2br(item.at_higher_lvls ?? item.at_higher)}</div></div>` : ''}
-            </div>
+            ${String(item.desc ?? '').trim() ? `<div class="spell-view-section spell-view-wide"><h4>Description</h4><div class="spell-view-copy">${nl2br(item.desc)}</div></div>` : `<div class="spell-view-section spell-view-wide"><h4>Description</h4><div class="spell-view-copy">${esc(show('', '—'))}</div></div>`}
+            ${String(item.at_higher_lvls ?? item.at_higher ?? '').trim() ? `<div class="spell-view-section spell-view-wide"><h4>At Higher Levels</h4><div class="spell-view-copy">${nl2br(item.at_higher_lvls ?? item.at_higher)}</div></div>` : ''}
           </div>`;
         return;
     }
