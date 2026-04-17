@@ -2388,6 +2388,7 @@ function populateViewModal(type, item, index = -1) {
                 </div>
               </div>
               ${String(item.desc ?? '').trim() ? `<div class="spell-view-section spell-view-wide"><h4>Description</h4><div class="spell-view-copy">${nl2br(item.desc)}</div></div>` : ''}
+              ${String(item.at_higher_lvls ?? item.at_higher ?? '').trim() ? `<div class="spell-view-section spell-view-wide"><h4>At Higher Levels</h4><div class="spell-view-copy">${nl2br(item.at_higher_lvls ?? item.at_higher)}</div></div>` : ''}
             </div>
           </div>`;
         return;
@@ -2494,6 +2495,11 @@ function populateEditorModal(type, item, index, col) {
         createTextArea('Description', item.desc, 'desc');
         createEditorSection('At Higher Levels');
         createTextArea('At Higher Levels', item.at_higher_lvls || item.at_higher, 'at_higher_lvls');
+    } else if(['active','passive','feat'].includes(type)) {
+        createEditorSection('Description');
+        createTextArea('Description', item.desc, 'desc');
+        createEditorSection('At Higher Levels');
+        createTextArea('At Higher Levels', item.at_higher_lvls || item.at_higher, 'at_higher_lvls');
     } else {
         createTextArea('Description', item.desc, 'desc');
     }
@@ -2552,7 +2558,7 @@ function refreshList(t) { if(t==='weapon') renderWeapons(); else if(t==='spell')
 window.addNewItem = (t) => {
     const d = getActiveData();
     let n={name:''}, c='';
-    if(t==='weapon'){c='weapons';n.mod='STR';n.ability_mod='STR';n.attack_misc='';n.damage='';n.type='';n.crit_range='20';n.crit_mult='x2';n.range='';n.ammo='';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';n.attack_type='None';n.spell_resist='No';n.saving_throw='';n.school='';n.target='';n.range='';n.duration='';n.damage='';n.at_higher_lvls='';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;} else if(t==='passive')c='passiveAbilities'; else if(t==='feat')c='feats'; else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
+    if(t==='weapon'){c='weapons';n.mod='STR';n.ability_mod='STR';n.attack_misc='';n.damage='';n.type='';n.crit_range='20';n.crit_mult='x2';n.range='';n.ammo='';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';n.attack_type='None';n.spell_resist='No';n.saving_throw='';n.school='';n.target='';n.range='';n.duration='';n.damage='';n.at_higher_lvls='';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;n.at_higher_lvls='';} else if(t==='passive'){c='passiveAbilities';n.at_higher_lvls='';} else if(t==='feat'){c='feats';n.at_higher_lvls='';} else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
     if(!d[c]) d[c]=[]; d[c].push(n);
     triggerSave(); refreshList(t); openEditor(t, d[c].length-1);
 };
@@ -3765,6 +3771,7 @@ function sendAbilityCard(subType, index) {
   }
   if (item.link) lines.push(`> Link: ${item.link}`);
   if (String(item.desc || '').trim()) lines.push(`> Description: ${String(item.desc).trim()}`);
+  if (String(item.at_higher_lvls || item.at_higher || '').trim()) lines.push(`> At Higher Levels: ${String(item.at_higher_lvls || item.at_higher).trim()}`);
   routeChatEntry({
     kind: 'info',
     title: item.name || bundle.label,
