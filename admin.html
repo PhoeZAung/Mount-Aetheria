@@ -99,6 +99,9 @@
   input:focus, textarea:focus { border-color: var(--accent); outline: none; }
   label { color: #aaa; font-size: 12px; font-weight: bold; margin-bottom: 4px; display: block; }
   textarea { resize: none; overflow-y: hidden; min-height: 80px; }
+  .scrollable-textarea { resize: vertical; overflow-y: auto; min-height: 160px; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; }
+  .modal-body { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  .modal-body textarea, #resistances, #notesArea { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
   
   .expanded-textarea { min-height: 200px; resize: vertical; }
 
@@ -823,7 +826,7 @@ setTimeout(() => {
     </div>
     <div id="resistancesBox" style="background:var(--panel); padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid var(--border);">
         <label>Resist</label>
-        <textarea id="resistances" class="save-field" placeholder="Resistances, Immunities, DR, SR"></textarea>
+        <textarea id="resistances" class="save-field scrollable-textarea" placeholder="Resistances, Immunities, DR, SR"></textarea>
     </div>
     <h3>Weapons</h3>
     <div id="weaponList"></div>
@@ -913,7 +916,7 @@ setTimeout(() => {
 
       
 <div id="notes" class="tab-content">
-  <textarea id="notesArea" class="save-field" style="min-height:320px; width:100%; resize:vertical; display:block;"></textarea>
+  <textarea id="notesArea" class="save-field scrollable-textarea" style="min-height:320px; width:100%; resize:vertical; display:block;"></textarea>
 </div>
 
 
@@ -2493,8 +2496,8 @@ function populateEditorModal(type, item, index, col) {
 
     if(['active', 'passive', 'feat', 'spell'].includes(type)) {
         const lb = document.createElement('label'); lb.textContent = "GM Notes (Hidden from Player)"; lb.style.color = "#ff6666"; 
-        const t = document.createElement('textarea'); t.value = item.gm_notes || ''; t.style.borderColor = "#ff4444"; 
-        setTimeout(()=>autoExpand(t),0); 
+        const t = document.createElement('textarea'); t.value = item.gm_notes || ''; 
+        prepareScrollableTextarea(t, { borderColor: "#ff4444" }); 
         t.oninput = e => { autoExpand(t); updateCurrentItem('gm_notes', e.target.value) }; 
         modalBody.appendChild(lb); modalBody.appendChild(t);
     }
@@ -2506,7 +2509,20 @@ function populateEditorModal(type, item, index, col) {
 }
 
 function createInput(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const i=document.createElement('input'); i.value=v||''; i.oninput=e=>updateCurrentItem(k,e.target.value); modalBody.appendChild(lb); modalBody.appendChild(i); }
-function createTextArea(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const t=document.createElement('textarea'); t.value=v||''; setTimeout(()=>autoExpand(t),0); t.oninput=e=>{autoExpand(t); updateCurrentItem(k,e.target.value)}; modalBody.appendChild(lb); modalBody.appendChild(t); }
+function prepareScrollableTextarea(t, opts = {}) {
+    if(!t) return t;
+    t.classList.add('scrollable-textarea');
+    if(opts.borderColor) t.style.borderColor = opts.borderColor;
+    t.setAttribute('rows', String(opts.rows || 6));
+    const stopBubble = (e) => e.stopPropagation();
+    t.addEventListener('pointerdown', stopBubble);
+    t.addEventListener('mousedown', stopBubble);
+    t.addEventListener('touchstart', stopBubble, { passive: true });
+    t.addEventListener('touchmove', stopBubble, { passive: true });
+    setTimeout(() => autoExpand(t), 0);
+    return t;
+}
+function createTextArea(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const t=document.createElement('textarea'); t.value=v||''; prepareScrollableTextarea(t); t.oninput=e=>{autoExpand(t); updateCurrentItem(k,e.target.value)}; modalBody.appendChild(lb); modalBody.appendChild(t); }
 function createSelect(l, v, k, ops) { 
     const lb=document.createElement('label'); lb.textContent=l; 
     const s=document.createElement('select'); 

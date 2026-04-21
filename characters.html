@@ -853,7 +853,7 @@ setTimeout(() => {
     </div>
     <div id="resistancesBox" style="background:var(--panel); padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid var(--border);">
         <label>Resist</label>
-        <textarea id="resistances" class="live-field" placeholder="Resistances, Immunities, DR, SR"></textarea>
+        <textarea id="resistances" class="live-field scrollable-textarea" placeholder="Resistances, Immunities, DR, SR"></textarea>
     </div>
     <h3>Weapons</h3>
     <div id="weaponList"></div>
@@ -937,7 +937,7 @@ setTimeout(() => {
 
 
 <div id="notes" class="tab-content">
-  <textarea id="notesArea" class="live-field" style="min-height:320px; width:100%; resize:vertical; display:block;"></textarea>
+  <textarea id="notesArea" class="live-field scrollable-textarea" style="min-height:320px; width:100%; resize:vertical; display:block;"></textarea>
 </div>
 
 <div id="summonMenu"></div>
@@ -2302,7 +2302,20 @@ function populateEditorModal(type, item, index, col) {
 }
 
 function createInput(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const i=document.createElement('input'); i.value=v||''; i.oninput=e=>updateCurrentItem(k,e.target.value); modalBody.appendChild(lb); modalBody.appendChild(i); }
-function createTextArea(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const t=document.createElement('textarea'); t.value=v||''; setTimeout(()=>autoExpand(t),0); t.oninput=e=>{autoExpand(t); updateCurrentItem(k,e.target.value)}; modalBody.appendChild(lb); modalBody.appendChild(t); }
+function prepareScrollableTextarea(t, opts = {}) {
+    if(!t) return t;
+    t.classList.add('scrollable-textarea');
+    if(opts.borderColor) t.style.borderColor = opts.borderColor;
+    t.setAttribute('rows', String(opts.rows || 6));
+    const stopBubble = (e) => e.stopPropagation();
+    t.addEventListener('pointerdown', stopBubble);
+    t.addEventListener('mousedown', stopBubble);
+    t.addEventListener('touchstart', stopBubble, { passive: true });
+    t.addEventListener('touchmove', stopBubble, { passive: true });
+    setTimeout(() => autoExpand(t), 0);
+    return t;
+}
+function createTextArea(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const t=document.createElement('textarea'); t.value=v||''; prepareScrollableTextarea(t); t.oninput=e=>{autoExpand(t); updateCurrentItem(k,e.target.value)}; modalBody.appendChild(lb); modalBody.appendChild(t); }
 function createSelect(l, v, k, ops) { const lb=document.createElement('label'); lb.textContent=l; const s=document.createElement('select'); ops.forEach(o=>{const op=document.createElement('option'); op.text=o; op.value=o; if(o===v) op.selected=true; s.appendChild(op)}); s.onchange=e=>{ updateCurrentItem(k,e.target.value); if(currentEditContext && currentEditContext.type === 'item') populateEditorModal('item', getActiveData().items[currentEditContext.index], currentEditContext.index, 'items'); }; modalBody.appendChild(lb); modalBody.appendChild(s); }
 function createCheckbox(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const w=document.createElement('div'); w.style.cssText='display:flex; align-items:center; gap:10px;'; const i=document.createElement('input'); i.type='checkbox'; i.checked=!!v; i.style.width='18px'; i.style.height='18px'; i.onchange=e=>updateCurrentItem(k,e.target.checked); w.appendChild(i); modalBody.appendChild(lb); modalBody.appendChild(w); }
 function createEditorSection(title) { const div = document.createElement('div'); div.className = 'editor-section-title'; div.textContent = title; modalBody.appendChild(div); }
