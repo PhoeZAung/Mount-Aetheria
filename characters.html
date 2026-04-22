@@ -1749,8 +1749,23 @@ function spellDcDisplayValue(spell){
 function spellHeaderFormula(levelNum){
     return `DC ${10 + getSpellDcBaseValue() + levelNum}`;
 }
+function normalizeAttackModeValue(value){
+    return String(value || '').trim().toLowerCase().replace(/\s+/g, '_');
+}
+function attackConfigFromMode(mode){
+    const map = {
+        melee: { label: 'Melee', id: 'ar_total' },
+        ranged: { label: 'Ranged', id: 'ar_ranged_total' },
+        touch: { label: 'Touch', id: 'ar_touch_total' },
+        ranged_touch: { label: 'Ranged Touch', id: 'ar_ranged_touch_total' },
+        cmb: { label: 'CMB', id: 'cmb' }
+    };
+    const cfg = map[mode];
+    if(!cfg) return null;
+    return { mode, label: cfg.label, total: readNumericValue(cfg.id, 0) };
+}
 function spellAttackMode(spell){
-    const raw = String(spell?.attack_type || '').trim().toLowerCase().replace(/\s+/g, '_');
+    const raw = normalizeAttackModeValue(spell?.attack_type);
     if(raw === 'touch') return 'touch';
     if(raw === 'ranged_touch') return 'ranged_touch';
     return null;
@@ -1759,11 +1774,20 @@ function spellIsRollable(spell){
     return !!spellAttackMode(spell) || String(spell?.damage || '').trim() !== '';
 }
 function spellAttackConfig(spell){
-    const mode = spellAttackMode(spell);
-    if(mode === 'touch') return { label: 'Touch', total: readNumericValue('ar_touch_total', 0) };
-    if(mode === 'ranged_touch') return { label: 'Ranged Touch', total: readNumericValue('ar_ranged_touch_total', 0) };
+    return attackConfigFromMode(spellAttackMode(spell));
+}
+function abilityAttackMode(item){
+    const raw = normalizeAttackModeValue(item?.attack_type);
+    if(['melee','ranged','touch','ranged_touch','cmb'].includes(raw)) return raw;
     return null;
 }
+function abilityIsRollable(item){
+    return !!abilityAttackMode(item) || String(item?.damage || '').trim() !== '';
+}
+function abilityAttackConfig(item){
+    return attackConfigFromMode(abilityAttackMode(item));
+}
+
 
 function isSpellGroupOpen(levelNum){
     const key = `spellGroupOpen:${levelNum}`;
@@ -1852,9 +1876,7 @@ let touchStartCoords = {x:0, y:0};
 
 function renderAbilities(subType) {
     let prop = subType === 'active' ? 'activeAbilities' : subType === 'passive' ? 'passiveAbilities' : 'feats';
-    // Get the correct array, default to empty
     const data = getActiveData()[prop] || [];
-    // Get the correct container ID
     const container = document.getElementById(listContainerIds[subType]); 
     container.innerHTML = '';
     
@@ -1862,60 +1884,54 @@ function renderAbilities(subType) {
         const div = document.createElement('div'); 
         div.className = 'list-row';
         
-        // Desktop DnD Attributes
         div.draggable = true;
         div.dataset.index = i;
         div.dataset.type = subType;
         
-        // Drag Events
         div.addEventListener('dragstart', handleDragStart);
         div.addEventListener('dragover', handleDragOver);
         div.addEventListener('drop', handleDrop);
         div.addEventListener('dragend', handleDragEnd);
         
-        // Touch Events
         div.addEventListener('touchstart', handleTouchStart, {passive: false});
         div.addEventListener('touchmove', handleTouchMove, {passive: false});
         div.addEventListener('touchend', handleTouchEnd);
 
-        // Content HTML
         let contentHtml = `<span class="list-row-title">${a.name||`New ${subType}`}</span>`;
         if(subType === 'active') { 
-            contentHtml = `<span class="active-name">${a.name||'New Ability'}</span><span class="active-type">${a.type||''}</span>`; 
+            const metaParts = [a.type || '', a.attack_type || ''].filter(Boolean);
+            contentHtml = `<span class="active-name">${a.name||'New Ability'}</span><span class="active-type">${metaParts.join(' • ')}</span>`; 
         }
         
-        // Inputs HTML (for Active uses)
         let inputsHtml = '';
         if(subType === 'active') {
             inputsHtml = `<div class="inline-input-group"><input type="number" value="${a.u_curr||0}" onchange="updateAbilityUse(${i},'u_curr',this.value)" onclick="event.stopPropagation()"><span>/</span><input type="number" value="${a.u_max||0}" onchange="updateAbilityUse(${i},'u_max',this.value)" onclick="event.stopPropagation()"></div>`;
         }
 
-        // --- NEW: FEAT LINK LOGIC ---
         let linkHtml = '';
         if(subType === 'feat' && a.link) {
             linkHtml = `<a class="btn-link-small" href="${a.link}" target="_blank" onclick="event.stopPropagation()">Link</a>`;
         }
-        // ----------------------------
 
         const cDiv = document.createElement('div'); 
         cDiv.className = `row-content ${subType==='active'?'active-ability-layout':''}`;
         cDiv.innerHTML = contentHtml; 
         
-        // Ensure click opens view only if we aren't dragging
         cDiv.onclick = (e) => { 
             if(!isDragging) openView(subType, i); 
         };
         
         const aDiv = document.createElement('div'); 
         aDiv.className = 'row-actions';
+        const rollBtnHtml = (subType === 'active' && abilityIsRollable(a)) ? `<button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollAbilityAction(${i})" title="Roll active ability">🎲</button>` : '';
         const sendBtnHtml = `<button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendAbilityCard('${subType}',${i})" title="Send to chat">💬</button>`;
-        // Added linkHtml to the output below
         const editBtnHtml = (subType === 'active' && a.isLimitBreak) ? '' : `<button class="btn-edit" onclick="event.stopPropagation(); openEditor('${subType}',${i})">Edit</button>`;
-        aDiv.innerHTML = `${inputsHtml}${sendBtnHtml}${linkHtml}${editBtnHtml}`;
+        aDiv.innerHTML = `${inputsHtml}${rollBtnHtml}${sendBtnHtml}${linkHtml}${editBtnHtml}`;
         
         div.appendChild(cDiv); div.appendChild(aDiv); container.appendChild(div);
     });
 }
+
 
 // Desktop Drag Handlers
 function handleDragStart(e) {
@@ -2169,7 +2185,54 @@ function populateViewModal(type, item, index = -1) {
           </div>`;
         return;
     }
-    if(type === 'active' || type === 'passive' || type === 'feat') {
+    if(type === 'active') {
+        const esc = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+        const nl2br = (value) => esc(value).replace(/\\n/g, '<br>');
+        const asText = (value, fallback = '—') => {
+            const text = String(value ?? '').trim();
+            return text ? text : fallback;
+        };
+        const tag = (label, value) => `<div class="spell-view-tag"><span class="spell-tag-label">${esc(label)}</span><span class="spell-tag-value">${esc(asText(value))}</span></div>`;
+        const canRoll = abilityIsRollable(item);
+        body.innerHTML = `
+          <div class="spell-view-shell">
+            <div class="spell-view-top">
+              <div class="spell-view-titlebar">
+                <div class="spell-view-titleline">
+                  <h3>${esc(asText(item.name, 'Unnamed Ability'))}</h3>
+                </div>
+                <div class="spell-view-actions">
+                  ${canRoll && index > -1 ? `<button class="roll-icon-btn" type="button" onclick="rollAbilityAction(${index})" title="Roll active ability">🎲</button>` : ''}
+                  ${index > -1 ? `<button class="chat-icon-btn" type="button" onclick="sendAbilityCard('active',${index})" title="Send active ability to chat">💬</button>` : ''}
+                </div>
+              </div>
+              <div class="spell-view-subtitle">
+                <span class="spell-action-chip">${esc(asText(item.type, 'Standard'))}</span>
+                <span class="spell-action-chip">Uses ${esc(String(item.u_curr ?? 0))}/${esc(String(item.u_max ?? 0))}</span>
+              </div>
+            </div>
+            <div class="spell-view-section-grid">
+              <div class="spell-view-section">
+                <h4>Core</h4>
+                <div class="spell-view-tag-grid">
+                  ${tag('Type', item.type || 'Standard')}
+                  ${tag('Uses', `${item.u_curr ?? 0}/${item.u_max ?? 0}`)}
+                </div>
+              </div>
+              <div class="spell-view-section">
+                <h4>Combat</h4>
+                <div class="spell-view-tag-grid">
+                  ${tag('Attack Type', item.attack_type)}
+                  ${tag('Damage', item.damage)}
+                </div>
+              </div>
+              ${String(item.desc ?? '').trim() ? `<div class="spell-view-section spell-view-wide"><h4>Description</h4><div class="spell-view-copy">${nl2br(item.desc)}</div></div>` : `<div class="spell-view-section spell-view-wide"><h4>Description</h4><div class="spell-view-copy">—</div></div>`}
+              ${String(item.at_higher_lvls ?? item.at_higher ?? '').trim() ? `<div class="spell-view-section spell-view-wide"><h4>At Higher Levels</h4><div class="spell-view-copy">${nl2br(item.at_higher_lvls ?? item.at_higher)}</div></div>` : ''}
+            </div>
+          </div>`;
+        return;
+    }
+    if(type === 'passive' || type === 'feat') {
         const esc = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
         const nl2br = (value) => esc(value).replace(/\\n/g, '<br>');
         const show = (value, fallback = '—') => {
@@ -2183,6 +2246,7 @@ function populateViewModal(type, item, index = -1) {
           </div>`;
         return;
     }
+
     if(type === 'item') { if(item.tags) add("Type", item.tags); add("Amount", String(getItemAmount(item))); if(item.cost) add("Cost", item.cost); add("Slot", String(getItemSlot(item))); add("Location", item.equipped ? 'Equipped' : 'Storage'); }
     add("Description", item.desc);
 }
@@ -2264,14 +2328,18 @@ function populateEditorModal(type, item, index, col) {
         createInput('Link URL', item.link, 'link');
     }
     if(type === 'active') {
-        // ADDED 'Other' to this list
-        createSelect('Type', item.type, 'type', ["Standard","Move","Swift","Full","Free","Immediate","Reaction","Other"]);
+        createEditorSection('Core');
+        createSelect('Type', item.type || 'Standard', 'type', ["Standard","Move","Swift","Full","Free","Immediate","Reaction","Other"]);
         modalBody.appendChild(document.createElement('label')).textContent = "Uses (Cur/Max)";
         const d = document.createElement('div'); d.style.cssText="display:flex;gap:5px";
         const c = document.createElement('input'); c.type="number"; c.placeholder="Cur"; c.value=item.u_curr||0; c.oninput=e=>updateCurrentItem('u_curr',e.target.value);
         const m = document.createElement('input'); m.type="number"; m.placeholder="Max"; m.value=item.u_max||0; m.oninput=e=>updateCurrentItem('u_max',e.target.value);
         d.appendChild(c); d.appendChild(m); modalBody.appendChild(d);
+        createEditorSection('Combat');
+        createSelect('Attack Type', item.attack_type || 'None', 'attack_type', ["None","Melee","Ranged","Touch","Ranged Touch","CMB"]);
+        createInput('Damage', item.damage, 'damage');
     }
+
     if(type === 'feat') createInput('Link URL', item.link, 'link');
     if(type === 'item') {
         if(item.tags==='Collections') { modalBody.appendChild(document.createElement('label')).textContent="Tag"; const i=document.createElement('input'); i.value="Collections"; i.disabled=true; modalBody.appendChild(i); if(item.img) createInput('Image URL', item.img, 'img'); }
@@ -2341,7 +2409,7 @@ function refreshList(t) { if(t==='weapon') renderWeapons(); else if(t==='spell')
 window.addNewItem = (t) => {
     const d = getActiveData();
     let n={name:''}, c='';
-    if(t==='weapon'){c='weapons';n.mod='STR';n.ability_mod='STR';n.attack_misc='';n.damage='';n.type='';n.crit_range='20';n.crit_mult='x2';n.range='';n.ammo='';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';n.attack_type='None';n.spell_resist='No';n.saving_throw='';n.school='';n.target='';n.range='';n.duration='';n.damage='';n.at_higher_lvls='';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;n.at_higher_lvls='';} else if(t==='passive'){c='passiveAbilities';n.at_higher_lvls='';} else if(t==='feat'){c='feats';n.at_higher_lvls='';} else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
+    if(t==='weapon'){c='weapons';n.mod='STR';n.ability_mod='STR';n.attack_misc='';n.damage='';n.type='';n.crit_range='20';n.crit_mult='x2';n.range='';n.ammo='';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';n.attack_type='None';n.spell_resist='No';n.saving_throw='';n.school='';n.target='';n.range='';n.duration='';n.damage='';n.at_higher_lvls='';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;n.attack_type='None';n.damage='';n.at_higher_lvls='';} else if(t==='passive'){c='passiveAbilities';n.at_higher_lvls='';} else if(t==='feat'){c='feats';n.at_higher_lvls='';} else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
     if(!d[c]) d[c]=[]; d[c].push(n);
     saveDataOnly(); refreshList(t); openEditor(t, d[c].length-1);
 };
@@ -3640,6 +3708,7 @@ function sendAbilityCard(subType, index) {
   if (subType === 'active') {
     lines.push(`> Type: ${item.type || 'Standard'}`);
     lines.push(`> Uses: ${item.u_curr ?? 0}/${item.u_max ?? 0}`);
+    lines.push(`> Attack Type: ${item.attack_type || '—'} | Damage: ${item.damage || '—'}`);
   } else if (item.type) {
     lines.push(`> Type: ${item.type}`);
   }
@@ -3654,6 +3723,35 @@ function sendAbilityCard(subType, index) {
     results: []
   });
 }
+function rollAbilityAction(index) {
+  const list = getActiveData().activeAbilities || [];
+  const item = list[index];
+  if (!item) return;
+  const attack = abilityAttackConfig(item);
+  const damageResult = String(item?.damage || '').trim() ? rollDamageExpression(item.damage) : null;
+  const results = [];
+  if (attack) {
+    const attackRoll = rollD20WithModifier(attack.total);
+    results.push(`<strong>Attack Roll (${chatEscapeHtml(attack.label)}):</strong> ${chatEscapeHtml(String(attackRoll.total))}`);
+    if (damageResult) results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
+    if (attackRoll.die === 20 && attack.mode !== 'cmb') {
+      const confirmRoll = rollD20WithModifier(attack.total);
+      results.push('<strong>Crit !!!</strong>');
+      results.push(`<strong>Crit ${chatEscapeHtml(attack.label)} Roll:</strong> ${chatEscapeHtml(String(confirmRoll.total))}`);
+      if (damageResult) results.push(`<strong>Crit Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(scaleDamageResult(damageResult, 2)))}`);
+    }
+  } else if (damageResult) {
+    results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
+  }
+  routeChatEntry({
+    kind: 'roll',
+    title: item.name || 'Active Ability',
+    subtitle: currentChatSheetLabel(),
+    lines: [],
+    results
+  });
+}
+
 function sendAbilityCheck(stat) {
   const upper = String(stat || '').toUpperCase();
   const mod = (typeof getMod === 'function') ? getMod(stat) : readNumericValue(`mod-${stat}`, 0);
@@ -3689,6 +3787,7 @@ window.sendSavesOverview = sendSavesOverview;
 window.rollSaveCheck = rollSaveCheck;
 window.sendAbilityCheck = sendAbilityCheck;
 window.sendAbilityCard = sendAbilityCard;
+window.rollAbilityAction = rollAbilityAction;
 window.toggleSaveRollMenu = toggleSaveRollMenu;
 window.toggleAttackRollMenu = toggleAttackRollMenu;
 window.rollAttackCheck = rollAttackCheck;
