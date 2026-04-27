@@ -576,6 +576,8 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 /* --- Chat + Roll Pass 1 --- */
 .chat-icon-btn,.roll-icon-btn,.mini-action-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:999px;border:1px solid #575757;background:#151515;color:var(--accent);cursor:pointer;font-size:14px;line-height:1;flex:0 0 auto;}
 .chat-icon-btn:hover,.roll-icon-btn:hover,.mini-action-btn:hover{background:var(--accent);color:#000;border-color:var(--accent);}
+.damage-roll-btn{width:auto;min-width:50px;padding:0 8px;font-size:11px;font-weight:800;gap:4px;}
+.damage-roll-btn .roll-btn-label{font-size:10px;letter-spacing:.02em;}
 #spell_dc_base{max-width:96px;margin:0 auto;text-align:center;text-align-last:center;}
 .editor-section-title{margin:14px 0 8px;padding:8px 10px;border:1px solid #3a3a3a;border-radius:8px;background:#171717;color:var(--accent);font-family:'Uncial Antiqua',serif;font-size:15px;text-align:center;}
 .spell-view-titlebar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
@@ -678,6 +680,44 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
   .local-chat-header{padding:11px 12px;}
   .local-chat-target{min-width:98px;max-width:112px;font-size:11px;}
   .local-chat-fab{left:auto;right:16px;bottom:84px;width:52px;height:52px;}
+}
+
+
+/* --- Roll Overlay Toggle Patch --- */
+.chat-view-toggle { display:none !important; }
+.local-chat-target option:disabled { color:#777; background:#202020; }
+.roll-toggle-btn { transition: background .18s ease, border-color .18s ease, color .18s ease, transform .12s ease; }
+.roll-toggle-btn:hover { transform: translateY(-1px); }
+.roll-toggle-btn.roll-toggle-off { background:#5c1717 !important; border-color:#b84444 !important; color:#fff !important; }
+.roll-toggle-btn.roll-toggle-on { background:#176b33 !important; border-color:#42d06f !important; color:#fff !important; }
+.roll-result-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:6800; opacity:0; transform:scale(.92); transition:opacity .18s ease, transform .18s ease; }
+.roll-result-overlay.show { opacity:1; transform:scale(1); }
+.roll-overlay-card { display:flex; flex-direction:column; align-items:center; gap:12px; padding:18px 20px; border-radius:24px; background:rgba(8,8,8,.72); border:1px solid rgba(255,204,102,.85); box-shadow:0 22px 55px rgba(0,0,0,.5), 0 0 34px rgba(255,204,102,.18); animation: rollOverlayPop .75s cubic-bezier(.2,.85,.2,1); }
+.roll-dice-face { width:118px; height:118px; position:relative; border-radius:26px; background:linear-gradient(145deg,#fff,#dcdcdc); border:3px solid #111; box-shadow:inset 0 -10px 18px rgba(0,0,0,.18), 0 10px 22px rgba(0,0,0,.38); display:flex; align-items:center; justify-content:center; transform:rotate(-8deg); }
+.roll-dice-pip { position:absolute; width:14px; height:14px; border-radius:50%; background:#111; box-shadow:0 0 0 1px rgba(0,0,0,.1); }
+.roll-dice-pip.p1 { left:22px; top:22px; }
+.roll-dice-pip.p2 { right:22px; top:22px; }
+.roll-dice-pip.p3 { left:22px; bottom:22px; }
+.roll-dice-pip.p4 { right:22px; bottom:22px; }
+.roll-overlay-total { position:relative; z-index:2; min-width:62px; height:62px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#111; color:var(--accent); border:2px solid var(--accent); font-size:32px; font-weight:900; line-height:1; transform:rotate(8deg); text-shadow:0 0 12px rgba(255,204,102,.35); }
+.roll-overlay-label { color:#f3f3f3; font-weight:800; font-size:15px; text-align:center; max-width:min(300px,80vw); text-shadow:0 2px 10px rgba(0,0,0,.7); }
+.roll-overlay-dice-row{display:flex;align-items:flex-start;justify-content:center;gap:14px;flex-wrap:wrap;}
+.roll-overlay-die-wrap{display:flex;flex-direction:column;align-items:center;gap:7px;}
+.roll-overlay-mini-label{color:#f3f3f3;font-weight:800;font-size:12px;text-align:center;text-shadow:0 2px 10px rgba(0,0,0,.7);}
+
+@keyframes rollOverlayPop {
+  0% { transform:translateY(18px) scale(.72) rotate(-10deg); opacity:0; filter:blur(2px); }
+  55% { transform:translateY(-6px) scale(1.08) rotate(3deg); opacity:1; filter:blur(0); }
+  100% { transform:translateY(0) scale(1) rotate(0); opacity:1; }
+}
+@media (max-width:700px){
+  .roll-dice-face { width:96px; height:96px; border-radius:22px; }
+  .roll-overlay-total { min-width:54px; height:54px; font-size:28px; }
+  .roll-dice-pip { width:12px; height:12px; }
+  .roll-dice-pip.p1 { left:18px; top:18px; }
+  .roll-dice-pip.p2 { right:18px; top:18px; }
+  .roll-dice-pip.p3 { left:18px; bottom:18px; }
+  .roll-dice-pip.p4 { right:18px; bottom:18px; }
 }
 
 </style>
@@ -1002,28 +1042,24 @@ setTimeout(() => {
       <div id="localChatSubtitle" class="local-chat-subtitle">Current sheet output</div>
     </div>
     <div class="local-chat-header-actions">
-      <div class="chat-view-toggle">
-        <button id="chatViewLocalBtn" class="chat-view-btn" type="button" onclick="setChatView('local')">Local</button>
-        <button id="chatViewGlobalBtn" class="chat-view-btn" type="button" onclick="setChatView('global')">Global</button>
-      </div>
-      <select id="chatTargetSelect" class="local-chat-target" onchange="persistChatTarget()">
-        <option value="discord">Discord</option>
-        <option value="local">Local</option>
-        <option value="global">Global</option>
-        <option value="owlbear">Owlbear</option>
+      <select id="chatTargetSelect" class="local-chat-target" onchange="persistChatTarget()" title="Output target">
+        <option value="discord">Discord + Site</option>
+        <option value="owlbear" disabled>Owlbear (coming soon)</option>
       </select>
       <button class="chat-icon-btn" type="button" onclick="toggleLocalChat(false)" title="Close chat">×</button>
     </div>
   </div>
   <div id="localChatLog" class="local-chat-log"></div>
   <div class="local-chat-footer">
-    <div class="local-chat-footer-note"><strong>Target:</strong> Discord by default. Open this window manually from the menu.</div>
+    <div class="local-chat-footer-note"><strong>Output:</strong> Discord + this website chat. Open this window manually from the menu.</div>
     <div class="local-chat-actions">
       <button id="localChatClearBtn" type="button" onclick="clearLocalChat()">Clear</button>
       <button type="button" onclick="toggleLocalChat(false)">Close</button>
     </div>
   </div>
 </aside>
+
+<div id="rollResultOverlay" class="roll-result-overlay" aria-hidden="true"></div>
 
 <div id="characterQuickPanel" class="character-quick-panel" aria-hidden="true">
   <div id="characterQuickPanelHandle" class="character-quick-header">
@@ -1035,6 +1071,7 @@ setTimeout(() => {
 <div id="panelMenuShell" class="panel-menu-shell">
   <div id="panelMenuPopover" class="panel-menu-popover" aria-hidden="true">
     <button class="panel-menu-btn" type="button" onclick="toggleLocalChat(true); togglePanelMenu(false)">💬 Chat</button>
+    <button id="rollOverlayToggleBtn" class="panel-menu-btn roll-toggle-btn roll-toggle-off" type="button" onclick="toggleRollOverlay()">🎲 Toggle Roll: Off</button>
     <button class="panel-menu-btn" type="button" onclick="toggleCharacterQuickPanel(); togglePanelMenu(false)">🪪 Character</button>
     <button class="panel-menu-btn" type="button" onclick="toggleAbilityDrawer(); togglePanelMenu(false)">🎲 Ability Scores</button>
   </div>
@@ -1921,7 +1958,7 @@ function renderWeapons() {
             <span class="weapon-meta-line">${typeMeta}${dmgMeta}${rangeMeta}</span>
           </div>
           <div class="row-actions weapon-row-actions">
-            <button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollWeaponAttack(${i})" title="Roll weapon attack">🎲</button>
+            <button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollWeaponAttack(${i})" title="Roll weapon attack and damage">🎲</button>
             <button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendWeaponCard(${i})" title="Send weapon to chat">💬</button>
             ${ammoHtml}
             <button class="btn-edit" onclick="event.stopPropagation(); openEditor('weapon',${i})">Edit</button>
@@ -1956,6 +1993,57 @@ function spellHeaderFormula(levelNum){
 function normalizeAttackModeValue(value){
     return String(value || '').trim().toLowerCase().replace(/\s+/g, '_');
 }
+function attackFormulaPartsForMode(mode){
+    const babTotal = numVal('bab') + numVal('bab_temp');
+    const sizeMod = numVal('size_mod');
+    const sizeSpecial = numVal('size_special');
+    if(mode === 'melee') {
+        const ability = getAttackAbility('ar_melee_ability', 'str');
+        return [
+            { label: 'BAB', value: babTotal },
+            { label: abilityModLabel(ability), value: modFor(ability) },
+            { label: 'Size', value: sizeMod },
+            { label: 'Temp', value: numVal('ar_melee_temp') }
+        ];
+    }
+    if(mode === 'ranged') {
+        const ability = getAttackAbility('ar_ranged_ability', 'dex');
+        return [
+            { label: 'BAB', value: babTotal },
+            { label: abilityModLabel(ability), value: modFor(ability) },
+            { label: 'Size', value: sizeMod },
+            { label: 'Temp', value: numVal('ar_ranged_temp') }
+        ];
+    }
+    if(mode === 'touch') {
+        const ability = getAttackAbility('ar_touch_ability', 'str');
+        return [
+            { label: 'BAB', value: babTotal },
+            { label: abilityModLabel(ability), value: modFor(ability) },
+            { label: 'Size', value: sizeMod },
+            { label: 'Temp', value: numVal('ar_touch_temp') }
+        ];
+    }
+    if(mode === 'ranged_touch') {
+        const ability = getAttackAbility('ar_ranged_touch_ability', 'dex');
+        return [
+            { label: 'BAB', value: babTotal },
+            { label: abilityModLabel(ability), value: modFor(ability) },
+            { label: 'Size', value: sizeMod },
+            { label: 'Temp', value: numVal('ar_ranged_touch_temp') }
+        ];
+    }
+    if(mode === 'cmb') {
+        return [
+            { label: 'BAB', value: babTotal },
+            { label: 'STR Mod', value: modFor('str') },
+            { label: 'DEX Mod', value: modFor('dex') },
+            { label: 'Size Special', value: sizeSpecial },
+            { label: 'Temp', value: numVal('cmb_temp') }
+        ];
+    }
+    return [];
+}
 function attackConfigFromMode(mode){
     const map = {
         melee: { label: 'Melee', id: 'ar_total' },
@@ -1966,7 +2054,10 @@ function attackConfigFromMode(mode){
     };
     const cfg = map[mode];
     if(!cfg) return null;
-    return { mode, label: cfg.label, total: readNumericValue(cfg.id, 0) };
+    const parts = attackFormulaPartsForMode(mode);
+    const computedTotal = calcPartList(parts).reduce((sum, part) => sum + calcNumber(part.value), 0);
+    const fallbackTotal = readNumericValue(cfg.id, 0);
+    return { mode, label: cfg.label, total: Number.isFinite(computedTotal) ? computedTotal : fallbackTotal, parts };
 }
 function spellAttackMode(spell){
     const raw = normalizeAttackModeValue(spell?.attack_type);
@@ -2051,7 +2142,7 @@ function renderSpells() {
             const div = document.createElement('div');
             div.className = 'list-row spell-row';
             const linkHtml = s.link ? `<a class="spell-link-btn" href="${s.link}" target="_blank" onclick="event.stopPropagation()">Link</a>` : '';
-            const rollHtml = spellIsRollable(s) ? `<button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollSpellAction(${idx})" title="Roll spell attack or damage">🎲</button>` : '';
+            const rollHtml = spellIsRollable(s) ? `<button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollSpellAction(${idx})" title="Roll spell attack and damage">🎲</button>` : '';
             const sendHtml = `<button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendSpellCard(${idx})" title="Send spell to chat">💬</button>`;
             const actionType = s.type || 'Standard';
             div.innerHTML = `
@@ -2127,7 +2218,7 @@ function renderAbilities(subType) {
         
         const aDiv = document.createElement('div'); 
         aDiv.className = 'row-actions';
-        const rollBtnHtml = (subType === 'active' && abilityIsRollable(a)) ? `<button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollAbilityAction(${i})" title="Roll active ability">🎲</button>` : '';
+        const rollBtnHtml = (subType === 'active' && abilityIsRollable(a)) ? `<button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollAbilityAction(${i})" title="Roll active ability attack and damage">🎲</button>` : '';
         const sendBtnHtml = `<button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendAbilityCard('${subType}',${i})" title="Send to chat">💬</button>`;
         const editBtnHtml = (subType === 'active' && a.isLimitBreak) ? '' : `<button class="btn-edit" onclick="event.stopPropagation(); openEditor('${subType}',${i})">Edit</button>`;
         aDiv.innerHTML = `${inputsHtml}${rollBtnHtml}${sendBtnHtml}${linkHtml}${editBtnHtml}`;
@@ -2334,7 +2425,7 @@ function populateViewModal(type, item, index = -1) {
                   <h3>${esc(asText(item.name, 'Unnamed Spell'))}</h3>
                 </div>
                 <div class="spell-view-actions">
-                  ${canRoll && index > -1 ? `<button class="roll-icon-btn" type="button" onclick="rollSpellAction(${index})" title="Roll spell">🎲</button>` : ''}
+                  ${canRoll && index > -1 ? `<button class="roll-icon-btn" type="button" onclick="rollSpellAction(${index})" title="Roll spell attack and damage">🎲</button>` : ''}
                   ${index > -1 ? `<button class="chat-icon-btn" type="button" onclick="sendSpellCard(${index})" title="Send spell to chat">💬</button>` : ''}
                   ${item.link ? `<a class="spell-link-btn" href="${esc(item.link)}" target="_blank">Open Link</a>` : ''}
                 </div>
@@ -2393,7 +2484,7 @@ function populateViewModal(type, item, index = -1) {
             return text ? text : fallback;
         };
         const tag = (label, value) => `<div class="spell-view-tag"><span class="spell-tag-label">${esc(label)}</span><span class="spell-tag-value">${esc(asText(value))}</span></div>`;
-        const canRoll = abilityIsRollable(item);
+        const canRoll = subType === 'active' && abilityIsRollable(item);
         body.innerHTML = `
           <div class="spell-view-shell">
             <div class="spell-view-top">
@@ -2402,7 +2493,7 @@ function populateViewModal(type, item, index = -1) {
                   <h3>${esc(asText(item.name, 'Unnamed Ability'))}</h3>
                 </div>
                 <div class="spell-view-actions">
-                  ${canRoll && index > -1 ? `<button class="roll-icon-btn" type="button" onclick="rollAbilityAction(${index})" title="Roll active ability">🎲</button>` : ''}
+                  ${canRoll && index > -1 ? `<button class="roll-icon-btn" type="button" onclick="rollAbilityAction(${index})" title="Roll active ability attack and damage">🎲</button>` : ''}
                   ${index > -1 ? `<button class="chat-icon-btn" type="button" onclick="sendAbilityCard('active',${index})" title="Send active ability to chat">💬</button>` : ''}
                 </div>
               </div>
@@ -2959,7 +3050,9 @@ const CHAT_VIEW_STORAGE_KEY = 'mountAetheriaChatView';
 const GLOBAL_CHAT_COLLECTION = 'globalRollFeed';
 const CHAT_PANEL_STORAGE_KEY = 'mountAetheriaChatPanelState';
 const CHARACTER_PANEL_STORAGE_KEY = 'mountAetheriaCharacterQuickState';
-let currentChatView = (() => { try { return localStorage.getItem(CHAT_VIEW_STORAGE_KEY) || 'local'; } catch(_err) { return 'local'; } })();
+const ROLL_OVERLAY_STORAGE_KEY = 'mountAetheriaRollOverlayEnabled';
+let currentChatView = 'local';
+let rollOverlayEnabled = (() => { try { return localStorage.getItem(ROLL_OVERLAY_STORAGE_KEY) === 'true'; } catch(_err) { return false; } })();
 let globalChatMessages = [];
 let unsubscribeGlobalChat = null;
 function persistChatView(){ try { localStorage.setItem(CHAT_VIEW_STORAGE_KEY, currentChatView); } catch(_err) {} }
@@ -3061,19 +3154,20 @@ function defaultCharacterPanelPosition(){
   const left = window.innerWidth <= 700 ? 8 : 24;
   return clampFloatingPosition(panel, left, 84, 58);
 }
-function setChatView(view){
-  currentChatView = view === 'global' ? 'global' : 'local';
+function setChatView(_view){
+  currentChatView = 'local';
   persistChatView();
   renderChatViewControls();
   renderLocalChat();
 }
 function renderChatViewControls(){
+  currentChatView = 'local';
   const localBtn = document.getElementById('chatViewLocalBtn');
   const globalBtn = document.getElementById('chatViewGlobalBtn');
-  if(localBtn) localBtn.classList.toggle('active', currentChatView !== 'global');
-  if(globalBtn) globalBtn.classList.toggle('active', currentChatView === 'global');
+  if(localBtn) localBtn.classList.add('active');
+  if(globalBtn) globalBtn.classList.remove('active');
   const clearBtn = document.getElementById('localChatClearBtn');
-  if(clearBtn) clearBtn.disabled = currentChatView === 'global';
+  if(clearBtn) clearBtn.disabled = false;
 }
 function subscribeGlobalChat(){
   if(typeof collection !== 'function' || typeof onSnapshot !== 'function' || !db) return;
@@ -3201,7 +3295,8 @@ function persistLocalChat() {
 function persistChatTarget() {
   const el = document.getElementById('chatTargetSelect');
   if (!el) return;
-  localStorage.setItem(CHAT_TARGET_STORAGE_KEY, el.value || 'discord');
+  if (el.value !== 'discord') el.value = 'discord';
+  try { localStorage.setItem(CHAT_TARGET_STORAGE_KEY, 'discord'); } catch(_err) {}
 }
 function setChatSubtitle() {
   const sub = document.getElementById('localChatSubtitle');
@@ -3216,8 +3311,8 @@ function renderLocalChat() {
   const messages = useGlobal ? globalChatMessages : localChatMessages;
   if (!messages.length) {
     log.innerHTML = useGlobal
-      ? '<div class="local-chat-empty">When target is set to Global, rolls posted there will appear here for everyone using the site.</div>'
-      : '<div class="local-chat-empty">Use the roll and send actions to post Initiative, Saves, Skills, Ability checks, spells, weapons, and abilities here.</div>';
+      ? '<div class="local-chat-empty">Website chat is local to this sheet.</div>'
+      : '<div class="local-chat-empty">Use roll and send actions to post Initiative, Saves, Skills, Ability checks, spells, weapons, and abilities here and to Discord.</div>';
     return;
   }
   log.innerHTML = messages.map(entry => {
@@ -3240,7 +3335,7 @@ function toggleLocalChat(force) {
 }
 function initChatPanelDrag(){ initDraggableFloatingPanel('localChatPanel', 'localChatHeader', CHAT_PANEL_STORAGE_KEY, defaultChatPanelPosition); applyFloatingPanelState('localChatPanel', CHAT_PANEL_STORAGE_KEY, defaultChatPanelPosition); }
 function clearLocalChat() {
-  if (currentChatView === 'global') return;
+  currentChatView = 'local';
   ensureChatStateLoaded();
   localChatMessages = [];
   persistLocalChat();
@@ -3275,22 +3370,14 @@ function toggleAttackRollMenu(event) {
 }
 function rollAttackCheck(kind) {
   closeAllRollMenus();
-  const map = {
-    melee: { label: 'Melee Attack', id: 'ar_total' },
-    ranged: { label: 'Ranged Attack', id: 'ar_ranged_total' },
-    touch: { label: 'Touch Attack', id: 'ar_touch_total' },
-    ranged_touch: { label: 'Ranged Touch Attack', id: 'ar_ranged_touch_total' },
-    cmb: { label: 'CMB', id: 'cmb' }
-  };
-  const cfg = map[kind];
+  const cfg = attackConfigFromMode(kind);
   if (!cfg) return;
-  const total = readNumericValue(cfg.id, 0);
-  const roll = rollD20WithModifier(total);
+  const roll = rollD20WithModifier(cfg.total);
   routeChatEntry({
     kind: 'roll',
-    title: cfg.label,
+    title: cfg.mode === 'cmb' ? 'CMB' : `${cfg.label} Attack`,
     subtitle: currentChatSheetLabel(),
-    lines: [],
+    lines: [rollCalcLine(roll, cfg.parts)],
     results: simpleRollResultLines(roll)
   });
 }
@@ -3314,6 +3401,79 @@ function postChatEntry(entry, options = {}) {
     toggleLocalChat(true);
   }
 }
+
+function syncRollOverlayToggle(){
+  const btn = document.getElementById('rollOverlayToggleBtn');
+  if(!btn) return;
+  btn.classList.toggle('roll-toggle-on', !!rollOverlayEnabled);
+  btn.classList.toggle('roll-toggle-off', !rollOverlayEnabled);
+  btn.textContent = rollOverlayEnabled ? '🎲 Toggle Roll: On' : '🎲 Toggle Roll: Off';
+  btn.setAttribute('aria-pressed', rollOverlayEnabled ? 'true' : 'false');
+  btn.title = rollOverlayEnabled ? 'Dice total overlay is ON' : 'Dice total overlay is OFF';
+}
+function toggleRollOverlay(force){
+  rollOverlayEnabled = (typeof force === 'boolean') ? force : !rollOverlayEnabled;
+  try { localStorage.setItem(ROLL_OVERLAY_STORAGE_KEY, rollOverlayEnabled ? 'true' : 'false'); } catch(_err) {}
+  syncRollOverlayToggle();
+}
+function stripChatHtml(value = ''){
+  const holder = document.createElement('div');
+  holder.innerHTML = String(value || '').replace(/<br\s*\/?>/gi, ' ');
+  return (holder.textContent || holder.innerText || '').replace(/\s+/g, ' ').trim();
+}
+function extractRollOverlayTotals(entry){
+  if(!entry || entry.kind !== 'roll') return [];
+  const results = Array.isArray(entry.results) ? entry.results : [];
+  const totals = [];
+  for(const html of results){
+    const text = stripChatHtml(html);
+    if(!text || /natural\s+(?:1|20)/i.test(text)) continue;
+    const lower = text.toLowerCase();
+    if(/crit\s*!/i.test(text) && !/attack\s*roll/i.test(text)) continue;
+    const labelMatch = text.match(/^([^:]{1,40}):/);
+    const rawLabel = labelMatch ? labelMatch[1].trim() : 'Roll';
+    const label = /dmg|damage/i.test(rawLabel) ? 'Dmg' : (/attack/i.test(rawLabel) ? 'Attack' : rawLabel);
+    const afterColon = text.match(/:\s*(-?\d+)/);
+    const firstNumber = text.match(/-?\d+/);
+    const total = afterColon ? afterColon[1] : (firstNumber ? firstNumber[0] : '');
+    if(total !== '') totals.push({ label, total });
+    if(totals.length >= 2) break;
+  }
+  return totals;
+}
+function showRollOverlay(entry){
+  if(!rollOverlayEnabled || !entry || entry.kind !== 'roll') return;
+  const overlay = document.getElementById('rollResultOverlay');
+  if(!overlay) return;
+  const totals = extractRollOverlayTotals(entry);
+  if(!totals.length) return;
+  const title = chatEscapeHtml(entry.title || 'Roll');
+  const diceHtml = totals.map(item => {
+    const safeTotal = chatEscapeHtml(item.total);
+    const safeLabel = chatEscapeHtml(item.label || 'Roll');
+    return `<div class="roll-overlay-die-wrap">
+      <div class="roll-dice-face" role="img" aria-label="${safeLabel} dice roll total ${safeTotal}">
+        <span class="roll-dice-pip p1"></span><span class="roll-dice-pip p2"></span><span class="roll-dice-pip p3"></span><span class="roll-dice-pip p4"></span>
+        <span class="roll-overlay-total">${safeTotal}</span>
+      </div>
+      <div class="roll-overlay-mini-label">${safeLabel}</div>
+    </div>`;
+  }).join('');
+  overlay.innerHTML = `<div class="roll-overlay-card">
+    <div class="roll-overlay-dice-row">${diceHtml}</div>
+    <div class="roll-overlay-label">${title}</div>
+  </div>`;
+  overlay.classList.remove('show');
+  void overlay.offsetWidth;
+  overlay.classList.add('show');
+  overlay.setAttribute('aria-hidden', 'false');
+  clearTimeout(window.__mountAetheriaRollOverlayTimer);
+  window.__mountAetheriaRollOverlayTimer = setTimeout(() => {
+    overlay.classList.remove('show');
+    overlay.setAttribute('aria-hidden', 'true');
+  }, 1650);
+}
+
 
 const DISCORD_WORKER_URL = "https://weathered-term-1e39.phoeaung2076.workers.dev";
 const DISCORD_CLIENT_COOLDOWN_MS = 2000;
@@ -3415,44 +3575,22 @@ async function sendDiscordEntry(entry) {
   }
 }
 function routeChatEntry(entry) {
-  const target = document.getElementById('chatTargetSelect')?.value || 'discord';
-  if (target === 'local') {
-    setChatView('local');
-    postChatEntry(entry, { open: true });
-    return;
-  }
-  if (target === 'discord') {
-    postChatEntry(entry);
-    if (entry?.kind === 'system') return;
-    sendDiscordEntry(entry).catch(err => {
-      console.error('Discord send failed', err);
-      postChatEntry({
-        kind: 'system',
-        title: 'Discord send failed',
-        subtitle: 'Local only',
-        lines: [String(err?.message || 'Could not reach the Discord relay.')],
-        results: []
-      });
-    });
-    return;
-  }
-  if (target === 'global') {
-    postChatEntry(entry);
-    if (entry?.kind === 'system') return;
-    sendGlobalEntry(entry).catch(err => {
-      console.error('Global send failed', err);
-      postChatEntry({
-        kind: 'system',
-        title: 'Global send failed',
-        subtitle: 'Local only',
-        lines: [String(err?.message || 'Could not write to the shared website feed.')],
-        results: []
-      });
-    });
-    return;
-  }
-  postChatEntry({ kind: 'system', title: `${target[0].toUpperCase()}${target.slice(1)} bridge not connected`, subtitle: 'Local preview only', lines: ['This target is planned for a later pass. The action was rendered locally so you can verify the output first.'], results: [] });
+  if (entry?.kind === 'roll') showRollOverlay(entry);
   postChatEntry(entry);
+  const targetSelect = document.getElementById('chatTargetSelect');
+  if (targetSelect) targetSelect.value = 'discord';
+  try { localStorage.setItem(CHAT_TARGET_STORAGE_KEY, 'discord'); } catch(_err) {}
+  if (entry?.kind === 'system') return;
+  sendDiscordEntry(entry).catch(err => {
+    console.error('Discord send failed', err);
+    postChatEntry({
+      kind: 'system',
+      title: 'Discord send failed',
+      subtitle: 'Website chat saved',
+      lines: [String(err?.message || 'Could not reach the Discord relay.')],
+      results: []
+    });
+  });
 }
 
 function secureRandomInt(maxExclusive) {
@@ -3491,6 +3629,75 @@ function simpleRollResultLines(roll, label = 'Rolled Total') {
   if (nat) out.push(nat);
   return out;
 }
+function calcNumber(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+function calcPart(label, value) {
+  const num = calcNumber(value);
+  if (!num) return null;
+  return { label: String(label || '').trim(), value: num };
+}
+function calcPartList(parts = []) {
+  return (parts || []).map(part => calcPart(part?.label, part?.value)).filter(Boolean);
+}
+function signedCalcTerm(part) {
+  const value = calcNumber(part?.value);
+  if (!value) return '';
+  const sign = value > 0 ? '+' : '-';
+  const label = String(part?.label || '').trim();
+  return `${sign}${Math.abs(value)}${label ? ` ${label}` : ''}`;
+}
+function rollCalcLine(roll, parts = [], label = 'Calc') {
+  const die = roll?.die ?? '?';
+  const formula = [`d20 (${die})`].concat(calcPartList(parts).map(signedCalcTerm).filter(Boolean)).join(' ');
+  return `> ${label}: ${formula}`;
+}
+function abilityModLabel(stat) {
+  const key = String(stat || '').trim().toUpperCase();
+  return key ? `${key} Mod` : 'Ability Mod';
+}
+function damageCalcLine(result, label = 'Dmg Calc', multiplier = 1) {
+  if (!result || !Array.isArray(result.breakdown) || !result.breakdown.length) return '';
+  const pieces = result.breakdown.map(part => String(part?.text || '').trim()).filter(Boolean);
+  if (!pieces.length) return '';
+  const mult = Number(multiplier || 1) || 1;
+  return `> ${label}: ${pieces.join(' | ')}${mult > 1 ? ` × ${mult}` : ''}`;
+}
+function saveFormulaConfig(kind) {
+  const map = {
+    fort: { label: 'Fortitude Save', stat: 'con', statLabel: 'CON Mod', base: 'fort_base', enhance: 'fort_enhance', temp: 'fort_temp' },
+    ref: { label: 'Reflex Save', stat: 'dex', statLabel: 'DEX Mod', base: 'ref_base', enhance: 'ref_enhance', temp: 'ref_temp' },
+    will: { label: 'Will Save', stat: 'wis', statLabel: 'WIS Mod', base: 'will_base', enhance: 'will_enhance', temp: 'will_temp' }
+  };
+  const cfg = map[kind];
+  if (!cfg) return null;
+  const statMod = (typeof getMod === 'function') ? getMod(cfg.stat) : 0;
+  const base = numVal(cfg.base);
+  const enhance = numVal(cfg.enhance);
+  const temp = numVal(cfg.temp);
+  return {
+    label: cfg.label,
+    total: statMod + base + enhance + temp,
+    parts: [
+      { label: cfg.statLabel, value: statMod },
+      { label: 'Base', value: base },
+      { label: 'Enhance', value: enhance },
+      { label: 'Temp', value: temp }
+    ]
+  };
+}
+function initiativeFormulaConfig() {
+  const dexMod = (typeof getMod === 'function') ? getMod('dex') : 0;
+  const temp = numVal('init_temp');
+  return {
+    total: dexMod + temp,
+    parts: [
+      { label: 'DEX Mod', value: dexMod },
+      { label: 'Initiative Temp', value: temp }
+    ]
+  };
+}
 function normalizeAbilityKey(value, fallback = 'STR') {
   const raw = String(value || fallback || 'STR').trim();
   return raw ? raw.toLowerCase() : String(fallback || 'STR').toLowerCase();
@@ -3503,8 +3710,9 @@ function readWeaponAttackBonus(weapon) {
   const bab = readNumericValue('bab', 0);
   const misc = Number(weapon?.attack_misc || 0) || 0;
   const size = readNumericValue('size_mod', 0);
-  const abilityMod = readWeaponAbilityModifier(weapon);
-  return { bab, misc, size, abilityMod, total: bab + misc + size + abilityMod };
+  const abilityKey = normalizeAbilityKey(weapon?.ability_mod || weapon?.mod || 'STR', 'STR');
+  const abilityMod = (typeof modFor === 'function') ? modFor(abilityKey) : getMod(abilityKey);
+  return { bab, misc, size, abilityKey, abilityMod, total: bab + misc + size + abilityMod };
 }
 function parseCritRangeMin(value) {
   const raw = String(value || '20').trim();
@@ -3668,32 +3876,48 @@ function rollWeaponAttack(index) {
   const weapon = normalizeWeaponData(source);
   Object.assign(source, weapon);
   const attack = readWeaponAttackBonus(weapon);
+  const attackParts = [
+    { label: 'BAB', value: attack.bab },
+    { label: abilityModLabel(attack.abilityKey || weapon.ability_mod || weapon.mod || 'STR'), value: attack.abilityMod },
+    { label: 'Size', value: attack.size },
+    { label: 'Attack Misc', value: attack.misc }
+  ];
   const attackRoll = rollD20WithModifier(attack.total);
   const critMin = parseCritRangeMin(weapon.crit_range);
-  const critMult = parseCritMultiplier(weapon.crit_mult);
-  const damageResult = weapon.damage ? rollDamageExpression(weapon.damage) : null;
-  const results = [
-    `<strong>Attack Roll:</strong> ${chatEscapeHtml(String(attackRoll.total))}`
-  ];
-  if (damageResult) results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
-  if (attackRoll.die >= critMin) {
-    const confirmRoll = rollD20WithModifier(attack.total);
-    results.push('<strong>Crit !!!</strong>');
-    results.push(`<strong>Crit Attack Roll:</strong> ${chatEscapeHtml(String(confirmRoll.total))}`);
-    if (damageResult) results.push(`<strong>Crit Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(scaleDamageResult(damageResult, critMult)))}`);
+  const isCrit = attackRoll.die >= critMin;
+  const lines = [rollCalcLine(attackRoll, attackParts, 'Attack Calc')];
+  const results = [`<strong>Attack Roll:</strong> ${chatEscapeHtml(String(attackRoll.total))}${isCrit ? ' <strong>Crit !!!</strong>' : ''}`];
+  const damageExpr = String(weapon.damage || '').trim();
+  if (damageExpr) {
+    const damageResult = rollDamageExpression(damageExpr);
+    const dmgLine = damageCalcLine(damageResult, 'Dmg Calc');
+    if (dmgLine) lines.push(dmgLine);
+    results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
   }
+  lines.push(`> Range: ${weapon.range || '—'}${shouldShowWeaponAmmo(weapon.ammo) ? ` | Ammo: ${weapon.ammo}` : ''}`);
+  routeChatEntry({ kind: 'roll', title: `${weapon.name || 'Weapon'}${isCrit ? ' — Crit!' : ''}`, subtitle: currentChatSheetLabel(), lines, results });
+}
+function rollWeaponDamage(index) {
+  const list = getActiveData().weapons || [];
+  const source = list[index];
+  if (!source) return;
+  const weapon = normalizeWeaponData(source);
+  Object.assign(source, weapon);
+  const damageExpr = String(weapon.damage || '').trim();
+  if (!damageExpr) return;
+  const damageResult = rollDamageExpression(damageExpr);
+  const dmgLine = damageCalcLine(damageResult, 'Dmg Calc');
   routeChatEntry({
     kind: 'roll',
-    title: weapon.name || 'Weapon',
+    title: `${weapon.name || 'Weapon'} Damage`,
     subtitle: currentChatSheetLabel(),
-    lines: [
-      `> Range: ${weapon.range || '—'}${shouldShowWeaponAmmo(weapon.ammo) ? ` | Ammo: ${weapon.ammo}` : ''}`
-    ],
-    results
+    lines: dmgLine ? [dmgLine] : [],
+    results: [`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`]
   });
 }
 window.sendWeaponCard = sendWeaponCard;
 window.rollWeaponAttack = rollWeaponAttack;
+window.rollWeaponDamage = rollWeaponDamage;
 window.updateWeaponAmmo = updateWeaponAmmo;
 function skillRowName(row) {
   const cell = row?.querySelector('.skill-name-cell');
@@ -3737,39 +3961,47 @@ function rollSpellAction(index) {
   const spell = list[index];
   if (!spell) return;
   const attack = spellAttackConfig(spell);
-  const damageResult = String(spell?.damage || '').trim() ? rollDamageExpression(spell.damage) : null;
-  const results = [];
-  if (attack) {
-    const attackRoll = rollD20WithModifier(attack.total);
-    results.push(`<strong>Attack Roll (${chatEscapeHtml(attack.label)}):</strong> ${chatEscapeHtml(String(attackRoll.total))}`);
-    if (damageResult) results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
-    if (attackRoll.die === 20) {
-      const confirmRoll = rollD20WithModifier(attack.total);
-      results.push('<strong>Crit !!!</strong>');
-      results.push(`<strong>Crit ${chatEscapeHtml(attack.label)} Roll:</strong> ${chatEscapeHtml(String(confirmRoll.total))}`);
-      if (damageResult) results.push(`<strong>Crit Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(scaleDamageResult(damageResult, 2)))}`);
-    }
-  } else if (damageResult) {
+  if (!attack) { rollSpellDamage(index); return; }
+  const attackRoll = rollD20WithModifier(attack.total);
+  const isCrit = attackRoll.die === 20;
+  const lines = [rollCalcLine(attackRoll, attack.parts, `${attack.label} Calc`)];
+  const results = [`<strong>Attack Roll (${chatEscapeHtml(attack.label)}):</strong> ${chatEscapeHtml(String(attackRoll.total))}${isCrit ? ' <strong>Crit !!!</strong>' : ''}`];
+  const damageExpr = String(spell?.damage || '').trim();
+  if (damageExpr) {
+    const damageResult = rollDamageExpression(damageExpr);
+    const dmgLine = damageCalcLine(damageResult, 'Dmg Calc');
+    if (dmgLine) lines.push(dmgLine);
     results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
   }
+  routeChatEntry({ kind: 'roll', title: `${spellChatTitle(spell)}${isCrit ? ' — Crit!' : ''}`, subtitle: currentChatSheetLabel(), lines, results });
+}
+function rollSpellDamage(index) {
+  const list = getActiveData().spells || [];
+  const spell = list[index];
+  if (!spell) return;
+  const damageExpr = String(spell?.damage || '').trim();
+  if (!damageExpr) return;
+  const damageResult = rollDamageExpression(damageExpr);
+  const dmgLine = damageCalcLine(damageResult, 'Dmg Calc');
   routeChatEntry({
     kind: 'roll',
-    title: spellChatTitle(spell),
+    title: `${spellChatTitle(spell)} Damage`,
     subtitle: currentChatSheetLabel(),
-    lines: [],
-    results
+    lines: dmgLine ? [dmgLine] : [],
+    results: [`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`]
   });
 }
 window.sendSpellCard = sendSpellCard;
 window.rollSpellAction = rollSpellAction;
+window.rollSpellDamage = rollSpellDamage;
 function sendInitiativeRoll() {
-  const total = readNumericValue('initDisplayMain', 0);
-  const roll = rollD20WithModifier(total);
+  const init = initiativeFormulaConfig();
+  const roll = rollD20WithModifier(init.total);
   routeChatEntry({
     kind: 'roll',
     title: 'Initiative',
     subtitle: currentChatSheetLabel(),
-    lines: [],
+    lines: [rollCalcLine(roll, init.parts)],
     results: simpleRollResultLines(roll, 'Total')
   });
 }
@@ -3788,33 +4020,33 @@ function sendSavesOverview() {
 }
 function rollSaveCheck(kind) {
   closeAllRollMenus();
-  const map = {
-    fort: { label: 'Fortitude Save', id: 'fortDisplayMain' },
-    ref: { label: 'Reflex Save', id: 'refDisplayMain' },
-    will: { label: 'Will Save', id: 'willDisplayMain' }
-  };
-  const cfg = map[kind];
+  const cfg = saveFormulaConfig(kind);
   if (!cfg) return;
-  const total = readNumericValue(cfg.id, 0);
-  const roll = rollD20WithModifier(total);
+  const roll = rollD20WithModifier(cfg.total);
   routeChatEntry({
     kind: 'roll',
     title: cfg.label,
     subtitle: currentChatSheetLabel(),
-    lines: [],
+    lines: [rollCalcLine(roll, cfg.parts)],
     results: simpleRollResultLines(roll)
   });
 }
 function sendSkillCheck(row) {
   if (!row) return;
   const name = skillRowName(row);
-  const total = readNumericValueFromElement(row.querySelector('.skill-total'));
-  const roll = rollD20WithModifier(total);
+  const bonus = getSkillBonus(row);
+  const statLabel = abilityModLabel(row.dataset.stat || '');
+  const roll = rollD20WithModifier(bonus.total);
   routeChatEntry({
     kind: 'roll',
     title: name,
     subtitle: currentChatSheetLabel(),
-    lines: [],
+    lines: [rollCalcLine(roll, [
+      { label: statLabel, value: bonus.mod },
+      { label: 'Ranks', value: bonus.ranks },
+      { label: 'Class Skill', value: bonus.classBonus },
+      { label: 'Temp', value: bonus.temp }
+    ])],
     results: simpleRollResultLines(roll, 'Total')
   });
 }
@@ -3859,27 +4091,34 @@ function rollAbilityAction(index) {
   const item = list[index];
   if (!item) return;
   const attack = abilityAttackConfig(item);
-  const damageResult = String(item?.damage || '').trim() ? rollDamageExpression(item.damage) : null;
-  const results = [];
-  if (attack) {
-    const attackRoll = rollD20WithModifier(attack.total);
-    results.push(`<strong>Attack Roll (${chatEscapeHtml(attack.label)}):</strong> ${chatEscapeHtml(String(attackRoll.total))}`);
-    if (damageResult) results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
-    if (attackRoll.die === 20 && attack.mode !== 'cmb') {
-      const confirmRoll = rollD20WithModifier(attack.total);
-      results.push('<strong>Crit !!!</strong>');
-      results.push(`<strong>Crit ${chatEscapeHtml(attack.label)} Roll:</strong> ${chatEscapeHtml(String(confirmRoll.total))}`);
-      if (damageResult) results.push(`<strong>Crit Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(scaleDamageResult(damageResult, 2)))}`);
-    }
-  } else if (damageResult) {
+  if (!attack) { rollAbilityDamage(index); return; }
+  const attackRoll = rollD20WithModifier(attack.total);
+  const isCrit = attackRoll.die === 20 && attack.mode !== 'cmb';
+  const lines = [rollCalcLine(attackRoll, attack.parts, `${attack.label} Calc`)];
+  const results = [`<strong>Attack Roll (${chatEscapeHtml(attack.label)}):</strong> ${chatEscapeHtml(String(attackRoll.total))}${isCrit ? ' <strong>Crit !!!</strong>' : ''}`];
+  const damageExpr = String(item?.damage || '').trim();
+  if (damageExpr) {
+    const damageResult = rollDamageExpression(damageExpr);
+    const dmgLine = damageCalcLine(damageResult, 'Dmg Calc');
+    if (dmgLine) lines.push(dmgLine);
     results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
   }
+  routeChatEntry({ kind: 'roll', title: `${item.name || 'Active Ability'}${isCrit ? ' — Crit!' : ''}`, subtitle: currentChatSheetLabel(), lines, results });
+}
+function rollAbilityDamage(index) {
+  const list = getActiveData().activeAbilities || [];
+  const item = list[index];
+  if (!item) return;
+  const damageExpr = String(item?.damage || '').trim();
+  if (!damageExpr) return;
+  const damageResult = rollDamageExpression(damageExpr);
+  const dmgLine = damageCalcLine(damageResult, 'Dmg Calc');
   routeChatEntry({
     kind: 'roll',
-    title: item.name || 'Active Ability',
+    title: `${item.name || 'Active Ability'} Damage`,
     subtitle: currentChatSheetLabel(),
-    lines: [],
-    results
+    lines: dmgLine ? [dmgLine] : [],
+    results: [`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`]
   });
 }
 
@@ -3891,7 +4130,7 @@ function sendAbilityCheck(stat) {
     kind: 'roll',
     title: upper,
     subtitle: currentChatSheetLabel(),
-    lines: [],
+    lines: [rollCalcLine(roll, [{ label: `${upper} Mod`, value: mod }])],
     results: simpleRollResultLines(roll, 'Total')
   });
 }
@@ -3919,12 +4158,15 @@ window.rollSaveCheck = rollSaveCheck;
 window.sendAbilityCheck = sendAbilityCheck;
 window.sendAbilityCard = sendAbilityCard;
 window.rollAbilityAction = rollAbilityAction;
+window.rollAbilityDamage = rollAbilityDamage;
 window.toggleSaveRollMenu = toggleSaveRollMenu;
 window.toggleAttackRollMenu = toggleAttackRollMenu;
 window.rollAttackCheck = rollAttackCheck;
 window.toggleLocalChat = toggleLocalChat;
 window.clearLocalChat = clearLocalChat;
 window.persistChatTarget = persistChatTarget;
+window.toggleRollOverlay = toggleRollOverlay;
+window.syncRollOverlayToggle = syncRollOverlayToggle;
 window.setChatView = setChatView;
 window.togglePanelMenu = togglePanelMenu;
 window.toggleCharacterQuickPanel = toggleCharacterQuickPanel;
@@ -3936,11 +4178,14 @@ window.addEventListener('click', event => {
 
 document.addEventListener('DOMContentLoaded', () => {
   const targetSelect = document.getElementById('chatTargetSelect');
-  if (targetSelect) targetSelect.value = localStorage.getItem(CHAT_TARGET_STORAGE_KEY) || 'discord';
+  if (targetSelect) { targetSelect.value = 'discord'; try { localStorage.setItem(CHAT_TARGET_STORAGE_KEY, 'discord'); } catch(_err) {} }
+  const chatPanelState = getPanelState(CHAT_PANEL_STORAGE_KEY);
+  setPanelState(CHAT_PANEL_STORAGE_KEY, { ...chatPanelState, open:false });
   ensureChatStateLoaded();
   bindSkillRollTargets();
   refreshAbilityRollTargets();
   renderChatViewControls();
+  syncRollOverlayToggle();
   initChatPanelDrag();
   renderCharacterQuickPanel();
   initDraggableFloatingPanel('characterQuickPanel', 'characterQuickPanelHandle', CHARACTER_PANEL_STORAGE_KEY, defaultCharacterPanelPosition);
