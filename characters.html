@@ -595,6 +595,8 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 /* --- Chat + Roll Pass 1 --- */
 .chat-icon-btn,.roll-icon-btn,.mini-action-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:999px;border:1px solid #575757;background:#151515;color:var(--accent);cursor:pointer;font-size:14px;line-height:1;flex:0 0 auto;}
 .chat-icon-btn:hover,.roll-icon-btn:hover,.mini-action-btn:hover{background:var(--accent);color:#000;border-color:var(--accent);}
+.damage-roll-btn{width:auto;min-width:50px;padding:0 8px;font-size:11px;font-weight:800;gap:4px;}
+.damage-roll-btn .roll-btn-label{font-size:10px;letter-spacing:.02em;}
 #spell_dc_base{max-width:96px;margin:0 auto;text-align:center;text-align-last:center;}
 .editor-section-title{margin:14px 0 8px;padding:8px 10px;border:1px solid #3a3a3a;border-radius:8px;background:#171717;color:var(--accent);font-family:'Uncial Antiqua',serif;font-size:15px;text-align:center;}
 .spell-view-titlebar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
@@ -718,6 +720,10 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 .roll-dice-pip.p4 { right:22px; bottom:22px; }
 .roll-overlay-total { position:relative; z-index:2; min-width:62px; height:62px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#111; color:var(--accent); border:2px solid var(--accent); font-size:32px; font-weight:900; line-height:1; transform:rotate(8deg); text-shadow:0 0 12px rgba(255,204,102,.35); }
 .roll-overlay-label { color:#f3f3f3; font-weight:800; font-size:15px; text-align:center; max-width:min(300px,80vw); text-shadow:0 2px 10px rgba(0,0,0,.7); }
+.roll-overlay-dice-row{display:flex;align-items:flex-start;justify-content:center;gap:14px;flex-wrap:wrap;}
+.roll-overlay-die-wrap{display:flex;flex-direction:column;align-items:center;gap:7px;}
+.roll-overlay-mini-label{color:#f3f3f3;font-weight:800;font-size:12px;text-align:center;text-shadow:0 2px 10px rgba(0,0,0,.7);}
+
 @keyframes rollOverlayPop {
   0% { transform:translateY(18px) scale(.72) rotate(-10deg); opacity:0; filter:blur(2px); }
   55% { transform:translateY(-6px) scale(1.08) rotate(3deg); opacity:1; filter:blur(0); }
@@ -1748,7 +1754,7 @@ function renderWeapons() {
             <span class="weapon-meta-line">${typeMeta}${dmgMeta}${rangeMeta}</span>
           </div>
           <div class="row-actions weapon-row-actions">
-            <button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollWeaponAttack(${i})" title="Roll weapon attack">🎲</button>
+            <button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollWeaponAttack(${i})" title="Roll weapon attack and damage">🎲</button>
             <button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendWeaponCard(${i})" title="Send weapon to chat">💬</button>
             ${ammoHtml}
             <button class="btn-edit" onclick="event.stopPropagation(); openEditor('weapon',${i})">Edit</button>
@@ -1783,6 +1789,57 @@ function spellHeaderFormula(levelNum){
 function normalizeAttackModeValue(value){
     return String(value || '').trim().toLowerCase().replace(/\s+/g, '_');
 }
+function attackFormulaPartsForMode(mode){
+    const babTotal = numVal('bab') + numVal('bab_temp');
+    const sizeMod = numVal('size_mod');
+    const sizeSpecial = numVal('size_special');
+    if(mode === 'melee') {
+        const ability = getAttackAbility('ar_melee_ability', 'str');
+        return [
+            { label: 'BAB', value: babTotal },
+            { label: abilityModLabel(ability), value: modFor(ability) },
+            { label: 'Size', value: sizeMod },
+            { label: 'Temp', value: numVal('ar_melee_temp') }
+        ];
+    }
+    if(mode === 'ranged') {
+        const ability = getAttackAbility('ar_ranged_ability', 'dex');
+        return [
+            { label: 'BAB', value: babTotal },
+            { label: abilityModLabel(ability), value: modFor(ability) },
+            { label: 'Size', value: sizeMod },
+            { label: 'Temp', value: numVal('ar_ranged_temp') }
+        ];
+    }
+    if(mode === 'touch') {
+        const ability = getAttackAbility('ar_touch_ability', 'str');
+        return [
+            { label: 'BAB', value: babTotal },
+            { label: abilityModLabel(ability), value: modFor(ability) },
+            { label: 'Size', value: sizeMod },
+            { label: 'Temp', value: numVal('ar_touch_temp') }
+        ];
+    }
+    if(mode === 'ranged_touch') {
+        const ability = getAttackAbility('ar_ranged_touch_ability', 'dex');
+        return [
+            { label: 'BAB', value: babTotal },
+            { label: abilityModLabel(ability), value: modFor(ability) },
+            { label: 'Size', value: sizeMod },
+            { label: 'Temp', value: numVal('ar_ranged_touch_temp') }
+        ];
+    }
+    if(mode === 'cmb') {
+        return [
+            { label: 'BAB', value: babTotal },
+            { label: 'STR Mod', value: modFor('str') },
+            { label: 'DEX Mod', value: modFor('dex') },
+            { label: 'Size Special', value: sizeSpecial },
+            { label: 'Temp', value: numVal('cmb_temp') }
+        ];
+    }
+    return [];
+}
 function attackConfigFromMode(mode){
     const map = {
         melee: { label: 'Melee', id: 'ar_total' },
@@ -1793,7 +1850,10 @@ function attackConfigFromMode(mode){
     };
     const cfg = map[mode];
     if(!cfg) return null;
-    return { mode, label: cfg.label, total: readNumericValue(cfg.id, 0) };
+    const parts = attackFormulaPartsForMode(mode);
+    const computedTotal = calcPartList(parts).reduce((sum, part) => sum + calcNumber(part.value), 0);
+    const fallbackTotal = readNumericValue(cfg.id, 0);
+    return { mode, label: cfg.label, total: Number.isFinite(computedTotal) ? computedTotal : fallbackTotal, parts };
 }
 function spellAttackMode(spell){
     const raw = normalizeAttackModeValue(spell?.attack_type);
@@ -1878,7 +1938,7 @@ function renderSpells() {
             const div = document.createElement('div');
             div.className = 'list-row spell-row';
             const linkHtml = s.link ? `<a class="spell-link-btn" href="${s.link}" target="_blank" onclick="event.stopPropagation()">Link</a>` : '';
-            const rollHtml = spellIsRollable(s) ? `<button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollSpellAction(${idx})" title="Roll spell attack or damage">🎲</button>` : '';
+            const rollHtml = spellIsRollable(s) ? `<button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollSpellAction(${idx})" title="Roll spell attack and damage">🎲</button>` : '';
             const sendHtml = `<button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendSpellCard(${idx})" title="Send spell to chat">💬</button>`;
             const actionType = s.type || 'Standard';
             div.innerHTML = `
@@ -1954,7 +2014,7 @@ function renderAbilities(subType) {
         
         const aDiv = document.createElement('div'); 
         aDiv.className = 'row-actions';
-        const rollBtnHtml = (subType === 'active' && abilityIsRollable(a)) ? `<button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollAbilityAction(${i})" title="Roll active ability">🎲</button>` : '';
+        const rollBtnHtml = (subType === 'active' && abilityIsRollable(a)) ? `<button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollAbilityAction(${i})" title="Roll active ability attack and damage">🎲</button>` : '';
         const sendBtnHtml = `<button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendAbilityCard('${subType}',${i})" title="Send to chat">💬</button>`;
         const editBtnHtml = (subType === 'active' && a.isLimitBreak) ? '' : `<button class="btn-edit" onclick="event.stopPropagation(); openEditor('${subType}',${i})">Edit</button>`;
         aDiv.innerHTML = `${inputsHtml}${rollBtnHtml}${sendBtnHtml}${linkHtml}${editBtnHtml}`;
@@ -2166,7 +2226,7 @@ function populateViewModal(type, item, index = -1) {
                   <h3>${esc(asText(item.name, 'Unnamed Spell'))}</h3>
                 </div>
                 <div class="spell-view-actions">
-                  ${canRoll && index > -1 ? `<button class="roll-icon-btn" type="button" onclick="rollSpellAction(${index})" title="Roll spell">🎲</button>` : ''}
+                  ${canRoll && index > -1 ? `<button class="roll-icon-btn" type="button" onclick="rollSpellAction(${index})" title="Roll spell attack and damage">🎲</button>` : ''}
                   ${index > -1 ? `<button class="chat-icon-btn" type="button" onclick="sendSpellCard(${index})" title="Send spell to chat">💬</button>` : ''}
                   ${item.link ? `<a class="spell-link-btn" href="${esc(item.link)}" target="_blank">Open Link</a>` : ''}
                 </div>
@@ -2219,16 +2279,47 @@ function populateViewModal(type, item, index = -1) {
     if(type === 'active') {
         const esc = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
         const nl2br = (value) => esc(value).replace(/\n/g, '<br>');
-        const descText = String(item?.desc ?? '').trim();
-        const higherText = String(item?.at_higher_lvls ?? item?.at_higher ?? '').trim();
-
+        const asText = (value, fallback = '—') => {
+            const text = String(value ?? '').trim();
+            return text ? text : fallback;
+        };
+        const tag = (label, value) => `<div class="spell-view-tag"><span class="spell-tag-label">${esc(label)}</span><span class="spell-tag-value">${esc(asText(value))}</span></div>`;
+        const canRoll = abilityIsRollable(item);
         body.innerHTML = `
-          <div style="display:flex;flex-direction:column;gap:14px;">
-            <div class="spell-view-section spell-view-wide">
-              <h4>Description</h4>
-              <div class="spell-view-copy">${descText ? nl2br(item.desc) : '—'}</div>
+          <div class="spell-view-shell">
+            <div class="spell-view-top">
+              <div class="spell-view-titlebar">
+                <div class="spell-view-titleline">
+                  <h3>${esc(asText(item.name, 'Unnamed Ability'))}</h3>
+                </div>
+                <div class="spell-view-actions">
+                  ${canRoll && index > -1 ? `<button class="roll-icon-btn" type="button" onclick="rollAbilityAction(${index})" title="Roll active ability attack and damage">🎲</button>` : ''}
+                  ${index > -1 ? `<button class="chat-icon-btn" type="button" onclick="sendAbilityCard('active',${index})" title="Send active ability to chat">💬</button>` : ''}
+                </div>
+              </div>
+              <div class="spell-view-subtitle">
+                <span class="spell-action-chip">${esc(asText(item.type, 'Standard'))}</span>
+                <span class="spell-action-chip">Uses ${esc(String(item.u_curr ?? 0))}/${esc(String(item.u_max ?? 0))}</span>
+              </div>
             </div>
-            ${higherText ? `<div class="spell-view-section spell-view-wide"><h4>At Higher Levels</h4><div class="spell-view-copy">${nl2br(higherText)}</div></div>` : ''}
+            <div class="spell-view-section-grid">
+              <div class="spell-view-section">
+                <h4>Core</h4>
+                <div class="spell-view-tag-grid">
+                  ${tag('Type', item.type || 'Standard')}
+                  ${tag('Uses', `${item.u_curr ?? 0}/${item.u_max ?? 0}`)}
+                </div>
+              </div>
+              <div class="spell-view-section">
+                <h4>Combat</h4>
+                <div class="spell-view-tag-grid">
+                  ${tag('Attack Type', item.attack_type)}
+                  ${tag('Damage', item.damage)}
+                </div>
+              </div>
+              ${String(item.desc ?? '').trim() ? `<div class="spell-view-section spell-view-wide"><h4>Description</h4><div class="spell-view-copy">${nl2br(item.desc)}</div></div>` : `<div class="spell-view-section spell-view-wide"><h4>Description</h4><div class="spell-view-copy">—</div></div>`}
+              ${String(item.at_higher_lvls ?? item.at_higher ?? '').trim() ? `<div class="spell-view-section spell-view-wide"><h4>At Higher Levels</h4><div class="spell-view-copy">${nl2br(item.at_higher_lvls ?? item.at_higher)}</div></div>` : ''}
+            </div>
           </div>`;
         return;
     }
@@ -3148,22 +3239,14 @@ function toggleAttackRollMenu(event) {
 }
 function rollAttackCheck(kind) {
   closeAllRollMenus();
-  const map = {
-    melee: { label: 'Melee Attack', id: 'ar_total' },
-    ranged: { label: 'Ranged Attack', id: 'ar_ranged_total' },
-    touch: { label: 'Touch Attack', id: 'ar_touch_total' },
-    ranged_touch: { label: 'Ranged Touch Attack', id: 'ar_ranged_touch_total' },
-    cmb: { label: 'CMB', id: 'cmb' }
-  };
-  const cfg = map[kind];
+  const cfg = attackConfigFromMode(kind);
   if (!cfg) return;
-  const total = readNumericValue(cfg.id, 0);
-  const roll = rollD20WithModifier(total);
+  const roll = rollD20WithModifier(cfg.total);
   routeChatEntry({
     kind: 'roll',
-    title: cfg.label,
+    title: cfg.mode === 'cmb' ? 'CMB' : `${cfg.label} Attack`,
     subtitle: currentChatSheetLabel(),
-    lines: [],
+    lines: [rollCalcLine(roll, cfg.parts)],
     results: simpleRollResultLines(roll)
   });
 }
@@ -3207,32 +3290,46 @@ function stripChatHtml(value = ''){
   holder.innerHTML = String(value || '').replace(/<br\s*\/?>/gi, ' ');
   return (holder.textContent || holder.innerText || '').replace(/\s+/g, ' ').trim();
 }
-function extractRollOverlayTotal(entry){
-  if(!entry || entry.kind !== 'roll') return '';
+function extractRollOverlayTotals(entry){
+  if(!entry || entry.kind !== 'roll') return [];
   const results = Array.isArray(entry.results) ? entry.results : [];
+  const totals = [];
   for(const html of results){
     const text = stripChatHtml(html);
-    if(!text || /natural\s+(?:1|20)/i.test(text) || /crit\s*!/i.test(text)) continue;
+    if(!text || /natural\s+(?:1|20)/i.test(text)) continue;
+    const lower = text.toLowerCase();
+    if(/crit\s*!/i.test(text) && !/attack\s*roll/i.test(text)) continue;
+    const labelMatch = text.match(/^([^:]{1,40}):/);
+    const rawLabel = labelMatch ? labelMatch[1].trim() : 'Roll';
+    const label = /dmg|damage/i.test(rawLabel) ? 'Dmg' : (/attack/i.test(rawLabel) ? 'Attack' : rawLabel);
     const afterColon = text.match(/:\s*(-?\d+)/);
-    if(afterColon) return afterColon[1];
     const firstNumber = text.match(/-?\d+/);
-    if(firstNumber) return firstNumber[0];
+    const total = afterColon ? afterColon[1] : (firstNumber ? firstNumber[0] : '');
+    if(total !== '') totals.push({ label, total });
+    if(totals.length >= 2) break;
   }
-  return '';
+  return totals;
 }
 function showRollOverlay(entry){
   if(!rollOverlayEnabled || !entry || entry.kind !== 'roll') return;
   const overlay = document.getElementById('rollResultOverlay');
   if(!overlay) return;
-  const total = extractRollOverlayTotal(entry);
-  if(total === '') return;
+  const totals = extractRollOverlayTotals(entry);
+  if(!totals.length) return;
   const title = chatEscapeHtml(entry.title || 'Roll');
-  const safeTotal = chatEscapeHtml(total);
+  const diceHtml = totals.map(item => {
+    const safeTotal = chatEscapeHtml(item.total);
+    const safeLabel = chatEscapeHtml(item.label || 'Roll');
+    return `<div class="roll-overlay-die-wrap">
+      <div class="roll-dice-face" role="img" aria-label="${safeLabel} dice roll total ${safeTotal}">
+        <span class="roll-dice-pip p1"></span><span class="roll-dice-pip p2"></span><span class="roll-dice-pip p3"></span><span class="roll-dice-pip p4"></span>
+        <span class="roll-overlay-total">${safeTotal}</span>
+      </div>
+      <div class="roll-overlay-mini-label">${safeLabel}</div>
+    </div>`;
+  }).join('');
   overlay.innerHTML = `<div class="roll-overlay-card">
-    <div class="roll-dice-face" role="img" aria-label="Dice roll total ${safeTotal}">
-      <span class="roll-dice-pip p1"></span><span class="roll-dice-pip p2"></span><span class="roll-dice-pip p3"></span><span class="roll-dice-pip p4"></span>
-      <span class="roll-overlay-total">${safeTotal}</span>
-    </div>
+    <div class="roll-overlay-dice-row">${diceHtml}</div>
     <div class="roll-overlay-label">${title}</div>
   </div>`;
   overlay.classList.remove('show');
@@ -3268,12 +3365,20 @@ function formatDiscordEntryContent(entry) {
   if (title) parts.push(`# ${title}`);
   const subtitle = String(entry?.subtitle || '').trim();
   if (subtitle) parts.push(subtitle);
-  (entry?.lines || []).forEach(line => {
+  const discordLines = Array.isArray(entry?.discordLines) ? entry.discordLines : (entry?.lines || []);
+  discordLines.forEach(line => {
     const text = String(line || '').trim();
     if (text) parts.push(text);
   });
-  (entry?.results || []).forEach(line => {
+  const discordResults = Array.isArray(entry?.discordResults) ? entry.discordResults : (entry?.results || []);
+  discordResults.forEach(line => {
     const text = entryHtmlToDiscordText(line);
+    if (text) parts.push(text);
+  });
+  (entry?.discordOnly || []).forEach(line => {
+    const raw = String(line || '').trim();
+    if (!raw) return;
+    const text = /<[^>]+>/.test(raw) ? entryHtmlToDiscordText(raw) : raw;
     if (text) parts.push(text);
   });
   return parts.join('\n').trim();
@@ -3401,6 +3506,97 @@ function simpleRollResultLines(roll, label = 'Rolled Total') {
   if (nat) out.push(nat);
   return out;
 }
+function calcNumber(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+function calcPart(label, value) {
+  const num = calcNumber(value);
+  if (!num) return null;
+  return { label: String(label || '').trim(), value: num };
+}
+function calcPartList(parts = []) {
+  return (parts || []).map(part => calcPart(part?.label, part?.value)).filter(Boolean);
+}
+function shortCalcLabel(label) {
+  const raw = String(label || '').trim().replace(/\s+/g, ' ');
+  if (!raw) return '';
+  const lower = raw.toLowerCase();
+  const statMatch = lower.match(/^(str|dex|con|int|wis|cha)(?:\s+mod)?$/);
+  if (statMatch) return statMatch[1];
+  const map = {
+    'attack misc': 'misc',
+    'misc bonus': 'misc',
+    'initiative temp': 'temp',
+    'class skill': 'class',
+    'ability mod': 'ability',
+    'bab': 'bab',
+    'base': 'base',
+    'enhance': 'enh',
+    'temp': 'temp',
+    'ranks': 'ranks',
+    'size': 'size'
+  };
+  if (map[lower]) return map[lower];
+  return raw.replace(/\bmod\b/ig, '').trim().toLowerCase();
+}
+function signedCalcTerm(part) {
+  const value = calcNumber(part?.value);
+  if (!value) return '';
+  const sign = value > 0 ? '+' : '-';
+  const label = shortCalcLabel(part?.label);
+  return `${sign}${Math.abs(value)}${label ? ` ${label}` : ''}`;
+}
+function rollCalcLine(roll, parts = [], label = 'Calc') {
+  const die = roll?.die ?? '?';
+  const formula = [`d20 (${die})`].concat(calcPartList(parts).map(signedCalcTerm).filter(Boolean)).join(' ');
+  return `> ${label}: ${formula}`;
+}
+function abilityModLabel(stat) {
+  const key = String(stat || '').trim().toUpperCase();
+  return key ? `${key} Mod` : 'Ability Mod';
+}
+function damageCalcLine(result, label = 'Dmg Calc', multiplier = 1) {
+  if (!result || !Array.isArray(result.breakdown) || !result.breakdown.length) return '';
+  const pieces = result.breakdown.map(part => String(part?.text || '').trim()).filter(Boolean);
+  if (!pieces.length) return '';
+  const mult = Number(multiplier || 1) || 1;
+  return `> ${label}: ${pieces.join(' | ')}${mult > 1 ? ` × ${mult}` : ''}`;
+}
+function saveFormulaConfig(kind) {
+  const map = {
+    fort: { label: 'Fortitude Save', stat: 'con', statLabel: 'CON Mod', base: 'fort_base', enhance: 'fort_enhance', temp: 'fort_temp' },
+    ref: { label: 'Reflex Save', stat: 'dex', statLabel: 'DEX Mod', base: 'ref_base', enhance: 'ref_enhance', temp: 'ref_temp' },
+    will: { label: 'Will Save', stat: 'wis', statLabel: 'WIS Mod', base: 'will_base', enhance: 'will_enhance', temp: 'will_temp' }
+  };
+  const cfg = map[kind];
+  if (!cfg) return null;
+  const statMod = (typeof getMod === 'function') ? getMod(cfg.stat) : 0;
+  const base = numVal(cfg.base);
+  const enhance = numVal(cfg.enhance);
+  const temp = numVal(cfg.temp);
+  return {
+    label: cfg.label,
+    total: statMod + base + enhance + temp,
+    parts: [
+      { label: cfg.statLabel, value: statMod },
+      { label: 'Base', value: base },
+      { label: 'Enhance', value: enhance },
+      { label: 'Temp', value: temp }
+    ]
+  };
+}
+function initiativeFormulaConfig() {
+  const dexMod = (typeof getMod === 'function') ? getMod('dex') : 0;
+  const temp = numVal('init_temp');
+  return {
+    total: dexMod + temp,
+    parts: [
+      { label: 'DEX Mod', value: dexMod },
+      { label: 'Initiative Temp', value: temp }
+    ]
+  };
+}
 function normalizeAbilityKey(value, fallback = 'STR') {
   const raw = String(value || fallback || 'STR').trim();
   return raw ? raw.toLowerCase() : String(fallback || 'STR').toLowerCase();
@@ -3413,8 +3609,9 @@ function readWeaponAttackBonus(weapon) {
   const bab = readNumericValue('bab', 0);
   const misc = Number(weapon?.attack_misc || 0) || 0;
   const size = readNumericValue('size_mod', 0);
-  const abilityMod = readWeaponAbilityModifier(weapon);
-  return { bab, misc, size, abilityMod, total: bab + misc + size + abilityMod };
+  const abilityKey = normalizeAbilityKey(weapon?.ability_mod || weapon?.mod || 'STR', 'STR');
+  const abilityMod = (typeof modFor === 'function') ? modFor(abilityKey) : getMod(abilityKey);
+  return { bab, misc, size, abilityKey, abilityMod, total: bab + misc + size + abilityMod };
 }
 function parseCritRangeMin(value) {
   const raw = String(value || '20').trim();
@@ -3534,6 +3731,27 @@ function formatDamageRollHtml(result) {
   if (!result || !result.formula) return '<strong>—</strong>';
   return `<strong>Total: ${chatEscapeHtml(formatDamageTotalText(result))}</strong>`;
 }
+function buildDiscordCritBundle({ isCrit, attack, attackParts, baseDamageResult, damageExpr, multiplier = 2, attackLabel = 'Attack' } = {}) {
+  if (!isCrit || !attack) return { calcLines: [], resultLines: [] };
+  const calcLines = [];
+  const resultLines = [];
+  const confirmRoll = rollD20WithModifier(attack.total);
+  calcLines.push(rollCalcLine(confirmRoll, attackParts || attack.parts || [], 'Crit AR Calc'));
+  resultLines.push(`<strong>Crit AR${attackLabel ? ` (${chatEscapeHtml(attackLabel)})` : ''}:</strong> ${chatEscapeHtml(String(confirmRoll.total))}`);
+  const dmgText = String(damageExpr || '').trim();
+  const normalDamage = baseDamageResult || (dmgText ? rollDamageExpression(dmgText) : null);
+  if (normalDamage) {
+    const mult = parseCritMultiplier(`x${Number(multiplier || 2) || 2}`);
+    calcLines.push(`> Crit Dmg Calc: Dmg x${mult}`);
+    const critDamage = scaleDamageResult(normalDamage, mult);
+    resultLines.push(`<strong>Crit Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(critDamage))}`);
+  }
+  return { calcLines, resultLines };
+}
+function buildDiscordCritConfirmLines(options = {}) {
+  const bundle = buildDiscordCritBundle(options);
+  return [...bundle.calcLines, ...bundle.resultLines];
+}
 function updateWeaponAmmo(index, value) {
   const list = getActiveData().weapons || [];
   if (!list[index]) return;
@@ -3578,32 +3796,61 @@ function rollWeaponAttack(index) {
   const weapon = normalizeWeaponData(source);
   Object.assign(source, weapon);
   const attack = readWeaponAttackBonus(weapon);
+  const attackParts = [
+    { label: 'BAB', value: attack.bab },
+    { label: abilityModLabel(attack.abilityKey || weapon.ability_mod || weapon.mod || 'STR'), value: attack.abilityMod },
+    { label: 'Size', value: attack.size },
+    { label: 'Attack Misc', value: attack.misc }
+  ];
   const attackRoll = rollD20WithModifier(attack.total);
   const critMin = parseCritRangeMin(weapon.crit_range);
-  const critMult = parseCritMultiplier(weapon.crit_mult);
-  const damageResult = weapon.damage ? rollDamageExpression(weapon.damage) : null;
-  const results = [
-    `<strong>Attack Roll:</strong> ${chatEscapeHtml(String(attackRoll.total))}`
-  ];
-  if (damageResult) results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
-  if (attackRoll.die >= critMin) {
-    const confirmRoll = rollD20WithModifier(attack.total);
-    results.push('<strong>Crit !!!</strong>');
-    results.push(`<strong>Crit Attack Roll:</strong> ${chatEscapeHtml(String(confirmRoll.total))}`);
-    if (damageResult) results.push(`<strong>Crit Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(scaleDamageResult(damageResult, critMult)))}`);
+  const isCrit = attackRoll.die >= critMin;
+  const calcLines = [rollCalcLine(attackRoll, attackParts, 'AR Calc')];
+  const results = [`<strong>Attack Roll:</strong> ${chatEscapeHtml(String(attackRoll.total))}${isCrit ? ' <strong>Crit !!!</strong>' : ''}`];
+  const damageExpr = String(weapon.damage || '').trim();
+  let damageResult = null;
+  if (damageExpr) {
+    damageResult = rollDamageExpression(damageExpr);
+    const dmgLine = damageCalcLine(damageResult, 'Dmg Calc');
+    if (dmgLine) calcLines.push(dmgLine);
+    results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
   }
+  const lines = calcLines.slice();
+  lines.push(`> Range: ${weapon.range || '—'}${shouldShowWeaponAmmo(weapon.ammo) ? ` | Ammo: ${weapon.ammo}` : ''}`);
+  const critBundle = buildDiscordCritBundle({
+    isCrit,
+    attack,
+    attackParts,
+    baseDamageResult: damageResult,
+    damageExpr,
+    multiplier: parseCritMultiplier(weapon.crit_mult || 'x2'),
+    attackLabel: 'Attack Roll'
+  });
+  const discordLines = calcLines.concat(critBundle.calcLines);
+  const discordResults = results.concat(critBundle.resultLines);
+  routeChatEntry({ kind: 'roll', title: `${weapon.name || 'Weapon'}${isCrit ? ' — Crit!' : ''}`, subtitle: currentChatSheetLabel(), lines, results, discordLines, discordResults });
+}
+function rollWeaponDamage(index) {
+  const list = getActiveData().weapons || [];
+  const source = list[index];
+  if (!source) return;
+  const weapon = normalizeWeaponData(source);
+  Object.assign(source, weapon);
+  const damageExpr = String(weapon.damage || '').trim();
+  if (!damageExpr) return;
+  const damageResult = rollDamageExpression(damageExpr);
+  const dmgLine = damageCalcLine(damageResult, 'Dmg Calc');
   routeChatEntry({
     kind: 'roll',
-    title: weapon.name || 'Weapon',
+    title: `${weapon.name || 'Weapon'} Damage`,
     subtitle: currentChatSheetLabel(),
-    lines: [
-      `> Range: ${weapon.range || '—'}${shouldShowWeaponAmmo(weapon.ammo) ? ` | Ammo: ${weapon.ammo}` : ''}`
-    ],
-    results
+    lines: dmgLine ? [dmgLine] : [],
+    results: [`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`]
   });
 }
 window.sendWeaponCard = sendWeaponCard;
 window.rollWeaponAttack = rollWeaponAttack;
+window.rollWeaponDamage = rollWeaponDamage;
 window.updateWeaponAmmo = updateWeaponAmmo;
 function skillRowName(row) {
   const cell = row?.querySelector('.skill-name-cell');
@@ -3647,39 +3894,59 @@ function rollSpellAction(index) {
   const spell = list[index];
   if (!spell) return;
   const attack = spellAttackConfig(spell);
-  const damageResult = String(spell?.damage || '').trim() ? rollDamageExpression(spell.damage) : null;
-  const results = [];
-  if (attack) {
-    const attackRoll = rollD20WithModifier(attack.total);
-    results.push(`<strong>Attack Roll (${chatEscapeHtml(attack.label)}):</strong> ${chatEscapeHtml(String(attackRoll.total))}`);
-    if (damageResult) results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
-    if (attackRoll.die === 20) {
-      const confirmRoll = rollD20WithModifier(attack.total);
-      results.push('<strong>Crit !!!</strong>');
-      results.push(`<strong>Crit ${chatEscapeHtml(attack.label)} Roll:</strong> ${chatEscapeHtml(String(confirmRoll.total))}`);
-      if (damageResult) results.push(`<strong>Crit Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(scaleDamageResult(damageResult, 2)))}`);
-    }
-  } else if (damageResult) {
+  if (!attack) { rollSpellDamage(index); return; }
+  const attackRoll = rollD20WithModifier(attack.total);
+  const isCrit = attackRoll.die === 20;
+  const calcLines = [rollCalcLine(attackRoll, attack.parts, 'AR Calc')];
+  const results = [`<strong>Attack Roll (${chatEscapeHtml(attack.label)}):</strong> ${chatEscapeHtml(String(attackRoll.total))}${isCrit ? ' <strong>Crit !!!</strong>' : ''}`];
+  const damageExpr = String(spell?.damage || '').trim();
+  let damageResult = null;
+  if (damageExpr) {
+    damageResult = rollDamageExpression(damageExpr);
+    const dmgLine = damageCalcLine(damageResult, 'Dmg Calc');
+    if (dmgLine) calcLines.push(dmgLine);
     results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
   }
+  const critBundle = buildDiscordCritBundle({
+    isCrit,
+    attack,
+    attackParts: attack.parts,
+    baseDamageResult: damageResult,
+    damageExpr,
+    multiplier: 2,
+    attackLabel: attack.label
+  });
+  const discordLines = calcLines.concat(critBundle.calcLines);
+  const discordResults = results.concat(critBundle.resultLines);
+  routeChatEntry({ kind: 'roll', title: `${spellChatTitle(spell)}${isCrit ? ' — Crit!' : ''}`, subtitle: currentChatSheetLabel(), lines: calcLines, results, discordLines, discordResults });
+}
+function rollSpellDamage(index) {
+  const list = getActiveData().spells || [];
+  const spell = list[index];
+  if (!spell) return;
+  const damageExpr = String(spell?.damage || '').trim();
+  if (!damageExpr) return;
+  const damageResult = rollDamageExpression(damageExpr);
+  const dmgLine = damageCalcLine(damageResult, 'Dmg Calc');
   routeChatEntry({
     kind: 'roll',
-    title: spellChatTitle(spell),
+    title: `${spellChatTitle(spell)} Damage`,
     subtitle: currentChatSheetLabel(),
-    lines: [],
-    results
+    lines: dmgLine ? [dmgLine] : [],
+    results: [`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`]
   });
 }
 window.sendSpellCard = sendSpellCard;
 window.rollSpellAction = rollSpellAction;
+window.rollSpellDamage = rollSpellDamage;
 function sendInitiativeRoll() {
-  const total = readNumericValue('initDisplayMain', 0);
-  const roll = rollD20WithModifier(total);
+  const init = initiativeFormulaConfig();
+  const roll = rollD20WithModifier(init.total);
   routeChatEntry({
     kind: 'roll',
     title: 'Initiative',
     subtitle: currentChatSheetLabel(),
-    lines: [],
+    lines: [rollCalcLine(roll, init.parts)],
     results: simpleRollResultLines(roll, 'Total')
   });
 }
@@ -3698,33 +3965,33 @@ function sendSavesOverview() {
 }
 function rollSaveCheck(kind) {
   closeAllRollMenus();
-  const map = {
-    fort: { label: 'Fortitude Save', id: 'fortDisplayMain' },
-    ref: { label: 'Reflex Save', id: 'refDisplayMain' },
-    will: { label: 'Will Save', id: 'willDisplayMain' }
-  };
-  const cfg = map[kind];
+  const cfg = saveFormulaConfig(kind);
   if (!cfg) return;
-  const total = readNumericValue(cfg.id, 0);
-  const roll = rollD20WithModifier(total);
+  const roll = rollD20WithModifier(cfg.total);
   routeChatEntry({
     kind: 'roll',
     title: cfg.label,
     subtitle: currentChatSheetLabel(),
-    lines: [],
+    lines: [rollCalcLine(roll, cfg.parts)],
     results: simpleRollResultLines(roll)
   });
 }
 function sendSkillCheck(row) {
   if (!row) return;
   const name = skillRowName(row);
-  const total = readNumericValueFromElement(row.querySelector('.skill-total'));
-  const roll = rollD20WithModifier(total);
+  const bonus = getSkillBonus(row);
+  const statLabel = abilityModLabel(row.dataset.stat || '');
+  const roll = rollD20WithModifier(bonus.total);
   routeChatEntry({
     kind: 'roll',
     title: name,
     subtitle: currentChatSheetLabel(),
-    lines: [],
+    lines: [rollCalcLine(roll, [
+      { label: statLabel, value: bonus.mod },
+      { label: 'Ranks', value: bonus.ranks },
+      { label: 'Class Skill', value: bonus.classBonus },
+      { label: 'Temp', value: bonus.temp }
+    ])],
     results: simpleRollResultLines(roll, 'Total')
   });
 }
@@ -3769,27 +4036,46 @@ function rollAbilityAction(index) {
   const item = list[index];
   if (!item) return;
   const attack = abilityAttackConfig(item);
-  const damageResult = String(item?.damage || '').trim() ? rollDamageExpression(item.damage) : null;
-  const results = [];
-  if (attack) {
-    const attackRoll = rollD20WithModifier(attack.total);
-    results.push(`<strong>Attack Roll (${chatEscapeHtml(attack.label)}):</strong> ${chatEscapeHtml(String(attackRoll.total))}`);
-    if (damageResult) results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
-    if (attackRoll.die === 20 && attack.mode !== 'cmb') {
-      const confirmRoll = rollD20WithModifier(attack.total);
-      results.push('<strong>Crit !!!</strong>');
-      results.push(`<strong>Crit ${chatEscapeHtml(attack.label)} Roll:</strong> ${chatEscapeHtml(String(confirmRoll.total))}`);
-      if (damageResult) results.push(`<strong>Crit Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(scaleDamageResult(damageResult, 2)))}`);
-    }
-  } else if (damageResult) {
+  if (!attack) { rollAbilityDamage(index); return; }
+  const attackRoll = rollD20WithModifier(attack.total);
+  const isCrit = attackRoll.die === 20 && attack.mode !== 'cmb';
+  const calcLines = [rollCalcLine(attackRoll, attack.parts, 'AR Calc')];
+  const results = [`<strong>Attack Roll (${chatEscapeHtml(attack.label)}):</strong> ${chatEscapeHtml(String(attackRoll.total))}${isCrit ? ' <strong>Crit !!!</strong>' : ''}`];
+  const damageExpr = String(item?.damage || '').trim();
+  let damageResult = null;
+  if (damageExpr) {
+    damageResult = rollDamageExpression(damageExpr);
+    const dmgLine = damageCalcLine(damageResult, 'Dmg Calc');
+    if (dmgLine) calcLines.push(dmgLine);
     results.push(`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
   }
+  const critBundle = buildDiscordCritBundle({
+    isCrit,
+    attack,
+    attackParts: attack.parts,
+    baseDamageResult: damageResult,
+    damageExpr,
+    multiplier: 2,
+    attackLabel: attack.label
+  });
+  const discordLines = calcLines.concat(critBundle.calcLines);
+  const discordResults = results.concat(critBundle.resultLines);
+  routeChatEntry({ kind: 'roll', title: `${item.name || 'Active Ability'}${isCrit ? ' — Crit!' : ''}`, subtitle: currentChatSheetLabel(), lines: calcLines, results, discordLines, discordResults });
+}
+function rollAbilityDamage(index) {
+  const list = getActiveData().activeAbilities || [];
+  const item = list[index];
+  if (!item) return;
+  const damageExpr = String(item?.damage || '').trim();
+  if (!damageExpr) return;
+  const damageResult = rollDamageExpression(damageExpr);
+  const dmgLine = damageCalcLine(damageResult, 'Dmg Calc');
   routeChatEntry({
     kind: 'roll',
-    title: item.name || 'Active Ability',
+    title: `${item.name || 'Active Ability'} Damage`,
     subtitle: currentChatSheetLabel(),
-    lines: [],
-    results
+    lines: dmgLine ? [dmgLine] : [],
+    results: [`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`]
   });
 }
 
@@ -3801,7 +4087,7 @@ function sendAbilityCheck(stat) {
     kind: 'roll',
     title: upper,
     subtitle: currentChatSheetLabel(),
-    lines: [],
+    lines: [rollCalcLine(roll, [{ label: `${upper} Mod`, value: mod }])],
     results: simpleRollResultLines(roll, 'Total')
   });
 }
@@ -3829,6 +4115,7 @@ window.rollSaveCheck = rollSaveCheck;
 window.sendAbilityCheck = sendAbilityCheck;
 window.sendAbilityCard = sendAbilityCard;
 window.rollAbilityAction = rollAbilityAction;
+window.rollAbilityDamage = rollAbilityDamage;
 window.toggleSaveRollMenu = toggleSaveRollMenu;
 window.toggleAttackRollMenu = toggleAttackRollMenu;
 window.rollAttackCheck = rollAttackCheck;
