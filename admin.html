@@ -788,6 +788,7 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
             <div class="bio-item"><label>Size</label><input id="size" class="save-field"></div>
             <div class="bio-item"><label>Langs</label><input id="languages" class="save-field"></div>
             <div class="bio-item" style="grid-column: 1 / -1;"><label>Senses</label><input id="senses" class="save-field"></div>
+            <div class="bio-item" style="grid-column: 1 / -1;"><label>Shop Tags</label><input id="shop_tags" class="save-field" placeholder="starter, magic_shop, blacksmith, potion_shop"></div>
           </div>
           <div class="ability-heading-row"><h3>Ability Scores</h3></div>
           <div style="background:var(--panel); border-radius:8px; overflow:hidden;">
@@ -947,7 +948,7 @@ setTimeout(() => {
             <button class="sub-btn" id="itemView-equipped" onclick="setItemView('equipped')">Equipped</button>
           </div>
           <div style="display:flex; gap:10px; margin-bottom:10px;">
-            <select id="itemFilterTag" onchange="renderItems()" style="flex:1;"><option value="All">All Tags</option><option value="Weapons">Weapons</option><option value="Armor">Armor</option><option value="Gear">Gear</option><option value="Consumables">Consumables</option><option value="Magic Items">Magic Items</option><option value="Collections">Collections</option><option value="Misc">Misc</option></select>
+            <select id="itemFilterTag" onchange="renderItems()" style="flex:1;"><option value="All">All Tags</option><option value="Weapons">Weapons</option><option value="Ranged Weapon">Ranged Weapon</option><option value="Ammunition">Ammunition</option><option value="Armor">Armor</option><option value="Gear">Gear</option><option value="Machine">Machine</option><option value="Alchemical Items">Alchemical Items</option><option value="Artifacts">Artifacts</option><option value="Magic Items">Magic Items</option><option value="Food">Food</option><option value="Collections">Collections</option><option value="Misc">Misc</option></select>
             <select id="itemSort" onchange="renderItems()" style="flex:1;"><option value="recent">Recent</option><option value="abc">A-Z</option></select>
           </div>
           <div id="itemList"></div><button class="btn-add" onclick="addNewItem('item')">+ Add Item</button>
@@ -1138,9 +1139,21 @@ function captureBlankSheetTemplate() {
     if (data.slot_cap === '' || data.slot_cap === undefined || data.slot_cap === null) data.slot_cap = 20;
     return data;
 }
+
+function normalizeShopTagsInput(input) {
+    if (Array.isArray(input)) return input.flatMap(normalizeShopTagsInput).filter((v, i, a) => a.indexOf(v) === i);
+    return String(input || '')
+        .split(/[,|\n]+/)
+        .map(t => t.trim().toLowerCase())
+        .filter(Boolean)
+        .filter((v, i, a) => a.indexOf(v) === i);
+}
+
 function createBlankCharacterData(name = 'New Character') {
     const base = blankSheetTemplate ? clonePlain(blankSheetTemplate) : captureBlankSheetTemplate();
     base.charName = name;
+    base.shop_tags = base.shop_tags || '';
+    base.shopTags = normalizeShopTagsInput(base.shop_tags);
     base.items = [];
     base.weapons = [];
     base.spells = [];
@@ -1153,6 +1166,17 @@ function createBlankCharacterData(name = 'New Character') {
     base.updatedAt = new Date();
     return base;
 }
+const ITEM_TAG_OPTIONS = ["Weapons", "Ranged Weapon", "Ammunition", "Armor", "Gear", "Machine", "Enchantment", "Alchemical Items", "Artifacts", "Magic Items", "Food", "Collections", "Misc"];
+function normalizeItemTagLabel(tag) {
+    const t = String(tag || '').trim();
+    if(!t) return 'Misc';
+    if(/^consumables?$/i.test(t)) return 'Food';
+    if(/^magic item$/i.test(t)) return 'Magic Items';
+    if(/^collection$/i.test(t)) return 'Collections';
+    if(/^weapon$/i.test(t)) return 'Weapons';
+    return ITEM_TAG_OPTIONS.includes(t) ? t : t;
+}
+
 function sanitizeCharacterDoc(raw = {}, fallbackName = 'New Character') {
     const data = {
         items: [],
@@ -1162,16 +1186,21 @@ function sanitizeCharacterDoc(raw = {}, fallbackName = 'New Character') {
         passiveAbilities: [],
         feats: [],
         slot_cap: 20,
+        shop_tags: '',
+        shopTags: [],
         ...raw
     };
     delete data.summons;
     if (!Array.isArray(data.items)) data.items = [];
+    data.items = data.items.map(item => ({ ...item, tags: normalizeItemTagLabel(item?.tags) }));
     if (!Array.isArray(data.weapons)) data.weapons = [];
     data.weapons = data.weapons.map(weapon => normalizeWeaponData(weapon));
     if (!Array.isArray(data.spells)) data.spells = [];
     if (!Array.isArray(data.activeAbilities)) data.activeAbilities = [];
     if (!Array.isArray(data.passiveAbilities)) data.passiveAbilities = [];
     if (!Array.isArray(data.feats)) data.feats = [];
+    data.shopTags = normalizeShopTagsInput(data.shopTags?.length ? data.shopTags : data.shop_tags);
+    data.shop_tags = data.shopTags.join(', ');
     if (!data.charName) data.charName = fallbackName;
     if (data.slot_cap === undefined || data.slot_cap === null || data.slot_cap === '') data.slot_cap = 20;
     return data;
@@ -1694,6 +1723,7 @@ function autoExpand(el) {
 const listContainerIds = { weapon: 'weaponList', spell: 'spellList', active: 'activeList', passive: 'passiveList', feat: 'featList', item: 'itemList' };
 
 let currentItemView = 'storage';
+
 
 const ABILITY_DRAWER_STORAGE_KEY = 'mountAetheriaAbilityDrawerAdmin';
 function getAbilityDrawerState() {
@@ -2348,7 +2378,8 @@ window.renderItems = () => {
     const tagFilter = document.getElementById('itemFilterTag').value;
     const sortType = document.getElementById('itemSort').value;
     let filtered = data.filter(i => {
-        const matchesTag = tagFilter === "All" || i.tags === tagFilter;
+        const itemTag = normalizeItemTagLabel(i.tags);
+        const matchesTag = tagFilter === "All" || itemTag === tagFilter;
         const equipped = !!i.equipped;
         const matchesView = currentItemView === 'equipped' ? equipped : !equipped;
         return matchesTag && matchesView;
@@ -2365,7 +2396,7 @@ window.renderItems = () => {
             <input type="checkbox" class="item-equip-check" ${item.equipped ? 'checked' : ''} onchange="event.stopPropagation();toggleItemEquipped(${idx}, this.checked)">
             <div class="row-content" onclick="openView('item',${idx})">
                 <span class="list-row-title">${amount}x ${item.name||'New Item'}</span>
-                <span class="item-meta-line"><span>${item.tags || 'Misc'}</span><span>Slot ${slot}</span>${item.cost ? `<span>Cost ${item.cost}</span>` : ''}</span>
+                <span class="item-meta-line"><span>${normalizeItemTagLabel(item.tags)}</span><span>Slot ${slot}</span>${item.cost ? `<span>Cost ${item.cost}</span>` : ''}</span>
             </div>
         </div><div class="row-actions" style="display:flex; gap:5px">${extraBtn}<button class="btn-edit" onclick="openEditor('item',${idx})">Edit</button></div>`;
         container.appendChild(div);
@@ -2538,7 +2569,16 @@ function populateViewModal(type, item, index = -1) {
         return;
     }
 
-    if(type === 'item') { if(item.tags) add("Type", item.tags); add("Amount", String(getItemAmount(item))); if(item.cost) add("Cost", item.cost); add("Slot", String(getItemSlot(item))); add("Location", item.equipped ? 'Equipped' : 'Storage'); }
+    if(type === 'item') {
+        if(item.tags) add("Type", item.tags);
+        add("Amount", String(getItemAmount(item)));
+        if(item.cost) add("Cost", item.cost);
+        add("Slot", String(getItemSlot(item)));
+        add("Location", item.equipped ? 'Equipped' : 'Storage');
+        if (Array.isArray(item.details) && item.details.length) {
+            item.details.forEach(d => add(d.label || d.name || 'Detail', d.value ?? d.val ?? ''));
+        }
+    }
     add("Description", item.desc);
 }
 
@@ -2633,8 +2673,8 @@ function populateEditorModal(type, item, index, col) {
 
     if(type === 'feat') createInput('Link URL', item.link, 'link');
     if(type === 'item') {
-        createSelect('Tag', item.tags, 'tags', ["Weapons", "Armor", "Gear", "Consumables", "Magic Items", "Collections", "Misc"]);
-        if(item.tags === "Collections") { createInput('Image URL', item.img, 'img'); }
+        createSelect('Tag', normalizeItemTagLabel(item.tags), 'tags', ITEM_TAG_OPTIONS);
+        if(normalizeItemTagLabel(item.tags) === "Collections") { createInput('Image URL', item.img, 'img'); }
         createInput('Amount', getItemAmount(item), 'amount');
         createInput('Cost', item.cost, 'cost');
         createInput('Slot', getItemSlot(item), 'slot');
@@ -2709,10 +2749,10 @@ function addAttrRow(c, d, i) {
 
 function updateCurrentItem(k, v) {
     const item = getActiveData()[currentEditContext.col][currentEditContext.index];
-    item[k] = v;
+    item[k] = (k === 'tags') ? normalizeItemTagLabel(v) : v;
     if(k==='link') { const b=document.getElementById('modalLinkBtn'); b.href=v; b.style.display=v?'inline-block':'none'; }
     if(currentEditContext?.type === 'weapon' && k === 'ability_mod') item.mod = v;
-    if(['name','lvl','tags','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','amount','slot','equipped','ability_mod','attack_misc','damage','crit_range','crit_mult','range','ammo','link'].includes(k)) refreshList(currentEditContext.type);
+    if(['name','lvl','tags','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','amount','cost','slot','equipped','img','ability_mod','attack_misc','damage','crit_range','crit_mult','range','ammo','link'].includes(k)) refreshList(currentEditContext.type);
     triggerSave();
 }
 window.closeModal = () => { modal.style.display='none'; refreshList(currentEditContext.type); };
@@ -2729,6 +2769,8 @@ window.addNewItem = (t) => {
 function scrapeCurrentSheet() {
     const p = {};
     document.querySelectorAll('.save-field').forEach(el => p[el.id] = el.value);
+    p.shopTags = normalizeShopTagsInput(p.shop_tags);
+    p.shop_tags = p.shopTags.join(', ');
     p.skills = [];
     document.querySelectorAll('#skillsTableBody tr').forEach(r => { 
         const sub = r.querySelector('.skill-custom-input') ? r.querySelector('.skill-custom-input').value : null;

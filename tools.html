@@ -2,411 +2,203 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Tools - Mount Aetheria</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#1a1a1a">
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-/* --- THEME --- */
-:root { --bg: #1a1a1a; --panel: #252525; --border: #333; --accent: #ffcc66; --text: #ddd; }
-*{box-sizing: border-box;}
-body { margin: 0; padding-top: 70px; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 20px; }
+:root{--bg:#1a1a1a;--panel:#252525;--panel2:#1f1f1f;--panel3:#171717;--border:#333;--border2:#444;--accent:#ffcc66;--text:#ddd;--muted:#888;--bad:#ff6666;--good:#66dd88;--blue:#66ccff;--purple:#b998ff;}
+*{box-sizing:border-box} body{margin:0;padding-top:70px;font-family:Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:30px}.top-nav{position:fixed;top:0;left:0;right:0;height:50px;background:#000;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 15px;z-index:2000}.nav-brand{font-family:'Uncial Antiqua';color:var(--accent);font-size:18px;text-decoration:none}.nav-links{display:flex;gap:20px}.nav-links a{color:#888;text-decoration:none;font-size:14px;font-weight:bold}.nav-links a:hover,.nav-links a.active{color:#fff}#hamburgerBtn{display:none;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0}#mobileMenu{display:none;position:fixed;top:50px;left:0;width:100%;background:#111;border-bottom:1px solid var(--accent);flex-direction:column;z-index:1999;align-items:flex-start}#mobileMenu.show{display:flex}#mobileMenu a{width:100%;padding:15px 20px;color:#fff;text-decoration:none;border-bottom:1px solid #333;font-family:'Uncial Antiqua';text-align:left}h1{color:var(--accent);font-family:'Uncial Antiqua';text-align:center;margin:0 0 25px}.tab-buttons{margin:20px auto;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;max-width:94%}.tab-buttons button{background:#333;border:1px solid #555;color:#fff;padding:10px 30px;font-size:16px;font-family:'Uncial Antiqua',serif;cursor:pointer;border-radius:8px;transition:.2s;flex:1;max-width:200px}.tab-buttons button.active{background:var(--accent);color:#000;font-weight:bold;border-color:var(--accent)}.tab-buttons button:hover{background:#444}.tab-content{display:none;max-width:1180px;margin:0 auto 50px;text-align:center;padding:0 12px}.tab-content.active{display:block}.url-grid{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;padding:10px}.url-card{width:150px;height:150px;background:var(--panel);border:1px solid var(--border);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:#fff;font-weight:bold;transition:.2s;font-size:14px;box-shadow:0 4px 10px rgba(0,0,0,.5);padding:10px}.url-card img{width:100%;height:60px;object-fit:contain;margin-bottom:10px}.url-card:hover{background:#333;transform:translateY(-3px);border-color:var(--accent)}.calendar,.shop-shell{background:var(--panel);padding:20px;border-radius:12px;text-align:left;margin:0 auto;border:1px solid var(--border);min-height:300px}.calendar{max-width:700px}.shop-shell{max-width:1180px}.calendar h2,.shop-shell h2{font-family:'Uncial Antiqua';margin-top:0;margin-bottom:20px;font-size:22px;color:var(--accent);text-align:center;border-bottom:1px solid #444;padding-bottom:10px}.calendar-filters{margin-bottom:20px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}.calendar-btn{background:#222;border:1px solid #555;color:#ccc;padding:8px 16px;font-size:14px;border-radius:6px;cursor:pointer;transition:.2s}.calendar-btn.active{background:var(--accent);color:#000;font-weight:bold;border-color:var(--accent)}.calendar-btn:hover{border-color:#999}.event-list{display:none}.event-list.active{display:block}.event-item{background:#333;margin:10px 0;padding:12px 15px;border-radius:8px;font-size:15px;display:flex;justify-content:space-between;align-items:center;border-left:4px solid var(--accent)}.event-item .date{font-weight:bold;color:var(--accent);margin-right:10px;min-width:80px}.event-item .desc{flex:1;color:#ddd}.event-actions{display:flex;gap:10px}.event-btn-icon{background:none;border:none;cursor:pointer;opacity:.7;font-size:14px}.event-btn-icon:hover{opacity:1;transform:scale(1.1)}.btn-edit{color:var(--blue)}.btn-del{color:var(--bad)}#adminPanel,.admin-shop-panel{display:none;background:#2a1a1a;padding:15px;border:1px solid #633;border-radius:8px;margin-bottom:20px}#adminPanel h3,.admin-shop-panel h3{margin:0 0 10px;color:#eaa;font-size:16px}.admin-form{display:flex;gap:10px;flex-wrap:wrap;align-items:end}.admin-form input,.admin-form select,.shop-input, .shop-select, .shop-textarea{background:#111;border:1px solid #444;color:#fff;padding:8px;border-radius:6px;min-width:150px}.admin-form button,.shop-btn{background:var(--accent);color:#000;border:none;padding:8px 14px;font-weight:bold;border-radius:6px;cursor:pointer}.shop-btn.secondary{background:#444;color:#fff;border:1px solid #666}.shop-btn.danger{background:#773333;color:#fff;border:1px solid #aa5555}.shop-btn.small{font-size:12px;padding:5px 9px}.shop-btn:disabled{opacity:.45;cursor:not-allowed}.custom-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:3000;justify-content:center;align-items:center;backdrop-filter:blur(3px)}.custom-modal-content{background:var(--panel);border:1px solid var(--accent);padding:25px;border-radius:8px;width:90%;max-width:420px;text-align:center;box-shadow:0 0 20px rgba(0,0,0,.8)}.custom-modal-content h3{color:var(--accent);font-family:'Uncial Antiqua';margin-top:0}.custom-modal-content p{color:#ccc;margin-bottom:20px;line-height:1.5;white-space:pre-wrap}.modal-actions{display:flex;gap:10px;justify-content:center}.modal-btn{padding:10px 20px;border:none;border-radius:4px;font-weight:bold;cursor:pointer;flex:1}.modal-btn.confirm{background:var(--accent);color:#000}.modal-btn.cancel{background:#444;color:#fff}.empty-msg{text-align:center;color:#777;font-style:italic;padding:20px}.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.tag-pill{display:inline-flex;align-items:center;gap:4px;background:#151515;border:1px solid #454545;border-radius:999px;color:#ddd;padding:3px 9px;font-size:12px}.tag-pill.good{border-color:#2e7650;color:#9ff0bf}.tag-pill.warn{border-color:#8a7332;color:#ffdf86}.tag-pill.bad{border-color:#874444;color:#ff9e9e}.tag-pill.info{border-color:#315f79;color:#9ed1ff}.shop-note{color:#999;font-size:12px;line-height:1.4;margin-top:6px}.shop-status{margin:10px 0;padding:10px;border-radius:8px;background:#171717;border:1px solid #333;color:#bbb;text-align:center}.shop-layout{display:grid;grid-template-columns:320px minmax(0,1fr);gap:16px}.shop-side,.shop-main{background:#1b1b1b;border:1px solid #333;border-radius:12px;padding:14px}.shop-side h3,.shop-main h3{font-family:'Uncial Antiqua';color:var(--accent);margin:0 0 10px;text-align:left}.shop-group-title{font-family:'Uncial Antiqua';color:#fff;background:#111;border:1px solid #333;border-left:4px solid var(--accent);border-radius:8px;padding:9px 10px;margin:12px 0 8px}.category-button-grid{display:grid;grid-template-columns:1fr;gap:7px}.category-btn{background:#222;border:1px solid #444;color:#ddd;border-radius:9px;padding:9px 10px;text-align:left;font-weight:bold;cursor:pointer}.category-btn.active{background:var(--accent);color:#000;border-color:var(--accent)}.builder-row{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:10px}.builder-row .field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:160px}.builder-row label,.filter-group-title{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#aaa;font-weight:bold}.filter-box{background:#131313;border:1px solid #333;border-radius:10px;padding:10px;margin:10px 0}.filter-groups{display:flex;flex-direction:column;gap:10px}.filter-group{background:#101010;border:1px solid #2e2e2e;border-radius:10px;padding:9px}.filter-chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.filter-chip{background:#222;border:1px solid #444;color:#ddd;border-radius:999px;padding:5px 10px;font-size:12px;cursor:pointer}.filter-chip.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:bold}.filter-chip:hover{border-color:#888}.item-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:10px 0}.item-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}.shop-item-card{background:#222;border:1px solid #3a3a3a;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:150px}.shop-item-card:hover{border-color:#777}.shop-item-card.selected{border-color:var(--accent);box-shadow:0 0 0 1px rgba(255,204,102,.25)}.item-card-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.item-name{color:var(--accent);font-weight:bold;font-size:15px}.price-badge{background:#000;border:1px solid var(--accent);border-radius:999px;color:var(--accent);padding:3px 8px;font-size:12px;font-weight:bold;white-space:nowrap}.item-summary{color:#ddd;font-size:13px;line-height:1.35;white-space:pre-wrap}.item-meta{display:flex;gap:6px;flex-wrap:wrap}.item-actions{display:flex;gap:8px;margin-top:auto}.item-actions a{color:#9ed1ff;text-decoration:none;font-size:12px}.shop-list{display:flex;flex-direction:column;gap:18px}.shop-card{background:#1b1b1b;border:1px solid #444;border-radius:14px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.35)}.shop-card.expired{opacity:.78;border-color:#633}.shop-card-head{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;padding:15px;background:#141414;border-bottom:1px solid #333}.shop-title{font-family:'Uncial Antiqua';color:var(--accent);font-size:19px;margin:0 0 5px}.shop-desc{color:#ccc;font-size:13px;line-height:1.45}.shop-head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.shop-body{padding:15px}.character-pick{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-bottom:12px}.shop-control{background:#1b1b1b;border:1px solid #333;border-radius:10px;padding:12px}.shop-control label{display:block;color:#aaa;font-size:12px;font-weight:bold;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}.copy-output{font-size:12px;color:#9ed1ff;word-break:break-all;margin-top:6px}.upload-box{border:1px dashed #665533;border-radius:10px;padding:12px;margin-bottom:12px;background:#18120a}.hidden{display:none!important}
+@media(max-width:900px){.shop-layout{grid-template-columns:1fr}.character-pick{grid-template-columns:1fr}.shop-card-head{flex-direction:column}.shop-head-actions{justify-content:flex-start}}
+@media(max-width:768px){.nav-links{display:none}#hamburgerBtn{display:block}.url-grid{gap:10px}.url-card{width:45%;height:130px}.admin-form{flex-direction:column;align-items:stretch}.tab-buttons{width:100%;gap:5px;padding:0 10px}.tab-buttons button{padding:8px 0;font-size:14px;width:31%;max-width:none;flex:initial}.calendar-filters{gap:5px}.calendar-btn{padding:6px 10px;font-size:12px}.item-list{grid-template-columns:1fr}.builder-row{flex-direction:column;align-items:stretch}.builder-row .field{width:100%}}
 
-/* --- NAV --- */
-.top-nav { position: fixed; top: 0; left: 0; right: 0; height: 50px; background: #000; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 2000; }
-.nav-brand { font-family: 'Uncial Antiqua'; color: var(--accent); font-size: 18px; text-decoration: none; }
-.nav-links { display: flex; gap: 20px; }
-.nav-links a { color: #888; text-decoration: none; font-size: 14px; font-weight: bold; }
-.nav-links a:hover, .nav-links a.active { color: #fff; }
-#hamburgerBtn { display: none; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 0; }
+/* --- Clean shop UI patch --- */
+.shop-top-clean{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.gil-line{font-size:18px;color:var(--accent);font-weight:bold;margin-top:10px}.shop-select{width:100%;min-width:0}.shop-select-row{display:flex;gap:8px;align-items:center}.shop-select-row select{flex:1}.admin-shop-manager{display:flex;gap:12px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap}.admin-shop-manager .grow{flex:1;min-width:280px}.admin-builder{overflow:hidden;transition:max-height .25s ease,opacity .2s ease;max-height:5000px;opacity:1}.admin-builder.collapsed{max-height:0;opacity:0;padding:0!important;border:0!important;margin:0!important}.edit-notice{background:#142018;border:1px solid #2d7a49;color:#9ff0bf;border-radius:10px;padding:10px;margin-bottom:10px}.clean-builder-layout{grid-template-columns:260px minmax(0,1fr)}.clean-shop-card{background:#1b1b1b;border:1px solid #444;border-radius:14px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.35)}.clean-shop-head{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 15px;background:#141414;border-bottom:1px solid #333}.clean-shop-body{padding:12px}.shop-category{border:1px solid #333;border-radius:12px;margin-bottom:10px;overflow:hidden;background:#181818}.shop-category-head{width:100%;background:#111;color:#fff;border:0;border-left:4px solid var(--accent);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;font-weight:bold;font-family:'Uncial Antiqua';cursor:pointer}.shop-category-body{padding:10px}.category-filter-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:10px}.category-filter-row label{display:flex;flex-direction:column;gap:4px;color:#aaa;font-size:11px;text-transform:uppercase;font-weight:bold}.category-filter-row select{background:#111;border:1px solid #444;color:#fff;padding:8px;border-radius:8px}.compact-list{display:flex;flex-direction:column;gap:6px}.compact-item-row{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#222;border:1px solid #333;border-radius:10px;padding:9px 10px}.compact-item-row:hover{border-color:#666}.compact-item-row.selected{border-color:var(--accent);box-shadow:0 0 0 1px rgba(255,204,102,.25)}.compact-item-row label{display:flex;align-items:center;gap:8px;min-width:0;flex:1;margin:0}.item-name-link{background:none;border:0;color:var(--accent);font-weight:bold;text-align:left;cursor:pointer;padding:0;font-size:14px;white-space:normal}.item-name-link:hover{text-decoration:underline}.compact-price{white-space:nowrap;color:var(--accent);font-weight:bold;font-size:13px}.builder-row-item{min-height:42px}.item-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.84);z-index:4000;align-items:center;justify-content:center;padding:16px}.item-modal-card{width:min(680px,96vw);max-height:88vh;overflow:hidden;background:#202020;border:1px solid var(--accent);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.55)}.item-modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;background:#111;border-bottom:1px solid #333}.item-modal-head h3{margin:0;color:var(--accent);font-family:'Uncial Antiqua';text-align:left}.modal-close{background:none;border:0;color:#fff;font-size:28px;cursor:pointer;line-height:1}.item-modal-body{padding:16px;overflow-y:auto;max-height:calc(88vh - 64px);line-height:1.5}.item-modal-body h4{color:var(--accent);font-family:'Uncial Antiqua';margin:15px 0 6px;text-align:left}.item-modal-body p{white-space:pre-wrap;color:#ddd;margin:0 0 8px}.modal-price{display:inline-flex;margin-bottom:10px}.modal-meta{margin-bottom:8px}.source-link{color:#9ed1ff;font-weight:bold}.hidden{display:none!important}
+@media(max-width:768px){.shop-top-clean{grid-template-columns:1fr}.shop-shell{padding:14px}.admin-shop-manager{align-items:stretch}.shop-select-row{flex-direction:column;align-items:stretch}.clean-builder-layout{grid-template-columns:1fr}.shop-layout{grid-template-columns:1fr!important}.shop-side,.shop-main{padding:10px}.category-button-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.clean-shop-head{align-items:flex-start;flex-direction:column}.shop-head-actions{width:100%;justify-content:flex-start}.compact-item-row{padding:10px}.compact-price{font-size:12px}.item-name-link{font-size:15px}.category-filter-row{grid-template-columns:1fr 1fr}.admin-shop-panel{padding:10px}.builder-row{flex-direction:column;align-items:stretch}.builder-row .field{min-width:0;width:100%}}
+@media(max-width:480px){.category-filter-row{grid-template-columns:1fr}.category-button-grid{grid-template-columns:1fr}.shop-category-head{font-size:14px}.compact-item-row{gap:8px}.compact-price{font-size:12px}.item-modal-card{width:100%;max-height:90vh}}
 
-#mobileMenu { 
-  display: none; 
-  position: fixed; top: 50px; left: 0; width: 100%; 
-  background: #111; border-bottom: 1px solid var(--accent); 
-  flex-direction: column; z-index: 1999; 
-  align-items: flex-start; 
-}
-#mobileMenu.show { display: flex; }
-#mobileMenu a { 
-  width: 100%; padding: 15px 20px; 
-  color: #fff; text-decoration: none; 
-  border-bottom: 1px solid #333; 
-  font-family: 'Uncial Antiqua'; 
-  text-align: left; 
-}
+/* --- Buy system patch --- */
+.custom-modal{z-index:6500!important;}
+.shop-price-buy{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.shop-buy-btn{background:var(--accent);color:#000;border:none;border-radius:999px;padding:6px 12px;font-weight:800;cursor:pointer;white-space:nowrap;}
+.shop-buy-btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.shop-buy-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+.buy-modal-btn{width:100%;margin-top:12px;padding:11px 14px;font-size:15px;}
+.item-modal-title-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.item-modal-title-row .buy-modal-btn{width:auto;margin-top:0;padding:7px 12px;font-size:13px;border-radius:999px;}
+.admin-buyer-box{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px;background:#211818;border:1px solid #5b3939;}
+.item-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 14px;}
+.item-detail-cell{background:#151515;border:1px solid #333;border-radius:9px;padding:8px 10px;min-width:0;}
+.item-detail-cell small{display:block;color:#999;text-transform:uppercase;letter-spacing:.04em;font-size:10px;margin-bottom:3px;}
+.item-detail-cell span{color:#eee;font-weight:700;word-break:break-word;white-space:pre-wrap;}
+@media(max-width:768px){.item-detail-grid{grid-template-columns:1fr}.item-modal-title-row .buy-modal-btn{padding:6px 11px;font-size:12px}}
+.purchase-toast{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:7000;pointer-events:none;}
+.purchase-toast-card{min-width:min(340px,90vw);max-width:min(440px,92vw);background:rgba(8,8,8,.82);border:1px solid rgba(255,204,102,.9);border-radius:24px;padding:18px 20px;box-shadow:0 22px 55px rgba(0,0,0,.55),0 0 34px rgba(255,204,102,.18);display:flex;flex-direction:column;align-items:center;gap:10px;animation:purchaseToastPop .9s cubic-bezier(.2,.85,.2,1);}
+.purchase-toast-title{font-family:'Uncial Antiqua',serif;color:var(--accent);font-size:20px;text-align:center;}
+.purchase-toast-lines{display:flex;flex-direction:column;gap:6px;text-align:center;font-weight:800;}
+.purchase-toast-lines .lost{color:#ff9e9e;}
+.purchase-toast-lines .gain{color:#9ff0bf;}
+.purchase-qty-input{display:block;width:150px;max-width:100%;margin:10px auto 0;background:#111;border:1px solid var(--accent);color:#fff;border-radius:8px;padding:10px;text-align:center;font-size:18px;font-weight:800;}
+@keyframes purchaseToastPop{0%{opacity:0;transform:translateY(18px) scale(.72) rotate(-8deg);filter:blur(2px)}55%{opacity:1;transform:translateY(-6px) scale(1.06) rotate(2deg);filter:blur(0)}100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
+@media(max-width:768px){.compact-item-row .shop-buy-btn{display:none}.shop-price-buy{margin-left:auto}.buy-modal-btn{display:block}.compact-item-row{align-items:flex-start}.compact-price{white-space:normal;text-align:right}}
 
-h1 { color: var(--accent); font-family: 'Uncial Antiqua'; text-align: center; margin-bottom: 30px; }
-
-/* TABS */
-.tab-buttons { margin: 20px auto; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; max-width: 90%; }
-.tab-buttons button { background: #333; border: 1px solid #555; color: #fff; padding: 10px 30px; font-size: 16px; font-family: 'Uncial Antiqua', serif; cursor: pointer; border-radius: 8px; transition: .2s; flex: 1; max-width: 200px; }
-.tab-buttons button.active { background: var(--accent); color: #000; font-weight: bold; border-color: var(--accent); }
-.tab-buttons button:hover { background: #444; }
-
-/* CONTENT */
-.tab-content { display: none; max-width: 900px; margin: 0 auto 50px auto; text-align: center; }
-.tab-content.active { display: block; }
-
-/* URL CARDS */
-.url-grid { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; padding: 10px; }
-.url-card { width: 150px; height: 150px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: #fff; font-weight: bold; transition: .2s; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); padding: 10px; }
-.url-card img { width: 100%; height: 60px; object-fit: contain; margin-bottom: 10px; }
-.url-card:hover { background: #333; transform: translateY(-3px); border-color: var(--accent); }
-
-/* CALENDAR */
-.calendar { background: var(--panel); padding: 20px; border-radius: 12px; text-align: left; max-width: 700px; margin: 0 auto; border: 1px solid var(--border); min-height: 300px; }
-.calendar h2 { font-family: 'Uncial Antiqua', cursive; margin-top: 0; margin-bottom: 20px; font-size: 22px; color: var(--accent); text-align: center; border-bottom: 1px solid #444; padding-bottom: 10px; }
-.calendar-filters { margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-.calendar-btn { background: #222; border: 1px solid #555; color: #ccc; padding: 8px 16px; font-size: 14px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
-.calendar-btn.active { background: var(--accent); color: #000; font-weight: bold; border-color: var(--accent); }
-.calendar-btn:hover { border-color: #999; }
-
-/* EVENTS LIST */
-.event-list { display: none; }
-.event-list.active { display: block; }
-.event-item { background: #333; margin: 10px 0; padding: 12px 15px; border-radius: 8px; font-size: 15px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--accent); }
-.event-item .date { font-weight: bold; color: var(--accent); margin-right: 10px; min-width: 80px; }
-.event-item .desc { flex: 1; color: #ddd; }
-.event-actions { display: flex; gap: 10px; }
-.event-btn-icon { background: none; border: none; cursor: pointer; opacity: 0.7; font-size: 14px; }
-.event-btn-icon:hover { opacity: 1; transform: scale(1.1); }
-.btn-edit { color: #66ccff; }
-.btn-del { color: #ff6666; }
-
-/* ADMIN PANEL */
-#adminPanel { display: none; background: #2a1a1a; padding: 15px; border: 1px solid #633; border-radius: 8px; margin-bottom: 20px; }
-#adminPanel h3 { margin: 0 0 10px 0; color: #eaa; font-size: 16px; }
-.admin-form { display: flex; gap: 10px; flex-wrap: wrap; }
-.admin-form input, .admin-form select { background: #111; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 4px; flex: 1; }
-.admin-form button { background: var(--accent); color: #000; border: none; padding: 8px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; }
-
-/* --- CUSTOM MODAL --- */
-.custom-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:3000; justify-content:center; align-items:center; backdrop-filter:blur(3px); }
-.custom-modal-content { background: var(--panel); border: 1px solid var(--accent); padding: 25px; border-radius: 8px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
-.custom-modal-content h3 { color: var(--accent); font-family: 'Uncial Antiqua'; margin-top: 0; }
-.custom-modal-content p { color: #ccc; margin-bottom: 20px; line-height: 1.5; }
-.modal-actions { display: flex; gap: 10px; justify-content: center; }
-.modal-btn { padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; flex: 1; }
-.modal-btn.confirm { background: var(--accent); color: #000; }
-.modal-btn.cancel { background: #444; color: #fff; }
-
-.empty-msg { text-align: center; color: #666; font-style: italic; padding: 20px; }
-
-@media(max-width:768px){
-  .nav-links { display: none; }
-  #hamburgerBtn { display: block; }
-  .url-grid { gap: 10px; }
-  .url-card { width: 45%; height: 130px; }
-  .admin-form { flex-direction: column; }
-  .tab-buttons { width: 100%; gap: 5px; padding: 0 10px; }
-  .tab-buttons button { padding: 8px 0; font-size: 14px; width: 48%; max-width: none; flex: initial; }
-  .calendar-filters { gap: 5px; }
-  .calendar-btn { padding: 6px 10px; font-size: 12px; }
-}
 </style>
 </head>
 <body>
-
-<div id="customModal" class="custom-modal">
-  <div class="custom-modal-content">
-    <h3 id="modalTitle">Confirm</h3>
-    <p id="modalMsg">Are you sure?</p>
-    <div class="modal-actions">
-      <button class="modal-btn confirm" id="modalYesBtn">Yes</button>
-      <button class="modal-btn cancel" id="modalNoBtn">No</button>
-    </div>
-  </div>
-</div>
-
-<nav class="top-nav">
-  <button id="hamburgerBtn" onclick="document.getElementById('mobileMenu').classList.toggle('show')">&#9776;</button>
-  <a href="index.html" class="nav-brand">Mount Aetheria</a>
-  <div class="nav-links">
-    <a href="story.html">Story</a>
-    <a href="tools.html" class="active" style="color:var(--accent)">Tools</a>
-    <a href="characters.html">Sheet</a>
-    <a href="discussions.html">Discussion</a>
-    <a href="signin.html" id="authLink">Sign In</a>
-  </div>
-</nav>
-
-<div id="mobileMenu">
-  <a href="story.html">Story</a>
-  <a href="tools.html" style="color:var(--accent)">Tools</a>
-  <a href="characters.html">Character Sheet</a>
-  <a href="discussions.html">Discussion</a>
-  <a href="signin.html" id="mobileAuthLink">Sign In</a>
-</div>
-
+<div id="customModal" class="custom-modal"><div class="custom-modal-content"><h3 id="modalTitle">Confirm</h3><p id="modalMsg">Are you sure?</p><div class="modal-actions"><button class="modal-btn confirm" id="modalYesBtn">Yes</button><button class="modal-btn cancel" id="modalNoBtn">No</button></div></div></div>
+<nav class="top-nav"><button id="hamburgerBtn" onclick="document.getElementById('mobileMenu').classList.toggle('show')">&#9776;</button><a href="index.html" class="nav-brand">Mount Aetheria</a><div class="nav-links"><a href="story.html">Story</a><a href="tools.html" class="active" style="color:var(--accent)">Tools</a><a href="characters.html">Sheet</a><a href="discussions.html">Discussion</a><a href="signin.html" id="authLink">Sign In</a></div></nav>
+<div id="mobileMenu"><a href="story.html">Story</a><a href="tools.html" style="color:var(--accent)">Tools</a><a href="characters.html">Character Sheet</a><a href="discussions.html">Discussion</a><a href="signin.html" id="mobileAuthLink">Sign In</a></div>
 <h1>Tools</h1>
-
-<div class="tab-buttons">
-  <button class="tab-btn active" data-tab="links">URL Links</button>
-  <button class="tab-btn" data-tab="calendar">Calendar</button>
-</div>
-
-<div class="tab-content active" id="links">
-  <div class="url-grid">
-    <a href="https://www.d20pfsrd.com/" target="_blank" class="url-card">
-      <img src="Tools/Links/Pathfinder.png" alt="Pathfinder" onerror="this.src='https://via.placeholder.com/100x60?text=PF'"> Pathfinder
-    </a>
-    <a href="https://www.finalfantasyd20.com/" target="_blank" class="url-card">
-      <img src="Tools/Links/FFD20.png" alt="FFD20" onerror="this.src='https://via.placeholder.com/100x60?text=FFD20'"> FFD20
-    </a>
-    <a href="https://www.owlbear.rodeo/" target="_blank" class="url-card">
-      <img src="Tools/Links/Owlbear.png" alt="Owlbear" onerror="this.src='https://via.placeholder.com/100x60?text=Owl'"> Owlbear
-    </a>
-    <a href="https://reactive.fugi.tech/" target="_blank" class="url-card">
-      <img src="Tools/Links/Reactive.png" alt="Reactive" onerror="this.src='https://via.placeholder.com/100x60?text=React'"> Reactive
-    </a>
+<div class="tab-buttons"><button class="tab-btn active" data-tab="links">URL Links</button><button class="tab-btn" data-tab="calendar">Calendar</button><button class="tab-btn" data-tab="shop">Shop</button></div>
+<div class="tab-content active" id="links"><div class="url-grid"><a href="https://www.d20pfsrd.com/" target="_blank" class="url-card"><img src="Tools/Links/Pathfinder.png" alt="Pathfinder" onerror="this.src='https://via.placeholder.com/100x60?text=PF'"> Pathfinder</a><a href="https://www.finalfantasyd20.com/" target="_blank" class="url-card"><img src="Tools/Links/FFD20.png" alt="FFD20" onerror="this.src='https://via.placeholder.com/100x60?text=FFD20'"> FFD20</a><a href="https://www.owlbear.rodeo/" target="_blank" class="url-card"><img src="Tools/Links/Owlbear.png" alt="Owlbear" onerror="this.src='https://via.placeholder.com/100x60?text=Owl'"> Owlbear</a><a href="https://reactive.fugi.tech/" target="_blank" class="url-card"><img src="Tools/Links/Reactive.png" alt="Reactive" onerror="this.src='https://via.placeholder.com/100x60?text=React'"> Reactive</a></div></div>
+<div class="tab-content" id="calendar"><div class="calendar"><div id="adminPanel"><h3><i class="fa-solid fa-hammer"></i> Calendar Admin</h3><div class="admin-form"><input type="hidden" id="editingEventId"><select id="newEvGroup"><option value="groupA">Dark Grasp</option><option value="groupB">Ra'en Legacy</option><option value="groupC">Scourgefall</option><option value="groupD">Unknown</option><option value="groupE">???</option></select><input type="text" id="newEvDate" placeholder="Date (e.g. Dec 25)"><input type="text" id="newEvDesc" placeholder="Description..."><button id="addEvBtn">Add Event</button><button id="cancelEditBtn" style="display:none;background:#444;color:#fff;">Cancel</button></div></div><h2>Upcoming Events</h2><div class="calendar-filters"><button class="calendar-btn active" data-group="groupA">Dark Grasp</button><button class="calendar-btn" data-group="groupB">Ra'en Legacy</button><button class="calendar-btn" data-group="groupC">Scourgefall</button><button class="calendar-btn" data-group="groupD">Unknown</button><button class="calendar-btn" data-group="groupE">???</button></div><div id="eventsContainer"><div class="event-list active" id="groupA"></div><div class="event-list" id="groupB"></div><div class="event-list" id="groupC"></div><div class="event-list" id="groupD"></div><div class="event-list" id="groupE"></div></div></div></div>
+<div class="tab-content" id="shop"><div class="shop-shell"><h2>Shop</h2>
+  <div id="playerShopTop" class="shop-top-clean">
+    <div class="shop-control"><label>Character</label><select id="shopCharacterSelect" class="shop-select"></select><div id="characterGil" class="gil-line">Gil: 0</div></div>
+    <div class="shop-control"><label>Shop Access</label><select id="shopSelect" class="shop-select" onchange="renderSelectedShop()"></select></div>
   </div>
-</div>
 
-<div class="tab-content" id="calendar">
-  <div class="calendar">
-    
-    <div id="adminPanel">
-      <h3><i class="fa-solid fa-hammer"></i> Calendar Admin</h3>
-      <div class="admin-form">
-        <input type="hidden" id="editingEventId">
-        <select id="newEvGroup">
-          <option value="groupA">Dark Grasp</option>
-          <option value="groupB">Ra'en Legacy</option>
-          <option value="groupC">Scourgefall</option>
-          <option value="groupD">Unknown</option>
-          <option value="groupE">???</option>
-        </select>
-        <input type="text" id="newEvDate" placeholder="Date (e.g. Dec 25)">
-        <input type="text" id="newEvDesc" placeholder="Description...">
-        <button id="addEvBtn">Add Event</button>
-        <button id="cancelEditBtn" style="display:none; background:#444; color:#fff;">Cancel</button>
+  <div id="adminShopPanel" class="admin-shop-panel">
+    <div id="adminBuyerBox" class="shop-control admin-buyer-box"><label>Buy For Character</label><select id="adminBuyerCharacterSelect" class="shop-select"></select><div id="adminBuyerGil" class="gil-line">Gil: 0</div><div class="shop-note">Admin can buy items for any character from any user.</div></div>
+    <div class="admin-shop-manager">
+      <div class="shop-control grow"><label>Shop Access</label><div class="shop-select-row"><select id="adminShopSelect" class="shop-select" onchange="renderSelectedShop()"></select><button class="shop-btn secondary" type="button" onclick="startEditSelectedShop()">Edit</button><button class="shop-btn secondary" type="button" onclick="copySelectedShopLink()">Copy Link</button><button class="shop-btn danger" type="button" onclick="deleteSelectedShop()">Delete</button></div></div>
+      <button id="builderToggleBtn" class="shop-btn" type="button" onclick="toggleAdminBuilder()">Show Shop Builder</button>
+    </div>
+    <div id="adminBuilderBody" class="admin-builder collapsed">
+      <div class="upload-box"><strong>Master Database Import</strong><div class="shop-note">Use this only when you need to update the Firestore item database from <code>items.json</code>.</div><div class="builder-row" style="margin-top:8px"><input type="file" id="shopImportFile" accept=".json,application/json" class="shop-input"><button type="button" class="shop-btn" onclick="importShopJson()">Import JSON</button><button type="button" class="shop-btn secondary" onclick="importBundledJson()">Import Bundled JSON</button></div><div id="importResult" class="shop-note"></div><div id="adminIdentityStatus" class="shop-note"></div></div>
+      <div id="editShopNotice" class="edit-notice hidden"></div>
+      <div class="builder-row"><div class="field"><label>Shop Name / Access Tag</label><input id="shopNameInput" class="shop-input" placeholder="Black Market, Potion Shop, Starter Gear"></div><div class="field"><label>Duration</label><select id="shopDurationInput" class="shop-select"><option value="1d">1 day</option><option value="1w">1 week</option><option value="2w">2 weeks</option><option value="1m">1 month</option><option value="2m">2 months</option><option value="forever">Forever</option></select></div><button id="saveShopBtn" type="button" class="shop-btn" onclick="saveShopSession()">Create Link</button><button type="button" class="shop-btn secondary" onclick="cancelEditShop()">Cancel Edit</button><button type="button" class="shop-btn secondary" onclick="clearSelection()">Clear Selected</button></div>
+      <div id="shopTagPreview" class="shop-note"></div><div id="createdShopLink" class="copy-output"></div>
+      <div class="shop-layout clean-builder-layout">
+        <aside class="shop-side"><h3>Categories</h3><div id="categoryNav"></div><div class="filter-box"><div class="filter-group-title">Active Filters</div><div id="activeFilterPills" class="tag-row"></div><button class="shop-btn secondary small" style="margin-top:8px" onclick="clearAllFilters()">Clear Filters</button></div></aside>
+        <main class="shop-main"><h3 id="builderTitle">Gear</h3><div class="filter-box"><div class="builder-row"><div class="field"><label>Search Items</label><input id="itemSearchInput" class="shop-input" placeholder="Search name, desc, special..." oninput="renderBuilderItems()"></div></div><div id="filterGroups" class="filter-groups"></div></div><div class="item-toolbar"><div id="builderCount" class="shop-note">Loading...</div><div><button class="shop-btn secondary small" onclick="selectVisibleItems()">Select Visible</button><button class="shop-btn secondary small" onclick="unselectVisibleItems()">Unselect Visible</button></div></div><div id="builderItemList" class="compact-list"></div></main>
       </div>
     </div>
-
-    <h2>Upcoming Events</h2>
-    
-    <div class="calendar-filters">
-      <button class="calendar-btn active" data-group="groupA">Dark Grasp</button>
-      <button class="calendar-btn" data-group="groupB">Ra'en Legacy</button>
-      <button class="calendar-btn" data-group="groupC">Scourgefall</button>
-      <button class="calendar-btn" data-group="groupD">Unknown</button>
-      <button class="calendar-btn" data-group="groupE">???</button>
-    </div>
-
-    <div id="eventsContainer">
-      <div class="event-list active" id="groupA"></div>
-      <div class="event-list" id="groupB"></div>
-      <div class="event-list" id="groupC"></div>
-      <div class="event-list" id="groupD"></div>
-      <div class="event-list" id="groupE"></div>
-    </div>
-    
   </div>
-</div>
 
+  <div id="shopStatus" class="shop-status">Loading shops...</div>
+  <div id="shopView"></div>
+</div></div>
+
+<div id="itemModal" class="item-modal" onclick="closeItemModal(event)"><div class="item-modal-card"><div class="item-modal-head"><h3 id="itemModalTitle">Item</h3><button class="modal-close" onclick="closeItemModal(event,true)">&times;</button></div><div id="itemModalBody" class="item-modal-body"></div></div></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, getDoc, deleteDoc, doc, updateDoc, query, orderBy, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig={apiKey:"AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",authDomain:"mount-aetheria.firebaseapp.com",projectId:"mount-aetheria",storageBucket:"mount-aetheria.firebasestorage.app",messagingSenderId:"492855693446",appId:"1:492855693446:web:f9948569254a7220c38107",measurementId:"G-0PF84KDN7L"};
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getFirestore(app);
+const ADMIN_EMAIL="phoeaung2076@gmail.com";
+const ADMIN_UID="U7uyfcMtULSLJvXD0HzJaiMIeGE3";
+function currentUserIsAdmin(user){return !!user && ((user.email||"").toLowerCase()===ADMIN_EMAIL || user.uid===ADMIN_UID);}
+const app=initializeApp(firebaseConfig); const auth=getAuth(app); const db=getFirestore(app);
+const SHOP_GROUPS={Tools:["Gear","Weapon","Ranged Weapon","Ammunition","Armor","Enchantment","Machine"],Magic:["Alchemical Items","Artifacts","Magic Items"],Other:["Food","Collections","Misc"]};
+const CATEGORY_ORDER=[...SHOP_GROUPS.Tools,...SHOP_GROUPS.Magic,...SHOP_GROUPS.Other];
+const FILTER_LABELS={type:"Type",lvl:"Lvl",rarity:"Rarity",sourceSystem:"Source",proficiency:"Proficiency",usageType:"Usage Type"};
+const FILTERS_BY_CATEGORY={"Weapon":["type","proficiency","usageType","lvl","rarity","sourceSystem"],"Ranged Weapon":["type","proficiency","usageType","lvl","rarity","sourceSystem"],"Gear":["type","lvl","rarity","sourceSystem"],"Ammunition":["type","lvl","rarity","sourceSystem"],"Armor":["type","lvl","rarity","sourceSystem"],"Enchantment":["type","lvl","rarity","sourceSystem"],"Machine":["type","lvl","rarity","sourceSystem"],"Alchemical Items":["type","lvl","rarity","sourceSystem"],"Artifacts":["type","lvl","rarity","sourceSystem"],"Magic Items":["type","lvl","rarity","sourceSystem"],"Food":["type","lvl","rarity","sourceSystem"],"Collections":["type","lvl","rarity","sourceSystem"],"Misc":["type","lvl","rarity","sourceSystem"]};
+let isAdmin=false,currentUser=null,allShopItems=[],allShopItemsById=new Map(),allShops=[],userCharacters=[],selectedCharacterId=null,selectedCategory="Gear",selectedItemIds=new Set(),activeFilters={},visibleBuilderIds=[],editingShopId=null,viewFilters={},openCategoryState={};
+const modal=document.getElementById('customModal'), modalTitle=document.getElementById('modalTitle'), modalMsg=document.getElementById('modalMsg'), modalYes=document.getElementById('modalYesBtn'), modalNo=document.getElementById('modalNoBtn');
+function clearModalExtras(){modal.querySelectorAll('.purchase-qty-input,.modal-extra-note').forEach(el=>el.remove());}
+function resetModalButtons(){modalYes.style.display='';modalYes.textContent='Yes';modalNo.textContent='No';modalNo.style.width='';}
+function showConfirm(title,msg,onYes){clearModalExtras();resetModalButtons();modalTitle.textContent=title;modalMsg.textContent=msg;modal.style.display='flex';modalYes.onclick=()=>{modal.style.display='none';onYes();};modalNo.onclick=()=>{modal.style.display='none';};}
+function showAlert(title,msg){clearModalExtras();resetModalButtons();modalTitle.textContent=title;modalMsg.textContent=msg;modalYes.style.display='none';modalNo.textContent='OK';modalNo.style.width='100%';modal.style.display='flex';modalNo.onclick=()=>{modal.style.display='none';resetModalButtons();};}
+function askPurchaseQuantity(item,unitPrice){const isAmmo=isAmmunitionItem(item); if(!isAmmo)return Promise.resolve(1); return new Promise(resolve=>{clearModalExtras();resetModalButtons();modalTitle.textContent='Buy Ammunition';modalMsg.textContent=`How many ${item.name||'ammo'} do you want to buy? Unit price: ${unitPrice.toLocaleString()} gil.`;let input=document.createElement('input');input.className='purchase-qty-input';input.type='number';input.min='1';input.step='1';input.value='1';modalMsg.insertAdjacentElement('afterend',input);setTimeout(()=>input?.focus(),0);modalYes.textContent='Buy';modal.style.display='flex';modalYes.onclick=()=>{const qty=Math.max(1,Math.floor(Number(input?.value)||1));clearModalExtras();modal.style.display='none';resetModalButtons();resolve(qty);};modalNo.onclick=()=>{clearModalExtras();modal.style.display='none';resetModalButtons();resolve(0);};});}
+function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function normalizeTags(input){if(Array.isArray(input))return input.flatMap(normalizeTags);return String(input||'').split(/[,|\n]+/).map(t=>t.trim().toLowerCase()).filter(Boolean).filter((t,i,a)=>a.indexOf(t)===i);}
+function normalizeShopTag(v){return String(v||'').trim().toLowerCase().replace(/\s+/g,' ');}
+function getCharTags(c){return normalizeTags(c?.shopTags?.length?c.shopTags:c?.shop_tags);}
+function getGil(c){return Number(c?.currency_gil ?? c?.gil ?? 0)||0;}
+function getPrice(item){return Number(item?.priceGil ?? item?.price ?? String(item?.cost||'').replace(/[^0-9.]/g,''))||0;}
+function getDisplayCost(item){return item?.cost || (getPrice(item)?`${getPrice(item).toLocaleString()} gil`:'—');}
+function isExpired(shop){if(!shop?.expiresAt)return false; const d=shop.expiresAt?.toDate?shop.expiresAt.toDate():new Date(shop.expiresAt); return Number.isFinite(d.getTime())&&d.getTime()<Date.now();}
+function expiresText(shop){if(!shop?.expiresAt)return 'Forever'; const d=shop.expiresAt?.toDate?shop.expiresAt.toDate():new Date(shop.expiresAt); if(!Number.isFinite(d.getTime()))return 'Forever'; return d.toLocaleString();}
+function itemField(item,field){const v=item?.[field]??item?.raw?.[field]??''; return v===null||v===undefined?'':String(v).trim();}
+function itemFilterValue(item,field){const v=itemField(item,field); return field==='lvl'&&v?String(parseInt(v,10)||v):v.toLowerCase();}
+function normalizeCategoryName(category){const c=String(category||'Gear').trim(); if(/^consumables?$/i.test(c))return 'Food'; if(/^food$/i.test(c))return 'Food'; if(/^magic item$/i.test(c))return 'Magic Items'; if(/^collection$/i.test(c))return 'Collections'; return c||'Gear';}
+function categoryGroup(category){return Object.entries(SHOP_GROUPS).find(([,cats])=>cats.includes(category))?.[0]||'Other';}
+function normalizeImportedItem(raw){const id=String(raw.id||raw.itemId||raw.name||('item_'+Date.now())).trim(); const category=normalizeCategoryName(raw.category||'Gear'); const type=String(raw.type||raw.raw?.type||'').trim().toLowerCase(); const sourceSystem=String(raw.sourceSystem||raw.raw?.sourceSystem||'custom').trim().toLowerCase(); const lvl=raw.lvl===null||raw.lvl===undefined||raw.lvl===''?null:Number(raw.lvl)||null; const rarity=String(raw.rarity||'').trim(); const item={...raw,id,name:raw.name||'Unnamed Item',category,shopGroup:raw.shopGroup||categoryGroup(category),cost:raw.cost||'',priceGil:getPrice(raw),type,lvl,rarity,sourceSystem,sourceUrl:raw.sourceUrl||raw.raw?.sourceUrl||raw.source||'',desc:raw.desc||raw.description||raw.raw?.desc||'',special:raw.special||raw.raw?.special||'',proficiency:String(raw.proficiency||raw.raw?.proficiency||'').trim().toLowerCase(),usageType:String(raw.usageType||raw.raw?.usageType||raw.raw?.['usage type']||'').trim().toLowerCase()}; item.tags=normalizeTags([raw.tags,category,item.shopGroup,type,rarity,sourceSystem,item.proficiency,item.usageType,lvl?`lvl-${lvl}`:'']); return item;}
+function mergeItems(staticItems,firestoreItems){const map=new Map(); [...staticItems,...firestoreItems].forEach(raw=>{const item=normalizeImportedItem(raw); if(item.id)map.set(item.id,item);}); allShopItems=[...map.values()].sort((a,b)=>String(a.category).localeCompare(String(b.category))||String(a.name).localeCompare(String(b.name))); allShopItemsById=new Map(allShopItems.map(i=>[i.id,i]));}
+async function loadStaticItems(){const paths=['data/items.json','items.json','/data/items.json']; for(const p of paths){try{const res=await fetch(p,{cache:'no-store'}); if(!res.ok)continue; const data=await res.json(); return Array.isArray(data)?data:(data.items||data.shopItems||[]);}catch(e){}} return [];}
+async function loadShopItems(){const [staticItems,snap]=await Promise.all([loadStaticItems(),getDocs(collection(db,'shopItems'))]); const fireItems=snap.docs.map(d=>({id:d.id,...d.data()})); mergeItems(staticItems,fireItems);}
+async function loadShopSessions(){const snap=await getDocs(collection(db,'shopSessions')); allShops=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)||String(a.name||'').localeCompare(String(b.name||'')));}
+async function loadUserCharacters(){userCharacters=[]; if(!currentUser)return; if(isAdmin){const usersSnap=await getDocs(collection(db,'users')); const rows=[]; for(const userDoc of usersSnap.docs){const uid=userDoc.id; const u=userDoc.data()||{}; try{const charsSnap=await getDocs(collection(db,'users',uid,'characters')); charsSnap.docs.forEach(d=>{const data=d.data()||{}; const ownerLabel=u.name||u.displayName||u.email||uid; rows.push({id:d.id,key:`${uid}::${d.id}`,ownerUid:uid,ownerLabel,ownerEmail:u.email||'',...data});});}catch(e){console.warn('Could not load characters for user',uid,e);}} userCharacters=rows.sort((a,b)=>String(a.ownerLabel||'').localeCompare(String(b.ownerLabel||''),undefined,{sensitivity:'base'})||String(a.charName||'').localeCompare(String(b.charName||''),undefined,{sensitivity:'base'})); if(!userCharacters.some(c=>c.key===selectedCharacterId)&&userCharacters[0])selectedCharacterId=userCharacters[0].key; return;} const snap=await getDocs(collection(db,'users',currentUser.uid,'characters')); userCharacters=snap.docs.map(d=>({id:d.id,key:`${currentUser.uid}::${d.id}`,ownerUid:currentUser.uid,ownerLabel:currentUser.displayName||currentUser.email||'You',ownerEmail:currentUser.email||'',...d.data()})).sort((a,b)=>String(a.charName||'').localeCompare(String(b.charName||''),undefined,{sensitivity:'base'})); if(!userCharacters.some(c=>c.key===selectedCharacterId||c.id===selectedCharacterId)&&userCharacters[0])selectedCharacterId=userCharacters[0].key;}
+async function loadShopData(){try{await Promise.all([loadShopItems(),loadShopSessions(),loadUserCharacters()]); renderShopShell(); renderAdminBuilder();}catch(e){console.error(e);document.getElementById('shopStatus').textContent='Shop error: '+e.message;}}
+function canSeeShop(shop,character){if(isAdmin)return true; if(shop.active===false)return false; if(isExpired(shop))return false; const allowed=normalizeTags([shop.accessTag,shop.allowedCharacterTags]); if(!allowed.length||allowed.includes('all'))return true; const charTags=getCharTags(character); return allowed.some(t=>charTags.includes(t));}
+function shopItemsFor(shop){if(Array.isArray(shop?.itemIds)&&shop.itemIds.length)return shop.itemIds.map(id=>allShopItemsById.get(id)).filter(Boolean); return [];}
+function getVisibleShops(character){return allShops.filter(s=>canSeeShop(s,character));}
+function selectedShopId(){return isAdmin?document.getElementById('adminShopSelect')?.value:document.getElementById('shopSelect')?.value;}
+function findShop(id){return allShops.find(s=>s.id===id)||null;}
+function renderShopShell(){document.getElementById('playerShopTop').style.display=isAdmin?'none':'grid'; document.getElementById('adminShopPanel').style.display=isAdmin?'block':'none'; const character=renderCharacterBox(); renderShopDropdowns(character); renderSelectedShop();}
+function characterOptionLabel(c){return isAdmin?`${c.ownerLabel||c.ownerEmail||c.ownerUid||'User'} — ${c.charName||'Unnamed Character'}`:(c.charName||'Unnamed Character');}
+function renderCharacterBox(){const sel=document.getElementById(isAdmin?'adminBuyerCharacterSelect':'shopCharacterSelect'); const gilEl=document.getElementById(isAdmin?'adminBuyerGil':'characterGil'); const adminBox=document.getElementById('adminBuyerBox'); if(adminBox)adminBox.style.display=isAdmin?'grid':'none'; if(!sel||!gilEl)return null; if(!currentUser){sel.innerHTML='<option>Please sign in</option>';gilEl.textContent='Gil: 0';return null;} if(!userCharacters.length){sel.innerHTML='<option>No characters found</option>';gilEl.textContent='Gil: 0';return null;} const selected=selectedCharacter()||userCharacters[0]; selectedCharacterId=selected?.key||selected?.id||null; sel.innerHTML=userCharacters.map(c=>`<option value="${esc(c.key||c.id)}" ${(c.key||c.id)===selectedCharacterId?'selected':''}>${esc(characterOptionLabel(c))}</option>`).join(''); gilEl.textContent=selected?`Gil: ${getGil(selected).toLocaleString()}`:'Gil: 0'; return selected;}
+document.getElementById('shopCharacterSelect').addEventListener('change',e=>{selectedCharacterId=e.target.value;renderShopShell();});
+const adminBuyerSelect=document.getElementById('adminBuyerCharacterSelect'); if(adminBuyerSelect)adminBuyerSelect.addEventListener('change',e=>{selectedCharacterId=e.target.value;renderShopShell();});
+function renderShopDropdowns(character){const focusId=(location.hash.match(/shop=([^&]+)/)||[])[1]; if(isAdmin){const sel=document.getElementById('adminShopSelect'); const shops=allShops; sel.innerHTML=shops.length?shops.map(s=>`<option value="${esc(s.id)}">${esc(s.name||'Unnamed Shop')}${isExpired(s)?' (expired)':''}</option>`).join(''):'<option value="">No shops yet</option>'; if(focusId&&shops.some(s=>s.id===focusId))sel.value=focusId; if(!sel.value&&shops[0])sel.value=shops[0].id; return;} const shops=getVisibleShops(character); const sel=document.getElementById('shopSelect'); sel.innerHTML=shops.length?shops.map(s=>`<option value="${esc(s.id)}">${esc(s.name||'Unnamed Shop')}</option>`).join(''):'<option value="">No shops available</option>'; if(focusId&&shops.some(s=>s.id===focusId))sel.value=focusId; if(!sel.value&&shops[0])sel.value=shops[0].id;}
+window.renderSelectedShop=()=>{const id=selectedShopId(); const shop=findShop(id); const view=document.getElementById('shopView'); if(!shop){document.getElementById('shopStatus').textContent=isAdmin?'No shop selected. Create one in the builder.':'No shop is available for this character.'; view.innerHTML=''; return;} const items=shopItemsFor(shop); document.getElementById('shopStatus').textContent=`${shop.name||'Unnamed Shop'} • ${items.length.toLocaleString()} item(s) • ${allShopItems.length.toLocaleString()} master item(s) loaded`; view.innerHTML=renderShopCard(shop,items);};
+function renderShopCard(shop,items){const byCat={}; items.forEach(item=>{const cat=item.category||'Misc'; if(!byCat[cat])byCat[cat]=[]; byCat[cat].push(item);}); const cats=Object.keys(byCat).sort((a,b)=>{const ai=CATEGORY_ORDER.indexOf(a),bi=CATEGORY_ORDER.indexOf(b);return (ai<0?999:ai)-(bi<0?999:bi)||String(a).localeCompare(String(b));}); return `<section class="clean-shop-card"><div class="clean-shop-head"><div><h3 class="shop-title">${esc(shop.name||'Unnamed Shop')}</h3><div class="shop-note">Expires: ${esc(expiresText(shop))}</div></div><div class="shop-head-actions"><button class="shop-btn secondary" onclick="copyShopLink('${shop.id}')">Copy Link</button></div></div><div class="clean-shop-body">${cats.length?cats.map((cat,idx)=>renderCategoryAccordion(shop,cat,byCat[cat],idx===0)).join(''):'<div class="empty-msg">This shop has no item IDs. Edit the shop and select items.</div>'}</div></section>`;}
+function filterKey(shopId,cat,field){return `${shopId}::${cat}::${field}`;}
+function catOpenKey(shopId,cat){return `${shopId}::${cat}`;}
+function categoryIsOpen(shopId,cat,defaultOpen){const key=catOpenKey(shopId,cat); if(openCategoryState[key]===undefined)openCategoryState[key]=!!defaultOpen; return openCategoryState[key];}
+window.toggleShopCategory=(shopId,cat)=>{const key=catOpenKey(shopId,cat); openCategoryState[key]=!openCategoryState[key]; renderSelectedShop();};
+function categoryFilterFields(cat){return FILTERS_BY_CATEGORY[cat]||["type","lvl","rarity","sourceSystem"];}
+function renderCategoryFilters(shop,cat,items){return `<div class="category-filter-row">${categoryFilterFields(cat).map(field=>{const vals=[...new Set(items.map(i=>itemFilterValue(i,field)).filter(Boolean))].sort((a,b)=>field==='lvl'?(Number(a)-Number(b)):String(a).localeCompare(String(b))); if(!vals.length)return ''; const key=filterKey(shop.id,cat,field); const current=viewFilters[key]||''; return `<label><span>${esc(FILTER_LABELS[field]||field)}</span><select onchange="setViewFilter('${shop.id}','${esc(cat).replace(/'/g,'&#39;')}','${field}',this.value)"><option value="">All</option>${vals.map(v=>`<option value="${esc(v)}" ${current===v?'selected':''}>${esc(field==='lvl'?'Lvl '+v:v)}</option>`).join('')}</select></label>`;}).join('')}</div>`;}
+window.setViewFilter=(shopId,cat,field,value)=>{viewFilters[filterKey(shopId,cat,field)]=value; renderSelectedShop();};
+function categoryFilteredItems(shop,cat,items){return items.filter(item=>categoryFilterFields(cat).every(field=>{const v=viewFilters[filterKey(shop.id,cat,field)]||''; return !v||itemFilterValue(item,field)===v;}));}
+function renderCategoryAccordion(shop,cat,items,defaultOpen){const open=categoryIsOpen(shop.id,cat,defaultOpen); const filtered=categoryFilteredItems(shop,cat,items); return `<div class="shop-category"><button class="shop-category-head" onclick="toggleShopCategory('${shop.id}','${esc(cat).replace(/'/g,'&#39;')}')"><span>${open?'▾':'▸'} ${esc(cat)}</span><span>${filtered.length}/${items.length}</span></button>${open?`<div class="shop-category-body">${renderCategoryFilters(shop,cat,items)}<div class="compact-list">${filtered.length?filtered.map(renderItemRow).join(''):'<div class="empty-msg">No items match these filters.</div>'}</div></div>`:''}</div>`;}
+function renderItemRow(item){const buyBtn=`<button class="shop-buy-btn" onclick="event.stopPropagation();buyShopItem('${item.id}')">Buy</button>`; return `<div class="compact-item-row"><button class="item-name-link" onclick="openItemModal('${item.id}')">${esc(item.name)}</button><div class="shop-price-buy"><span class="compact-price">${esc(getDisplayCost(item))}</span>${buyBtn}</div></div>`;}
+function isAmmunitionItem(item){return String(item?.category||'').toLowerCase()==='ammunition'||normalizeTags([item?.tags,item?.type]).includes('ammunition');}
+function inventoryTagForItem(item){const cat=normalizeCategoryName(item?.category||item?.tags||'Misc'); if(/^weapon$/i.test(cat))return 'Weapons'; if(/^consumables?$/i.test(cat))return 'Food'; if(/^magic item$/i.test(cat))return 'Magic Items'; if(['Weapons','Ranged Weapon','Ammunition','Armor','Gear','Machine','Enchantment','Alchemical Items','Artifacts','Magic Items','Food','Collections','Misc'].includes(cat))return cat; return cat||'Misc';}
+function inventorySlotForItem(item){const direct=Number(item?.slot ?? item?.slots ?? item?.bulk ?? item?.weight); if(Number.isFinite(direct)&&direct>=0)return direct; return isAmmunitionItem(item)?0.1:1;}
+function selectedCharacter(){return userCharacters.find(c=>(c.key||c.id)===selectedCharacterId)||userCharacters.find(c=>c.id===selectedCharacterId)||userCharacters[0]||null;}
+function canBuyForSelectedCharacter(){return !!selectedCharacter()&&!!currentUser;}
+function displayLabelFromKey(key){return String(key||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());}
+function collectDisplayFields(item){const skip=new Set(['id','name','category','shopGroup','tags','tagList','desc','description','special','sourceUrl','source','raw']); const rows=[]; const seen=new Set(); function add(k,v){if(skip.has(k))return; if(v===undefined||v===null||v==='')return; if(Array.isArray(v))v=v.filter(Boolean).join(', '); if(typeof v==='object')return; const key=displayLabelFromKey(k); const val=String(v); const sig=key+'::'+val; if(seen.has(sig))return; seen.add(sig); rows.push([key,val]);} ['damage','dmg','crit','range','weight','slot','slots','bulk','priceGil','price','cost','basePrice','base_price','base price','priceMod','price_mod','price mod','mod','bonus','acBonus','armorBonus','maxDex','checkPenalty','spellFailure','proficiency','usageType','lvl','rarity','type','sourceSystem'].forEach(k=>add(k,item?.[k]??item?.raw?.[k])); Object.entries(item||{}).forEach(([k,v])=>add(k,v)); Object.entries(item?.raw||{}).forEach(([k,v])=>add(k,v)); return rows;}
+function itemDetailsHtml(item){const rows=collectDisplayFields(item); if(!rows.length)return ''; return `<h4>Details</h4><div class="item-detail-grid">${rows.map(([k,v])=>`<div class="item-detail-cell"><small>${esc(k)}</small><span>${esc(v)}</span></div>`).join('')}</div>`;}
+function buildPurchasedItem(item,qty,total,shop){const tag=inventoryTagForItem(item);const details=collectDisplayFields(item).map(([label,value])=>({label,value}));return {name:item.name||'Unnamed Item',tags:tag,tagList:[tag,item.category,item.shopGroup,item.type,item.rarity,item.sourceSystem].filter(Boolean),amount:qty,slot:inventorySlotForItem(item),cost:getDisplayCost(item),unitPriceGil:getPrice(item),purchasedForGil:total,equipped:false,details,desc:[item.desc,item.special?`Special: ${item.special}`:''].filter(Boolean).join('\n\n'),link:item.sourceUrl||'',sourceItemId:item.id,sourceCategory:item.category||'',sourceShopId:shop?.id||'',sourceShopName:shop?.name||'',purchasedAt:new Date().toISOString()};}
+function mergePurchasedItem(items,purchased){const next=Array.isArray(items)?items.map(i=>({...i})):[];const existing=next.find(i=>!i.equipped&&i.sourceItemId&&i.sourceItemId===purchased.sourceItemId&&i.tags===purchased.tags);if(existing){existing.amount=(Number(existing.amount)||1)+(Number(purchased.amount)||1);existing.purchasedForGil=(Number(existing.purchasedForGil)||0)+(Number(purchased.purchasedForGil)||0);existing.purchasedAt=purchased.purchasedAt;}else next.push(purchased);return next;}
+function showPurchaseToast(itemName,total,qty){const old=document.querySelector('.purchase-toast'); if(old)old.remove(); const wrap=document.createElement('div');wrap.className='purchase-toast';wrap.innerHTML=`<div class="purchase-toast-card"><div class="purchase-toast-title">Purchase Complete</div><div class="purchase-toast-lines"><div class="lost">-${Number(total).toLocaleString()} Gil</div><div class="gain">+${qty} ${esc(itemName)}</div></div></div>`;document.body.appendChild(wrap);setTimeout(()=>wrap.remove(),1900);}
+window.buyShopItem=async(id)=>{try{if(!currentUser)return showAlert('Sign In Required','Sign in before buying items.'); const ch=selectedCharacter(); if(!ch)return showAlert('No Character','Choose a character before buying.'); const item=allShopItemsById.get(id); if(!item)return showAlert('Missing Item','This item could not be found in the master database.'); const unitPrice=getPrice(item); if(!unitPrice)return showAlert('Missing Price','This item has no gil price, so it cannot be bought automatically yet.'); const qty=await askPurchaseQuantity(item,unitPrice); if(!qty)return; const total=unitPrice*qty; const ownerUid=ch.ownerUid||currentUser.uid; const charRef=doc(db,'users',ownerUid,'characters',ch.id); const snap=await getDoc(charRef); if(!snap.exists())return showAlert('Character Missing','That character no longer exists.'); const latest={id:ch.id,key:ch.key||`${ownerUid}::${ch.id}`,ownerUid,ownerLabel:ch.ownerLabel,ownerEmail:ch.ownerEmail,...snap.data()}; const gil=getGil(latest); if(gil<total)return showAlert('Not Enough Gil',`${latest.charName||'This character'} has ${gil.toLocaleString()} gil, but this costs ${total.toLocaleString()} gil.`); const shop=findShop(selectedShopId()); const purchased=buildPurchasedItem(item,qty,total,shop); const nextItems=mergePurchasedItem(latest.items,purchased); const nextGil=gil-total; await updateDoc(charRef,{items:nextItems,currency_gil:nextGil,gil:nextGil,updatedAt:new Date()}); Object.assign(ch,{...latest,items:nextItems,currency_gil:nextGil,gil:nextGil}); renderCharacterBox(); showPurchaseToast(item.name||'Item',total,qty); if(document.getElementById('itemModal')?.style.display==='flex')openItemModal(id);}catch(e){console.error(e);showAlert('Purchase Failed',e.message||String(e));}};
+window.openItemModal=(id)=>{const item=allShopItemsById.get(id); if(!item)return; const buyAction=canBuyForSelectedCharacter()?`<button class="shop-btn buy-modal-btn" onclick="event.stopPropagation();buyShopItem('${item.id}')">Buy</button>`:''; document.getElementById('itemModalTitle').innerHTML=`<span>${esc(item.name||'Item')}</span>${buyAction}`; const title=document.getElementById('itemModalTitle'); if(title)title.className='item-modal-title-row'; const meta=[item.category,item.type,item.proficiency,item.usageType,item.lvl?`Lvl ${item.lvl}`:'',item.rarity,item.sourceSystem].filter(Boolean); document.getElementById('itemModalBody').innerHTML=`<div class="price-badge modal-price">${esc(getDisplayCost(item))}</div><div class="item-meta modal-meta">${meta.map(m=>`<span class="tag-pill">${esc(m)}</span>`).join('')}</div>${itemDetailsHtml(item)}${item.desc?`<h4>Description</h4><p>${esc(item.desc)}</p>`:''}${item.special?`<h4>Special</h4><p>${esc(item.special)}</p>`:''}<h4>ID</h4><p>${esc(item.id)}</p>${item.sourceUrl?`<p><a href="${esc(item.sourceUrl)}" target="_blank" class="source-link">Open Source</a></p>`:''}`; document.getElementById('itemModal').style.display='flex';};
+window.closeItemModal=(event,force=false)=>{if(force||event.target.id==='itemModal'){document.getElementById('itemModal').style.display='none';}};
+function renderAdminBuilder(){if(!isAdmin)return; renderCategoryNav(); renderFilterGroups(); renderBuilderItems(); updateShopTagPreview();}
+function renderCategoryNav(){const nav=document.getElementById('categoryNav'); if(!nav)return; nav.innerHTML=Object.entries(SHOP_GROUPS).map(([group,cats])=>`<div class="shop-group-title">${esc(group)}</div><div class="category-button-grid">${cats.map(cat=>`<button class="category-btn ${cat===selectedCategory?'active':''}" onclick="setBuilderCategory('${cat}')">${esc(cat)}</button>`).join('')}</div>`).join('');}
+window.setBuilderCategory=(cat)=>{selectedCategory=cat; activeFilters={}; const s=document.getElementById('itemSearchInput'); if(s)s.value=''; renderAdminBuilder();};
+function valuesForField(cat,field){const vals=new Set(); allShopItems.filter(i=>i.category===cat).forEach(i=>{const v=itemFilterValue(i,field); if(v)vals.add(v);}); return [...vals].sort((a,b)=>field==='lvl'?(Number(a)-Number(b)):String(a).localeCompare(String(b)));}
+function renderFilterGroups(){const title=document.getElementById('builderTitle'); if(title)title.textContent=selectedCategory; const wrap=document.getElementById('filterGroups'); if(!wrap)return; const fields=FILTERS_BY_CATEGORY[selectedCategory]||['type','lvl','rarity','sourceSystem']; wrap.innerHTML=fields.map(field=>{const vals=valuesForField(selectedCategory,field); if(!vals.length)return ''; const active=activeFilters[field]||new Set(); return `<div class="filter-group"><div class="filter-group-title">${esc(FILTER_LABELS[field]||field)}</div><div class="filter-chip-row">${vals.map(v=>`<button class="filter-chip ${active.has(v)?'active':''}" onclick="toggleFilter('${field}', '${esc(String(v)).replace(/'/g,'&#39;')}')">${esc(field==='lvl'?'Lvl '+v:v)}</button>`).join('')}</div></div>`;}).join(''); updateActiveFilterPills();}
+window.toggleFilter=(field,value)=>{if(!activeFilters[field])activeFilters[field]=new Set(); activeFilters[field].has(value)?activeFilters[field].delete(value):activeFilters[field].add(value); renderFilterGroups(); renderBuilderItems();};
+window.clearAllFilters=()=>{activeFilters={}; const s=document.getElementById('itemSearchInput'); if(s)s.value=''; renderFilterGroups(); renderBuilderItems();};
+function updateActiveFilterPills(){const out=document.getElementById('activeFilterPills'); if(!out)return; const pills=[]; for(const [field,set] of Object.entries(activeFilters)){for(const v of set)pills.push(`<span class="tag-pill info">${esc(FILTER_LABELS[field]||field)}: ${esc(v)}</span>`);} out.innerHTML=pills.join('')||'<span class="shop-note">None</span>';}
+function itemMatchesFilters(item){if(item.category!==selectedCategory)return false; for(const [field,set] of Object.entries(activeFilters)){if(set.size&&!set.has(itemFilterValue(item,field)))return false;} const search=String(document.getElementById('itemSearchInput')?.value||'').trim().toLowerCase(); if(search){const blob=[item.name,item.desc,item.special,item.type,item.rarity,item.sourceSystem,item.proficiency,item.usageType].join(' ').toLowerCase(); if(!blob.includes(search))return false;} return true;}
+function renderBuilderItems(){const list=document.getElementById('builderItemList'); if(!list)return; const items=allShopItems.filter(itemMatchesFilters); visibleBuilderIds=items.map(i=>i.id); const count=document.getElementById('builderCount'); if(count)count.textContent=`${items.length.toLocaleString()} visible • ${selectedItemIds.size.toLocaleString()} selected`; if(!items.length){list.innerHTML='<div class="empty-msg">No items match this category/filter.</div>';return;} list.innerHTML=items.slice(0,600).map(renderBuilderItemRow).join('')+(items.length>600?'<div class="empty-msg">Showing first 600. Use filters/search to narrow more.</div>':'');}
+function renderBuilderItemRow(item){const checked=selectedItemIds.has(item.id); return `<div class="compact-item-row builder-row-item ${checked?'selected':''}"><label><input type="checkbox" ${checked?'checked':''} onchange="toggleItemSelect('${item.id}',this.checked)"><button type="button" class="item-name-link" onclick="event.preventDefault();openItemModal('${item.id}')">${esc(item.name)}</button></label><span class="compact-price">${esc(getDisplayCost(item))}</span></div>`;}
+window.toggleItemSelect=(id,checked)=>{checked?selectedItemIds.add(id):selectedItemIds.delete(id); renderBuilderItems();};
+window.selectVisibleItems=()=>{visibleBuilderIds.forEach(id=>selectedItemIds.add(id)); renderBuilderItems();};
+window.unselectVisibleItems=()=>{visibleBuilderIds.forEach(id=>selectedItemIds.delete(id)); renderBuilderItems();};
+window.clearSelection=()=>{selectedItemIds.clear(); renderBuilderItems();};
+function updateShopTagPreview(){const input=document.getElementById('shopNameInput'); const tag=normalizeShopTag(input?.value||''); const el=document.getElementById('shopTagPreview'); if(el)el.textContent=tag?`Character shop tag needed: ${tag}`:'Type a shop name. The same name becomes the character shop tag.';}
+document.getElementById('shopNameInput').addEventListener('input',updateShopTagPreview);
+function expiryFromDuration(value){if(value==='forever')return null; const d=new Date(); if(value==='1d')d.setDate(d.getDate()+1); else if(value==='1w')d.setDate(d.getDate()+7); else if(value==='2w')d.setDate(d.getDate()+14); else if(value==='1m')d.setMonth(d.getMonth()+1); else if(value==='2m')d.setMonth(d.getMonth()+2); else d.setDate(d.getDate()+7); return d;}
+window.toggleAdminBuilder=()=>{const body=document.getElementById('adminBuilderBody'); const btn=document.getElementById('builderToggleBtn'); body.classList.toggle('collapsed'); btn.textContent=body.classList.contains('collapsed')?'Show Shop Builder':'Hide Shop Builder';};
+function openAdminBuilder(){const body=document.getElementById('adminBuilderBody'); const btn=document.getElementById('builderToggleBtn'); body.classList.remove('collapsed'); btn.textContent='Hide Shop Builder';}
+window.startEditSelectedShop=()=>{const shop=findShop(document.getElementById('adminShopSelect')?.value); if(!shop)return showAlert('No Shop Selected','Create or select a shop first.'); editingShopId=shop.id; selectedItemIds=new Set(Array.isArray(shop.itemIds)?shop.itemIds:[]); document.getElementById('shopNameInput').value=shop.name||''; document.getElementById('saveShopBtn').textContent='Update Shop'; document.getElementById('editShopNotice').classList.remove('hidden'); document.getElementById('editShopNotice').textContent=`Editing: ${shop.name||'Unnamed Shop'} • ${selectedItemIds.size} item(s)`; openAdminBuilder(); updateShopTagPreview(); renderBuilderItems();};
+window.cancelEditShop=()=>{editingShopId=null; selectedItemIds.clear(); document.getElementById('shopNameInput').value=''; document.getElementById('saveShopBtn').textContent='Create Link'; document.getElementById('editShopNotice').classList.add('hidden'); updateShopTagPreview(); renderBuilderItems();};
+window.saveShopSession=async()=>{if(!isAdmin)return; const name=document.getElementById('shopNameInput').value.trim(); if(!name)return showAlert('Missing Shop Name','Add a shop name first.'); if(!selectedItemIds.size)return showAlert('No Items Selected','Select at least one item for this shop.'); const accessTag=normalizeShopTag(name); const expiresAt=expiryFromDuration(document.getElementById('shopDurationInput').value); const payload={name,accessTag,allowedCharacterTags:[accessTag],itemIds:[...selectedItemIds],active:true,expiresAt,updatedAt:new Date(),createdBy:currentUser?.email||''}; let id=editingShopId; if(id){await updateDoc(doc(db,'shopSessions',id),payload);}else{const ref=await addDoc(collection(db,'shopSessions'),{...payload,createdAt:new Date()}); id=ref.id;} const link=`${location.origin}${location.pathname}#shop=${id}`; document.getElementById('createdShopLink').textContent=`${editingShopId?'Updated':'Created'}: ${link}`; navigator.clipboard?.writeText(link); await loadShopData(); const msg=`${editingShopId?'Updated':'Created'} ${name}\nAccess tag: ${accessTag}\nItems: ${selectedItemIds.size}`; cancelEditShop(); showAlert('Shop Saved',msg);};
+window.copyShopLink=(id)=>{const link=`${location.origin}${location.pathname}#shop=${id}`; navigator.clipboard?.writeText(link); const out=document.getElementById('createdShopLink'); if(out)out.textContent='Copied: '+link; showAlert('Shop Link',link);};
+window.copySelectedShopLink=()=>{const id=selectedShopId(); if(id)copyShopLink(id);};
+window.deleteSelectedShop=()=>{const id=selectedShopId(); if(id)deleteShopSession(id);};
+window.deleteShopSession=(id)=>showConfirm('Delete Shop','Delete this shop link/session? Master items will stay in the database.',async()=>{await deleteDoc(doc(db,'shopSessions',id));await loadShopData();});
+window.importShopJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); const file=document.getElementById('shopImportFile').files[0]; if(!file)return showAlert('Missing File','Choose items.json first.'); try{const data=JSON.parse(await file.text()); const items=Array.isArray(data)?data:(data.items||data.shopItems||[]); let count=0; for(const raw of items){const item=normalizeImportedItem(raw); await setDoc(doc(db,'shopItems',item.id),item,{merge:true}); count++;} document.getElementById('importResult').textContent=`Imported ${count.toLocaleString()} item(s).`; await loadShopData();}catch(e){console.error(e);showAlert('Import Failed',e.message);}};
+window.importBundledJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); try{const items=await loadStaticItems(); if(!items.length)return showAlert('No Bundled JSON','Upload data/items.json or use the file picker.'); let count=0; for(const raw of items){const item=normalizeImportedItem(raw); await setDoc(doc(db,'shopItems',item.id),item,{merge:true}); count++;} document.getElementById('importResult').textContent=`Imported ${count.toLocaleString()} bundled item(s).`; await loadShopData();}catch(e){showAlert('Import Failed',e.message);}};
 
-let isAdmin = false;
-
-// Custom Modal Logic
-const modal = document.getElementById('customModal');
-const modalTitle = document.getElementById('modalTitle');
-const modalMsg = document.getElementById('modalMsg');
-const modalYes = document.getElementById('modalYesBtn');
-const modalNo = document.getElementById('modalNoBtn');
-
-function showConfirm(title, msg, onYes) {
-    modalTitle.textContent = title;
-    modalMsg.textContent = msg;
-    modal.style.display = 'flex';
-    modalYes.onclick = () => { modal.style.display = 'none'; onYes(); };
-    modalNo.onclick = () => { modal.style.display = 'none'; };
-}
-
-function showAlert(title, msg) {
-    modalTitle.textContent = title;
-    modalMsg.textContent = msg;
-    modalYes.style.display = 'none';
-    modalNo.textContent = 'OK';
-    modalNo.style.width = '100%';
-    modal.style.display = 'flex';
-    modalNo.onclick = () => { modal.style.display = 'none'; modalYes.style.display = ''; modalNo.textContent='No'; modalNo.style.width = ''; };
-}
-
-// AUTH CHECK
-onAuthStateChanged(auth, user => {
-  const link = document.getElementById('authLink');
-  const mLink = document.getElementById('mobileAuthLink');
-  
-  if(user){
-     const txt = "My Account"; const href = "account.html";
-     link.textContent = txt; link.href = href;
-     mLink.textContent = txt; mLink.href = href;
-     
-     if(user.email === "phoeaung2076@gmail.com") {
-        isAdmin = true;
-        document.getElementById('adminPanel').style.display = 'block';
-     }
-  } else {
-     const txt = "Sign In"; const href = "signin.html";
-     link.textContent = txt; link.href = href;
-     mLink.textContent = txt; mLink.href = href;
-     isAdmin = false;
-     document.getElementById('adminPanel').style.display = 'none';
-  }
-  loadEvents(); 
-});
-
-// LOAD EVENTS
-async function loadEvents(){
-  const q = query(collection(db, "events"), orderBy("date")); 
-  const snap = await getDocs(q);
-  
-  ['groupA','groupB','groupC','groupD','groupE'].forEach(id => {
-      document.getElementById(id).innerHTML = '';
-  });
-
-  let hasEvents = { groupA:false, groupB:false, groupC:false, groupD:false, groupE:false };
-
-  snap.forEach(d => {
-    const data = d.data();
-    const list = document.getElementById(data.group);
-    if(list){
-      hasEvents[data.group] = true;
-      const el = document.createElement('div');
-      el.className = 'event-item';
-      
-      let adminControls = '';
-      if(isAdmin){
-          // Embed data into button attributes to avoid closure issues
-          adminControls = `
-            <div class="event-actions">
-                <button class="event-btn-icon btn-edit" 
-                    data-id="${d.id}" data-group="${data.group}" data-date="${data.date}" data-desc="${data.desc}">
-                    <i class="fa-solid fa-pen"></i>
-                </button>
-                <button class="event-btn-icon btn-del" data-id="${d.id}">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
-            </div>
-          `;
-      }
-
-      el.innerHTML = `
-        <div style="display:flex; align-items:center; flex:1;">
-            <span class="date">${data.date}</span>
-            <span class="desc">${data.desc}</span>
-        </div>
-        ${adminControls}
-      `;
-      list.appendChild(el);
-    }
-  });
-
-  for(const [gid, has] of Object.entries(hasEvents)){
-      if(!has) {
-          document.getElementById(gid).innerHTML = '<div class="empty-msg">No upcoming events listed.</div>';
-      }
-  }
-
-  if(isAdmin){
-      // Attach Delete Listeners
-      document.querySelectorAll('.btn-del').forEach(btn => {
-          btn.addEventListener('click', () => {
-              showConfirm("Delete Event", "Are you sure you want to remove this event?", async () => {
-                  await deleteDoc(doc(db, "events", btn.dataset.id));
-                  loadEvents();
-              });
-          });
-      });
-      // Attach Edit Listeners
-      document.querySelectorAll('.btn-edit').forEach(btn => {
-          btn.addEventListener('click', () => {
-              document.getElementById('editingEventId').value = btn.dataset.id;
-              document.getElementById('newEvGroup').value = btn.dataset.group;
-              document.getElementById('newEvDate').value = btn.dataset.date;
-              document.getElementById('newEvDesc').value = btn.dataset.desc;
-              document.getElementById('addEvBtn').textContent = "Update Event";
-              document.getElementById('cancelEditBtn').style.display = "inline-block";
-              window.scrollTo(0,0);
-          });
-      });
-  }
-}
-
-document.getElementById('cancelEditBtn').addEventListener('click', () => {
-    resetForm();
-});
-
-function resetForm() {
-    document.getElementById('editingEventId').value = '';
-    document.getElementById('newEvDate').value = '';
-    document.getElementById('newEvDesc').value = '';
-    document.getElementById('addEvBtn').textContent = "Add Event";
-    document.getElementById('cancelEditBtn').style.display = "none";
-}
-
-// ADD / UPDATE EVENT
-document.getElementById('addEvBtn').addEventListener('click', async () => {
-    const id = document.getElementById('editingEventId').value;
-    const group = document.getElementById('newEvGroup').value;
-    const date = document.getElementById('newEvDate').value;
-    const desc = document.getElementById('newEvDesc').value;
-
-    if(!date || !desc) return showAlert("Missing Info", "Please fill in date and description");
-
-    if(id) {
-        // Update
-        await updateDoc(doc(db, "events", id), { group, date, desc });
-    } else {
-        // Add
-        await addDoc(collection(db, "events"), {
-            group, date, desc,
-            createdAt: new Date()
-        });
-    }
-    
-    resetForm();
-    loadEvents();
-});
-
-// TABS Logic
-const tabButtons = document.querySelectorAll('.tab-btn');
-const tabContents = document.querySelectorAll('.tab-content');
-tabButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        tabButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        tabContents.forEach(c => c.classList.remove('active'));
-        document.getElementById(btn.dataset.tab).classList.add('active');
-    });
-});
-
-// CALENDAR FILTER Logic
-const calButtons = document.querySelectorAll('.calendar-btn');
-const eventLists = document.querySelectorAll('.event-list');
-calButtons.forEach(b => {
-    b.addEventListener('click', () => {
-        calButtons.forEach(x => x.classList.remove('active'));
-        b.classList.add('active');
-        eventLists.forEach(l => l.classList.remove('active'));
-        document.getElementById(b.dataset.group).classList.add('active');
-    });
-});
+onAuthStateChanged(auth,async user=>{currentUser=user||null; const link=document.getElementById('authLink'),mLink=document.getElementById('mobileAuthLink'); if(user){link.textContent='My Account';link.href='account.html';mLink.textContent='My Account';mLink.href='account.html';isAdmin=currentUserIsAdmin(user);document.getElementById('adminPanel').style.display=isAdmin?'block':'none';document.getElementById('adminShopPanel').style.display=isAdmin?'block':'none';const ident=document.getElementById('adminIdentityStatus');if(ident)ident.textContent=`Signed in as ${user.email||'no email'} • UID ${user.uid} • Admin ${isAdmin?'yes':'no'}`;}else{link.textContent='Sign In';link.href='signin.html';mLink.textContent='Sign In';mLink.href='signin.html';isAdmin=false;document.getElementById('adminPanel').style.display='none';document.getElementById('adminShopPanel').style.display='none';const ident=document.getElementById('adminIdentityStatus');if(ident)ident.textContent='Not signed in.';} await loadEvents(); await loadShopData(); if(location.hash.includes('shop='))activateTab('shop');});
+async function loadEvents(){const q=query(collection(db,'events'),orderBy('date')); const snap=await getDocs(q); ['groupA','groupB','groupC','groupD','groupE'].forEach(id=>{document.getElementById(id).innerHTML='';}); let hasEvents={groupA:false,groupB:false,groupC:false,groupD:false,groupE:false}; snap.forEach(d=>{const data=d.data(),list=document.getElementById(data.group); if(list){hasEvents[data.group]=true; const el=document.createElement('div'); el.className='event-item'; let adminControls=''; if(isAdmin){adminControls=`<div class="event-actions"><button class="event-btn-icon btn-edit" data-id="${d.id}" data-group="${esc(data.group)}" data-date="${esc(data.date)}" data-desc="${esc(data.desc)}"><i class="fa-solid fa-pen"></i></button><button class="event-btn-icon btn-del" data-id="${d.id}"><i class="fa-solid fa-trash"></i></button></div>`;} el.innerHTML=`<div style="display:flex;align-items:center;flex:1;"><span class="date">${esc(data.date)}</span><span class="desc">${esc(data.desc)}</span></div>${adminControls}`; list.appendChild(el);}}); for(const [gid,has] of Object.entries(hasEvents)){if(!has)document.getElementById(gid).innerHTML='<div class="empty-msg">No upcoming events listed.</div>';} if(isAdmin){document.querySelectorAll('.btn-del').forEach(btn=>btn.addEventListener('click',()=>showConfirm('Delete Event','Are you sure you want to remove this event?',async()=>{await deleteDoc(doc(db,'events',btn.dataset.id));loadEvents();}))); document.querySelectorAll('.btn-edit').forEach(btn=>btn.addEventListener('click',()=>{document.getElementById('editingEventId').value=btn.dataset.id;document.getElementById('newEvGroup').value=btn.dataset.group;document.getElementById('newEvDate').value=btn.dataset.date;document.getElementById('newEvDesc').value=btn.dataset.desc;document.getElementById('addEvBtn').textContent='Update Event';document.getElementById('cancelEditBtn').style.display='inline-block';scrollTo(0,0);}));}}
+document.getElementById('cancelEditBtn').addEventListener('click',resetForm); function resetForm(){document.getElementById('editingEventId').value='';document.getElementById('newEvDate').value='';document.getElementById('newEvDesc').value='';document.getElementById('addEvBtn').textContent='Add Event';document.getElementById('cancelEditBtn').style.display='none';}
+document.getElementById('addEvBtn').addEventListener('click',async()=>{const id=document.getElementById('editingEventId').value,group=document.getElementById('newEvGroup').value,date=document.getElementById('newEvDate').value,desc=document.getElementById('newEvDesc').value; if(!date||!desc)return showAlert('Missing Info','Please fill in date and description'); if(id)await updateDoc(doc(db,'events',id),{group,date,desc}); else await addDoc(collection(db,'events'),{group,date,desc,createdAt:new Date()}); resetForm(); loadEvents();});
+function activateTab(id){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.tab-content').forEach(c=>c.classList.toggle('active',c.id===id)); if(id==='shop')loadShopData();}
+document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>activateTab(btn.dataset.tab))); document.querySelectorAll('.calendar-btn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.calendar-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.event-list').forEach(l=>l.classList.remove('active'));document.getElementById(b.dataset.group).classList.add('active');}));
 </script>
 </body>
 </html>

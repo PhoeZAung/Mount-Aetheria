@@ -967,7 +967,7 @@ setTimeout(() => {
       <button class="sub-btn" id="itemView-equipped" onclick="setItemView('equipped')">Equipped</button>
     </div>
     <div style="display:flex; gap:10px; margin-bottom:10px;">
-      <select id="itemFilterTag" onchange="renderItems()" style="flex:1;"><option value="All">All Tags</option><option value="Weapons">Weapons</option><option value="Armor">Armor</option><option value="Gear">Gear</option><option value="Consumables">Consumables</option><option value="Magic Items">Magic Items</option><option value="Collections">Collections</option><option value="Misc">Misc</option></select>
+      <select id="itemFilterTag" onchange="renderItems()" style="flex:1;"><option value="All">All Tags</option><option value="Weapons">Weapons</option><option value="Ranged Weapon">Ranged Weapon</option><option value="Ammunition">Ammunition</option><option value="Armor">Armor</option><option value="Gear">Gear</option><option value="Machine">Machine</option><option value="Alchemical Items">Alchemical Items</option><option value="Artifacts">Artifacts</option><option value="Magic Items">Magic Items</option><option value="Food">Food</option><option value="Collections">Collections</option><option value="Misc">Misc</option></select>
       <select id="itemSort" onchange="renderItems()" style="flex:1;"><option value="recent">Recent</option><option value="abc">A-Z</option></select>
     </div>
     <div id="itemList"></div>
@@ -1162,6 +1162,17 @@ function createBlankCharacterData(name = 'New Character') {
     base.updatedAt = new Date();
     return base;
 }
+const ITEM_TAG_OPTIONS = ["Weapons", "Ranged Weapon", "Ammunition", "Armor", "Gear", "Machine", "Enchantment", "Alchemical Items", "Artifacts", "Magic Items", "Food", "Collections", "Misc"];
+function normalizeItemTagLabel(tag) {
+    const t = String(tag || '').trim();
+    if(!t) return 'Misc';
+    if(/^consumables?$/i.test(t)) return 'Food';
+    if(/^magic item$/i.test(t)) return 'Magic Items';
+    if(/^collection$/i.test(t)) return 'Collections';
+    if(/^weapon$/i.test(t)) return 'Weapons';
+    return ITEM_TAG_OPTIONS.includes(t) ? t : t;
+}
+
 function sanitizeCharacterDoc(raw = {}, fallbackName = 'New Character') {
     const data = {
         items: [],
@@ -1175,6 +1186,7 @@ function sanitizeCharacterDoc(raw = {}, fallbackName = 'New Character') {
     };
     delete data.summons;
     if (!Array.isArray(data.items)) data.items = [];
+    data.items = data.items.map(item => ({ ...item, tags: normalizeItemTagLabel(item?.tags) }));
     if (!Array.isArray(data.weapons)) data.weapons = [];
     data.weapons = data.weapons.map(weapon => normalizeWeaponData(weapon));
     if (!Array.isArray(data.spells)) data.spells = [];
@@ -1489,6 +1501,7 @@ function autoExpand(el) { el.style.height = 'auto'; el.style.height = (el.scroll
 const listContainerIds = { weapon: 'weaponList', spell: 'spellList', active: 'activeList', passive: 'passiveList', feat: 'featList', item: 'itemList' };
 
 let currentItemView = 'storage';
+
 
 const ABILITY_DRAWER_STORAGE_KEY = 'mountAetheriaAbilityDrawerPlayer';
 function getAbilityDrawerState() {
@@ -2149,7 +2162,8 @@ window.renderItems = () => {
     const tagFilter = document.getElementById('itemFilterTag').value;
     const sortType = document.getElementById('itemSort').value;
     let filtered = data.filter(i => {
-        const matchesTag = tagFilter === "All" || i.tags === tagFilter;
+        const itemTag = normalizeItemTagLabel(i.tags);
+        const matchesTag = tagFilter === "All" || itemTag === tagFilter;
         const equipped = !!i.equipped;
         const matchesView = currentItemView === 'equipped' ? equipped : !equipped;
         return matchesTag && matchesView;
@@ -2166,7 +2180,7 @@ window.renderItems = () => {
             <input type="checkbox" class="item-equip-check" ${item.equipped ? 'checked' : ''} onchange="event.stopPropagation();toggleItemEquipped(${idx}, this.checked)">
             <div class="row-content" onclick="openView('item',${idx})">
                 <span class="list-row-title">${amount}x ${item.name||'New Item'}</span>
-                <span class="item-meta-line"><span>${item.tags || 'Misc'}</span><span>Slot ${slot}</span>${item.cost ? `<span>Cost ${item.cost}</span>` : ''}</span>
+                <span class="item-meta-line"><span>${normalizeItemTagLabel(item.tags)}</span><span>Slot ${slot}</span>${item.cost ? `<span>Cost ${item.cost}</span>` : ''}</span>
             </div>
         </div><div class="row-actions" style="display:flex; gap:5px">${extraBtn}<button class="btn-edit" onclick="openEditor('item',${idx})">Edit</button></div>`;
         container.appendChild(div);
@@ -2338,7 +2352,16 @@ function populateViewModal(type, item, index = -1) {
         return;
     }
 
-    if(type === 'item') { if(item.tags) add("Type", item.tags); add("Amount", String(getItemAmount(item))); if(item.cost) add("Cost", item.cost); add("Slot", String(getItemSlot(item))); add("Location", item.equipped ? 'Equipped' : 'Storage'); }
+    if(type === 'item') {
+        if(item.tags) add("Type", item.tags);
+        add("Amount", String(getItemAmount(item)));
+        if(item.cost) add("Cost", item.cost);
+        add("Slot", String(getItemSlot(item)));
+        add("Location", item.equipped ? 'Equipped' : 'Storage');
+        if (Array.isArray(item.details) && item.details.length) {
+            item.details.forEach(d => add(d.label || d.name || 'Detail', d.value ?? d.val ?? ''));
+        }
+    }
     add("Description", item.desc);
 }
 
@@ -2434,7 +2457,7 @@ function populateEditorModal(type, item, index, col) {
     if(type === 'feat') createInput('Link URL', item.link, 'link');
     if(type === 'item') {
         if(item.tags==='Collections') { modalBody.appendChild(document.createElement('label')).textContent="Tag"; const i=document.createElement('input'); i.value="Collections"; i.disabled=true; modalBody.appendChild(i); if(item.img) createInput('Image URL', item.img, 'img'); }
-        else createSelect('Tag', item.tags, 'tags', ["Weapons", "Armor", "Gear", "Consumables", "Magic Items", "Collections", "Misc"]);
+        else createSelect('Tag', normalizeItemTagLabel(item.tags), 'tags', ITEM_TAG_OPTIONS);
         createInput('Amount', getItemAmount(item), 'amount');
         createInput('Cost', item.cost, 'cost');
         createInput('Slot', getItemSlot(item), 'slot');
@@ -2488,10 +2511,10 @@ function addAttrRow(c, d, i) {
 
 function updateCurrentItem(k, v) {
     const item = getActiveData()[currentEditContext.col][currentEditContext.index];
-    item[k] = v;
+    item[k] = (k === 'tags') ? normalizeItemTagLabel(v) : v;
     if(k==='link') { const b=document.getElementById('modalLinkBtn'); b.href=v; b.style.display=v?'inline-block':'none'; }
     if(currentEditContext?.type === 'weapon' && k === 'ability_mod') item.mod = v;
-    if(['name','lvl','tags','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','amount','slot','equipped','ability_mod','attack_misc','damage','crit_range','crit_mult','range','ammo','link'].includes(k)) refreshList(currentEditContext.type);
+    if(['name','lvl','tags','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','amount','cost','slot','equipped','img','ability_mod','attack_misc','damage','crit_range','crit_mult','range','ammo','link'].includes(k)) refreshList(currentEditContext.type);
     saveDataOnly();
 }
 window.closeModal = () => { modal.style.display='none'; refreshList(currentEditContext.type); };
