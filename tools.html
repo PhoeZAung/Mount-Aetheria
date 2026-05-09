@@ -21,6 +21,28 @@
 @media(max-width:768px){.shop-top-clean{grid-template-columns:1fr}.shop-shell{padding:14px}.admin-shop-manager{align-items:stretch}.shop-select-row{flex-direction:column;align-items:stretch}.clean-builder-layout{grid-template-columns:1fr}.shop-layout{grid-template-columns:1fr!important}.shop-side,.shop-main{padding:10px}.category-button-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.clean-shop-head{align-items:flex-start;flex-direction:column}.shop-head-actions{width:100%;justify-content:flex-start}.compact-item-row{padding:10px}.compact-price{font-size:12px}.item-name-link{font-size:15px}.category-filter-row{grid-template-columns:1fr 1fr}.admin-shop-panel{padding:10px}.builder-row{flex-direction:column;align-items:stretch}.builder-row .field{min-width:0;width:100%}}
 @media(max-width:480px){.category-filter-row{grid-template-columns:1fr}.category-button-grid{grid-template-columns:1fr}.shop-category-head{font-size:14px}.compact-item-row{gap:8px}.compact-price{font-size:12px}.item-modal-card{width:100%;max-height:90vh}}
 
+
+/* --- Information Links patch --- */
+.info-links-wrap{margin:22px auto 0;max-width:980px;padding:0 10px;}
+.info-links-title{font-family:'Uncial Antiqua',serif;color:var(--accent);text-align:center;margin:10px 0 16px;font-size:24px;}
+.info-links-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;}
+.info-link-card{background:#1b1b1b;border:1px solid #3a3a3a;border-radius:14px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.28);text-align:left;}
+.info-link-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#111;border-bottom:1px solid #333;padding:11px 12px;}
+.info-link-card-title{font-family:'Uncial Antiqua',serif;color:var(--accent);font-size:16px;font-weight:bold;line-height:1.15;word-break:break-word;}
+.info-link-card-actions{display:none;gap:5px;flex-wrap:wrap;justify-content:flex-end;}
+body.info-admin .info-link-card-actions{display:flex;}
+.info-link-mini-btn{background:#333;border:1px solid #555;color:#eee;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:bold;cursor:pointer;}
+.info-link-mini-btn:hover{background:var(--accent);color:#000;border-color:var(--accent);}
+.info-link-list{display:flex;flex-direction:column;gap:7px;padding:11px 12px;min-height:78px;}
+.info-link-item{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#222;border:1px solid #333;border-radius:10px;padding:8px 9px;}
+.info-link-item a{color:#f2f2f2;text-decoration:none;font-weight:bold;font-size:13px;line-height:1.25;word-break:break-word;}
+.info-link-item a:hover{color:var(--accent);text-decoration:underline;}
+.info-link-actions{display:none;gap:5px;flex-shrink:0;}
+body.info-admin .info-link-actions{display:flex;}
+.info-link-empty{color:#777;font-size:12px;text-align:center;padding:12px 5px;font-style:italic;}
+@media(max-width:900px){.info-links-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:520px){.info-links-grid{grid-template-columns:1fr}.info-link-card-head{align-items:flex-start;flex-direction:column}.info-link-card-actions{justify-content:flex-start}.info-link-item{align-items:flex-start;flex-direction:column}.info-link-actions{justify-content:flex-start}}
+
 /* --- Buy system patch --- */
 .custom-modal{z-index:6500!important;}
 .shop-price-buy{display:flex;align-items:center;gap:8px;flex-shrink:0;}
@@ -54,7 +76,7 @@
 <div id="mobileMenu"><a href="story.html">Story</a><a href="tools.html" style="color:var(--accent)">Tools</a><a href="characters.html">Character Sheet</a><a href="discussions.html">Discussion</a><a href="signin.html" id="mobileAuthLink">Sign In</a></div>
 <h1>Tools</h1>
 <div class="tab-buttons"><button class="tab-btn active" data-tab="links">URL Links</button><button class="tab-btn" data-tab="calendar">Calendar</button><button class="tab-btn" data-tab="shop">Shop</button></div>
-<div class="tab-content active" id="links"><div class="url-grid"><a href="https://www.d20pfsrd.com/" target="_blank" class="url-card"><img src="Tools/Links/Pathfinder.png" alt="Pathfinder" onerror="this.src='https://via.placeholder.com/100x60?text=PF'"> Pathfinder</a><a href="https://www.finalfantasyd20.com/" target="_blank" class="url-card"><img src="Tools/Links/FFD20.png" alt="FFD20" onerror="this.src='https://via.placeholder.com/100x60?text=FFD20'"> FFD20</a><a href="https://www.owlbear.rodeo/" target="_blank" class="url-card"><img src="Tools/Links/Owlbear.png" alt="Owlbear" onerror="this.src='https://via.placeholder.com/100x60?text=Owl'"> Owlbear</a><a href="https://reactive.fugi.tech/" target="_blank" class="url-card"><img src="Tools/Links/Reactive.png" alt="Reactive" onerror="this.src='https://via.placeholder.com/100x60?text=React'"> Reactive</a></div></div>
+<div class="tab-content active" id="links"><div class="url-grid"><a href="https://www.d20pfsrd.com/" target="_blank" class="url-card"><img src="Tools/Links/Pathfinder.png" alt="Pathfinder" onerror="this.src='https://via.placeholder.com/100x60?text=PF'"> Pathfinder</a><a href="https://www.finalfantasyd20.com/" target="_blank" class="url-card"><img src="Tools/Links/FFD20.png" alt="FFD20" onerror="this.src='https://via.placeholder.com/100x60?text=FFD20'"> FFD20</a><a href="https://www.owlbear.rodeo/" target="_blank" class="url-card"><img src="Tools/Links/Owlbear.png" alt="Owlbear" onerror="this.src='https://via.placeholder.com/100x60?text=Owl'"> Owlbear</a><a href="https://reactive.fugi.tech/" target="_blank" class="url-card"><img src="Tools/Links/Reactive.png" alt="Reactive" onerror="this.src='https://via.placeholder.com/100x60?text=React'"> Reactive</a></div><section class="info-links-wrap" aria-label="Information Links"><h2 class="info-links-title">Information Links</h2><div id="informationLinksGrid" class="info-links-grid"><div class="info-link-empty">Loading information links...</div></div></section></div>
 <div class="tab-content" id="calendar"><div class="calendar"><div id="adminPanel"><h3><i class="fa-solid fa-hammer"></i> Calendar Admin</h3><div class="admin-form"><input type="hidden" id="editingEventId"><select id="newEvGroup"><option value="groupA">Dark Grasp</option><option value="groupB">Ra'en Legacy</option><option value="groupC">Scourgefall</option><option value="groupD">Unknown</option><option value="groupE">???</option></select><input type="text" id="newEvDate" placeholder="Date (e.g. Dec 25)"><input type="text" id="newEvDesc" placeholder="Description..."><button id="addEvBtn">Add Event</button><button id="cancelEditBtn" style="display:none;background:#444;color:#fff;">Cancel</button></div></div><h2>Upcoming Events</h2><div class="calendar-filters"><button class="calendar-btn active" data-group="groupA">Dark Grasp</button><button class="calendar-btn" data-group="groupB">Ra'en Legacy</button><button class="calendar-btn" data-group="groupC">Scourgefall</button><button class="calendar-btn" data-group="groupD">Unknown</button><button class="calendar-btn" data-group="groupE">???</button></div><div id="eventsContainer"><div class="event-list active" id="groupA"></div><div class="event-list" id="groupB"></div><div class="event-list" id="groupC"></div><div class="event-list" id="groupD"></div><div class="event-list" id="groupE"></div></div></div></div>
 <div class="tab-content" id="shop"><div class="shop-shell"><h2>Shop</h2>
   <div id="playerShopTop" class="shop-top-clean">
@@ -228,7 +250,91 @@ window.deleteShopSession=(id)=>showConfirm('Delete Shop','Delete this shop link/
 window.importShopJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); const file=document.getElementById('shopImportFile').files[0]; if(!file)return showAlert('Missing File','Choose items.json first.'); try{const data=JSON.parse(await file.text()); const items=Array.isArray(data)?data:(data.items||data.shopItems||[]); let count=0; for(const raw of items){const item=normalizeImportedItem(raw); await setDoc(doc(db,'shopItems',item.id),item,{merge:true}); count++;} document.getElementById('importResult').textContent=`Imported ${count.toLocaleString()} item(s).`; await loadShopData();}catch(e){console.error(e);showAlert('Import Failed',e.message);}};
 window.importBundledJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); try{const items=await loadStaticItems(); if(!items.length)return showAlert('No Bundled JSON','Upload data/items.json or use the file picker.'); let count=0; for(const raw of items){const item=normalizeImportedItem(raw); await setDoc(doc(db,'shopItems',item.id),item,{merge:true}); count++;} document.getElementById('importResult').textContent=`Imported ${count.toLocaleString()} bundled item(s).`; await loadShopData();}catch(e){showAlert('Import Failed',e.message);}};
 
-onAuthStateChanged(auth,async user=>{currentUser=user||null; const link=document.getElementById('authLink'),mLink=document.getElementById('mobileAuthLink'); if(user){link.textContent='My Account';link.href='account.html';mLink.textContent='My Account';mLink.href='account.html';isAdmin=currentUserIsAdmin(user);document.getElementById('adminPanel').style.display=isAdmin?'block':'none';document.getElementById('adminShopPanel').style.display=isAdmin?'block':'none';const ident=document.getElementById('adminIdentityStatus');if(ident)ident.textContent=`Signed in as ${user.email||'no email'} • UID ${user.uid} • Admin ${isAdmin?'yes':'no'}`;}else{link.textContent='Sign In';link.href='signin.html';mLink.textContent='Sign In';mLink.href='signin.html';isAdmin=false;document.getElementById('adminPanel').style.display='none';document.getElementById('adminShopPanel').style.display='none';const ident=document.getElementById('adminIdentityStatus');if(ident)ident.textContent='Not signed in.';} await loadEvents(); await loadShopData(); if(location.hash.includes('shop='))activateTab('shop');});
+
+// --- Information Links patch ---
+const INFO_LINKS_DOC_ID='config';
+const DEFAULT_INFO_LINK_GROUPS=[
+  {title:'Name 1',links:[]},
+  {title:'Name 2',links:[]},
+  {title:'Name 3',links:[]},
+  {title:'Name 4',links:[]}
+];
+let informationLinkGroups=DEFAULT_INFO_LINK_GROUPS.map(g=>({title:g.title,links:[]}));
+function normalizeInfoGroups(data){
+  const source=Array.isArray(data?.groups)?data.groups:[];
+  const groups=[];
+  for(let i=0;i<4;i++){
+    const g=source[i]||DEFAULT_INFO_LINK_GROUPS[i];
+    groups.push({title:String(g?.title||DEFAULT_INFO_LINK_GROUPS[i].title),links:Array.isArray(g?.links)?g.links.map(l=>({name:String(l?.name||'').trim(),url:String(l?.url||'').trim()})).filter(l=>l.name&&l.url):[]});
+  }
+  return groups;
+}
+function ensureInfoUrl(url){
+  const u=String(url||'').trim();
+  if(!u)return '';
+  if(/^https?:\/\//i.test(u))return u;
+  return 'https://'+u;
+}
+async function loadInformationLinks(){
+  try{
+    const snap=await getDoc(doc(db,'informationLinks',INFO_LINKS_DOC_ID));
+    informationLinkGroups=normalizeInfoGroups(snap.exists()?snap.data():null);
+  }catch(e){console.warn('Information links load failed',e);informationLinkGroups=normalizeInfoGroups(null);}
+  renderInformationLinks();
+}
+async function saveInformationLinks(){
+  if(!isAdmin)return;
+  await setDoc(doc(db,'informationLinks',INFO_LINKS_DOC_ID),{groups:informationLinkGroups,updatedAt:new Date(),updatedBy:currentUser?.email||''},{merge:true});
+  renderInformationLinks();
+}
+function renderInformationLinks(){
+  document.body.classList.toggle('info-admin',!!isAdmin);
+  const grid=document.getElementById('informationLinksGrid');
+  if(!grid)return;
+  grid.innerHTML=informationLinkGroups.map((group,groupIndex)=>`<article class="info-link-card"><div class="info-link-card-head"><div class="info-link-card-title">${esc(group.title||('Name '+(groupIndex+1)))}</div><div class="info-link-card-actions"><button class="info-link-mini-btn" type="button" onclick="renameInfoGroup(${groupIndex})">Rename</button><button class="info-link-mini-btn" type="button" onclick="addInfoLink(${groupIndex})">+ Link</button><button class="info-link-mini-btn" type="button" onclick="sortInfoLinks(${groupIndex})">A-Z</button></div></div><div class="info-link-list">${group.links.length?group.links.map((link,linkIndex)=>`<div class="info-link-item"><a href="${esc(ensureInfoUrl(link.url))}" target="_blank" rel="noopener">${esc(link.name)}</a><div class="info-link-actions"><button class="info-link-mini-btn" type="button" onclick="editInfoLink(${groupIndex},${linkIndex})">Edit</button><button class="info-link-mini-btn" type="button" onclick="deleteInfoLink(${groupIndex},${linkIndex})">Del</button></div></div>`).join(''):'<div class="info-link-empty">No links yet.</div>'}</div></article>`).join('');
+}
+window.renameInfoGroup=async(groupIndex)=>{
+  if(!isAdmin)return;
+  const current=informationLinkGroups[groupIndex]?.title||`Name ${groupIndex+1}`;
+  const next=prompt('Box name:',current);
+  if(next===null)return;
+  informationLinkGroups[groupIndex].title=String(next).trim()||current;
+  await saveInformationLinks();
+};
+window.addInfoLink=async(groupIndex)=>{
+  if(!isAdmin)return;
+  const name=prompt('Link display name:');
+  if(name===null||!String(name).trim())return;
+  const url=prompt('Link URL:');
+  if(url===null||!String(url).trim())return;
+  informationLinkGroups[groupIndex].links.push({name:String(name).trim(),url:ensureInfoUrl(url)});
+  await saveInformationLinks();
+};
+window.editInfoLink=async(groupIndex,linkIndex)=>{
+  if(!isAdmin)return;
+  const link=informationLinkGroups[groupIndex]?.links?.[linkIndex];
+  if(!link)return;
+  const name=prompt('Link display name:',link.name);
+  if(name===null||!String(name).trim())return;
+  const url=prompt('Link URL:',link.url);
+  if(url===null||!String(url).trim())return;
+  informationLinkGroups[groupIndex].links[linkIndex]={name:String(name).trim(),url:ensureInfoUrl(url)};
+  await saveInformationLinks();
+};
+window.deleteInfoLink=(groupIndex,linkIndex)=>{
+  if(!isAdmin)return;
+  const link=informationLinkGroups[groupIndex]?.links?.[linkIndex];
+  if(!link)return;
+  showConfirm('Delete Link',`Delete "${link.name}"?`,async()=>{informationLinkGroups[groupIndex].links.splice(linkIndex,1);await saveInformationLinks();});
+};
+window.sortInfoLinks=async(groupIndex)=>{
+  if(!isAdmin)return;
+  informationLinkGroups[groupIndex].links.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),undefined,{sensitivity:'base'}));
+  await saveInformationLinks();
+};
+
+
+onAuthStateChanged(auth,async user=>{currentUser=user||null; const link=document.getElementById('authLink'),mLink=document.getElementById('mobileAuthLink'); if(user){link.textContent='My Account';link.href='account.html';mLink.textContent='My Account';mLink.href='account.html';isAdmin=currentUserIsAdmin(user);document.getElementById('adminPanel').style.display=isAdmin?'block':'none';document.getElementById('adminShopPanel').style.display=isAdmin?'block':'none';const ident=document.getElementById('adminIdentityStatus');if(ident)ident.textContent=`Signed in as ${user.email||'no email'} • UID ${user.uid} • Admin ${isAdmin?'yes':'no'}`;}else{link.textContent='Sign In';link.href='signin.html';mLink.textContent='Sign In';mLink.href='signin.html';isAdmin=false;document.getElementById('adminPanel').style.display='none';document.getElementById('adminShopPanel').style.display='none';const ident=document.getElementById('adminIdentityStatus');if(ident)ident.textContent='Not signed in.';} await loadInformationLinks(); await loadEvents(); await loadShopData(); if(location.hash.includes('shop='))activateTab('shop');});
 async function loadEvents(){const q=query(collection(db,'events'),orderBy('date')); const snap=await getDocs(q); ['groupA','groupB','groupC','groupD','groupE'].forEach(id=>{document.getElementById(id).innerHTML='';}); let hasEvents={groupA:false,groupB:false,groupC:false,groupD:false,groupE:false}; snap.forEach(d=>{const data=d.data(),list=document.getElementById(data.group); if(list){hasEvents[data.group]=true; const el=document.createElement('div'); el.className='event-item'; let adminControls=''; if(isAdmin){adminControls=`<div class="event-actions"><button class="event-btn-icon btn-edit" data-id="${d.id}" data-group="${esc(data.group)}" data-date="${esc(data.date)}" data-desc="${esc(data.desc)}"><i class="fa-solid fa-pen"></i></button><button class="event-btn-icon btn-del" data-id="${d.id}"><i class="fa-solid fa-trash"></i></button></div>`;} el.innerHTML=`<div style="display:flex;align-items:center;flex:1;"><span class="date">${esc(data.date)}</span><span class="desc">${esc(data.desc)}</span></div>${adminControls}`; list.appendChild(el);}}); for(const [gid,has] of Object.entries(hasEvents)){if(!has)document.getElementById(gid).innerHTML='<div class="empty-msg">No upcoming events listed.</div>';} if(isAdmin){document.querySelectorAll('.btn-del').forEach(btn=>btn.addEventListener('click',()=>showConfirm('Delete Event','Are you sure you want to remove this event?',async()=>{await deleteDoc(doc(db,'events',btn.dataset.id));loadEvents();}))); document.querySelectorAll('.btn-edit').forEach(btn=>btn.addEventListener('click',()=>{document.getElementById('editingEventId').value=btn.dataset.id;document.getElementById('newEvGroup').value=btn.dataset.group;document.getElementById('newEvDate').value=btn.dataset.date;document.getElementById('newEvDesc').value=btn.dataset.desc;document.getElementById('addEvBtn').textContent='Update Event';document.getElementById('cancelEditBtn').style.display='inline-block';scrollTo(0,0);}));}}
 document.getElementById('cancelEditBtn').addEventListener('click',resetForm); function resetForm(){document.getElementById('editingEventId').value='';document.getElementById('newEvDate').value='';document.getElementById('newEvDesc').value='';document.getElementById('addEvBtn').textContent='Add Event';document.getElementById('cancelEditBtn').style.display='none';}
 document.getElementById('addEvBtn').addEventListener('click',async()=>{const id=document.getElementById('editingEventId').value,group=document.getElementById('newEvGroup').value,date=document.getElementById('newEvDate').value,desc=document.getElementById('newEvDesc').value; if(!date||!desc)return showAlert('Missing Info','Please fill in date and description'); if(id)await updateDoc(doc(db,'events',id),{group,date,desc}); else await addDoc(collection(db,'events'),{group,date,desc,createdAt:new Date()}); resetForm(); loadEvents();});
