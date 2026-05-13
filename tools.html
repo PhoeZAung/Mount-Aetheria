@@ -91,7 +91,7 @@ body.info-admin .info-link-actions{display:flex;}
       <button id="builderToggleBtn" class="shop-btn" type="button" onclick="toggleAdminBuilder()">Show Shop Builder</button>
     </div>
     <div id="adminBuilderBody" class="admin-builder collapsed">
-      <div class="upload-box"><strong>Master Database Import</strong><div class="shop-note">Use this only when you need to update the Firestore item database from <code>items.json</code>.</div><div class="builder-row" style="margin-top:8px"><input type="file" id="shopImportFile" accept=".json,application/json" class="shop-input"><button type="button" class="shop-btn" onclick="importShopJson()">Import JSON</button><button type="button" class="shop-btn secondary" onclick="importBundledJson()">Import Bundled JSON</button></div><div id="importResult" class="shop-note"></div><div id="adminIdentityStatus" class="shop-note"></div></div>
+      <div class="upload-box"><strong>Master Database Import</strong><div class="shop-note">Use this when you need to replace the Firestore item database from <code>items.json</code>. Old master items not in the new JSON will be deleted.</div><div class="builder-row" style="margin-top:8px"><input type="file" id="shopImportFile" accept=".json,application/json" class="shop-input"><button type="button" class="shop-btn" onclick="importShopJson()">Replace JSON</button><button type="button" class="shop-btn secondary" onclick="importBundledJson()">Replace Bundled JSON</button></div><div id="importResult" class="shop-note"></div><div id="adminIdentityStatus" class="shop-note"></div></div>
       <div id="editShopNotice" class="edit-notice hidden"></div>
       <div class="builder-row"><div class="field"><label>Shop Name / Access Tag</label><input id="shopNameInput" class="shop-input" placeholder="Black Market, Potion Shop, Starter Gear"></div><div class="field"><label>Duration</label><select id="shopDurationInput" class="shop-select"><option value="1d">1 day</option><option value="1w">1 week</option><option value="2w">2 weeks</option><option value="1m">1 month</option><option value="2m">2 months</option><option value="forever">Forever</option></select></div><button id="saveShopBtn" type="button" class="shop-btn" onclick="saveShopSession()">Create Link</button><button type="button" class="shop-btn secondary" onclick="cancelEditShop()">Cancel Edit</button><button type="button" class="shop-btn secondary" onclick="clearSelection()">Clear Selected</button></div>
       <div id="shopTagPreview" class="shop-note"></div><div id="createdShopLink" class="copy-output"></div>
@@ -110,7 +110,7 @@ body.info-admin .info-link-actions{display:flex;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, getDoc, deleteDoc, doc, updateDoc, query, orderBy, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, getDoc, deleteDoc, doc, updateDoc, query, orderBy, setDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig={apiKey:"AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",authDomain:"mount-aetheria.firebaseapp.com",projectId:"mount-aetheria",storageBucket:"mount-aetheria.firebasestorage.app",messagingSenderId:"492855693446",appId:"1:492855693446:web:f9948569254a7220c38107",measurementId:"G-0PF84KDN7L"};
 const ADMIN_EMAIL="phoeaung2076@gmail.com";
@@ -120,7 +120,7 @@ const app=initializeApp(firebaseConfig); const auth=getAuth(app); const db=getFi
 const SHOP_GROUPS={Tools:["Gear","Food","Weapon","Ranged Weapon","Ammunition","Armor","Enchantment","Machine"],Magic:["Alchemical Items","Artifacts","Magic Items"]};
 const CATEGORY_ORDER=[...SHOP_GROUPS.Tools,...SHOP_GROUPS.Magic];
 const FILTER_LABELS={type:"Type",filterTag:"Filter Tag",slot:"Slot",lvl:"Lvl",rarity:"Rarity",sourceSystem:"Source",proficiency:"Proficiency",usageType:"Usage Type"};
-const FILTERS_BY_CATEGORY={"Weapon":["type","filterTag","proficiency","usageType","lvl","rarity","sourceSystem"],"Ranged Weapon":["type","filterTag","proficiency","usageType","lvl","rarity","sourceSystem"],"Gear":["type","filterTag","slot","lvl","rarity","sourceSystem"],"Food":["type","filterTag","lvl","rarity","sourceSystem"],"Ammunition":["type","filterTag","lvl","rarity","sourceSystem"],"Armor":["type","filterTag","slot","lvl","rarity","sourceSystem"],"Enchantment":["type","filterTag","lvl","rarity","sourceSystem"],"Machine":["type","filterTag","lvl","rarity","sourceSystem"],"Alchemical Items":["type","filterTag","usageType","lvl","rarity","sourceSystem"],"Artifacts":["type","filterTag","slot","lvl","rarity","sourceSystem"],"Magic Items":["type","slot","filterTag","lvl","rarity","sourceSystem"]};
+const FILTERS_BY_CATEGORY={"Weapon":["filterTag","usageType","lvl","rarity","sourceSystem"],"Ranged Weapon":["filterTag","usageType","lvl","rarity","sourceSystem"],"Gear":["type","filterTag","slot","lvl","rarity","sourceSystem"],"Food":["type","filterTag","lvl","rarity","sourceSystem"],"Ammunition":["filterTag","lvl","rarity","sourceSystem"],"Armor":["type","filterTag","slot","lvl","rarity","sourceSystem"],"Enchantment":["type","filterTag","lvl","rarity","sourceSystem"],"Machine":["type","filterTag","lvl","rarity","sourceSystem"],"Alchemical Items":["filterTag","usageType","lvl","rarity","sourceSystem"],"Artifacts":["type","filterTag","slot","lvl","rarity","sourceSystem"],"Magic Items":["type","slot","filterTag","lvl","rarity","sourceSystem"]};
 let isAdmin=false,currentUser=null,allShopItems=[],allShopItemsById=new Map(),allShops=[],userCharacters=[],selectedCharacterId=null,selectedCategory="Gear",selectedItemIds=new Set(),activeFilters={},visibleBuilderIds=[],editingShopId=null,viewFilters={},openCategoryState={};
 const modal=document.getElementById('customModal'), modalTitle=document.getElementById('modalTitle'), modalMsg=document.getElementById('modalMsg'), modalYes=document.getElementById('modalYesBtn'), modalNo=document.getElementById('modalNoBtn');
 function clearModalExtras(){modal.querySelectorAll('.purchase-qty-input,.modal-extra-note').forEach(el=>el.remove());}
@@ -209,7 +209,7 @@ function renderCategoryAccordion(shop,cat,items,defaultOpen){const open=category
 function renderItemRow(item){const buyBtn=`<button class="shop-buy-btn" onclick="event.stopPropagation();buyShopItem('${item.id}')">Buy</button>`; return `<div class="compact-item-row"><button class="item-name-link" onclick="openItemModal('${item.id}')">${esc(item.name)}</button><div class="shop-price-buy"><span class="compact-price">${esc(getDisplayCost(item))}</span>${buyBtn}</div></div>`;}
 function isAmmunitionItem(item){return String(item?.category||'').toLowerCase()==='ammunition'||normalizeTags([item?.tags,item?.type]).includes('ammunition');}
 function inventoryTagForItem(item){const cat=normalizeCategoryName(item?.category||item?.tags||'Misc'); if(/^weapon$/i.test(cat))return 'Weapons'; if(/^consumables?$/i.test(cat))return 'Food'; if(/^magic item$/i.test(cat))return 'Magic Items'; if(['Weapons','Ranged Weapon','Ammunition','Armor','Gear','Machine','Enchantment','Alchemical Items','Artifacts','Magic Items','Food','Collections','Misc'].includes(cat))return cat; return cat||'Misc';}
-function inventorySlotForItem(item){const direct=Number(item?.slot ?? item?.slots ?? item?.bulk ?? item?.weight); if(Number.isFinite(direct)&&direct>=0)return direct; return isAmmunitionItem(item)?0.1:1;}
+function inventorySlotForItem(item){const direct=Number(item?.slot ?? item?.slots ?? item?.bulk ?? item?.weight); if(Number.isFinite(direct)&&direct>=0)return direct; return isAmmunitionItem(item)?0.05:1;}
 function selectedCharacter(){return userCharacters.find(c=>(c.key||c.id)===selectedCharacterId)||userCharacters.find(c=>c.id===selectedCharacterId)||userCharacters[0]||null;}
 function canBuyForSelectedCharacter(){return !!selectedCharacter()&&!!currentUser;}
 function displayLabelFromKey(key){return String(key||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());}
@@ -262,8 +262,41 @@ window.copyShopLink=(id)=>{const link=`${location.origin}${location.pathname}#sh
 window.copySelectedShopLink=()=>{const id=selectedShopId(); if(id)copyShopLink(id);};
 window.deleteSelectedShop=()=>{const id=selectedShopId(); if(id)deleteShopSession(id);};
 window.deleteShopSession=(id)=>showConfirm('Delete Shop','Delete this shop link/session? Master items will stay in the database.',async()=>{await deleteDoc(doc(db,'shopSessions',id));await loadShopData();});
-window.importShopJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); const file=document.getElementById('shopImportFile').files[0]; if(!file)return showAlert('Missing File','Choose items.json first.'); try{const data=JSON.parse(await file.text()); const items=Array.isArray(data)?data:(data.items||data.shopItems||[]); let count=0; for(const raw of items){const item=normalizeImportedItem(raw); await setDoc(doc(db,'shopItems',item.id),item,{merge:true}); count++;} document.getElementById('importResult').textContent=`Imported ${count.toLocaleString()} item(s).`; await loadShopData();}catch(e){console.error(e);showAlert('Import Failed',e.message);}};
-window.importBundledJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); try{const items=await loadStaticItems(); if(!items.length)return showAlert('No Bundled JSON','Upload data/items.json or use the file picker.'); let count=0; for(const raw of items){const item=normalizeImportedItem(raw); await setDoc(doc(db,'shopItems',item.id),item,{merge:true}); count++;} document.getElementById('importResult').textContent=`Imported ${count.toLocaleString()} bundled item(s).`; await loadShopData();}catch(e){showAlert('Import Failed',e.message);}};
+async function commitShopItemBatch(batchState,op){
+  if(!batchState.batch)batchState.batch=writeBatch(db);
+  op(batchState.batch);
+  batchState.count++;
+  if(batchState.count>=450){await batchState.batch.commit(); batchState.batch=writeBatch(db); batchState.count=0;}
+}
+async function replaceShopItemsFromJson(items,label){
+  const normalized=[];
+  const ids=new Set();
+  for(const raw of items){
+    const item=normalizeImportedItem(raw);
+    if(!item.id)continue;
+    normalized.push(item);
+    ids.add(item.id);
+  }
+  if(!normalized.length)throw new Error('No items found in JSON.');
+  const snap=await getDocs(collection(db,'shopItems'));
+  const batchState={batch:writeBatch(db),count:0};
+  let deleted=0, saved=0;
+  for(const existing of snap.docs){
+    if(!ids.has(existing.id)){
+      await commitShopItemBatch(batchState,b=>b.delete(existing.ref));
+      deleted++;
+    }
+  }
+  for(const item of normalized){
+    await commitShopItemBatch(batchState,b=>b.set(doc(db,'shopItems',item.id),item));
+    saved++;
+  }
+  if(batchState.count>0)await batchState.batch.commit();
+  document.getElementById('importResult').textContent=`Replaced master items from ${label}: ${saved.toLocaleString()} saved, ${deleted.toLocaleString()} old removed.`;
+  await loadShopData();
+}
+window.importShopJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); const file=document.getElementById('shopImportFile').files[0]; if(!file)return showAlert('Missing File','Choose items.json first.'); showConfirm('Replace Master Items','This will overwrite matching item IDs without merge and delete old master items that are not in the new JSON. Existing shop links stay, but removed item IDs will no longer display. Continue?',async()=>{try{const data=JSON.parse(await file.text()); const items=Array.isArray(data)?data:(data.items||data.shopItems||[]); await replaceShopItemsFromJson(items,file.name||'uploaded JSON');}catch(e){console.error(e);showAlert('Import Failed',e.message);}});};
+window.importBundledJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); showConfirm('Replace Master Items','This will replace Firestore shopItems with the bundled items.json and delete old master items that are not bundled. Continue?',async()=>{try{const items=await loadStaticItems(); if(!items.length)return showAlert('No Bundled JSON','Upload data/items.json or use the file picker.'); await replaceShopItemsFromJson(items,'bundled JSON');}catch(e){console.error(e);showAlert('Import Failed',e.message);}});};
 
 
 // --- Information Links patch ---
