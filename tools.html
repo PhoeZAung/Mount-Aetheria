@@ -177,10 +177,21 @@ function inferCategoryName(raw){const direct=directCategoryAlias(raw?.category)|
   return 'Gear';}
 function normalizeCategoryName(category){return directCategoryAlias(category)||String(category||'').trim()||'Gear';}
 function categoryGroup(category){return Object.entries(SHOP_GROUPS).find(([,cats])=>cats.includes(category))?.[0]||'Other';}
-function normalizeImportedItem(raw){const id=String(raw.id||raw.itemId||raw.name||('item_'+Date.now())).trim(); const category=inferCategoryName(raw); const type=String(raw.type||raw.raw?.type||'').trim().toLowerCase(); const slot=String(raw.slot||raw.raw?.slot||raw.subtype||raw.raw?.subtype||'').trim().toLowerCase(); const filterTag=String(raw.filterTag||raw.raw?.filterTag||raw['Filter Tag']||raw.raw?.['Filter Tag']||raw.subcategory||raw.raw?.subcategory||'').trim().toLowerCase(); const sourceSystem=String(raw.sourceSystem||raw.raw?.sourceSystem||'custom').trim().toLowerCase(); const lvl=raw.lvl===null||raw.lvl===undefined||raw.lvl===''?null:Number(raw.lvl)||null; const rarity=String(raw.rarity||'').trim(); const item={...raw,id,name:raw.name||raw.raw?.name||'Unnamed Item',category,shopGroup:categoryGroup(category),cost:raw.cost||raw.raw?.cost||'',priceGil:getPrice(raw),type,slot,lvl,rarity,sourceSystem,sourceUrl:raw.sourceUrl||raw.raw?.sourceUrl||raw.source||'',desc:raw.desc||raw.description||raw.raw?.desc||raw.raw?.description||'',special:raw.special||raw.raw?.special||'',proficiency:String(raw.proficiency||raw.raw?.proficiency||'').trim().toLowerCase(),usageType:String(raw.usageType||raw.raw?.usageType||raw.raw?.['usage type']||'').trim().toLowerCase()}; item.tags=normalizeTags([raw.tags,raw.tagList,category,item.shopGroup,type,slot,rarity,sourceSystem,item.proficiency,item.usageType,lvl?`lvl-${lvl}`:'']); return item;}
+function rawHasValue(raw,...keys){return keys.some(k=>raw&&Object.prototype.hasOwnProperty.call(raw,k)&&String(raw[k]??'').trim());}
+function importedProficiencyValue(raw){return String(raw?.proficiency||raw?.raw?.proficiency||raw?.Proficiency||raw?.raw?.Proficiency||'').trim().toLowerCase();}
+function incomingHasProficiency(raw){return rawHasValue(raw,'proficiency','Proficiency')||rawHasValue(raw?.raw,'proficiency','Proficiency');}
+function applyPreservedProficiency(item,existing){
+  const oldProf=String(existing?.proficiency||existing?.raw?.proficiency||existing?.Proficiency||existing?.raw?.Proficiency||'').trim().toLowerCase();
+  if(!String(item?.proficiency||'').trim()&&oldProf){
+    item.proficiency=oldProf;
+    item.tags=normalizeTags([item.tags,oldProf]);
+  }
+  return item;
+}
+function normalizeImportedItem(raw){const id=String(raw.id||raw.itemId||raw.name||('item_'+Date.now())).trim(); const category=inferCategoryName(raw); const type=String(raw.type||raw.raw?.type||'').trim().toLowerCase(); const slot=String(raw.slot||raw.raw?.slot||raw.subtype||raw.raw?.subtype||'').trim().toLowerCase(); const filterTag=String(raw.filterTag||raw.raw?.filterTag||raw['Filter Tag']||raw.raw?.['Filter Tag']||raw.subcategory||raw.raw?.subcategory||'').trim().toLowerCase(); const sourceSystem=String(raw.sourceSystem||raw.raw?.sourceSystem||'custom').trim().toLowerCase(); const lvl=raw.lvl===null||raw.lvl===undefined||raw.lvl===''?null:Number(raw.lvl)||null; const rarity=String(raw.rarity||'').trim(); const item={...raw,id,name:raw.name||raw.raw?.name||'Unnamed Item',category,shopGroup:categoryGroup(category),cost:raw.cost||raw.raw?.cost||'',priceGil:getPrice(raw),type,slot,lvl,rarity,sourceSystem,sourceUrl:raw.sourceUrl||raw.raw?.sourceUrl||raw.source||'',desc:raw.desc||raw.description||raw.raw?.desc||raw.raw?.description||'',special:raw.special||raw.raw?.special||'',proficiency:importedProficiencyValue(raw),usageType:String(raw.usageType||raw.raw?.usageType||raw.raw?.['usage type']||'').trim().toLowerCase()}; item.tags=normalizeTags([raw.tags,raw.tagList,category,item.shopGroup,type,slot,rarity,sourceSystem,item.proficiency,item.usageType,lvl?`lvl-${lvl}`:'']); return item;}
 function mergeItems(staticItems,firestoreItems){const map=new Map(); [...staticItems,...firestoreItems].forEach(raw=>{const item=normalizeImportedItem(raw); if(item.id)map.set(item.id,item);}); allShopItems=[...map.values()].sort((a,b)=>String(a.category).localeCompare(String(b.category))||String(a.name).localeCompare(String(b.name))); allShopItemsById=new Map(allShopItems.map(i=>[i.id,i])); console.info('[Shop] Master items loaded:',allShopItems.length,categoryDebugText());}
 async function loadStaticItems(){const paths=['data/items.json','items.json','/Mount-Aetheria/data/items.json','/Mount-Aetheria/items.json','/data/items.json','https://raw.githubusercontent.com/PhoeZAung/Mount-Aetheria/main/data/items.json','https://raw.githubusercontent.com/PhoeZAung/Mount-Aetheria/main/items.json']; for(const p of paths){try{const res=await fetch(p,{cache:'no-store'}); if(!res.ok)continue; const data=await res.json(); const items=Array.isArray(data)?data:(data.items||data.shopItems||[]); if(items.length)return items;}catch(e){}} return [];}
-async function loadShopItems(){const [staticItems,snap]=await Promise.all([loadStaticItems(),getDocs(collection(db,'shopItems'))]); const fireItems=snap.docs.map(d=>({id:d.id,...d.data()})); mergeItems(staticItems,fireItems);}
+async function loadShopItems(){const [staticItems,snap]=await Promise.all([loadStaticItems(),getDocs(collection(db,'shopItems'))]); const fireItems=snap.docs.map(d=>({id:d.id,...d.data()})); mergeItems(fireItems.length?[]:staticItems,fireItems);}
 async function loadShopSessions(){const snap=await getDocs(collection(db,'shopSessions')); allShops=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)||String(a.name||'').localeCompare(String(b.name||'')));}
 async function loadUserCharacters(){userCharacters=[]; if(!currentUser)return; if(isAdmin){const usersSnap=await getDocs(collection(db,'users')); const rows=[]; for(const userDoc of usersSnap.docs){const uid=userDoc.id; const u=userDoc.data()||{}; try{const charsSnap=await getDocs(collection(db,'users',uid,'characters')); charsSnap.docs.forEach(d=>{const data=d.data()||{}; const ownerLabel=u.name||u.displayName||u.email||uid; rows.push({id:d.id,key:`${uid}::${d.id}`,ownerUid:uid,ownerLabel,ownerEmail:u.email||'',...data});});}catch(e){console.warn('Could not load characters for user',uid,e);}} userCharacters=rows.sort((a,b)=>String(a.ownerLabel||'').localeCompare(String(b.ownerLabel||''),undefined,{sensitivity:'base'})||String(a.charName||'').localeCompare(String(b.charName||''),undefined,{sensitivity:'base'})); if(!userCharacters.some(c=>c.key===selectedCharacterId)&&userCharacters[0])selectedCharacterId=userCharacters[0].key; return;} const snap=await getDocs(collection(db,'users',currentUser.uid,'characters')); userCharacters=snap.docs.map(d=>({id:d.id,key:`${currentUser.uid}::${d.id}`,ownerUid:currentUser.uid,ownerLabel:currentUser.displayName||currentUser.email||'You',ownerEmail:currentUser.email||'',...d.data()})).sort((a,b)=>String(a.charName||'').localeCompare(String(b.charName||''),undefined,{sensitivity:'base'})); if(!userCharacters.some(c=>c.key===selectedCharacterId||c.id===selectedCharacterId)&&userCharacters[0])selectedCharacterId=userCharacters[0].key;}
 async function loadShopData(){try{await Promise.all([loadShopItems(),loadShopSessions(),loadUserCharacters()]); renderShopShell(); renderAdminBuilder();}catch(e){console.error(e);document.getElementById('shopStatus').textContent='Shop error: '+e.message;}}
@@ -269,16 +280,23 @@ async function commitShopItemBatch(batchState,op){
   if(batchState.count>=450){await batchState.batch.commit(); batchState.batch=writeBatch(db); batchState.count=0;}
 }
 async function replaceShopItemsFromJson(items,label){
+  const snap=await getDocs(collection(db,'shopItems'));
+  const existingById=new Map(snap.docs.map(d=>[d.id,d.data()||{}]));
   const normalized=[];
   const ids=new Set();
+  let preservedProficiency=0;
   for(const raw of items){
     const item=normalizeImportedItem(raw);
     if(!item.id)continue;
+    if(!incomingHasProficiency(raw)&&existingById.has(item.id)){
+      const before=item.proficiency;
+      applyPreservedProficiency(item,existingById.get(item.id));
+      if(!before&&item.proficiency)preservedProficiency++;
+    }
     normalized.push(item);
     ids.add(item.id);
   }
   if(!normalized.length)throw new Error('No items found in JSON.');
-  const snap=await getDocs(collection(db,'shopItems'));
   const batchState={batch:writeBatch(db),count:0};
   let deleted=0, saved=0;
   for(const existing of snap.docs){
@@ -292,11 +310,11 @@ async function replaceShopItemsFromJson(items,label){
     saved++;
   }
   if(batchState.count>0)await batchState.batch.commit();
-  document.getElementById('importResult').textContent=`Replaced master items from ${label}: ${saved.toLocaleString()} saved, ${deleted.toLocaleString()} old removed.`;
+  document.getElementById('importResult').textContent=`Replaced master items from ${label}: ${saved.toLocaleString()} saved, ${deleted.toLocaleString()} old removed, ${preservedProficiency.toLocaleString()} proficiency value(s) preserved.`;
   await loadShopData();
 }
-window.importShopJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); const file=document.getElementById('shopImportFile').files[0]; if(!file)return showAlert('Missing File','Choose items.json first.'); showConfirm('Replace Master Items','This will overwrite matching item IDs without merge and delete old master items that are not in the new JSON. Existing shop links stay, but removed item IDs will no longer display. Continue?',async()=>{try{const data=JSON.parse(await file.text()); const items=Array.isArray(data)?data:(data.items||data.shopItems||[]); await replaceShopItemsFromJson(items,file.name||'uploaded JSON');}catch(e){console.error(e);showAlert('Import Failed',e.message);}});};
-window.importBundledJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); showConfirm('Replace Master Items','This will replace Firestore shopItems with the bundled items.json and delete old master items that are not bundled. Continue?',async()=>{try{const items=await loadStaticItems(); if(!items.length)return showAlert('No Bundled JSON','Upload data/items.json or use the file picker.'); await replaceShopItemsFromJson(items,'bundled JSON');}catch(e){console.error(e);showAlert('Import Failed',e.message);}});};
+window.importShopJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); const file=document.getElementById('shopImportFile').files[0]; if(!file)return showAlert('Missing File','Choose items.json first.'); showConfirm('Replace Master Items','This will overwrite matching item IDs and delete old master items that are not in the new JSON, but it will preserve existing Proficiency when the new JSON has no Proficiency field. Existing shop links stay, but removed item IDs will no longer display. Continue?',async()=>{try{const data=JSON.parse(await file.text()); const items=Array.isArray(data)?data:(data.items||data.shopItems||[]); await replaceShopItemsFromJson(items,file.name||'uploaded JSON');}catch(e){console.error(e);showAlert('Import Failed',e.message);}});};
+window.importBundledJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); showConfirm('Replace Master Items','This will replace Firestore shopItems with the bundled items.json and delete old master items that are not bundled, but it will preserve existing Proficiency when the bundled JSON has no Proficiency field. Continue?',async()=>{try{const items=await loadStaticItems(); if(!items.length)return showAlert('No Bundled JSON','Upload data/items.json or use the file picker.'); await replaceShopItemsFromJson(items,'bundled JSON');}catch(e){console.error(e);showAlert('Import Failed',e.message);}});};
 
 
 // --- Information Links patch ---
