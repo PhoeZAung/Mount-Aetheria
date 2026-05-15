@@ -325,8 +325,10 @@ window.clearMasterItemsOnly=async()=>{if(!isAdmin)return showAlert('Admin Requir
 async function replaceShopItemsFromJson(items,label){
   const normalized=[];
   const ids=new Set();
+  const existingById=new Map(allShopItems.map(i=>[String(i.id||'').trim(),i]));
   for(const raw of items){
-    const item=normalizeImportedItem(raw);
+    let item=normalizeImportedItem(raw);
+    item=applyPreservedProficiency(item, existingById.get(String(item.id||'').trim()));
     if(!item.id)continue;
     normalized.push(item);
     ids.add(item.id);

@@ -1202,47 +1202,91 @@ function normalizeItemTagLabel(tag) {
 }
 
 
-const ITEM_TAG_EDIT_FIELDS = [
-    ['Category', 'sourceCategory'],
-    ['Shop Group', 'shopGroup'],
-    ['Type', 'type'],
-    ['Secondary Type', 'secondaryType'],
-    ['Filter Tag', 'filterTag'],
-    ['Proficiency', 'proficiency'],
-    ['Usage Type', 'usageType'],
-    ['Tier', 'tier'],
-    ['Source System', 'sourceSystem'],
-    ['Recommended Lvl', 'lvl'],
-    ['Rarity', 'rarity'],
-    ['Source Shop', 'sourceShopName']
-];
-const ITEM_DETAIL_FIELD_KEYS = [
-    ['Slot amount', ['slotAmount','slot amount','slot_amount','slotsUsed','slots_used','slot']],
-    ['Dmg', ['dmg','damage','damageDice','damage_dice','dmgM','dmgS','attackDmg']],
-    ['Crit', ['crit','critical','crit_range','critRange','crit range','crit_mult','crit mult']],
-    ['Range', ['range','rangeIncrement','range_increment']],
-    ['AC bonus', ['acBonus','ac bonus','armorBonus','armor bonus','shieldBonus']],
-    ['Max Dex', ['maxDex','max dex','maxDexBonus']],
-    ['Check penalty', ['checkPenalty','check penalty','armorCheckPenalty']],
-    ['Spell failure', ['spellFailure','spell failure','arcaneSpellFailure']],
-    ['CL', ['cl','casterLevel','caster level']],
-    ['Speed', ['speed','speedPenalty','speed penalty','speed30Ft','speed20Ft']],
-    ['Full speed', ['fullSpeed','full speed']],
-    ['Passengers/Crew', ['passengersCrew','passengers/crew','passengers','crew']],
-    ['Fuel', ['fuel']],
-    ['Mileage', ['mileage']],
-    ['AC/CMD', ['acCmd','ac/cmd','ac cmd']],
-    ['HP', ['hp']],
-    ['Hardness', ['hardness']],
-    ['DC Saves', ['dcSave','dc saves','dcSaves','saveDc','save DC']],
-    ['Spell Needed', ['spellNeeded','spell needed','spell']]
-];
+const ITEM_META_FIELD_LABELS = {
+    type: 'Type',
+    secondaryType: 'Subtype',
+    filterTag: 'Subtype',
+    proficiency: 'Proficiency',
+    usageType: 'Usage',
+    tier: 'Tier',
+    lvl: 'Lvl',
+    rarity: 'Rarity'
+};
+const ITEM_VISIBLE_TAG_FIELDS_BY_CATEGORY = {
+    Weapons: ['rarity','lvl','proficiency','type','secondaryType'],
+    Weapon: ['rarity','lvl','proficiency','type','secondaryType'],
+    'Ranged Weapon': ['rarity','lvl','proficiency','type','secondaryType'],
+    Ammunition: ['rarity','lvl','type'],
+    Armor: ['rarity','lvl','type'],
+    Gear: ['rarity','lvl','type','secondaryType'],
+    Machine: ['rarity','lvl','type'],
+    Enchantment: ['rarity','lvl','type','tier'],
+    'Alchemical Items': ['rarity','lvl','type','tier'],
+    Artifacts: ['rarity','lvl','type'],
+    'Magic Items': ['rarity','lvl','type'],
+    Food: ['rarity','type','secondaryType'],
+    Collections: ['rarity','type'],
+    Misc: ['rarity','lvl','type']
+};
+const ITEM_DETAIL_FIELD_KEYS_BY_CATEGORY = {
+    Weapons: [
+        ['Dmg', ['dmg','damage','damageDice','damage_dice','dmgM','dmgS','attackDmg']],
+        ['Crit', ['crit','critical','crit_range','critRange','crit range','crit_mult','crit mult']],
+        ['Range', ['range','rangeIncrement','range_increment']]
+    ],
+    Weapon: [
+        ['Dmg', ['dmg','damage','damageDice','damage_dice','dmgM','dmgS','attackDmg']],
+        ['Crit', ['crit','critical','crit_range','critRange','crit range','crit_mult','crit mult']],
+        ['Range', ['range','rangeIncrement','range_increment']]
+    ],
+    'Ranged Weapon': [
+        ['Dmg', ['dmg','damage','damageDice','damage_dice','dmgM','dmgS','attackDmg']],
+        ['Crit', ['crit','critical','crit_range','critRange','crit range','crit_mult','crit mult']],
+        ['Range', ['range','rangeIncrement','range_increment']],
+        ['Ammo', ['ammo','ammunition','capacity']]
+    ],
+    Armor: [
+        ['AC bonus', ['acBonus','ac bonus','armorBonus','armor bonus','shieldBonus']],
+        ['Max Dex', ['maxDex','max dex','maxDexBonus']],
+        ['Check penalty', ['checkPenalty','check penalty','armorCheckPenalty']],
+        ['Spell failure', ['spellFailure','spell failure','arcaneSpellFailure']],
+        ['Speed', ['speed','speedPenalty','speed penalty','speed30Ft','speed20Ft']]
+    ],
+    Machine: [
+        ['Speed', ['speed']],
+        ['Full speed', ['fullSpeed','full speed']],
+        ['Passengers/Crew', ['passengersCrew','passengers/crew','passengers','crew']],
+        ['Fuel', ['fuel']],
+        ['Mileage', ['mileage']],
+        ['AC/CMD', ['acCmd','ac/cmd','ac cmd']],
+        ['HP', ['hp']],
+        ['Hardness', ['hardness']]
+    ],
+    'Alchemical Items': [
+        ['Range', ['range']],
+        ['DC Saves', ['dcSave','dc saves','dcSaves','saveDc','save DC']],
+        ['Spell Needed', ['spellNeeded','spell needed','spell']]
+    ],
+    Enchantment: [['CL', ['cl','casterLevel','caster level']]],
+    Artifacts: [['CL', ['cl','casterLevel','caster level']]],
+    'Magic Items': [['CL', ['cl','casterLevel','caster level']]],
+    Gear: [],
+    Food: [],
+    Ammunition: []
+};
+const ITEM_NOISY_META_VALUES = new Set(['container','containers','gear','tool','tools','misc','miscellaneous','storage','stored','source','origin','origins','n/a','na','none','—','-']);
+const ITEM_SKIP_DETAIL_LABELS = new Set(['weight','weightlb','weightlbs','bulk','location','storage','storedin','source','sourcesystem','sourceorigin','origin','origins','skilluse','skilluses','use skill','skill']);
 function itemEsc(value) {
     return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
 function itemCleanText(value) {
-    const text = String(value ?? '').trim();
-    return text;
+    return String(value ?? '').trim();
+}
+function itemNorm(value) {
+    return String(value ?? '').trim().toLowerCase().replace(/[_\-]+/g, ' ').replace(/\s+/g, ' ');
+}
+function itemNormKey(value) {
+    return itemNorm(value).replace(/\s+/g, '');
 }
 function itemFirstValue(item, keys) {
     for (const key of keys) {
@@ -1262,52 +1306,89 @@ function itemDisplayCost(item = {}) {
     if (unit) return `${unit.toLocaleString()} gil`;
     return '—';
 }
+function itemMainCategory(item = {}) {
+    const direct = itemCleanText(item.sourceCategory || item.category);
+    if (direct) return normalizeItemTagLabel(direct);
+    return normalizeItemTagLabel(item.tags || 'Misc');
+}
 function itemTagListArray(item = {}) {
     const raw = Array.isArray(item.tagList) ? item.tagList : String(item.tagList || '').split(/[,|\n]+/);
     return raw.map(v => itemCleanText(v)).filter(Boolean);
 }
+function itemIsNoisyMetaValue(value) {
+    const val = itemNorm(value);
+    if (!val || ITEM_NOISY_META_VALUES.has(val)) return true;
+    if (val.includes('source system') || val.includes('origin') || val.includes('storage')) return true;
+    return false;
+}
 function addItemPill(list, label, value, cls = '') {
     const val = itemCleanText(value);
-    if (!val) return;
+    if (!val || itemIsNoisyMetaValue(val)) return;
     const text = label ? `${label}: ${val}` : val;
-    const sig = text.toLowerCase();
-    if (list.some(p => p.sig === sig)) return;
-    list.push({ text, cls, sig });
+    const sig = itemNorm(text);
+    const valSig = itemNorm(val);
+    if (list.some(p => p.sig === sig || p.valSig === valSig)) return;
+    list.push({ text, cls, sig, valSig });
 }
 function itemSheetPills(item = {}) {
     const list = [];
-    addItemPill(list, 'Tag', normalizeItemTagLabel(item.tags));
-    addItemPill(list, 'Category', item.sourceCategory || item.category);
-    ITEM_TAG_EDIT_FIELDS.forEach(([label, key]) => {
-        if (key === 'sourceCategory') return;
-        const cls = key === 'sourceSystem' ? 'info' : key === 'lvl' ? 'good' : key === 'rarity' ? 'warn' : '';
-        addItemPill(list, label, item[key], cls);
+    const main = itemMainCategory(item);
+    addItemPill(list, '', main);
+    const fields = ITEM_VISIBLE_TAG_FIELDS_BY_CATEGORY[main] || ITEM_VISIBLE_TAG_FIELDS_BY_CATEGORY.Misc;
+    fields.forEach(key => {
+        const rawVal = key === 'secondaryType' ? (item.secondaryType || item.filterTag) : item[key];
+        const val = itemCleanText(rawVal);
+        if (!val) return;
+        if (itemNorm(val) === itemNorm(main) || itemNorm(val) === itemNorm(item.tags)) return;
+        const cls = key === 'lvl' ? 'good' : key === 'rarity' ? 'warn' : '';
+        addItemPill(list, ITEM_META_FIELD_LABELS[key] || key, val, cls);
     });
-    itemTagListArray(item).forEach(tag => addItemPill(list, '', tag));
     return list;
+}
+function itemDetailLabelAllowed(item, label) {
+    const key = itemNormKey(label);
+    if (!key || ITEM_SKIP_DETAIL_LABELS.has(key)) return false;
+    if (key.includes('weight') || key.includes('origin') || key.includes('source') || key.includes('location') || key.includes('storage') || key.includes('skilluse')) return false;
+    const main = itemMainCategory(item);
+    const allowed = new Set(['amount','slot','slotamount', ...(ITEM_DETAIL_FIELD_KEYS_BY_CATEGORY[main] || []).map(([l]) => itemNormKey(l))]);
+    return allowed.has(key);
 }
 function itemDetailsRows(item = {}) {
     const rows = [];
     const seen = new Set();
     const push = (label, value) => {
         const val = itemCleanText(value);
-        if (!val) return;
-        const sig = `${label}:${val}`.toLowerCase();
+        if (!val || !itemDetailLabelAllowed(item, label)) return;
+        const sig = `${itemNormKey(label)}:${itemNorm(val)}`;
         if (seen.has(sig)) return;
         seen.add(sig);
         rows.push([label, val]);
     };
     push('Amount', getItemAmount(item));
-    push('Slot', getItemSlot(item));
-    push('Location', item.equipped ? 'Equipped' : 'Storage');
+    const slotVal = getItemSlot(item);
+    if (itemCleanText(slotVal) && String(slotVal) !== '0') push('Slot amount', slotVal);
+    const main = itemMainCategory(item);
+    (ITEM_DETAIL_FIELD_KEYS_BY_CATEGORY[main] || []).forEach(([label, keys]) => {
+        if (label === 'Crit') {
+            const direct = itemFirstValue(item, ['crit','critical']);
+            const range = itemFirstValue(item, ['crit_range','critRange','crit range']);
+            const mult = itemFirstValue(item, ['crit_mult','crit mult','critMultiplier','crit_multiplier']);
+            push(label, direct || [range, mult].filter(Boolean).join(' / '));
+        } else {
+            push(label, itemFirstValue(item, keys));
+        }
+    });
     if (Array.isArray(item.details)) item.details.forEach(d => push(d.label || d.name || 'Detail', d.value ?? d.val ?? ''));
-    ITEM_DETAIL_FIELD_KEYS.forEach(([label, keys]) => push(label, itemFirstValue(item, keys)));
     return rows;
 }
 function itemDetailsHtmlForSheet(item = {}) {
     const rows = itemDetailsRows(item);
     if (!rows.length) return '';
     return `<h4>Details</h4><div class="item-detail-grid">${rows.map(([label,value]) => `<div class="item-detail-cell"><small>${itemEsc(label)}</small><span>${itemEsc(value)}</span></div>`).join('')}</div>`;
+}
+function itemCanEditWeaponStats(item = {}) {
+    const main = itemMainCategory(item);
+    return main === 'Weapons' || main === 'Weapon' || main === 'Ranged Weapon' || /weapon/i.test(String(item.tags || item.sourceCategory || item.category || ''));
 }
 function updateItemTagListValue(value) {
     return String(value || '').split(/[,|\n]+/).map(t => t.trim()).filter(Boolean).filter((t, i, arr) => arr.indexOf(t) === i);
@@ -2824,17 +2905,19 @@ function populateEditorModal(type, item, index, col) {
     if(type === 'feat') createInput('Link URL', item.link, 'link');
     if(type === 'item') {
         createEditorSection('Inventory');
-        createSelect('Tag', normalizeItemTagLabel(item.tags), 'tags', ITEM_TAG_OPTIONS);
         createInput('Amount', getItemAmount(item), 'amount');
         createInput('Cost', item.cost, 'cost');
-        createInput('Slot', getItemSlot(item), 'slot');
+        createInput('Slot Amount', getItemSlot(item), 'slot');
         createCheckbox('Equipped', !!item.equipped, 'equipped');
         createInput('Image URL', item.img, 'img');
         createInput('Source Link URL', item.link || item.sourceUrl, 'link');
 
-        createEditorSection('Tags / Filters');
-        createInput('All Tags (comma separated)', itemTagListArray(item).join(', '), 'tagList');
-        ITEM_TAG_EDIT_FIELDS.forEach(([label, key]) => createInput(label, item[key], key));
+        if (itemCanEditWeaponStats(item)) {
+            createEditorSection('Weapon Stats');
+            createInput('Damage', itemFirstValue(item, ['damage','dmg','damageDice','damage_dice','dmgM','dmgS','attackDmg']), 'damage');
+            createInput('Crit', itemFirstValue(item, ['crit','critical','crit_range','critRange','crit range','crit_mult','crit mult']), 'crit');
+            createInput('Range', itemFirstValue(item, ['range','rangeIncrement','range_increment']), 'range');
+        }
     }
     if(type === 'spell') {
         createEditorSection('Description');
@@ -2914,7 +2997,7 @@ function updateCurrentItem(k, v) {
     }
     if(k==='link') { const b=document.getElementById('modalLinkBtn'); b.href=v; b.style.display=v?'inline-block':'none'; }
     if(currentEditContext?.type === 'weapon' && k === 'ability_mod') item.mod = v;
-    if(['name','lvl','tags','tagList','sourceCategory','category','shopGroup','secondaryType','filterTag','proficiency','usageType','tier','sourceSystem','rarity','sourceShopName','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','amount','cost','slot','equipped','img','ability_mod','attack_misc','damage','crit_range','crit_mult','range','ammo','link','sourceUrl'].includes(k)) refreshList(currentEditContext.type);
+    if(['name','lvl','tags','tagList','sourceCategory','category','shopGroup','secondaryType','filterTag','proficiency','usageType','tier','sourceSystem','rarity','sourceShopName','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','amount','cost','slot','equipped','img','ability_mod','attack_misc','damage','dmg','crit','critical','crit_range','crit_mult','range','ammo','link','sourceUrl'].includes(k)) refreshList(currentEditContext.type);
     triggerSave();
 }
 window.closeModal = () => { modal.style.display='none'; refreshList(currentEditContext.type); };
