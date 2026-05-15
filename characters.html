@@ -325,6 +325,30 @@ input.readonly-yellow[type=number] {
 .item-toggle-wrap { display:flex; align-items:center; gap:10px; }
 .item-equip-check { width:18px; height:18px; flex:0 0 18px; accent-color: var(--accent); }
 .item-meta-line { color:#888; font-size:12px; display:flex; flex-wrap:wrap; gap:8px; }
+
+/* --- Shop-style item previews on character sheets --- */
+.item-name-link{background:none;border:0;color:var(--accent);font-weight:bold;text-align:left;cursor:pointer;padding:0;font-size:14px;white-space:normal;font-family:inherit;}
+.item-name-link:hover{text-decoration:underline;color:#ffe0a0;}
+.sheet-item-name{display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;}
+.price-badge{background:#000;border:1px solid var(--accent);border-radius:999px;color:var(--accent);padding:3px 8px;font-size:12px;font-weight:bold;white-space:nowrap;display:inline-flex;width:max-content;}
+.modal-price{margin-bottom:10px;}
+.item-meta{display:flex;gap:6px;flex-wrap:wrap;}
+.modal-meta{margin-bottom:8px;}
+.tag-pill{display:inline-flex;align-items:center;gap:4px;background:#151515;border:1px solid #454545;border-radius:999px;color:#ddd;padding:3px 9px;font-size:12px;line-height:1.35;}
+.tag-pill.good{border-color:#2e7650;color:#9ff0bf;}
+.tag-pill.warn{border-color:#8a7332;color:#ffdf86;}
+.tag-pill.bad{border-color:#874444;color:#ff9e9e;}
+.tag-pill.info{border-color:#315f79;color:#9ed1ff;}
+.item-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 14px;}
+.item-detail-cell{background:#151515;border:1px solid #333;border-radius:9px;padding:8px 10px;min-width:0;}
+.item-detail-cell small{display:block;color:#999;text-transform:uppercase;letter-spacing:.04em;font-size:10px;margin-bottom:3px;}
+.item-detail-cell span{color:#eee;font-weight:700;word-break:break-word;white-space:pre-wrap;}
+.item-view-shell h4{color:var(--accent);font-family:'Uncial Antiqua';margin:15px 0 6px;text-align:left;}
+.item-view-shell p{white-space:pre-wrap;color:#ddd;margin:0 0 8px;line-height:1.5;}
+.item-modal-title-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;text-align:left;}
+.source-link{color:#9ed1ff;font-weight:bold;}
+@media(max-width:700px){.item-detail-grid{grid-template-columns:1fr}.item-name-link{font-size:15px}}
+
 @media (max-width: 700px) {
   .item-top-grid { grid-template-columns: 1fr; }
   .top-nav-actions { gap:6px; }
@@ -1171,6 +1195,118 @@ function normalizeItemTagLabel(tag) {
     if(/^collection$/i.test(t)) return 'Collections';
     if(/^weapon$/i.test(t)) return 'Weapons';
     return ITEM_TAG_OPTIONS.includes(t) ? t : t;
+}
+
+
+const ITEM_TAG_EDIT_FIELDS = [
+    ['Category', 'sourceCategory'],
+    ['Shop Group', 'shopGroup'],
+    ['Type', 'type'],
+    ['Secondary Type', 'secondaryType'],
+    ['Filter Tag', 'filterTag'],
+    ['Proficiency', 'proficiency'],
+    ['Usage Type', 'usageType'],
+    ['Tier', 'tier'],
+    ['Source System', 'sourceSystem'],
+    ['Recommended Lvl', 'lvl'],
+    ['Rarity', 'rarity'],
+    ['Source Shop', 'sourceShopName']
+];
+const ITEM_DETAIL_FIELD_KEYS = [
+    ['Slot amount', ['slotAmount','slot amount','slot_amount','slotsUsed','slots_used','slot']],
+    ['Dmg', ['dmg','damage','damageDice','damage_dice','dmgM','dmgS','attackDmg']],
+    ['Crit', ['crit','critical','crit_range','critRange','crit range','crit_mult','crit mult']],
+    ['Range', ['range','rangeIncrement','range_increment']],
+    ['AC bonus', ['acBonus','ac bonus','armorBonus','armor bonus','shieldBonus']],
+    ['Max Dex', ['maxDex','max dex','maxDexBonus']],
+    ['Check penalty', ['checkPenalty','check penalty','armorCheckPenalty']],
+    ['Spell failure', ['spellFailure','spell failure','arcaneSpellFailure']],
+    ['CL', ['cl','casterLevel','caster level']],
+    ['Speed', ['speed','speedPenalty','speed penalty','speed30Ft','speed20Ft']],
+    ['Full speed', ['fullSpeed','full speed']],
+    ['Passengers/Crew', ['passengersCrew','passengers/crew','passengers','crew']],
+    ['Fuel', ['fuel']],
+    ['Mileage', ['mileage']],
+    ['AC/CMD', ['acCmd','ac/cmd','ac cmd']],
+    ['HP', ['hp']],
+    ['Hardness', ['hardness']],
+    ['DC Saves', ['dcSave','dc saves','dcSaves','saveDc','save DC']],
+    ['Spell Needed', ['spellNeeded','spell needed','spell']]
+];
+function itemEsc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function itemCleanText(value) {
+    const text = String(value ?? '').trim();
+    return text;
+}
+function itemFirstValue(item, keys) {
+    for (const key of keys) {
+        const variants = [key, key.replace(/\s+/g,''), key.replace(/\s+/g,'_'), key.replace(/\s+/g,'-')];
+        for (const vKey of variants) {
+            if (item && Object.prototype.hasOwnProperty.call(item, vKey) && itemCleanText(item[vKey])) return item[vKey];
+            if (item?.raw && Object.prototype.hasOwnProperty.call(item.raw, vKey) && itemCleanText(item.raw[vKey])) return item.raw[vKey];
+        }
+    }
+    return '';
+}
+function itemDisplayCost(item = {}) {
+    if (itemCleanText(item.cost)) return item.cost;
+    const purchased = Number(item.purchasedForGil || 0);
+    if (purchased) return `${purchased.toLocaleString()} gil`;
+    const unit = Number(item.unitPriceGil || item.priceGil || item.price || 0);
+    if (unit) return `${unit.toLocaleString()} gil`;
+    return '—';
+}
+function itemTagListArray(item = {}) {
+    const raw = Array.isArray(item.tagList) ? item.tagList : String(item.tagList || '').split(/[,|\n]+/);
+    return raw.map(v => itemCleanText(v)).filter(Boolean);
+}
+function addItemPill(list, label, value, cls = '') {
+    const val = itemCleanText(value);
+    if (!val) return;
+    const text = label ? `${label}: ${val}` : val;
+    const sig = text.toLowerCase();
+    if (list.some(p => p.sig === sig)) return;
+    list.push({ text, cls, sig });
+}
+function itemSheetPills(item = {}) {
+    const list = [];
+    addItemPill(list, 'Tag', normalizeItemTagLabel(item.tags));
+    addItemPill(list, 'Category', item.sourceCategory || item.category);
+    ITEM_TAG_EDIT_FIELDS.forEach(([label, key]) => {
+        if (key === 'sourceCategory') return;
+        const cls = key === 'sourceSystem' ? 'info' : key === 'lvl' ? 'good' : key === 'rarity' ? 'warn' : '';
+        addItemPill(list, label, item[key], cls);
+    });
+    itemTagListArray(item).forEach(tag => addItemPill(list, '', tag));
+    return list;
+}
+function itemDetailsRows(item = {}) {
+    const rows = [];
+    const seen = new Set();
+    const push = (label, value) => {
+        const val = itemCleanText(value);
+        if (!val) return;
+        const sig = `${label}:${val}`.toLowerCase();
+        if (seen.has(sig)) return;
+        seen.add(sig);
+        rows.push([label, val]);
+    };
+    push('Amount', getItemAmount(item));
+    push('Slot', getItemSlot(item));
+    push('Location', item.equipped ? 'Equipped' : 'Storage');
+    if (Array.isArray(item.details)) item.details.forEach(d => push(d.label || d.name || 'Detail', d.value ?? d.val ?? ''));
+    ITEM_DETAIL_FIELD_KEYS.forEach(([label, keys]) => push(label, itemFirstValue(item, keys)));
+    return rows;
+}
+function itemDetailsHtmlForSheet(item = {}) {
+    const rows = itemDetailsRows(item);
+    if (!rows.length) return '';
+    return `<h4>Details</h4><div class="item-detail-grid">${rows.map(([label,value]) => `<div class="item-detail-cell"><small>${itemEsc(label)}</small><span>${itemEsc(value)}</span></div>`).join('')}</div>`;
+}
+function updateItemTagListValue(value) {
+    return String(value || '').split(/[,|\n]+/).map(t => t.trim()).filter(Boolean).filter((t, i, arr) => arr.indexOf(t) === i);
 }
 
 function sanitizeCharacterDoc(raw = {}, fallbackName = 'New Character') {
@@ -2176,11 +2312,14 @@ window.renderItems = () => {
         const amount = getItemAmount(item);
         const slot = getItemSlot(item);
         let extraBtn = (item.tags === "Collections" && item.img) ? `<button class="btn-save" style="font-size:10px; padding:4px 8px;" onclick="event.stopPropagation();viewCollection('${item.img}')">IMG</button>` : '';
+        const displayCost = itemDisplayCost(item);
+        const itemTitle = `${amount}x ${item.name || 'New Item'}`;
+        const metaPills = itemSheetPills(item).slice(0, 4).map(p => `<span>${itemEsc(p.text)}</span>`).join('');
         div.innerHTML = `<div class="item-toggle-wrap">
             <input type="checkbox" class="item-equip-check" ${item.equipped ? 'checked' : ''} onchange="event.stopPropagation();toggleItemEquipped(${idx}, this.checked)">
-            <div class="row-content" onclick="openView('item',${idx})">
-                <span class="list-row-title">${amount}x ${item.name||'New Item'}</span>
-                <span class="item-meta-line"><span>${normalizeItemTagLabel(item.tags)}</span><span>Slot ${slot}</span>${item.cost ? `<span>Cost ${item.cost}</span>` : ''}</span>
+            <div class="row-content">
+                <button type="button" class="item-name-link sheet-item-name" onclick="event.stopPropagation();openView('item',${idx})">${itemEsc(itemTitle)}</button>
+                <span class="item-meta-line">${metaPills}<span>Slot ${itemEsc(slot)}</span>${displayCost && displayCost !== '—' ? `<span>Cost ${itemEsc(displayCost)}</span>` : ''}</span>
             </div>
         </div><div class="row-actions" style="display:flex; gap:5px">${extraBtn}<button class="btn-edit" onclick="openEditor('item',${idx})">Edit</button></div>`;
         container.appendChild(div);
@@ -2190,7 +2329,9 @@ window.renderItems = () => {
 
 
 function populateViewModal(type, item, index = -1) {
-    document.getElementById('viewTitle').textContent = item.name || "Unnamed";
+    const viewTitleEl = document.getElementById('viewTitle');
+    viewTitleEl.className = '';
+    viewTitleEl.textContent = item.name || "Unnamed";
     const body = document.getElementById('viewBody'); body.innerHTML = '';
     document.getElementById('viewModal').style.display = 'flex';
     const add = (l, t) => { if(t !== undefined && t !== null && String(t).trim() !== ''){ body.innerHTML += `<div class="view-label">${l}</div><div class="view-text">${t}</div>`; } };
@@ -2353,15 +2494,24 @@ function populateViewModal(type, item, index = -1) {
     }
 
     if(type === 'item') {
-        if(item.tags) add("Type", item.tags);
-        add("Amount", String(getItemAmount(item)));
-        if(item.cost) add("Cost", item.cost);
-        add("Slot", String(getItemSlot(item)));
-        add("Location", item.equipped ? 'Equipped' : 'Storage');
-        if (Array.isArray(item.details) && item.details.length) {
-            item.details.forEach(d => add(d.label || d.name || 'Detail', d.value ?? d.val ?? ''));
-        }
+        const titleEl = document.getElementById('viewTitle');
+        titleEl.className = 'item-modal-title-row';
+        titleEl.innerHTML = `<span>${itemEsc(item.name || 'Item')}</span>`;
+        const pills = itemSheetPills(item);
+        const desc = itemCleanText(item.desc);
+        const special = itemCleanText(item.special);
+        const sourceUrl = itemCleanText(item.link || item.sourceUrl);
+        body.innerHTML = `<div class="item-view-shell">
+            <div class="price-badge modal-price">${itemEsc(itemDisplayCost(item))}</div>
+            <div class="item-meta modal-meta">${pills.map(p => `<span class="tag-pill ${itemEsc(p.cls)}">${itemEsc(p.text)}</span>`).join('')}</div>
+            ${itemDetailsHtmlForSheet(item)}
+            ${desc ? `<h4>Description</h4><p>${itemEsc(desc)}</p>` : ''}
+            ${special && special !== desc ? `<h4>Special</h4><p>${itemEsc(special)}</p>` : ''}
+            ${sourceUrl ? `<p><a href="${itemEsc(sourceUrl)}" target="_blank" class="source-link">Open Source</a></p>` : ''}
+        </div>`;
+        return;
     }
+    document.getElementById('viewTitle').className = '';
     add("Description", item.desc);
 }
 
@@ -2456,12 +2606,18 @@ function populateEditorModal(type, item, index, col) {
 
     if(type === 'feat') createInput('Link URL', item.link, 'link');
     if(type === 'item') {
-        if(item.tags==='Collections') { modalBody.appendChild(document.createElement('label')).textContent="Tag"; const i=document.createElement('input'); i.value="Collections"; i.disabled=true; modalBody.appendChild(i); if(item.img) createInput('Image URL', item.img, 'img'); }
-        else createSelect('Tag', normalizeItemTagLabel(item.tags), 'tags', ITEM_TAG_OPTIONS);
+        createEditorSection('Inventory');
+        createSelect('Tag', normalizeItemTagLabel(item.tags), 'tags', ITEM_TAG_OPTIONS);
         createInput('Amount', getItemAmount(item), 'amount');
         createInput('Cost', item.cost, 'cost');
         createInput('Slot', getItemSlot(item), 'slot');
         createCheckbox('Equipped', !!item.equipped, 'equipped');
+        createInput('Image URL', item.img, 'img');
+        createInput('Source Link URL', item.link || item.sourceUrl, 'link');
+
+        createEditorSection('Tags / Filters');
+        createInput('All Tags (comma separated)', itemTagListArray(item).join(', '), 'tagList');
+        ITEM_TAG_EDIT_FIELDS.forEach(([label, key]) => createInput(label, item[key], key));
     }
     if(type === 'spell') {
         createEditorSection('Description');
@@ -2511,10 +2667,16 @@ function addAttrRow(c, d, i) {
 
 function updateCurrentItem(k, v) {
     const item = getActiveData()[currentEditContext.col][currentEditContext.index];
-    item[k] = (k === 'tags') ? normalizeItemTagLabel(v) : v;
+    if(k === 'tags') item[k] = normalizeItemTagLabel(v);
+    else if(k === 'tagList') item[k] = updateItemTagListValue(v);
+    else {
+        item[k] = v;
+        if(k === 'link') item.sourceUrl = v;
+        if(k === 'sourceCategory') item.category = v;
+    }
     if(k==='link') { const b=document.getElementById('modalLinkBtn'); b.href=v; b.style.display=v?'inline-block':'none'; }
     if(currentEditContext?.type === 'weapon' && k === 'ability_mod') item.mod = v;
-    if(['name','lvl','tags','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','amount','cost','slot','equipped','img','ability_mod','attack_misc','damage','crit_range','crit_mult','range','ammo','link'].includes(k)) refreshList(currentEditContext.type);
+    if(['name','lvl','tags','tagList','sourceCategory','category','shopGroup','secondaryType','filterTag','proficiency','usageType','tier','sourceSystem','rarity','sourceShopName','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','amount','cost','slot','equipped','img','ability_mod','attack_misc','damage','crit_range','crit_mult','range','ammo','link','sourceUrl'].includes(k)) refreshList(currentEditContext.type);
     saveDataOnly();
 }
 window.closeModal = () => { modal.style.display='none'; refreshList(currentEditContext.type); };
