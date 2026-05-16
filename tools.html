@@ -68,6 +68,50 @@ body.info-admin .info-link-actions{display:flex;}
 @keyframes purchaseToastPop{0%{opacity:0;transform:translateY(18px) scale(.72) rotate(-8deg);filter:blur(2px)}55%{opacity:1;transform:translateY(-6px) scale(1.06) rotate(2deg);filter:blur(0)}100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
 @media(max-width:768px){.compact-item-row .shop-buy-btn{display:none}.shop-price-buy{margin-left:auto}.buy-modal-btn{display:block}.compact-item-row{align-items:flex-start}.compact-price{white-space:normal;text-align:right}}
 
+
+/* --- Admin shop builder scroll + sort/upsert patch --- */
+.admin-builder:not(.collapsed){
+  max-height:calc(100vh - 115px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  padding-right:4px;
+}
+.admin-builder:not(.collapsed) .shop-layout.clean-builder-layout{
+  min-height:0;
+}
+.admin-builder:not(.collapsed) .shop-side,
+.admin-builder:not(.collapsed) .shop-main{
+  max-height:calc(100vh - 270px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+.builder-sort-wrap{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.builder-sort-wrap label{
+  color:#aaa;
+  font-size:11px;
+  font-weight:bold;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.builder-sort-wrap select{
+  min-width:150px;
+}
+@media(max-width:768px){
+  .admin-builder:not(.collapsed){
+    max-height:calc(100vh - 95px);
+  }
+  .admin-builder:not(.collapsed) .shop-side,
+  .admin-builder:not(.collapsed) .shop-main{
+    max-height:none;
+    overflow:visible;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -91,13 +135,13 @@ body.info-admin .info-link-actions{display:flex;}
       <button id="builderToggleBtn" class="shop-btn" type="button" onclick="toggleAdminBuilder()">Show Shop Builder</button>
     </div>
     <div id="adminBuilderBody" class="admin-builder collapsed">
-      <div class="upload-box"><strong>Master Database Reset / Import</strong><div class="shop-note">Step 1 can clear the Firestore <code>shopItems</code> master database. Step 2 replaces it with the selected <code>items.json</code>. Character sheets, gil, inventory, calendar events, and information links are not deleted.</div><div class="builder-row" style="margin-top:8px"><input type="file" id="shopImportFile" accept=".json,application/json" class="shop-input"><button type="button" class="shop-btn danger" onclick="clearMasterItemsOnly()">Step 1: Clear Master Items</button><button type="button" class="shop-btn" onclick="importShopJson()">Step 2: Replace JSON</button><button type="button" class="shop-btn secondary" onclick="importBundledJson()">Replace Bundled JSON</button></div><div id="importResult" class="shop-note"></div><div id="adminIdentityStatus" class="shop-note"></div></div>
+      <div class="upload-box"><strong>Master Database Update / Import</strong><div class="shop-note">Import adds new item IDs and updates matching existing IDs. It does <strong>not</strong> delete master items that are missing from the JSON. If a row includes <code>oldId</code>, <code>previousId</code>, or <code>legacyId</code>, the importer can migrate that old document to the new ID. Character sheets, gil, inventory, calendar events, and information links are not deleted.</div><div class="builder-row" style="margin-top:8px"><input type="file" id="shopImportFile" accept=".json,application/json" class="shop-input"><button type="button" class="shop-btn" onclick="importShopJson()">Import / Update JSON</button><button type="button" class="shop-btn secondary" onclick="importBundledJson()">Import / Update Bundled JSON</button><button type="button" class="shop-btn danger" onclick="clearMasterItemsOnly()">Optional: Clear Master Items</button></div><div id="importResult" class="shop-note"></div><div id="adminIdentityStatus" class="shop-note"></div></div>
       <div id="editShopNotice" class="edit-notice hidden"></div>
       <div class="builder-row"><div class="field"><label>Shop Name / Access Tag</label><input id="shopNameInput" class="shop-input" placeholder="Black Market, Potion Shop, Starter Gear"></div><div class="field"><label>Duration</label><select id="shopDurationInput" class="shop-select"><option value="1d">1 day</option><option value="1w">1 week</option><option value="2w">2 weeks</option><option value="1m">1 month</option><option value="2m">2 months</option><option value="forever">Forever</option></select></div><button id="saveShopBtn" type="button" class="shop-btn" onclick="saveShopSession()">Create Link</button><button type="button" class="shop-btn secondary" onclick="cancelEditShop()">Cancel Edit</button><button type="button" class="shop-btn secondary" onclick="clearSelection()">Clear Selected</button></div>
       <div id="shopTagPreview" class="shop-note"></div><div id="createdShopLink" class="copy-output"></div>
       <div class="shop-layout clean-builder-layout">
         <aside class="shop-side"><h3>Categories</h3><div id="categoryNav"></div><div class="filter-box"><div class="filter-group-title">Active Filters</div><div id="activeFilterPills" class="tag-row"></div><button class="shop-btn secondary small" style="margin-top:8px" onclick="clearAllFilters()">Clear Filters</button></div></aside>
-        <main class="shop-main"><h3 id="builderTitle">Gear</h3><div class="filter-box"><div class="builder-row"><div class="field"><label>Search Items</label><input id="itemSearchInput" class="shop-input" placeholder="Search name, desc, special..." oninput="renderBuilderItems()"></div></div><div id="filterGroups" class="filter-groups"></div></div><div class="item-toolbar"><div id="builderCount" class="shop-note">Loading...</div><div><button class="shop-btn secondary small" onclick="selectVisibleItems()">Select Visible</button><button class="shop-btn secondary small" onclick="unselectVisibleItems()">Unselect Visible</button></div></div><div id="builderItemList" class="compact-list"></div></main>
+        <main class="shop-main"><h3 id="builderTitle">Gear</h3><div class="filter-box"><div class="builder-row"><div class="field"><label>Search Items</label><input id="itemSearchInput" class="shop-input" placeholder="Search name, desc, special..." oninput="renderBuilderItems()"></div></div><div id="filterGroups" class="filter-groups"></div></div><div class="item-toolbar"><div id="builderCount" class="shop-note">Loading...</div><div class="builder-sort-wrap"><label for="builderSortInput">Sort</label><select id="builderSortInput" class="shop-select" onchange="setBuilderSort(this.value)"><option value="nameAsc">Name A-Z</option><option value="gilAsc">Gil Low-High</option><option value="gilDesc">Gil High-Low</option></select><button class="shop-btn secondary small" onclick="selectVisibleItems()">Select Visible</button><button class="shop-btn secondary small" onclick="unselectVisibleItems()">Unselect Visible</button></div></div><div id="builderItemList" class="compact-list"></div></main>
       </div>
     </div>
   </div>
@@ -147,7 +191,7 @@ const DETAIL_FIELDS_BY_CATEGORY={
   "Magic Items":[["Slot amount",["slotAmount","slot amount","slot_amount","slotsUsed","slots_used","slot"]],["CL",["cl","casterLevel","caster level"]]],
   "Food":[["Slot amount",["slotAmount","slot amount","slot_amount","slotsUsed","slots_used","slot"]]]
 };
-let isAdmin=false,currentUser=null,allShopItems=[],allShopItemsById=new Map(),allShops=[],userCharacters=[],selectedCharacterId=null,selectedCategory="Gear",selectedItemIds=new Set(),activeFilters={},visibleBuilderIds=[],editingShopId=null,viewFilters={},openCategoryState={};
+let isAdmin=false,currentUser=null,allShopItems=[],allShopItemsById=new Map(),allShops=[],userCharacters=[],selectedCharacterId=null,selectedCategory="Gear",selectedItemIds=new Set(),activeFilters={},visibleBuilderIds=[],editingShopId=null,viewFilters={},openCategoryState={},builderSort="nameAsc";
 const modal=document.getElementById('customModal'), modalTitle=document.getElementById('modalTitle'), modalMsg=document.getElementById('modalMsg'), modalYes=document.getElementById('modalYesBtn'), modalNo=document.getElementById('modalNoBtn');
 function clearModalExtras(){modal.querySelectorAll('.purchase-qty-input,.modal-extra-note').forEach(el=>el.remove());}
 function resetModalButtons(){modalYes.style.display='';modalYes.textContent='Yes';modalNo.textContent='No';modalNo.style.width='';}
@@ -285,7 +329,14 @@ window.toggleFilter=(field,value)=>{if(!activeFilters[field])activeFilters[field
 window.clearAllFilters=()=>{activeFilters={}; const s=document.getElementById('itemSearchInput'); if(s)s.value=''; renderFilterGroups(); renderBuilderItems();};
 function updateActiveFilterPills(){const out=document.getElementById('activeFilterPills'); if(!out)return; const pills=[]; for(const [field,set] of Object.entries(activeFilters)){for(const v of set)pills.push(`<span class="tag-pill info">${esc(FILTER_LABELS[field]||field)}: ${esc(v)}</span>`);} out.innerHTML=pills.join('')||'<span class="shop-note">None</span>';}
 function itemMatchesFilters(item){if(item.category!==selectedCategory)return false; for(const [field,set] of Object.entries(activeFilters)){if(set.size&&!set.has(itemFilterValue(item,field)))return false;} const search=String(document.getElementById('itemSearchInput')?.value||'').trim().toLowerCase(); if(search){const blob=[item.name,item.desc,item.special,item.type,item.secondaryType,item.filterTag,item.slot,item.rarity,item.sourceSystem,item.proficiency,item.usageType,item.tier,item.category,item.shopGroup,item.sourceUrl,item.id].join(' ').toLowerCase(); if(!blob.includes(search))return false;} return true;}
-function renderBuilderItems(){const list=document.getElementById('builderItemList'); if(!list)return; const items=allShopItems.filter(itemMatchesFilters); visibleBuilderIds=items.map(i=>i.id); const count=document.getElementById('builderCount'); if(count)count.textContent=`${items.length.toLocaleString()} visible • ${selectedItemIds.size.toLocaleString()} selected • ${allShopItems.length.toLocaleString()} master`; if(!items.length){list.innerHTML=`<div class="empty-msg">No items match this category/filter.<br><br><strong>Loaded category counts:</strong><br>${esc(categoryDebugText())}</div>`;return;} list.innerHTML=items.slice(0,600).map(renderBuilderItemRow).join('')+(items.length>600?'<div class="empty-msg">Showing first 600. Use filters/search to narrow more.</div>':'');}
+function compareBuilderItems(a,b){
+  if(builderSort==='gilAsc')return getPrice(a)-getPrice(b)||String(a.name||'').localeCompare(String(b.name||''),undefined,{sensitivity:'base'});
+  if(builderSort==='gilDesc')return getPrice(b)-getPrice(a)||String(a.name||'').localeCompare(String(b.name||''),undefined,{sensitivity:'base'});
+  return String(a.name||'').localeCompare(String(b.name||''),undefined,{sensitivity:'base'})||getPrice(a)-getPrice(b);
+}
+window.setBuilderSort=(value)=>{builderSort=value||'nameAsc';renderBuilderItems();};
+function syncBuilderSortControl(){const sortEl=document.getElementById('builderSortInput'); if(sortEl&&sortEl.value!==builderSort)sortEl.value=builderSort;}
+function renderBuilderItems(){const list=document.getElementById('builderItemList'); if(!list)return; syncBuilderSortControl(); const items=allShopItems.filter(itemMatchesFilters).sort(compareBuilderItems); visibleBuilderIds=items.map(i=>i.id); const count=document.getElementById('builderCount'); if(count)count.textContent=`${items.length.toLocaleString()} visible • ${selectedItemIds.size.toLocaleString()} selected • ${allShopItems.length.toLocaleString()} master`; if(!items.length){list.innerHTML=`<div class="empty-msg">No items match this category/filter.<br><br><strong>Loaded category counts:</strong><br>${esc(categoryDebugText())}</div>`;return;} list.innerHTML=items.slice(0,600).map(renderBuilderItemRow).join('')+(items.length>600?'<div class="empty-msg">Showing first 600. Use filters/search to narrow more.</div>':'');}
 function renderBuilderItemRow(item){const checked=selectedItemIds.has(item.id); return `<div class="compact-item-row builder-row-item ${checked?'selected':''}"><label><input type="checkbox" ${checked?'checked':''} onchange="toggleItemSelect('${item.id}',this.checked)"><button type="button" class="item-name-link" onclick="event.preventDefault();openItemModal('${item.id}')">${esc(item.name)}</button></label><span class="compact-price">${esc(getDisplayCost(item))}</span></div>`;}
 window.toggleItemSelect=(id,checked)=>{checked?selectedItemIds.add(id):selectedItemIds.delete(id); renderBuilderItems();};
 window.selectVisibleItems=()=>{visibleBuilderIds.forEach(id=>selectedItemIds.add(id)); renderBuilderItems();};
@@ -321,34 +372,53 @@ async function deleteAllDocsInCollection(colName,statusPrefix='Clearing'){
   if(batchState.count>0)await batchState.batch.commit();
   return deleted;
 }
-window.clearMasterItemsOnly=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); showConfirm('Clear Master Items','This deletes every document in Firestore shopItems only. It does not delete characters, gil, inventories, calendar events, or information links. Continue?',async()=>{try{const deleted=await deleteAllDocsInCollection('shopItems','Clearing'); allShopItems=[]; allShopItemsById=new Map(); selectedItemIds.clear(); document.getElementById('importResult').textContent=`Cleared master item database: ${deleted.toLocaleString()} item(s) removed. Now use Step 2: Replace JSON.`; await loadShopData();}catch(e){console.error(e);showAlert('Clear Failed',e.message||String(e));}});};
-async function replaceShopItemsFromJson(items,label){
+window.clearMasterItemsOnly=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); showConfirm('Clear Master Items','This deletes every document in Firestore shopItems only. It does not delete characters, gil, inventories, calendar events, or information links. Continue?',async()=>{try{const deleted=await deleteAllDocsInCollection('shopItems','Clearing'); allShopItems=[]; allShopItemsById=new Map(); selectedItemIds.clear(); document.getElementById('importResult').textContent=`Cleared master item database: ${deleted.toLocaleString()} item(s) removed. You can now import/update JSON if you want a fresh master set.`; await loadShopData();}catch(e){console.error(e);showAlert('Clear Failed',e.message||String(e));}});};
+function importAliasValue(raw,keys){
+  for(const key of keys){
+    const v=lookupField(raw,[key]);
+    if(String(v??'').trim())return String(v).trim();
+  }
+  return '';
+}
+function importCandidateIds(raw,item){
+  const keys=['id','itemId','itemID','newId','newID','oldId','oldID','previousId','previousID','legacyId','legacyID','originalId','originalID','sourceItemId','source_item_id'];
+  return keys.map(k=>importAliasValue(raw,[k])).concat(keys.map(k=>importAliasValue(raw?.raw||{},[k]))).map(v=>String(v||'').trim()).filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i);
+}
+async function upsertShopItemsFromJson(items,label){
   const normalized=[];
-  const ids=new Set();
   const existingById=new Map(allShopItems.map(i=>[String(i.id||'').trim(),i]));
   for(const raw of items){
     let item=normalizeImportedItem(raw);
-    item=applyPreservedProficiency(item, existingById.get(String(item.id||'').trim()));
+    const matchIds=importCandidateIds(raw,item);
+    const matchedExisting=matchIds.map(id=>existingById.get(id)).find(Boolean)||existingById.get(String(item.id||'').trim());
+    item=applyPreservedProficiency(item,matchedExisting);
     if(!item.id)continue;
-    normalized.push(item);
-    ids.add(item.id);
+    normalized.push({item,matchIds});
   }
   if(!normalized.length)throw new Error('No items found in JSON.');
-  document.getElementById('importResult').textContent='Clearing old master items...';
-  const deleted=await deleteAllDocsInCollection('shopItems','Clearing old master items');
   const batchState={batch:writeBatch(db),count:0};
-  let saved=0;
-  for(const item of normalized){
-    await commitShopItemBatch(batchState,b=>b.set(doc(db,'shopItems',item.id),item));
+  let saved=0,migrated=0;
+  const migratedOldIds=new Set();
+  for(const row of normalized){
+    const {item,matchIds}=row;
+    const finalId=String(item.id||'').trim();
+    await commitShopItemBatch(batchState,b=>b.set(doc(db,'shopItems',finalId),item));
+    for(const oldId of matchIds){
+      if(oldId&&oldId!==finalId&&existingById.has(oldId)&&!migratedOldIds.has(oldId)){
+        await commitShopItemBatch(batchState,b=>b.delete(doc(db,'shopItems',oldId)));
+        migratedOldIds.add(oldId);
+        migrated++;
+      }
+    }
     saved++;
-    if(saved%250===0)document.getElementById('importResult').textContent=`Importing ${label}: ${saved.toLocaleString()} / ${normalized.length.toLocaleString()} saved...`;
+    if(saved%250===0)document.getElementById('importResult').textContent=`Importing ${label}: ${saved.toLocaleString()} / ${normalized.length.toLocaleString()} updated...`;
   }
   if(batchState.count>0)await batchState.batch.commit();
-  document.getElementById('importResult').textContent=`Replaced master items from ${label}: ${saved.toLocaleString()} saved, ${deleted.toLocaleString()} old removed. Secondary Type and category filters are now rebuilt from the imported JSON.`;
+  document.getElementById('importResult').textContent=`Imported/updated ${label}: ${saved.toLocaleString()} item(s) upserted. ${migrated.toLocaleString()} old ID document(s) migrated. Missing JSON IDs were left alone.`;
   await loadShopData();
 }
-window.importShopJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); const file=document.getElementById('shopImportFile').files[0]; if(!file)return showAlert('Missing File','Choose items.json first.'); showConfirm('Replace Master Items','This will first clear Firestore shopItems, then import the selected JSON as the new master item database. Existing shop links stay, but removed item IDs will no longer display. Continue?',async()=>{try{const data=JSON.parse(await file.text()); const items=Array.isArray(data)?data:(data.items||data.shopItems||[]); await replaceShopItemsFromJson(items,file.name||'uploaded JSON');}catch(e){console.error(e);showAlert('Import Failed',e.message||String(e));}});};
-window.importBundledJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); showConfirm('Replace Master Items','This will first clear Firestore shopItems, then import the bundled items.json from the site/repo as the new master database. Continue?',async()=>{try{const items=await loadStaticItems(); if(!items.length)return showAlert('No Bundled JSON','Upload data/items.json or use the file picker.'); await replaceShopItemsFromJson(items,'bundled JSON');}catch(e){console.error(e);showAlert('Import Failed',e.message||String(e));}});};
+window.importShopJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); const file=document.getElementById('shopImportFile').files[0]; if(!file)return showAlert('Missing File','Choose items.json first.'); showConfirm('Import / Update Master Items','This will add new item IDs and update matching existing IDs. It will not delete master items that are missing from the JSON. If an item includes oldId, previousId, or legacyId, that old document can be migrated to the new ID. Continue?',async()=>{try{const data=JSON.parse(await file.text()); const items=Array.isArray(data)?data:(data.items||data.shopItems||[]); await upsertShopItemsFromJson(items,file.name||'uploaded JSON');}catch(e){console.error(e);showAlert('Import Failed',e.message||String(e));}});};
+window.importBundledJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); showConfirm('Import / Update Master Items','This will add new bundled item IDs and update matching existing IDs. It will not delete master items that are missing from the bundled JSON. Continue?',async()=>{try{const items=await loadStaticItems(); if(!items.length)return showAlert('No Bundled JSON','Upload data/items.json or use the file picker.'); await upsertShopItemsFromJson(items,'bundled JSON');}catch(e){console.error(e);showAlert('Import Failed',e.message||String(e));}});};
 
 
 // --- Information Links patch ---
