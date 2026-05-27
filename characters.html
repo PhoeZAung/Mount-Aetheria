@@ -99,7 +99,7 @@ textarea { resize: none; overflow-y: hidden; min-height: 80px; }
 
 .row-content.active-ability-layout { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; }
 .active-name { font-weight: bold; color: var(--accent); flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.active-type { color: #888; font-size: 12px; margin-right: 10px; white-space: nowrap; }
+.active-type { color: #e4e4e4; font-size: 12px; font-weight: 800; margin-right: 10px; white-space: nowrap; letter-spacing: .02em; }
 
 .list-row-title { font-weight: bold; color: var(--accent); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width:0; flex:1; }
 .list-row-meta { color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -694,16 +694,6 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 .chat-view-btn{background:#171717;border:1px solid #343434;color:#dadada;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;}
 .chat-view-btn.active{background:var(--accent);color:#000;border-color:var(--accent);}
 .floating-panel-open{pointer-events:auto;}
-.character-quick-panel{position:fixed;left:24px;top:84px;width:min(340px,calc(100vw - 24px));max-height:min(72vh,520px);background:#111;border:1px solid rgba(255,204,102,.75);border-radius:18px;box-shadow:0 18px 40px rgba(0,0,0,.46);z-index:5200;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateY(20px);transition:opacity .22s ease,transform .22s ease;overflow:hidden;}
-.character-quick-panel.open{transform:translateY(0);opacity:1;pointer-events:auto;}
-.character-quick-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:#0a0a0a;border-bottom:1px solid #2f2f2f;cursor:move;user-select:none;}
-.character-quick-header h3{margin:0;font-size:16px;color:var(--accent);}
-.character-quick-body{padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,#111 0%,#101010 100%);}
-.character-quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.character-quick-card{background:#171717;border:1px solid #2f2f2f;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:5px;}
-.character-quick-card.full{grid-column:1 / -1;}
-.character-quick-card small{font-size:11px;color:#8d8d8d;text-transform:uppercase;letter-spacing:.04em;}
-.character-quick-card span{font-size:14px;color:#fff;word-break:break-word;}
 .local-chat-header{cursor:move;user-select:none;}
 .local-chat-header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
 .local-chat-panel{left:24px;top:146px;right:auto;bottom:auto;max-height:min(72vh,560px);}
@@ -729,10 +719,6 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 /* --- Roll Overlay Toggle Patch --- */
 .chat-view-toggle { display:none !important; }
 .local-chat-target option:disabled { color:#777; background:#202020; }
-.roll-toggle-btn { transition: background .18s ease, border-color .18s ease, color .18s ease, transform .12s ease; }
-.roll-toggle-btn:hover { transform: translateY(-1px); }
-.roll-toggle-btn.roll-toggle-off { background:#5c1717 !important; border-color:#b84444 !important; color:#fff !important; }
-.roll-toggle-btn.roll-toggle-on { background:#176b33 !important; border-color:#42d06f !important; color:#fff !important; }
 .roll-result-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:6800; opacity:0; transform:scale(.92); transition:opacity .18s ease, transform .18s ease; }
 .roll-result-overlay.show { opacity:1; transform:scale(1); }
 .roll-overlay-card { display:flex; flex-direction:column; align-items:center; gap:12px; padding:18px 20px; border-radius:24px; background:rgba(8,8,8,.72); border:1px solid rgba(255,204,102,.85); box-shadow:0 22px 55px rgba(0,0,0,.5), 0 0 34px rgba(255,204,102,.18); animation: rollOverlayPop .75s cubic-bezier(.2,.85,.2,1); }
@@ -763,6 +749,19 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
   .roll-dice-pip.p4 { right:18px; bottom:18px; }
 }
 
+
+
+/* --- Spell tab visibility toggle --- */
+.spell-tab-control{display:inline-flex;align-items:center;gap:4px;}
+.spell-collapse-toggle{
+  display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;
+  border-radius:999px;border:1px solid #555;background:#191919;color:var(--accent);
+  cursor:pointer;font-size:15px;font-weight:900;line-height:1;transition:background .18s ease,color .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.spell-collapse-toggle:hover,.spell-collapse-toggle:focus-visible{background:var(--accent);color:#000;border-color:var(--accent);box-shadow:0 0 10px rgba(255,204,102,.38);outline:none;}
+.spell-tab-control.spells-collapsed #spellsSubBtn{display:none !important;}
+.spell-tab-control.spells-collapsed .spell-collapse-toggle{border-color:var(--accent);}
+
 </style>
 
 <style>
@@ -771,6 +770,225 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 #simpleConfirmModal .confirm-actions { display:flex; gap:10px; justify-content:flex-end; padding:15px; border-top:1px solid #333; background:#1a1a1a; border-radius:0 0 8px 8px; }
 #simpleConfirmCancel { background:#333; color:#fff; border:1px solid #555; padding:10px 14px; border-radius:6px; cursor:pointer; font-weight:bold; }
 #simpleConfirmOk { background:#ff4444; color:#fff; border:none; padding:10px 14px; border-radius:6px; cursor:pointer; font-weight:bold; }</style>
+
+
+<style>
+/* --- Combat clarity redesign: compact vitals, tall four-column general cards --- */
+.combat-general-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;}
+.combat-general-title h2{margin:0;text-align:left;}
+.combat-general-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+.combat-edit-toggle,.long-rest-btn{font-size:13px;padding:9px 14px;border-radius:999px;}
+.long-rest-btn{background:#1b2440;color:#d9e5ff;border:1px solid #5e75bf;font-weight:bold;cursor:pointer;transition:box-shadow .18s ease,transform .18s ease,background .18s ease;}
+.long-rest-btn:hover{background:#29355a;box-shadow:0 0 14px rgba(125,159,255,.32);transform:translateY(-1px);}
+.character-level-row{max-width:230px;margin:18px auto 14px;padding:10px 12px;background:var(--panel);border:1px solid var(--border);border-radius:10px;}
+.character-level-row label{text-align:center;color:var(--accent);font-size:13px;}
+.character-level-row select{text-align:center;text-align-last:center;font-weight:bold;margin-top:5px;}
+.vital-showcase{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:12px;max-width:590px;margin:0 auto 18px;}
+.vital-card{position:relative;display:flex;align-items:center;gap:11px;min-height:126px;padding:13px 12px;background:#161616;border:1px solid #343434;border-radius:18px;box-shadow:0 8px 20px rgba(0,0,0,.24);}
+.vital-card.vital-heart{border-color:#552b31;box-shadow:0 8px 20px rgba(0,0,0,.24),0 0 15px rgba(216,50,67,.14);}
+.vital-card.vital-drop{border-color:#23435f;box-shadow:0 8px 20px rgba(0,0,0,.24),0 0 15px rgba(44,143,219,.14);}
+.vital-icon{font-size:46px;line-height:1;flex:0 0 48px;text-align:center;animation:vitalPulse 2.2s ease-in-out infinite;}
+.vital-heart .vital-icon{filter:drop-shadow(0 0 9px rgba(255,45,65,.55));}
+.vital-drop .vital-icon{filter:drop-shadow(0 0 9px rgba(67,168,255,.58));}
+.vital-content{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1;}
+.vital-title{font-family:'Uncial Antiqua',serif;font-size:18px;font-weight:bold;letter-spacing:.08em;color:var(--accent);}
+.vital-number-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;width:100%;}
+.vital-number-grid label{display:flex;flex-direction:column;gap:4px;align-items:center;color:#ddd;}
+.vital-number-grid small{font-size:9px;text-transform:uppercase;letter-spacing:.06em;}
+.vital-number-grid input{height:34px;padding:4px 2px;text-align:center;font-size:15px;font-weight:800;background:#0b0b0b;border:1px solid #3e3e3e;color:#fff;border-radius:8px;}
+.vital-number-grid .readonly-yellow{background:#0d0d0d !important;color:var(--accent) !important;}
+.vital-edit{position:absolute;right:8px;top:8px;z-index:2;width:28px;height:28px;font-size:13px;}
+.combat-card-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:start;margin:0 0 16px;}
+.combat-info-card{min-width:0;background:#1b1b1b;border:1px solid #3a3a3a;border-radius:14px;overflow:hidden;box-shadow:0 7px 18px rgba(0,0,0,.26);}
+.combat-info-card-head{min-height:54px;background:#111;border-bottom:1px solid #333;padding:10px 9px;display:flex;align-items:center;justify-content:space-between;gap:5px;}
+.combat-info-card-head h3{font-size:14px;margin:0;text-align:left;line-height:1.2;font-weight:900;color:#f2f2f2;}
+.combat-metric-grid{display:flex;flex-direction:column;gap:7px;padding:9px;}
+.saves-metrics .combat-metric:last-child{grid-column:auto;}
+.combat-metric{background:#222;border:1px solid #333;border-radius:10px;min-height:52px;padding:8px 7px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;}
+.metric-label,.combat-roll-name{font-size:11px;text-transform:uppercase;letter-spacing:.045em;font-weight:900;color:#f2f2f2;line-height:1.25;}
+.combat-metric strong{color:var(--accent);font-size:18px;line-height:1;text-align:left;}
+.combat-roll-name{background:transparent;border:0;padding:3px 0;cursor:pointer;text-align:left;transition:color .18s ease,text-shadow .18s ease,transform .18s ease;}
+.combat-roll-name:hover,.combat-roll-name:focus-visible{color:var(--accent);text-shadow:0 0 8px rgba(255,204,102,.9),0 0 18px rgba(255,204,102,.58);transform:translateY(-1px);outline:none;}
+.combat-hidden-state{display:none !important;}
+.combat-actions-only{justify-content:flex-end;margin-bottom:10px;}
+.base-long-rest{width:100%;display:flex;align-items:center;justify-content:center;margin-top:2px;padding:9px 8px;font-size:12px;}
+#mobileHeartBtn,#heartCloseBtn{display:none !important;}
+.active-title-actions{display:flex;align-items:center;gap:8px;min-width:0;flex:1;}
+.active-use-btn{flex-shrink:0;border-radius:999px;padding:4px 10px;font-size:11px;font-weight:900;cursor:pointer;transition:background .18s ease,box-shadow .18s ease,border-color .18s ease;color:#f4fff6;}
+.active-use-btn.use-ready{background:#176b33;border:1px solid #42d06f;}
+.active-use-btn.use-ready:hover{background:#228444;box-shadow:0 0 11px rgba(66,208,111,.4);}
+.active-use-btn.use-empty,.active-use-btn:disabled{background:#5c1717;border:1px solid #b84444;color:#fff;opacity:1;cursor:not-allowed;box-shadow:none;}
+.limit-break-row{transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;}
+.limit-break-row.limit-break-ready{border-color:#2e9f52 !important;box-shadow:0 0 0 1px rgba(46,159,82,.24),0 0 18px rgba(46,159,82,.22);}
+.limit-break-row.limit-break-ready .active-name{color:#61ff96 !important;text-shadow:0 0 9px rgba(97,255,150,.42);}
+.limit-break-row.limit-break-locked{border-color:#8d3434 !important;box-shadow:0 0 0 1px rgba(184,68,68,.18);}
+.limit-break-row.limit-break-locked .active-name{color:#ff7474 !important;text-shadow:0 0 8px rgba(255,116,116,.2);}
+
+.active-chat-action{color:var(--accent);}
+.inline-input-group .max-use-static{min-width:32px;height:28px;padding:5px 7px;text-align:center;background:#171717;border:1px solid #3c3c3c;border-radius:4px;font-size:13px;color:#aaa;font-weight:bold;}
+.inline-input-group .uses-caption{color:#858585;font-size:10px;margin-right:3px;text-transform:uppercase;letter-spacing:.04em;}
+@keyframes vitalPulse{0%,100%{transform:scale(.98);filter:brightness(.98);}50%{transform:scale(1.075);filter:brightness(1.14);}}
+@media(max-width:700px){
+  .combat-general-title{align-items:flex-start;}
+  .combat-general-actions{justify-content:flex-end;}
+  .vital-showcase{grid-template-columns:1fr;max-width:380px;}
+  .combat-card-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:410px){
+  .combat-general-title{flex-direction:column;}
+  .combat-card-grid{grid-template-columns:1fr;}
+  .vital-card{min-height:120px;}
+}
+
+/* --- v3 placement and label refinements --- */
+.bio-item #size_category{font-weight:800;text-align:left;}
+.skills-view-toolbar{margin-bottom:7px !important;}
+.skills-view-toolbar .skills-mode-btn{margin-left:auto;}
+.base-metrics .base-long-rest{order:-1;margin-bottom:1px;}
+</style>
+
+
+<style>
+/* --- Skills compact/base + dedicated edit mode --- */
+.skills-view-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;}
+.skills-view-toolbar h2{margin:0;text-align:left;}
+.skills-mode-btn{width:auto;background:#292929;color:var(--accent);border:1px solid #555;border-radius:999px;padding:8px 13px;font-weight:800;cursor:pointer;white-space:nowrap;}
+.skills-mode-btn:hover{background:var(--accent);border-color:var(--accent);color:#000;}
+.skills-base-footer{display:flex;justify-content:flex-end;margin-top:10px;}
+body.skill-edit-mode .skills-base-footer{display:none;}
+.skills-editor-toolbar{display:none;align-items:center;justify-content:space-between;gap:10px;background:#181818;border:1px solid #3b3b3b;border-radius:12px;padding:10px 12px;margin:0 0 12px;}
+.skill-points-wrap{display:flex;align-items:center;gap:9px;font-weight:800;color:var(--accent);}
+.skill-points-wrap input{width:58px;text-align:center;color:var(--accent);font-weight:800;background:#0e0e0e;}
+.skill-points-wrap input[readonly]{background:#171717;color:#9a9a9a;border-color:#333;}
+.skill-points-edit-btn{width:30px;height:30px;padding:0;border-radius:999px;border:1px solid #555;background:#292929;color:var(--accent);font-weight:900;cursor:pointer;}
+.skill-points-edit-btn:hover,.skill-points-edit-btn.unlocked{background:var(--accent);border-color:var(--accent);color:#000;}
+body.skill-edit-mode .skills-view-toolbar{display:none;}
+body.skill-edit-mode .skills-editor-toolbar{display:flex;}
+body:not(.skill-edit-mode) .skills-container{background:transparent;border-radius:0;overflow:visible;}
+body:not(.skill-edit-mode) #skillsTable{border-collapse:separate !important;border-spacing:0 3px;font-size:13px !important;}
+body:not(.skill-edit-mode) #skillsTable thead{display:none !important;}
+body:not(.skill-edit-mode) #skillsTableBody tr{display:grid !important;grid-template-columns:minmax(0,1fr) auto;align-items:center;min-height:34px;background:var(--panel);border:1px solid var(--border);border-radius:8px;margin:0;padding:0;}
+body:not(.skill-edit-mode) #skillsTableBody td{display:none !important;border:0 !important;}
+body:not(.skill-edit-mode) #skillsTableBody td:nth-child(2){display:block !important;text-align:left !important;padding:5px 9px !important;min-width:0;font-weight:900 !important;}
+body:not(.skill-edit-mode) #skillsTableBody td:nth-child(6){display:flex !important;align-items:center;justify-content:flex-end;min-width:48px;padding:5px 9px 5px 5px !important;color:var(--accent);font-size:14px;font-weight:900;}
+body:not(.skill-edit-mode) .skill-stat-tag{display:inline;font-size:11px;color:#9a9a9a;font-weight:800;margin-left:4px;text-transform:uppercase;}
+body:not(.skill-edit-mode) .skill-custom-input{pointer-events:none;border:0;background:transparent;padding:0;margin-left:4px;width:auto;max-width:145px;color:#ddd;font-weight:800;}
+body:not(.skill-edit-mode) .skill-name-cell.rollable{color:#f2f2f2;font-weight:900 !important;transition:color .18s ease,text-shadow .18s ease;}
+body:not(.skill-edit-mode) .skill-name-cell.rollable:hover,
+body:not(.skill-edit-mode) .skill-name-cell.rollable:focus-within{color:var(--accent);text-shadow:0 0 8px rgba(255,204,102,.9),0 0 18px rgba(255,204,102,.58);}
+body:not(.skill-edit-mode) .skill-name-cell.skill-roll-disabled{cursor:not-allowed !important;text-shadow:none !important;}
+body:not(.skill-edit-mode) .skill-name-cell.skill-roll-disabled.trained-untrained{color:#ff4444 !important;}
+body:not(.skill-edit-mode) .skill-name-cell.skill-roll-disabled.trained-untrained:hover{color:#ff4444 !important;text-shadow:none !important;}
+body.skill-edit-mode .skills-container{overflow-x:auto;}
+body.skill-edit-mode #skillsTable{min-width:510px;}
+body.skill-edit-mode #skillsTable .skill-stat-tag{color:#888;font-weight:normal;}
+@media(max-width:600px){
+  body:not(.skill-edit-mode) #mobileSkillHeader{display:none !important;}
+  body:not(.skill-edit-mode) #skillsTableBody tr{margin-bottom:0 !important;padding:0 !important;}
+  body:not(.skill-edit-mode) #skillsTableBody td:nth-child(2){flex-basis:auto !important;font-size:13px !important;}
+  body:not(.skill-edit-mode) #skillsTableBody td:nth-child(6){flex-basis:auto !important;font-size:14px !important;}
+  body.skill-edit-mode #mobileSkillHeader{display:none !important;}
+  body.skill-edit-mode #skillsTable thead{display:table-header-group !important;}
+  body.skill-edit-mode #skillsTable tr{display:table-row !important;background:var(--panel) !important;border:0 !important;margin:0 !important;padding:0 !important;}
+  body.skill-edit-mode #skillsTable td{display:table-cell !important;border-bottom:1px solid var(--border) !important;padding:8px 5px !important;}
+  body.skill-edit-mode #skillsTable td:nth-child(2){font-size:13px !important;text-align:left !important;}
+}
+</style>
+
+
+<style>
+/* --- v8 roll hover glow refinement --- */
+#character .ability-roll-link{
+  color:#f5f5f5 !important;
+  cursor:pointer;
+  transition:color .18s ease, text-shadow .18s ease, transform .18s ease;
+}
+#character .ability-roll-link:hover,
+#character .ability-roll-link:focus-visible{
+  color:var(--accent) !important;
+  text-shadow:0 0 8px rgba(255,204,102,.9),0 0 18px rgba(255,204,102,.58);
+  transform:translateY(-1px);
+  outline:none;
+}
+</style>
+
+<style>
+/* --- Character Shops Tab (embedded tools shop engine) --- */
+#shops.shops-tab-panel{max-width:1180px;padding:10px 8px 16px;overflow:hidden;}
+.shop-embed-frame{display:block;width:100%;height:calc(100vh - 154px);min-height:620px;border:1px solid rgba(255,204,102,.62);border-radius:14px;background:#1a1a1a;}
+@media(max-width:700px){#shops.shops-tab-panel{padding:6px 0 10px;}.shop-embed-frame{height:calc(100vh - 148px);min-height:540px;border-radius:10px;}}
+</style>
+<style>
+
+/* --- Other tab: Calendar, Notes, Shop --- */
+.other-tab-panel{max-width:1180px;}
+.other-sub-tabs{display:flex;gap:8px;justify-content:center;margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.other-sub-btn{background:#222;border:1px solid #444;color:#ddd;border-radius:999px;padding:9px 18px;cursor:pointer;font-weight:800;font-family:'Uncial Antiqua',serif;}
+.other-sub-btn.active,.other-sub-btn:hover{background:var(--accent);border-color:var(--accent);color:#000;}
+.other-sub-panel{display:none;}
+.other-sub-panel.active{display:block;animation:fade .2s;}
+.fantasy-calendar-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin:2px 0 12px;}
+.fantasy-calendar-head h2{margin:0;text-align:left;}
+.calendar-current-pill{background:#141414;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:8px 13px;font-weight:800;font-size:13px;}
+.calendar-group-tabs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+.calendar-group-btn{background:#222;border:1px solid #444;color:#ddd;border-radius:999px;padding:6px 12px;cursor:pointer;font-weight:700;}
+.calendar-group-btn.active{background:var(--accent);border-color:var(--accent);color:#000;}
+.calendar-status{background:#171717;border:1px dashed #3d3d3d;color:#aaa;border-radius:10px;padding:12px;margin-bottom:12px;text-align:center;}
+.calendar-status.hidden{display:none;}
+.fantasy-calendar-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(212px,1fr));gap:10px;}
+.calendar-month{background:#181818;border:1px solid #343434;border-radius:12px;padding:9px;}
+.calendar-month h3{font-size:14px;margin:0 0 8px;text-align:left;}
+.calendar-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;}
+.calendar-day{min-height:27px;border:1px solid #303030;background:#222;color:#d6d6d6;border-radius:6px;font-size:11px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;}
+.calendar-day:hover{border-color:var(--accent);}
+.calendar-day.current{background:var(--accent);border-color:var(--accent);color:#111;font-weight:900;box-shadow:0 0 13px rgba(255,204,102,.28);}
+.calendar-day.has-event::after{content:'';position:absolute;bottom:3px;right:3px;width:5px;height:5px;background:#66dd88;border-radius:50%;}
+.calendar-day.current.has-event::after{background:#111;}
+.calendar-event-details{margin-top:12px;background:#171717;border:1px solid #333;border-radius:12px;padding:12px;display:none;}
+.calendar-event-details.show{display:block;}
+.calendar-event-details h3{margin:0 0 9px;text-align:left;font-size:15px;}
+.calendar-event-row{padding:8px 9px;background:#212121;border:1px solid #363636;border-radius:8px;margin-bottom:6px;color:#eee;}
+@media(max-width:700px){.other-sub-tabs{position:sticky;top:96px;background:var(--bg);z-index:2;padding-top:6px;}.other-sub-btn{padding:8px 13px;font-size:12px;}.fantasy-calendar-grid{grid-template-columns:1fr;}.calendar-month{padding:11px;}}
+
+</style>
+
+<style>
+/* --- v16 calendar month focus and event preview overlays --- */
+.fantasy-calendar-nav{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 12px;}
+.fantasy-calendar-nav button,.fantasy-calendar-nav select,.fantasy-calendar-nav input{background:#222;border:1px solid #444;color:#eee;border-radius:8px;padding:8px 10px;font-weight:700;}
+.fantasy-calendar-nav button{cursor:pointer;}
+.fantasy-calendar-nav button.active,.fantasy-calendar-nav button:hover{background:var(--accent);border-color:var(--accent);color:#000;}
+.fantasy-calendar-nav input{width:94px;text-align:center;}
+.fantasy-calendar-grid.month-only{grid-template-columns:minmax(260px,520px);justify-content:center;}
+.fantasy-calendar-grid.month-only .calendar-month{padding:12px;}
+.fantasy-calendar-grid.month-only .calendar-month h3{font-size:18px;margin-bottom:10px;}
+.fantasy-calendar-grid.month-only .calendar-day{min-height:70px;align-items:flex-start;justify-content:flex-start;display:flex;flex-direction:column;gap:3px;padding:5px;overflow:hidden;}
+.calendar-day-number{font-weight:800;line-height:1;}
+.calendar-event-chip{display:block;width:100%;border:1px solid rgba(102,221,136,.45);background:rgba(41,104,57,.42);color:#dfffe9;border-radius:5px;padding:3px 4px;font-size:10px;font-weight:700;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.calendar-event-chip:hover{border-color:#66dd88;background:rgba(50,130,70,.62);}
+.calendar-more-events{font-size:9px;color:#96e9af;font-weight:700;padding-left:2px;}
+.calendar-event-details.show{display:block;}
+@media(max-width:700px){.fantasy-calendar-nav{justify-content:center}.fantasy-calendar-grid.month-only .calendar-day{min-height:58px;padding:4px}.calendar-event-chip{font-size:9px}}
+</style>
+
+<style>
+/* --- v19 Hide inner character-sheet scrollbars while preserving scrolling --- */
+.tab-content,
+.other-sub-panel,
+.fantasy-calendar-wrap,
+#heartModalContainer.active-heart-modal {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.tab-content::-webkit-scrollbar,
+.other-sub-panel::-webkit-scrollbar,
+.fantasy-calendar-wrap::-webkit-scrollbar,
+#heartModalContainer.active-heart-modal::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+</style>
 
 </head>
 <body>
@@ -818,7 +1036,7 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
   <button class="tab-btn" id="btn-combat" onclick="switchTab('combat')">Combat</button>
   <button class="tab-btn" id="btn-skills" onclick="switchTab('skills')">Skills</button>
   <button class="tab-btn" id="btn-items" onclick="switchTab('items')">Items</button>
-  <button class="tab-btn" id="btn-notes" onclick="switchTab('notes')">Notes</button>
+  <button class="tab-btn" id="btn-other" onclick="switchTab('other')">Other</button>
 </div>
 
 <div id="character" class="tab-content active">
@@ -834,9 +1052,18 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
     <div class="bio-item"><label>Race</label><input id="race" class="live-field"></div>
     <div class="bio-item"><label>Class</label><input id="class" class="live-field"></div>
     <div class="bio-item"><label>Align</label><input id="alignment" class="live-field"></div>
-    <div class="bio-item"><label>Size</label><input id="size" class="live-field"></div>
+    <div class="bio-item"><label for="size_category">Size</label><select id="size_category" class="live-field" aria-label="Character Size" onchange="syncSizeFields(); computeDerivedStats(); renderSelectedCombatDisplays(); save(true);"><option value="">Select Size</option><option value="Fine">Fine</option><option value="Diminutive">Diminutive</option><option value="Tiny">Tiny</option><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Huge">Huge</option><option value="Gargantuan">Gargantuan</option><option value="Colossal">Colossal</option></select><input id="size" class="live-field" type="hidden"></div>
     <div class="bio-item"><label>Languages</label><input id="languages" class="live-field"></div>
     <div class="bio-item" style="grid-column: 1 / -1;"><label>Senses</label><input id="senses" class="live-field"></div>
+  </div>
+  <div class="character-level-row">
+    <label for="character_level">Level</label>
+    <select id="character_level" class="live-field" aria-label="Character Level">
+      <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+      <option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+      <option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option>
+      <option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option>
+    </select>
   </div>
   <div class="ability-heading-row"><h3>Ability Scores</h3></div>
   <div style="background:var(--panel); border-radius:8px; overflow:hidden;">
@@ -864,57 +1091,111 @@ setTimeout(() => {
 
 
 <div id="combat" class="tab-content">
-  <button id="mobileHeartBtn" onclick="toggleHeartStats()">❤️</button>
-  <div id="heartModalContainer">
-      <div id="heartCloseBtn" onclick="toggleHeartStats()">❤️</div>
-      <div style="display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
-        <div style="flex:1 1 520px; min-width:280px;">
-      <div class="combat-overview">
-          <div class="stat-card hpmp-card">
-              <div class="stat-head"><span class="stat-title">❤️ HP</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('hp')">✎</button></div>
-              <div class="stat-subline">
-                <div class="stat-subbox"><small>Base</small><input id="hp_curr" type="number" class="live-field main-vital-input"></div>
-                <div class="stat-subbox"><small>Temp</small><input id="hp_temp" type="number" class="live-field main-vital-input"></div>
-                <div class="stat-subbox"><small>Max</small><input id="hp_max" type="number" class="live-field main-vital-input readonly-yellow"></div>
-              </div>
-          </div>
-          <div class="stat-card hpmp-card">
-              <div class="stat-head"><span class="stat-title">💧 MP</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('mp')">✎</button></div>
-              <div class="stat-subline">
-                <div class="stat-subbox"><small>Base</small><input id="mp_curr" type="number" class="live-field main-vital-input"></div>
-                <div class="stat-subbox"><small>Temp</small><input id="mp_temp" type="number" class="live-field main-vital-input"></div>
-                <div class="stat-subbox"><small>Max</small><input id="mp_max" type="number" class="live-field main-vital-input readonly-yellow"></div>
-              </div>
-          </div>
-      </div>
-      <div class="combat-row-main">
-        <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Size:</span><div class="inline-value-wrap small"><span id="sizeDisplayMain" class="inline-value">Medium</span></div></div></div>
-        <div class="stat-card compact"><div class="stat-head"><span class="stat-title ability-roll-link initiative-roll-link" onclick="sendInitiativeRoll()" title="Roll initiative to chat">Initiative:</span><div class="inline-value-wrap"><span id="initDisplayMain" class="inline-value">+0</span></div></div></div>
-        <div class="stat-card compact"><div class="stat-head"><span class="stat-title">BAB:</span><div class="inline-value-wrap"><span id="babDisplayMain" class="inline-value">+0</span></div></div></div>
-        <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Speed:</span><div class="inline-value-wrap"><span id="speedDisplayMain" class="inline-value">30</span></div></div></div><div class="stat-card compact toolbar-card"><div class="stat-head"><button class="mode-btn icon-only" id="editModeToggleCombat" type="button" title="Edit Mode" aria-label="Edit Mode" onclick="toggleEditMode()">✏️</button><button class="mode-btn icon-only general-edit-btn" id="generalEditCombatBtn" type="button" title="Edit Size / Initiative / BAB / Speed" aria-label="Edit General Stats" onclick="openStatEdit('general')">⚙️</button></div></div>
-      </div>
-        </div>
-      </div>
-  </div>
   <div class="sub-nav-container">
     <div class="sub-nav" id="combatSubNav">
         <button class="sub-btn active" onclick="switchSub('c-general')">General</button>
         <button class="sub-btn" id="abilitiesSubBtn" onclick="switchSub('c-abilities-main')">Abilities</button>
-        <button class="sub-btn" id="spellsSubBtn" onclick="switchSub('c-spells')">Spells</button>
+        <span id="spellsNavControl" class="spell-tab-control">
+          <button class="sub-btn" id="spellsSubBtn" onclick="switchSub('c-spells')">Spells</button>
+          <button id="spellsVisibilityToggle" class="spell-collapse-toggle" type="button" onclick="toggleSpellTabVisibility(event)" title="Hide Spells tab" aria-label="Hide Spells tab">‹</button>
+        </span>
     </div>
   </div>
-  
+
   <div id="c-general" class="sub-group active">
-    <div class="stat-display-grid">
-      <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Armor Class</span><button class="edit-stat-btn" type="button" onclick="openStatEdit('ac')">✎</button></div><select id="ac_view_mode" class="live-field select-display" onchange="handleDisplayModeChange()"><option value="ac">AC</option><option value="touch">Touch AC</option><option value="flat">Flat-Footed</option><option value="cmd">CMD</option></select><div class="inline-value-wrap" style="margin-top:10px;"><span id="acDisplayMain" class="inline-value">10</span></div></div>
-      <div class="stat-card compact"><div class="stat-head"><span class="stat-title">Attack Roll</span><div style="display:flex;align-items:center;gap:6px;"><button id="attackRollMenuBtn" class="roll-icon-btn" type="button" onclick="toggleAttackRollMenu(event)" title="Roll an attack">🎲</button><button class="edit-stat-btn" type="button" onclick="openStatEdit('ar')">✎</button></div></div><select id="ar_view_mode" class="live-field select-display" onchange="handleDisplayModeChange()"><option value="melee" selected>Melee</option><option value="ranged">Ranged</option><option value="touch">Touch</option><option value="ranged_touch">Ranged Touch</option><option value="cmb">CMB</option></select><div class="inline-value-wrap" style="margin-top:10px;"><span id="arDisplayMain" class="inline-value">+0</span></div></div>
+    <div class="combat-general-title combat-actions-only">
+      <div class="combat-general-actions">
+        <button class="mode-btn combat-edit-toggle" id="editModeToggleCombat" type="button" title="Edit combat values" aria-label="Edit combat values" onclick="toggleEditMode()">✏️ Edit</button>
+      </div>
     </div>
-    <div class="section-action-head"><h3>Saves</h3><div class="section-action-buttons"><button class="chat-icon-btn" type="button" onclick="sendSavesOverview()" title="Send save summary">💬</button><button id="saveRollMenuBtn" class="roll-icon-btn" type="button" onclick="toggleSaveRollMenu(event)" title="Roll a save">🎲</button></div></div>
-    <div class="save-row-display">
-      <div class="save-mini"><div class="stat-head"><span class="stat-title">Fort:</span><div class="inline-value-wrap small"><span id="fortDisplayMain" class="inline-value">+0</span></div><button class="edit-stat-btn" type="button" onclick="openStatEdit('saves')">✎</button></div></div>
-      <div class="save-mini"><div class="stat-head"><span class="stat-title">Reflex:</span><div class="inline-value-wrap small"><span id="refDisplayMain" class="inline-value">+0</span></div><button class="edit-stat-btn" type="button" onclick="openStatEdit('saves')">✎</button></div></div>
-      <div class="save-mini"><div class="stat-head"><span class="stat-title">Will:</span><div class="inline-value-wrap small"><span id="willDisplayMain" class="inline-value">+0</span></div><button class="edit-stat-btn" type="button" onclick="openStatEdit('saves')">✎</button></div></div>
+
+    <section class="vital-showcase" aria-label="Health and magic points">
+      <div class="vital-card vital-heart" aria-label="Health Points">
+        <button class="edit-stat-btn vital-edit" type="button" onclick="openStatEdit('hp')" aria-label="Edit HP">✎</button>
+        <div class="vital-icon" aria-hidden="true">❤️</div>
+        <div class="vital-content">
+          <div class="vital-title">HP</div>
+          <div class="vital-number-grid">
+            <label><small>Base</small><input id="hp_curr" type="number" class="live-field main-vital-input"></label>
+            <label><small>Temp</small><input id="hp_temp" type="number" class="live-field main-vital-input"></label>
+            <label><small>Max</small><input id="hp_max" type="number" class="live-field main-vital-input readonly-yellow" readonly aria-readonly="true"></label>
+          </div>
+        </div>
+      </div>
+      <div class="vital-card vital-drop" aria-label="Magic Points">
+        <button class="edit-stat-btn vital-edit" type="button" onclick="openStatEdit('mp')" aria-label="Edit MP">✎</button>
+        <div class="vital-icon" aria-hidden="true">💧</div>
+        <div class="vital-content">
+          <div class="vital-title">MP</div>
+          <div class="vital-number-grid">
+            <label><small>Base</small><input id="mp_curr" type="number" class="live-field main-vital-input"></label>
+            <label><small>Temp</small><input id="mp_temp" type="number" class="live-field main-vital-input"></label>
+            <label><small>Max</small><input id="mp_max" type="number" class="live-field main-vital-input readonly-yellow" readonly aria-readonly="true"></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="combat-card-grid" aria-label="General combat information">
+      <section class="combat-info-card">
+        <div class="combat-info-card-head">
+          <h3>Base</h3>
+          <button class="edit-stat-btn" id="generalEditCombatBtn" type="button" onclick="openStatEdit('general')" aria-label="Edit initiative, BAB, and speed">✎</button>
+        </div>
+        <div class="combat-metric-grid base-metrics">
+          <button class="long-rest-btn base-long-rest" type="button" onclick="performLongRest()" title="Restore MP, heal HP by level, and refresh selected ability uses">🌙 Long Rest</button>
+          <div class="combat-metric"><button class="combat-roll-name" type="button" onclick="sendInitiativeRoll()" title="Roll Initiative">Initiative</button><strong id="initDisplayMain">+0</strong></div>
+          <div class="combat-metric"><span class="metric-label">BAB</span><strong id="babDisplayMain">+0</strong></div>
+          <div class="combat-metric"><span class="metric-label">Speed</span><strong id="speedDisplayMain">30</strong></div>
+        </div>
+      </section>
+
+      <section class="combat-info-card">
+        <div class="combat-info-card-head">
+          <h3>Attack</h3>
+          <button class="edit-stat-btn" type="button" onclick="openStatEdit('ar')" aria-label="Edit attack">✎</button>
+        </div>
+        <select id="ar_view_mode" class="live-field combat-hidden-state" aria-hidden="true" tabindex="-1">
+          <option value="melee" selected>Melee</option><option value="ranged">Ranged</option><option value="touch">Touch</option><option value="ranged_touch">Ranged Touch</option><option value="cmb">CMB</option>
+        </select>
+        <div class="combat-metric-grid">
+          <div class="combat-metric"><button class="combat-roll-name" type="button" onclick="rollAttackCheck('melee')" title="Roll Melee Attack">Melee</button><strong id="arDisplayMain">+0</strong></div>
+          <div class="combat-metric"><button class="combat-roll-name" type="button" onclick="rollAttackCheck('ranged')" title="Roll Ranged Attack">Ranged</button><strong id="arDisplayRanged">+0</strong></div>
+          <div class="combat-metric"><button class="combat-roll-name" type="button" onclick="rollAttackCheck('touch')" title="Roll Touch Attack">Touch</button><strong id="arDisplayTouch">+0</strong></div>
+          <div class="combat-metric"><button class="combat-roll-name" type="button" onclick="rollAttackCheck('ranged_touch')" title="Roll Ranged Touch Attack">Ranged Touch</button><strong id="arDisplayRangedTouch">+0</strong></div>
+          <div class="combat-metric"><button class="combat-roll-name" type="button" onclick="rollAttackCheck('cmb')" title="Roll CMB">CMB</button><strong id="arDisplayCmb">+0</strong></div>
+        </div>
+      </section>
+
+      <section class="combat-info-card">
+        <div class="combat-info-card-head">
+          <h3>Defense</h3>
+          <button class="edit-stat-btn" type="button" onclick="openStatEdit('ac')" aria-label="Edit defense">✎</button>
+        </div>
+        <select id="ac_view_mode" class="live-field combat-hidden-state" aria-hidden="true" tabindex="-1">
+          <option value="ac" selected>Armor Class</option><option value="touch">Touch AC</option><option value="flat">Flat-Footed</option><option value="cmd">CMD</option>
+        </select>
+        <div class="combat-metric-grid">
+          <div class="combat-metric"><span class="metric-label">Armor Class</span><strong id="acDisplayMain">10</strong></div>
+          <div class="combat-metric"><span class="metric-label">Touch</span><strong id="acDisplayTouch">10</strong></div>
+          <div class="combat-metric"><span class="metric-label">Flat-Footed</span><strong id="acDisplayFlat">10</strong></div>
+          <div class="combat-metric"><span class="metric-label">CMD</span><strong id="acDisplayCmd">10</strong></div>
+        </div>
+      </section>
+
+      <section class="combat-info-card">
+        <div class="combat-info-card-head">
+          <h3>Saves</h3>
+          <button class="edit-stat-btn" type="button" onclick="openStatEdit('saves')" aria-label="Edit saves">✎</button>
+        </div>
+        <div class="combat-metric-grid saves-metrics">
+          <div class="combat-metric"><button class="combat-roll-name" type="button" onclick="rollSaveCheck('fort')" title="Roll Fortitude Save">Fortitude</button><strong id="fortDisplayMain">+0</strong></div>
+          <div class="combat-metric"><button class="combat-roll-name" type="button" onclick="rollSaveCheck('ref')" title="Roll Reflex Save">Reflex</button><strong id="refDisplayMain">+0</strong></div>
+          <div class="combat-metric"><button class="combat-roll-name" type="button" onclick="rollSaveCheck('will')" title="Roll Will Save">Will</button><strong id="willDisplayMain">+0</strong></div>
+        </div>
+      </section>
     </div>
+
     <div id="resistancesBox" style="background:var(--panel); padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid var(--border);">
         <label>Resist</label>
         <textarea id="resistances" class="live-field scrollable-textarea" placeholder="Resistances, Immunities, DR, SR"></textarea>
@@ -955,7 +1236,7 @@ setTimeout(() => {
   <div style="display:none;">
     <input id="bab" class="live-field"><input id="speed" class="live-field">
     <input id="init_temp" class="live-field"><input id="bab_temp" class="live-field"><input id="speed_temp" class="live-field">
-    <input id="size_category" class="live-field"><input id="size_mod" class="live-field"><input id="size_special" class="live-field">
+    <input id="size_mod" class="live-field"><input id="size_special" class="live-field">
     <input id="ac_armor" class="live-field"><input id="ac_natural" class="live-field"><input id="ac_deflect" class="live-field"><input id="ac_dodge" class="live-field"><input id="ac_temp" class="live-field">
     <input id="touch_temp" class="live-field"><input id="flat_temp" class="live-field"><input id="cmd_temp" class="live-field">
     <input id="ar_melee_ability" class="live-field"><input id="ar_ranged_ability" class="live-field"><input id="ar_touch_ability" class="live-field"><input id="ar_ranged_touch_ability" class="live-field"><input id="ar_melee_temp" class="live-field"><input id="ar_ranged_temp" class="live-field"><input id="ar_touch_temp" class="live-field"><input id="ar_ranged_touch_temp" class="live-field"><input id="cmb_temp" class="live-field">
@@ -969,7 +1250,14 @@ setTimeout(() => {
 
 
 <div id="skills" class="tab-content">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><span>Skill Points Unused:</span><input id="skill_points" class="live-field" style="width:60px; text-align:center;" readonly></div>
+  <div class="skills-view-toolbar">
+    <h2>Skills</h2>
+    <button id="skillsEnterEditBtn" class="skills-mode-btn" type="button" onclick="toggleSkillEditMode(true)" aria-label="Edit skills">✏️ Edit Skills</button>
+  </div>
+  <div class="skills-editor-toolbar" aria-label="Skill editing controls">
+    <div class="skill-points-wrap"><span>Unused Skill Points</span><input id="skill_points" class="live-field" type="number" min="0" step="1" aria-label="Unused skill points" readonly><button id="skillPointsEditBtn" class="skill-points-edit-btn" type="button" onclick="toggleSkillPointEdit()" title="Edit unused skill points" aria-label="Edit unused skill points">✎</button></div>
+    <button id="skillsExitEditBtn" class="skills-mode-btn" type="button" onclick="toggleSkillEditMode(false)" aria-label="Finish editing skills">✓ Done</button>
+  </div>
   <div id="mobileSkillHeader" style="display:none; color:#888; font-size:12px;"><span style="display:inline-block; width:40%;"></span><span style="display:inline-block; width:18%; text-align:right;">TEMP</span><span style="display:inline-block; width:21%; text-align:right;">RANKS</span><span style="display:inline-block; width:21%; text-align:right;">TOTAL</span></div>
   <div class="skills-container">
     <table id="skillsTable" style="width:100%; border-collapse:collapse; font-size:14px; text-align:center;">
@@ -1000,8 +1288,36 @@ setTimeout(() => {
 </div>
 
 
-<div id="notes" class="tab-content">
-  <textarea id="notesArea" class="live-field scrollable-textarea" style="min-height:320px; width:100%; resize:vertical; display:block;"></textarea>
+<div id="other" class="tab-content other-tab-panel">
+  <div class="other-sub-tabs" role="tablist" aria-label="Other character tools">
+    <button id="other-tab-calendar" class="other-sub-btn active" type="button" onclick="switchOtherTab('calendar')">Calendar</button>
+    <button id="other-tab-notes" class="other-sub-btn" type="button" onclick="switchOtherTab('notes')">Notes</button>
+    <button id="other-tab-shop" class="other-sub-btn" type="button" onclick="switchOtherTab('shop')">Shop</button>
+  </div>
+  <section id="other-calendar" class="other-sub-panel active" aria-label="Group calendar">
+    <div class="fantasy-calendar-head">
+      <h2>Calendar</h2>
+      <div id="playerCalendarCurrentDay" class="calendar-current-pill">No group calendar selected</div>
+    </div>
+    <div id="playerCalendarControls" class="fantasy-calendar-nav" aria-label="Calendar view controls">
+      <button type="button" onclick="stepPlayerCalendarMonth(-1)" title="Previous month">‹</button>
+      <select id="playerCalendarBrowseMonth" onchange="setPlayerCalendarMonth(this.value)" aria-label="Displayed month"></select>
+      <input id="playerCalendarBrowseYear" type="number" min="-1000" max="5000" step="1" onchange="setPlayerCalendarYear(this.value)" aria-label="Displayed year">
+      <button type="button" onclick="stepPlayerCalendarMonth(1)" title="Next month">›</button>
+      <button id="playerCalendarMonthMode" type="button" class="active" onclick="setPlayerCalendarView('month')">Month</button>
+      <button id="playerCalendarYearMode" type="button" onclick="setPlayerCalendarView('year')">Full Year</button>
+    </div>
+    <div id="playerCalendarGroupTabs" class="calendar-group-tabs"></div>
+    <div id="playerCalendarStatus" class="calendar-status">Open Calendar to load your group's schedule.</div>
+    <div id="playerCalendarMonths" class="fantasy-calendar-grid"></div>
+    <div id="playerCalendarEventDetails" class="calendar-event-details"></div>
+  </section>
+  <section id="other-notes" class="other-sub-panel" aria-label="Notes">
+    <textarea id="notesArea" class="live-field scrollable-textarea" style="min-height:320px; width:100%; resize:vertical; display:block;"></textarea>
+  </section>
+  <section id="other-shop" class="other-sub-panel shops-tab-panel" aria-label="Shop">
+    <iframe id="playerShopFrame" class="shop-embed-frame" title="Character Shops" src="tools.html?embed=shop" loading="lazy"></iframe>
+  </section>
 </div>
 
 <div id="summonMenu"></div>
@@ -1062,18 +1378,6 @@ setTimeout(() => {
 </div>
 
 
-<div id="saveRollMenu" class="roll-menu" aria-hidden="true">
-  <button type="button" onclick="rollSaveCheck('fort')">🎲 Roll Fortitude</button>
-  <button type="button" onclick="rollSaveCheck('ref')">🎲 Roll Reflex</button>
-  <button type="button" onclick="rollSaveCheck('will')">🎲 Roll Will</button>
-</div>
-<div id="attackRollMenu" class="roll-menu" aria-hidden="true">
-  <button type="button" onclick="rollAttackCheck('melee')">🎲 Roll Melee</button>
-  <button type="button" onclick="rollAttackCheck('ranged')">🎲 Roll Ranged</button>
-  <button type="button" onclick="rollAttackCheck('touch')">🎲 Roll Touch</button>
-  <button type="button" onclick="rollAttackCheck('ranged_touch')">🎲 Roll Ranged Touch</button>
-  <button type="button" onclick="rollAttackCheck('cmb')">🎲 Roll CMB</button>
-</div>
 <div id="localChatBackdrop" class="local-chat-backdrop" onclick="toggleLocalChat(false)"></div>
 <aside id="localChatPanel" class="local-chat-panel" aria-hidden="true">
   <div id="localChatHeader" class="local-chat-header">
@@ -1101,18 +1405,9 @@ setTimeout(() => {
 
 <div id="rollResultOverlay" class="roll-result-overlay" aria-hidden="true"></div>
 
-<div id="characterQuickPanel" class="character-quick-panel" aria-hidden="true">
-  <div id="characterQuickPanelHandle" class="character-quick-header">
-    <h3>Character</h3>
-    <button class="ability-drawer-close" type="button" onclick="toggleCharacterQuickPanel(false)" title="Close">&times;</button>
-  </div>
-  <div id="characterQuickPanelBody" class="character-quick-body"></div>
-</div>
 <div id="panelMenuShell" class="panel-menu-shell">
   <div id="panelMenuPopover" class="panel-menu-popover" aria-hidden="true">
     <button class="panel-menu-btn" type="button" onclick="toggleLocalChat(true); togglePanelMenu(false)">💬 Chat</button>
-    <button id="rollOverlayToggleBtn" class="panel-menu-btn roll-toggle-btn roll-toggle-off" type="button" onclick="toggleRollOverlay()">🎲 Toggle Roll: Off</button>
-    <button class="panel-menu-btn" type="button" onclick="toggleCharacterQuickPanel(); togglePanelMenu(false)">🪪 Character</button>
     <button class="panel-menu-btn" type="button" onclick="toggleAbilityDrawer(); togglePanelMenu(false)">🎲 Ability Scores</button>
   </div>
   <button id="panelMenuFab" class="panel-menu-fab" type="button" onclick="togglePanelMenu()" title="Open floating panels">☰</button>
@@ -1456,11 +1751,16 @@ async function ensureCharacterCollection() {
 }
 
 window.switchTab = (id) => { 
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
+    document.querySelectorAll('.main-tabs .tab-btn').forEach(b => b.classList.remove('active')); 
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); 
     const btn = document.getElementById('btn-' + id);
     if(btn) btn.classList.add('active');
-    document.getElementById(id).classList.add('active'); 
+    const target = document.getElementById(id);
+    if(target) target.classList.add('active');
+    if(id === 'other') {
+        const saved = localStorage.getItem('activeOtherSub') || 'calendar';
+        switchOtherTab(saved);
+    }
 };
 window.switchSub = (id) => { 
     const container = document.getElementById('combatSubNav');
@@ -1480,6 +1780,105 @@ window.switchSubSub = (id) => {
     document.getElementById(id).style.display = 'block'; 
     localStorage.setItem('activeAbilSub', id);
 };
+
+
+const DEFAULT_FANTASY_MONTHS = Array.from({ length: 12 }, (_, index) => `Month ${index + 1}`);
+let playerCalendarGroups = [];
+let selectedPlayerCalendarId = null;
+function calendarEscape(value) { return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+function playerGroupTags() { return Array.isArray(fullData?.group_tags) ? fullData.group_tags.filter(Boolean) : []; }
+function calendarMonthNames(group) {
+    const saved = Array.isArray(group?.calendarMonthNames) ? group.calendarMonthNames : [];
+    return DEFAULT_FANTASY_MONTHS.map((fallback, index) => String(saved[index] || fallback).trim() || fallback);
+}
+function calendarDisplayYear(group) {
+    return Math.max(1, Number(group?.calendarCurrentDay?.year ?? group?.calendarCurrentYear) || 1);
+}
+function normalizeFantasyDate(value = {}, fallbackYear = 1) {
+    const year = Math.max(1, Number(value.year) || Number(fallbackYear) || 1);
+    const month = Math.max(1, Math.min(12, Number(value.month) || 1));
+    const day = Math.max(1, Math.min(31, Number(value.day) || 1));
+    return { year, month, day };
+}
+function eventsForFantasyDay(group, year, month, day) {
+    const groupYear = calendarDisplayYear(group);
+    return (Array.isArray(group?.calendarEvents) ? group.calendarEvents : []).filter(event => {
+        const eventYear = Math.max(1, Number(event.year) || groupYear);
+        return eventYear === year && Number(event.month) === month && Number(event.day) === day;
+    });
+}
+window.switchOtherTab = (name) => {
+    const valid = ['calendar','notes','shop'].includes(name) ? name : 'calendar';
+    document.querySelectorAll('.other-sub-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.other-sub-panel').forEach(panel => panel.classList.remove('active'));
+    document.getElementById('other-tab-' + valid)?.classList.add('active');
+    document.getElementById('other-' + valid)?.classList.add('active');
+    localStorage.setItem('activeOtherSub', valid);
+    if(valid === 'calendar') loadPlayerCalendars();
+};
+async function loadPlayerCalendars() {
+    const status = document.getElementById('playerCalendarStatus');
+    const tags = playerGroupTags();
+    if(!tags.length) {
+        playerCalendarGroups = [];
+        selectedPlayerCalendarId = null;
+        renderPlayerCalendar();
+        if(status) { status.textContent = 'This character is not assigned to a calendar group yet.'; status.classList.remove('hidden'); }
+        return;
+    }
+    if(status) { status.textContent = 'Loading calendar...'; status.classList.remove('hidden'); }
+    try {
+        const snap = await getDocs(collection(db, 'adminCharacterGroups'));
+        playerCalendarGroups = snap.docs.map(d => ({ id:d.id, ...(d.data() || {}) }))
+            .filter(group => tags.includes(group.name))
+            .sort((a,b) => String(a.name || '').localeCompare(String(b.name || '')));
+        if(!playerCalendarGroups.some(group => group.id === selectedPlayerCalendarId)) selectedPlayerCalendarId = playerCalendarGroups[0]?.id || null;
+        renderPlayerCalendar();
+    } catch (error) {
+        console.error('Unable to load group calendar', error);
+        playerCalendarGroups = [];
+        renderPlayerCalendar();
+        if(status) { status.textContent = 'Calendar could not load. Publish the updated Firestore rules and try again.'; status.classList.remove('hidden'); }
+    }
+}
+window.selectPlayerCalendar = (groupId) => { selectedPlayerCalendarId = groupId; renderPlayerCalendar(); };
+window.openPlayerCalendarDay = (month, day) => {
+    const group = playerCalendarGroups.find(item => item.id === selectedPlayerCalendarId);
+    const box = document.getElementById('playerCalendarEventDetails');
+    if(!group || !box) return;
+    const year = calendarDisplayYear(group);
+    const names = calendarMonthNames(group);
+    const items = eventsForFantasyDay(group, year, month, day);
+    box.classList.add('show');
+    box.innerHTML = `<h3>${calendarEscape(group.name)} — ${calendarEscape(names[month-1])} ${day}, Year ${year}</h3>` + (items.length ? items.map(event => `<div class="calendar-event-row"><strong>${calendarEscape(event.title || 'Event')}</strong>${event.description ? `<br>${calendarEscape(event.description)}` : ''}</div>`).join('') : '<div class="calendar-event-row">No events on this day.</div>');
+};
+function renderPlayerCalendar() {
+    const tabs = document.getElementById('playerCalendarGroupTabs');
+    const status = document.getElementById('playerCalendarStatus');
+    const months = document.getElementById('playerCalendarMonths');
+    const pill = document.getElementById('playerCalendarCurrentDay');
+    const details = document.getElementById('playerCalendarEventDetails');
+    if(!tabs || !status || !months || !pill || !details) return;
+    details.classList.remove('show'); details.innerHTML = '';
+    tabs.innerHTML = playerCalendarGroups.map(group => `<button type="button" class="calendar-group-btn ${group.id === selectedPlayerCalendarId ? 'active' : ''}" onclick="selectPlayerCalendar('${calendarEscape(group.id)}')">${calendarEscape(group.name)}</button>`).join('');
+    const group = playerCalendarGroups.find(item => item.id === selectedPlayerCalendarId);
+    if(!group) { months.innerHTML = ''; pill.textContent = 'No group calendar selected'; if(!status.textContent) status.textContent = 'No group calendar available.'; status.classList.remove('hidden'); return; }
+    status.classList.add('hidden');
+    const current = normalizeFantasyDate(group.calendarCurrentDay || {}, calendarDisplayYear(group));
+    const names = calendarMonthNames(group);
+    pill.textContent = `${group.name}: ${names[current.month - 1]} ${current.day}, Year ${current.year}`;
+    months.innerHTML = names.map((monthName, monthIndex) => {
+        const month = monthIndex + 1;
+        const days = Array.from({length:31}, (_, index) => {
+            const day = index + 1;
+            const classes = ['calendar-day'];
+            if(current.month === month && current.day === day) classes.push('current');
+            if(eventsForFantasyDay(group, current.year, month, day).length) classes.push('has-event');
+            return `<button type="button" class="${classes.join(' ')}" onclick="openPlayerCalendarDay(${month},${day})" title="${calendarEscape(monthName)} ${day}, Year ${current.year}">${day}</button>`;
+        }).join('');
+        return `<section class="calendar-month"><h3>${calendarEscape(monthName)}</h3><div class="calendar-days">${days}</div></section>`;
+    }).join('');
+}
 
 onAuthStateChanged(auth, (user) => {
     if(user){
@@ -1549,8 +1948,8 @@ async function startSync() {
 function getActiveData() { return fullData; }
 
 function stripLimitBreakAbilityEntries(target) {
-    if(!target || !Array.isArray(target.activeAbilities)) return;
-    target.activeAbilities = target.activeAbilities.filter(a => !(a && (a.isLimitBreak || String(a.name || '').trim().toLowerCase() === 'limit break')));
+    // Kept for compatibility with older sheets. Limit Break abilities are now user-managed and must be preserved.
+    return target;
 }
 function normalizeSkillInt(value, fallback = 0) {
     if(value === '' || value === null || value === undefined) return fallback;
@@ -1561,19 +1960,62 @@ function getSkillPointsEl() { return document.getElementById('skill_points'); }
 function getUnusedSkillPoints() { return normalizeSkillInt(getSkillPointsEl()?.value, 0); }
 function setUnusedSkillPoints(value) {
     const el = getSkillPointsEl();
-    if(el) el.value = String(normalizeSkillInt(value, 0));
+    if(el) el.value = String(Math.max(0, normalizeSkillInt(value, 0)));
+}
+function getSkillRankCap() {
+    return Math.max(1, Math.min(20, normalizeSkillInt(document.getElementById('character_level')?.value, 1)));
 }
 function sanitizeSkillPoolUi() {
     const el = getSkillPointsEl();
     if(!el) return;
-    el.readOnly = true;
-    el.setAttribute('aria-readonly', 'true');
+    const unlocked = document.body.classList.contains('skill-edit-mode') && document.body.classList.contains('skill-points-unlocked');
+    el.readOnly = !unlocked;
+    el.setAttribute('aria-readonly', unlocked ? 'false' : 'true');
+    const btn = document.getElementById('skillPointsEditBtn');
+    if(btn) {
+        btn.textContent = unlocked ? '✓' : '✎';
+        btn.classList.toggle('unlocked', unlocked);
+        btn.title = unlocked ? 'Finish editing unused skill points' : 'Edit unused skill points';
+        btn.setAttribute('aria-label', btn.title);
+    }
+}
+window.toggleSkillPointEdit = (force) => {
+    if(!document.body.classList.contains('skill-edit-mode')) return;
+    const currentlyUnlocked = document.body.classList.contains('skill-points-unlocked');
+    const unlock = (typeof force === 'boolean') ? force : !currentlyUnlocked;
+    document.body.classList.toggle('skill-points-unlocked', unlock);
+    sanitizeSkillPoolUi();
+    const el = getSkillPointsEl();
+    if(unlock && el) { el.focus(); el.select(); }
+    if(!unlock) { setUnusedSkillPoints(getUnusedSkillPoints()); save(true); }
+};
+function syncSkillRankCap(refundReducedRanks = false) {
+    const cap = getSkillRankCap();
+    let refunded = 0;
+    let changed = false;
+    document.querySelectorAll('#skillsTableBody .skill-ranks').forEach(input => {
+        input.setAttribute('min', '0');
+        input.setAttribute('max', String(cap));
+        const prior = Math.max(0, normalizeSkillInt(input.value, 0));
+        const next = Math.min(prior, cap);
+        if(next !== prior) {
+            input.value = String(next);
+            refunded += prior - next;
+            changed = true;
+        }
+        input.dataset.prevValue = String(next);
+    });
+    if(refundReducedRanks && refunded > 0) {
+        setUnusedSkillPoints(getUnusedSkillPoints() + refunded);
+    }
+    return changed;
 }
 function applySkillRankChange(input) {
     if(!input) return;
-    const prev = normalizeSkillInt(input.dataset.prevValue, normalizeSkillInt(input.value, 0));
-    let next = normalizeSkillInt(input.value, prev);
-    if(next < 0) next = 0;
+    const cap = getSkillRankCap();
+    input.setAttribute('max', String(cap));
+    const prev = Math.min(cap, Math.max(0, normalizeSkillInt(input.dataset.prevValue, normalizeSkillInt(input.value, 0))));
+    let next = Math.max(0, Math.min(cap, normalizeSkillInt(input.value, prev)));
     let unused = getUnusedSkillPoints();
     const wantedDiff = next - prev;
 
@@ -1593,6 +2035,20 @@ function applySkillRankChange(input) {
     input.dataset.prevValue = String(next);
     setUnusedSkillPoints(unused);
 }
+function applySkillEditMode(next) {
+    document.body.classList.toggle('skill-edit-mode', !!next);
+    document.body.classList.remove('skill-points-unlocked');
+    sanitizeSkillPoolUi();
+    document.querySelectorAll('#skillsTableBody .skill-custom-input').forEach(input => {
+        input.readOnly = !next;
+        input.setAttribute('aria-readonly', next ? 'false' : 'true');
+        input.tabIndex = next ? 0 : -1;
+    });
+}
+window.toggleSkillEditMode = (force) => {
+    const next = (typeof force === 'boolean') ? force : !document.body.classList.contains('skill-edit-mode');
+    applySkillEditMode(next);
+};
 function bindSkillRowEvents(row) {
     if(!row) return;
     const rankInput = row.querySelector('.skill-ranks');
@@ -1603,6 +2059,7 @@ function bindSkillRowEvents(row) {
     if(rankInput && rankInput.dataset.bound !== '1') {
         rankInput.dataset.bound = '1';
         rankInput.setAttribute('min', '0');
+        rankInput.setAttribute('max', String(getSkillRankCap()));
         rankInput.addEventListener('focus', () => {
             rankInput.dataset.prevValue = String(normalizeSkillInt(rankInput.value, 0));
         });
@@ -1639,7 +2096,6 @@ function bindSkillRowEvents(row) {
 function syncSkillStateAfterLoad() {
     sanitizeSkillPoolUi();
     document.querySelectorAll('#skillsTableBody .skill-ranks').forEach(input => {
-        input.dataset.prevValue = String(normalizeSkillInt(input.value, 0));
         if(input.value === '') input.value = '0';
     });
     document.querySelectorAll('#skillsTableBody .skill-temp').forEach(input => {
@@ -1647,8 +2103,17 @@ function syncSkillStateAfterLoad() {
     });
     const skillPoolEl = getSkillPointsEl();
     if(skillPoolEl && skillPoolEl.value === '') skillPoolEl.value = '0';
+    if(skillPoolEl && skillPoolEl.dataset.skillPoolBound !== '1') {
+        skillPoolEl.dataset.skillPoolBound = '1';
+        const normalizePool = () => setUnusedSkillPoints(getUnusedSkillPoints());
+        skillPoolEl.addEventListener('input', normalizePool);
+        skillPoolEl.addEventListener('change', normalizePool);
+        skillPoolEl.addEventListener('blur', () => { normalizePool(); window.toggleSkillPointEdit(false); });
+    }
+    const ranksChanged = syncSkillRankCap(true);
+    applySkillEditMode(false);
+    if(ranksChanged && currentSummonId && !isRemoteUpdate) save(true);
 }
-
 function refreshCombatUi() {
     syncSizeFields();
     computeDerivedStats();
@@ -1674,6 +2139,7 @@ function loadCurrentSheet() {
     switchSubSub(localStorage.getItem('activeAbilSub') || 'a-active');
 
     document.querySelectorAll('.live-field').forEach(el => { el.value = (data[el.id] !== undefined) ? data[el.id] : ""; });
+    if(!document.getElementById('character_level').value) document.getElementById('character_level').value = '1';
 
     if(data.hp !== undefined && !document.getElementById('hp_curr').value) document.getElementById('hp_curr').value = data.hp;
     if(data.mp !== undefined && !document.getElementById('mp_curr').value) document.getElementById('mp_curr').value = data.mp;
@@ -1711,6 +2177,7 @@ function loadCurrentSheet() {
     bindCriticalFieldPersistence();
     initAbilityDrawerDrag();
     updateSlotUsageDisplay();
+    if(document.getElementById('other-calendar')?.classList.contains('active')) loadPlayerCalendars();
 }
 
 function autoExpand(el) { el.style.height = 'auto'; el.style.height = (el.scrollHeight + 5) + 'px'; }
@@ -2020,7 +2487,7 @@ function normalizeAttackModeValue(value){
     return String(value || '').trim().toLowerCase().replace(/\s+/g, '_');
 }
 function attackFormulaPartsForMode(mode){
-    const babTotal = numVal('bab') + numVal('bab_temp');
+    const babTotal = numVal('bab');
     const sizeMod = numVal('size_mod');
     const sizeSpecial = numVal('size_special');
     if(mode === 'melee') {
@@ -2195,6 +2662,27 @@ let touchTimer = null;
 let touchDragItem = null;
 let touchStartCoords = {x:0, y:0};
 
+function isLimitBreakAbility(ability) {
+    if(!ability) return false;
+    const labels = [ability.name, ability.type].map(v => String(v || '')).join(' ');
+    return /\blimit\s+breaks?(?:\s*\(\s*su\s*\))?\b/i.test(labels);
+}
+function getLimitBreakHpState() {
+    const hp = Math.max(0, Number(document.getElementById('hp_curr')?.value) || 0);
+    const maxHp = Math.max(0, Number(document.getElementById('hp_max')?.value) || 0);
+    return { hp, maxHp, ready: maxHp > 0 && hp <= maxHp * 0.5 };
+}
+function getActiveAbilityUseState(ability) {
+    const hasUsesLeft = Math.max(0, Number(ability?.u_curr) || 0) > 0;
+    const isLimitBreak = isLimitBreakAbility(ability);
+    const hpState = getLimitBreakHpState();
+    const isReady = hasUsesLeft && (!isLimitBreak || hpState.ready);
+    let title = 'Use ability, roll any configured dice, and send to Discord';
+    if(!hasUsesLeft) title = 'No uses remaining';
+    else if(isLimitBreak && !hpState.ready) title = 'Limit Break can only be used at 50% HP or lower';
+    return { hasUsesLeft, isLimitBreak, isReady, hpState, title };
+}
+
 function renderAbilities(subType) {
     let prop = subType === 'active' ? 'activeAbilities' : subType === 'passive' ? 'passiveAbilities' : 'feats';
     const data = getActiveData()[prop] || [];
@@ -2204,6 +2692,10 @@ function renderAbilities(subType) {
     data.forEach((a, i) => {
         const div = document.createElement('div'); 
         div.className = 'list-row';
+        const activeUseState = subType === 'active' ? getActiveAbilityUseState(a) : null;
+        if(activeUseState?.isLimitBreak) {
+            div.classList.add('limit-break-row', activeUseState.isReady ? 'limit-break-ready' : 'limit-break-locked');
+        }
         
         div.draggable = true;
         div.dataset.index = i;
@@ -2219,14 +2711,17 @@ function renderAbilities(subType) {
         div.addEventListener('touchend', handleTouchEnd);
 
         let contentHtml = `<span class="list-row-title">${a.name||`New ${subType}`}</span>`;
+        const hasTrackedUses = subType === 'active' && Number(a.u_max || 0) > 0;
         if(subType === 'active') { 
             const metaParts = [a.type || '', a.attack_type || ''].filter(Boolean);
-            contentHtml = `<span class="active-name">${a.name||'New Ability'}</span><span class="active-type">${metaParts.join(' • ')}</span>`; 
+            const state = activeUseState || getActiveAbilityUseState(a);
+            const useBtn = hasTrackedUses ? `<button class="active-use-btn ${state.isReady ? 'use-ready' : 'use-empty'}" type="button" onclick="event.stopPropagation(); useActiveAbility(${i})" ${state.isReady ? '' : 'disabled'} title="${state.title}">Use</button>` : '';
+            contentHtml = `<span class="active-title-actions">${useBtn}<span class="active-name">${a.name||'New Ability'}</span></span><span class="active-type">${metaParts.join(' • ')}</span>`; 
         }
         
         let inputsHtml = '';
-        if(subType === 'active') {
-            inputsHtml = `<div class="inline-input-group"><input type="number" value="${a.u_curr||0}" onchange="updateAbilityUse(${i},'u_curr',this.value)" onclick="event.stopPropagation()"><span>/</span><input type="number" value="${a.u_max||0}" onchange="updateAbilityUse(${i},'u_max',this.value)" onclick="event.stopPropagation()"></div>`;
+        if(hasTrackedUses) {
+            inputsHtml = `<div class="inline-input-group" title="Edit maximum uses from the Edit window"><span class="uses-caption">Uses</span><input type="number" min="0" value="${a.u_curr||0}" onchange="updateAbilityUse(${i},'u_curr',this.value)" onclick="event.stopPropagation()"><span>/</span><span class="max-use-static">${a.u_max||0}</span></div>`;
         }
 
         let linkHtml = '';
@@ -2244,10 +2739,9 @@ function renderAbilities(subType) {
         
         const aDiv = document.createElement('div'); 
         aDiv.className = 'row-actions';
-        const rollBtnHtml = (subType === 'active' && abilityIsRollable(a)) ? `<button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollAbilityAction(${i})" title="Roll active ability attack and damage">🎲</button>` : '';
-        const sendBtnHtml = `<button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendAbilityCard('${subType}',${i})" title="Send to chat">💬</button>`;
+        const sendBtnHtml = `<button class="chat-icon-btn ${subType === 'active' ? 'active-chat-action' : ''}" type="button" onclick="event.stopPropagation(); sendAbilityCard('${subType}',${i})" title="Send to Discord chat without using a charge or rolling">💬</button>`;
         const editBtnHtml = (subType === 'active' && a.isLimitBreak) ? '' : `<button class="btn-edit" onclick="event.stopPropagation(); openEditor('${subType}',${i})">Edit</button>`;
-        aDiv.innerHTML = `${inputsHtml}${rollBtnHtml}${sendBtnHtml}${linkHtml}${editBtnHtml}`;
+        aDiv.innerHTML = `${inputsHtml}${sendBtnHtml}${linkHtml}${editBtnHtml}`;
         
         div.appendChild(cDiv); div.appendChild(aDiv); container.appendChild(div);
     });
@@ -2370,7 +2864,31 @@ function handleTouchEnd(e) {
     }
 }
 
-window.updateAbilityUse = (idx, key, val) => { const d = getActiveData().activeAbilities[idx]; d[key] = Number(val); saveDataOnly(); };
+window.updateAbilityUse = (idx, key, val) => {
+    const d = getActiveData().activeAbilities[idx];
+    if(!d) return;
+    const parsed = Math.max(0, Number(val) || 0);
+    d[key] = key === 'u_curr' && Number.isFinite(Number(d.u_max)) ? Math.min(parsed, Math.max(0, Number(d.u_max) || 0)) : parsed;
+    saveDataOnly();
+    renderAbilities('active');
+};
+
+window.useActiveAbility = (idx) => {
+    const list = getActiveData().activeAbilities || [];
+    const ability = list[idx];
+    if(!ability) return;
+    const state = getActiveAbilityUseState(ability);
+    if(!state.isReady) {
+        renderAbilities('active');
+        return;
+    }
+    const remaining = Math.max(0, Number(ability.u_curr) || 0);
+    ability.u_curr = remaining - 1;
+    saveDataOnly();
+    renderAbilities('active');
+    if(abilityIsRollable(ability)) rollAbilityAction(idx, { includeCard: true });
+    else sendAbilityCard('active', idx);
+};
 
 
 window.renderItems = () => {
@@ -2680,6 +3198,7 @@ function populateEditorModal(type, item, index, col) {
         const c = document.createElement('input'); c.type="number"; c.placeholder="Cur"; c.value=item.u_curr||0; c.oninput=e=>updateCurrentItem('u_curr',e.target.value);
         const m = document.createElement('input'); m.type="number"; m.placeholder="Max"; m.value=item.u_max||0; m.oninput=e=>updateCurrentItem('u_max',e.target.value);
         d.appendChild(c); d.appendChild(m); modalBody.appendChild(d);
+        createCheckbox('Restore Uses on Long Rest', !!item.restoreOnLongRest, 'restoreOnLongRest');
         createEditorSection('Combat');
         createSelect('Attack Type', item.attack_type || 'None', 'attack_type', ["None","Melee","Ranged","Touch","Ranged Touch","CMB"]);
         createInput('Damage', item.damage, 'damage');
@@ -2768,7 +3287,7 @@ function refreshList(t) { if(t==='weapon') renderWeapons(); else if(t==='spell')
 window.addNewItem = (t) => {
     const d = getActiveData();
     let n={name:''}, c='';
-    if(t==='weapon'){c='weapons';n.mod='STR';n.ability_mod='STR';n.attack_misc='';n.damage='';n.type='';n.crit_range='20';n.crit_mult='x2';n.range='';n.ammo='';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';n.attack_type='None';n.spell_resist='No';n.saving_throw='';n.school='';n.target='';n.range='';n.duration='';n.damage='';n.at_higher_lvls='';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;n.attack_type='None';n.damage='';n.at_higher_lvls='';} else if(t==='passive'){c='passiveAbilities';n.at_higher_lvls='';} else if(t==='feat'){c='feats';n.at_higher_lvls='';} else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
+    if(t==='weapon'){c='weapons';n.mod='STR';n.ability_mod='STR';n.attack_misc='';n.damage='';n.type='';n.crit_range='20';n.crit_mult='x2';n.range='';n.ammo='';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';n.attack_type='None';n.spell_resist='No';n.saving_throw='';n.school='';n.target='';n.range='';n.duration='';n.damage='';n.at_higher_lvls='';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;n.attack_type='None';n.damage='';n.at_higher_lvls='';n.restoreOnLongRest=false;} else if(t==='passive'){c='passiveAbilities';n.at_higher_lvls='';} else if(t==='feat'){c='feats';n.at_higher_lvls='';} else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
     if(!d[c]) d[c]=[]; d[c].push(n);
     saveDataOnly(); refreshList(t); openEditor(t, d[c].length-1);
 };
@@ -2784,7 +3303,7 @@ function scrapeCurrentSheet() {
     const m = getActiveData();
     p.weapons = m.weapons || [];
     p.spells = m.spells || [];
-    p.activeAbilities = (m.activeAbilities || []).filter(a => !(a && (a.isLimitBreak || String(a.name || '').trim().toLowerCase() === 'limit break')));
+    p.activeAbilities = m.activeAbilities || [];
     p.passiveAbilities = m.passiveAbilities || [];
     p.feats = m.feats || [];
     p.items = m.items || [];
@@ -2920,9 +3439,9 @@ function initSkills() {
         const tr = document.createElement('tr'); tr.className = 'skill-row-data'; tr.dataset.stat = s.s;
         let nameHtml = s.n;
         if(s.custom) nameHtml += ` <input class="skill-custom-input" placeholder="Type">`;
-        else nameHtml += ` <small style="color:#888; font-weight:normal;">(${s.s})</small>`;
+        nameHtml += ` <small class="skill-stat-tag">(${s.s})</small>`;
 
-        tr.innerHTML = `<td><input type="checkbox" class="skill-cs"></td><td style="text-align:left; font-weight:bold;" class="skill-name-cell">${nameHtml}</td><td class="skill-mod">0</td><td><input type="number" class="skill-temp" value="0" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td><input type="number" class="skill-ranks" value="0" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent); font-weight:bold;">0</td>`;
+        tr.innerHTML = `<td><input type="checkbox" class="skill-cs" aria-label="Class skill"></td><td style="text-align:left; font-weight:bold;" class="skill-name-cell" tabindex="0">${nameHtml}</td><td class="skill-mod">0</td><td><input type="number" class="skill-temp" value="0" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td><input type="number" class="skill-ranks" value="0" min="0" max="${getSkillRankCap()}" style="width:40px; text-align:center; background:var(--input-bg); border:1px solid var(--border); padding:4px; border-radius:3px;"></td><td class="skill-total" style="color:var(--accent); font-weight:bold;">0</td>`;
         cont.appendChild(tr);
         bindSkillRowEvents(tr);
     });
@@ -2947,6 +3466,7 @@ function updateCalcs() {
         totalEl.title = classBonus ? `Includes +${classBonus} class skill bonus` : 'No class skill bonus';
         
         const cell = row.querySelector('.skill-name-cell');
+        if (typeof syncSkillRollAvailability === 'function') syncSkillRollAvailability(row);
         // Handle "Trained Only" logic simply by checking base name
         let baseName = cell.innerText.split(' ')[0].trim();
         if(cell.querySelector('input')) baseName = cell.firstChild.textContent.trim();
@@ -2960,6 +3480,7 @@ function updateCalcs() {
     renderAbilityDrawerScores();
     updateSlotUsageDisplay();
     renderNotesList();
+    if (typeof updateLimitBreakState === 'function') updateLimitBreakState();
 }
 
 const CRITICAL_SYNC_FIELDS = ['hp_curr','hp_temp','hp_max','mp_curr','mp_temp','mp_max','str','dex','con','int','wis','cha'];
@@ -3006,6 +3527,17 @@ window.viewCollection = (url) => { document.getElementById('modalImg').src = url
 document.body.addEventListener('input', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(e.target.id); save(); } });
 document.body.addEventListener('change', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(e.target.id); save(true); } });
 document.body.addEventListener('focusout', e => { if(e.target.classList.contains('live-field')) { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(e.target.id); save(true); } });
+const skillLevelField = document.getElementById('character_level');
+if(skillLevelField && skillLevelField.dataset.skillCapBound !== '1') {
+  skillLevelField.dataset.skillCapBound = '1';
+  const enforceLevelSkillCap = () => {
+    const changed = syncSkillRankCap(true);
+    updateCalcs();
+    if(changed) save(true);
+  };
+  skillLevelField.addEventListener('input', enforceLevelSkillCap);
+  skillLevelField.addEventListener('change', enforceLevelSkillCap);
+}
 const skillsBodyEl = document.getElementById('skillsTableBody');
 if(skillsBodyEl && skillsBodyEl.dataset.delegateBound !== '1') {
   skillsBodyEl.dataset.delegateBound = '1';
@@ -3022,7 +3554,7 @@ if(skillsBodyEl && skillsBodyEl.dataset.delegateBound !== '1') {
   });
 }
 
-window.addEventListener('DOMContentLoaded', () => { ['ac_view_mode','ar_view_mode'].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('change', () => { renderSelectedCombatDisplays(); save(true); }); }); ['hp_curr','hp_temp','hp_max','mp_curr','mp_temp','mp_max','str','dex','con','int','wis','cha'].forEach(id => { const el = document.getElementById(id); if(!el) return; el.addEventListener('input', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); save(); }); el.addEventListener('change', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); save(true); }); el.addEventListener('blur', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); save(true); }); }); const spellDcBaseEl = document.getElementById('spell_dc_base'); if(spellDcBaseEl){ spellDcBaseEl.addEventListener('input', () => { refreshSpellDcDisplays('spell_dc_base'); }); spellDcBaseEl.addEventListener('change', () => { refreshSpellDcDisplays('spell_dc_base'); }); } });
+window.addEventListener('DOMContentLoaded', () => { const levelEl = document.getElementById('character_level'); if(levelEl && levelEl.dataset.skillCapBound !== '1'){ levelEl.dataset.skillCapBound = '1'; levelEl.addEventListener('change', () => { applySkillRankCapToInputs(true); updateCalcs(); save(true); }); } ['ac_view_mode','ar_view_mode'].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('change', () => { renderSelectedCombatDisplays(); save(true); }); }); ['hp_curr','hp_temp','hp_max','mp_curr','mp_temp','mp_max','str','dex','con','int','wis','cha'].forEach(id => { const el = document.getElementById(id); if(!el) return; el.addEventListener('input', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); save(); }); el.addEventListener('change', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); save(true); }); el.addEventListener('blur', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); save(true); }); }); const spellDcBaseEl = document.getElementById('spell_dc_base'); if(spellDcBaseEl){ spellDcBaseEl.addEventListener('input', () => { refreshSpellDcDisplays('spell_dc_base'); }); spellDcBaseEl.addEventListener('change', () => { refreshSpellDcDisplays('spell_dc_base'); }); } });
 window.addEventListener('beforeunload', () => { try { if(typeof save === 'function') save(true); } catch(e) {} });
 window.addEventListener('load', () => { if(typeof refreshCombatUi === 'function') { setTimeout(() => { refreshCombatUi(); renderAbilityDrawerScores(); }, 150); } else { setTimeout(renderAbilityDrawerScores, 150); } });
 
@@ -3041,18 +3573,52 @@ function syncSizeFields() {
   const bio = document.getElementById('size'); if(bio) bio.value = found.name;
 }
 function renderSelectedCombatDisplays() {
-  const acMode = document.getElementById('ac_view_mode')?.value || 'ac';
-  const arMode = document.getElementById('ar_view_mode')?.value || 'melee';
   const acMap = { ac: numVal('ac_total'), touch: numVal('touch_ac_total'), flat: numVal('flat_ac_total'), cmd: numVal('cmd_total') };
   const arMap = { melee: numVal('ar_total'), ranged: numVal('ar_ranged_total'), touch: numVal('ar_touch_total'), ranged_touch: numVal('ar_ranged_touch_total'), cmb: numVal('cmb') };
-  const acMain = document.getElementById('acDisplayMain');
-  if(acMain) acMain.textContent = String(acMap[acMode] ?? acMap.ac ?? 10);
-  const arMain = document.getElementById('arDisplayMain');
-  const arVal = arMap[arMode] ?? arMap.melee ?? 0;
-  if(arMain) arMain.textContent = arVal>=0 ? `+${arVal}` : `${arVal}`;
+  const setPlainText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = String(value); };
+  const setSignedText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value >= 0 ? `+${value}` : `${value}`; };
+  setPlainText('acDisplayMain', acMap.ac ?? 10);
+  setPlainText('acDisplayTouch', acMap.touch ?? 10);
+  setPlainText('acDisplayFlat', acMap.flat ?? 10);
+  setPlainText('acDisplayCmd', acMap.cmd ?? 10);
+  setSignedText('arDisplayMain', arMap.melee ?? 0);
+  setSignedText('arDisplayRanged', arMap.ranged ?? 0);
+  setSignedText('arDisplayTouch', arMap.touch ?? 0);
+  setSignedText('arDisplayRangedTouch', arMap.ranged_touch ?? 0);
+  setSignedText('arDisplayCmb', arMap.cmb ?? 0);
 }
 
 function handleDisplayModeChange() { renderSelectedCombatDisplays(); if (typeof triggerSave === 'function') triggerSave(); else save(); }
+function performLongRest() {
+  const level = Math.max(1, Math.min(20, Number(document.getElementById('character_level')?.value) || 1));
+  const hpBefore = numVal('hp_curr');
+  const hpMax = numVal('hp_max');
+  const hpAfter = hpMax > 0 ? Math.min(hpMax, hpBefore + level) : hpBefore + level;
+  const mpBefore = numVal('mp_curr');
+  const mpAfter = numVal('mp_max');
+  setVal('hp_curr', hpAfter);
+  setVal('mp_curr', mpAfter);
+  let restoredAbilities = 0;
+  (getActiveData().activeAbilities || []).forEach(ability => {
+    if(ability && ability.restoreOnLongRest) {
+      ability.u_curr = Math.max(0, Number(ability.u_max) || 0);
+      restoredAbilities += 1;
+    }
+  });
+  renderAbilities('active');
+  updateCalcs();
+  computeDerivedStats();
+  save(true);
+  routeChatEntry({
+    kind: 'info',
+    title: 'Long Rest',
+    subtitle: currentChatSheetLabel(),
+    lines: [`> HP healed: ${Math.max(0, hpAfter - hpBefore)} (Level ${level})`, `> MP restored: ${Math.max(0, mpAfter - mpBefore)}`, `> Ability uses restored: ${restoredAbilities}`],
+    results: []
+  });
+}
+window.performLongRest = performLongRest;
+
 function computeDerivedStats() {
   syncSizeFields();
   const dex = modFor('dex'), str = modFor('str'), con = modFor('con'), wis = modFor('wis');
@@ -3060,8 +3626,8 @@ function computeDerivedStats() {
   const hpBase = numVal('hp_curr'), hpTemp = numVal('hp_temp'), hpMax = numVal('hp_max');
   const mpBase = numVal('mp_curr'), mpTemp = numVal('mp_temp'), mpMax = numVal('mp_max');
   const init = dex + numVal('init_temp');
-  const babTotal = numVal('bab') + numVal('bab_temp');
-  const speedTotal = numVal('speed') + numVal('speed_temp');
+  const babTotal = numVal('bab');
+  const speedTotal = numVal('speed');
   const ac = 10 + dex + sizeMod + numVal('ac_armor') + numVal('ac_natural') + numVal('ac_deflect') + numVal('ac_dodge') + numVal('ac_temp');
   const touch = 10 + dex + sizeMod + numVal('ac_deflect') + numVal('ac_dodge') + numVal('touch_temp');
   const flat = 10 + sizeMod + numVal('ac_armor') + numVal('ac_natural') + numVal('ac_deflect') + numVal('flat_temp');
@@ -3120,15 +3686,15 @@ window.openStatEdit = (section) => {
   let html = '';
   if(section === 'hp') { title.textContent = 'Edit HP'; html = `<div class="formula-line"><div class="formula-parts">${statField('Base','hp_curr')}${statField('Temp','hp_temp')}${statField('Max','hp_max')}</div></div>`; }
   if(section === 'mp') { title.textContent = 'Edit MP'; html = `<div class="formula-line"><div class="formula-parts">${statField('Base','mp_curr')}${statField('Temp','mp_temp')}${statField('Max','mp_max')}</div></div>`; }
-  if(section === 'general') { title.textContent = 'Edit General Combat Stats'; html = `<div class="formula-line"><div class="formula-parts">${selectField('Size','size_category', SIZE_OPTIONS)}<div class="mini-field"><label>Size Mod</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div><div class="mini-field"><label>Special Size</label><input value="${document.getElementById('size_special')?.value||0}" readonly class="graybase"></div></div></div><div class="formula-line"><div class="formula-parts">${statField('Initiative Temp','init_temp')}${statField('BAB','bab')}${statField('BAB Temp','bab_temp')}${statField('Speed','speed')}${statField('Speed Temp','speed_temp')}</div></div>`; }
-  if(section === 'ac') { title.textContent = 'Edit AC'; html = `
-    <div class="formula-line"><strong>AC</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Armor','ac_armor')}${statField('Natural','ac_natural')}${statField('Deflect','ac_deflect')}${statField('Dodge','ac_dodge')}${statField('Temp','ac_temp')}<div class="total-pill">${document.getElementById('ac_total')?.value||10}</div></div></div>
+  if(section === 'general') { title.textContent = 'Edit Base Combat Stats'; html = `<div class="formula-line"><div class="formula-parts">${statField('Initiative Temp','init_temp')}${statField('BAB','bab')}${statField('Speed','speed')}</div></div>`; }
+  if(section === 'ac') { title.textContent = 'Edit Defense'; html = `
+    <div class="formula-line"><strong>Armor Class</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Armor','ac_armor')}${statField('Natural','ac_natural')}${statField('Deflect','ac_deflect')}${statField('Dodge','ac_dodge')}${statField('Temp','ac_temp')}<div class="total-pill">${document.getElementById('ac_total')?.value||10}</div></div></div>
     <div class="formula-line"><strong>Touch AC</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Deflect','ac_deflect')}${statField('Dodge','ac_dodge')}${statField('Temp','touch_temp')}<div class="total-pill">${10 + modFor('dex') + numVal('size_mod') + numVal('ac_deflect') + numVal('ac_dodge') + numVal('touch_temp')}</div></div></div>
     <div class="formula-line"><strong>Flat-Footed</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Armor','ac_armor')}${statField('Natural','ac_natural')}${statField('Deflect','ac_deflect')}${statField('Temp','flat_temp')}<div class="total-pill">${10 + numVal('size_mod') + numVal('ac_armor') + numVal('ac_natural') + numVal('ac_deflect') + numVal('flat_temp')}</div></div></div>
     <div class="formula-line"><strong>CMD</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>STR</label><input value="${modFor('str')}" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_special')?.value||0}" readonly class="graybase"></div>${statField('Temp','cmd_temp')}<div class="total-pill">${document.getElementById('cmd_total')?.value||10}</div></div></div>`; }
   if(section === 'ar') { 
-    title.textContent = 'Edit Attack Rolls'; 
-    const babShown = numVal('bab') + numVal('bab_temp');
+    title.textContent = 'Edit Attack'; 
+    const babShown = numVal('bab');
     const sizeShown = numVal('size_mod');
     const meleeAbilityKey = getAttackAbility('ar_melee_ability', 'str');
     const rangedAbilityKey = getAttackAbility('ar_ranged_ability', 'dex');
@@ -3173,7 +3739,9 @@ function renderNotesList() { return; }
 function saveNotesData(notes) { const el = document.getElementById('notesArea'); if(el) el.value = String(notes || ''); if (typeof triggerSave === 'function') triggerSave(); else if (typeof save === 'function') save(); }
 window.addNoteCard = () => {};
 function ensureLimitBreak() { return; }
-function updateLimitBreakState() { return; }
+function updateLimitBreakState() {
+  if(document.getElementById('activeList')) renderAbilities('active');
+}
 
 
 
@@ -3186,10 +3754,8 @@ let activeChatStorageKey = '';
 const CHAT_VIEW_STORAGE_KEY = 'mountAetheriaChatView';
 const GLOBAL_CHAT_COLLECTION = 'globalRollFeed';
 const CHAT_PANEL_STORAGE_KEY = 'mountAetheriaChatPanelState';
-const CHARACTER_PANEL_STORAGE_KEY = 'mountAetheriaCharacterQuickState';
-const ROLL_OVERLAY_STORAGE_KEY = 'mountAetheriaRollOverlayEnabled';
 let currentChatView = 'local';
-let rollOverlayEnabled = (() => { try { return localStorage.getItem(ROLL_OVERLAY_STORAGE_KEY) === 'true'; } catch(_err) { return false; } })();
+const rollOverlayEnabled = true;
 let globalChatMessages = [];
 let unsubscribeGlobalChat = null;
 function persistChatView(){ try { localStorage.setItem(CHAT_VIEW_STORAGE_KEY, currentChatView); } catch(_err) {} }
@@ -3265,7 +3831,7 @@ function applyFloatingPanelState(panelId, storageKey, defaultFactory){
   panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
 }
 function toggleFloatingPanel(panelId, storageKey, force, defaultFactory, onOpen){
-  initDraggableFloatingPanel(panelId, panelId === 'localChatPanel' ? 'localChatHeader' : 'characterQuickPanelHandle', storageKey, defaultFactory);
+  initDraggableFloatingPanel(panelId, 'localChatHeader', storageKey, defaultFactory);
   const state = getPanelState(storageKey);
   const shouldOpen = (typeof force === 'boolean') ? force : !document.getElementById(panelId)?.classList.contains('open');
   const next = { ...state, open: shouldOpen };
@@ -3284,12 +3850,6 @@ function defaultChatPanelPosition(){
   const left = window.innerWidth <= 700 ? 8 : Math.max(8, window.innerWidth - width - 16);
   const top = window.innerWidth <= 700 ? Math.max(72, window.innerHeight - height - 8) : 146;
   return clampFloatingPosition(panel, left, top, 72);
-}
-function defaultCharacterPanelPosition(){
-  const panel = document.getElementById('characterQuickPanel');
-  const width = panel?.offsetWidth || 340;
-  const left = window.innerWidth <= 700 ? 8 : 24;
-  return clampFloatingPosition(panel, left, 84, 58);
 }
 function setChatView(_view){
   currentChatView = 'local';
@@ -3352,28 +3912,6 @@ async function sendGlobalEntry(entry){
     createdAt: new Date()
   });
 }
-function renderCharacterQuickPanel(){
-  const body = document.getElementById('characterQuickPanelBody');
-  if(!body) return;
-  const field = (id, fallback='—') => {
-    const el = document.getElementById(id);
-    const value = (el && 'value' in el) ? el.value : (el?.textContent || '');
-    return String(value || '').trim() || fallback;
-  };
-  body.innerHTML = `<div class="character-quick-grid">
-    <div class="character-quick-card"><small>Name</small><span>${chatEscapeHtml(field('charName'))}</span></div>
-    <div class="character-quick-card"><small>Race</small><span>${chatEscapeHtml(field('race'))}</span></div>
-    <div class="character-quick-card"><small>Class</small><span>${chatEscapeHtml(field('class'))}</span></div>
-    <div class="character-quick-card"><small>Alignment</small><span>${chatEscapeHtml(field('alignment'))}</span></div>
-    <div class="character-quick-card"><small>Size</small><span>${chatEscapeHtml(field('size'))}</span></div>
-    <div class="character-quick-card"><small>Languages</small><span>${chatEscapeHtml(field('languages'))}</span></div>
-    <div class="character-quick-card full"><small>Senses</small><span>${chatEscapeHtml(field('senses'))}</span></div>
-  </div>`;
-}
-function toggleCharacterQuickPanel(force){
-  renderCharacterQuickPanel();
-  toggleFloatingPanel('characterQuickPanel', CHARACTER_PANEL_STORAGE_KEY, force, defaultCharacterPanelPosition, renderCharacterQuickPanel);
-}
 function togglePanelMenu(force){
   const pop = document.getElementById('panelMenuPopover');
   if(!pop) return;
@@ -3381,7 +3919,6 @@ function togglePanelMenu(force){
   pop.classList.toggle('open', next);
   pop.setAttribute('aria-hidden', next ? 'false' : 'true');
 }
-window.toggleCharacterQuickPanel = toggleCharacterQuickPanel;
 window.togglePanelMenu = togglePanelMenu;
 
 
@@ -3539,20 +4076,6 @@ function postChatEntry(entry, options = {}) {
   }
 }
 
-function syncRollOverlayToggle(){
-  const btn = document.getElementById('rollOverlayToggleBtn');
-  if(!btn) return;
-  btn.classList.toggle('roll-toggle-on', !!rollOverlayEnabled);
-  btn.classList.toggle('roll-toggle-off', !rollOverlayEnabled);
-  btn.textContent = rollOverlayEnabled ? '🎲 Toggle Roll: On' : '🎲 Toggle Roll: Off';
-  btn.setAttribute('aria-pressed', rollOverlayEnabled ? 'true' : 'false');
-  btn.title = rollOverlayEnabled ? 'Dice total overlay is ON' : 'Dice total overlay is OFF';
-}
-function toggleRollOverlay(force){
-  rollOverlayEnabled = (typeof force === 'boolean') ? force : !rollOverlayEnabled;
-  try { localStorage.setItem(ROLL_OVERLAY_STORAGE_KEY, rollOverlayEnabled ? 'true' : 'false'); } catch(_err) {}
-  syncRollOverlayToggle();
-}
 function stripChatHtml(value = ''){
   const holder = document.createElement('div');
   holder.innerHTML = String(value || '').replace(/<br\s*\/?>/gi, ' ');
@@ -3579,7 +4102,7 @@ function extractRollOverlayTotals(entry){
   return totals;
 }
 function showRollOverlay(entry){
-  if(!rollOverlayEnabled || !entry || entry.kind !== 'roll') return;
+  if(!entry || entry.kind !== 'roll') return;
   const overlay = document.getElementById('rollResultOverlay');
   if(!overlay) return;
   const totals = extractRollOverlayTotals(entry);
@@ -4245,7 +4768,7 @@ function rollSaveCheck(kind) {
   });
 }
 function sendSkillCheck(row) {
-  if (!row) return;
+  if (!row || !syncSkillRollAvailability(row)) return;
   const name = skillRowName(row);
   const bonus = getSkillBonus(row);
   const statLabel = abilityModLabel(row.dataset.stat || '');
@@ -4275,22 +4798,28 @@ function getAbilityChatBundle(subType) {
   if (subType === 'passive') return { key: 'passiveAbilities', label: 'Passive Ability' };
   return { key: 'feats', label: 'Feat' };
 }
+function abilityCardLines(item, label = 'Active Ability') {
+  const lines = [`> Category: ${label}`];
+  lines.push(`> Type: ${item.type || 'Standard'}`);
+  lines.push(`> Uses: ${item.u_curr ?? 0}/${item.u_max ?? 0}`);
+  lines.push(`> Attack Type: ${item.attack_type || '—'} | Damage: ${item.damage || '—'}`);
+  if (item.link) lines.push(`> Link: ${item.link}`);
+  if (String(item.desc || '').trim()) lines.push(`> Description: ${String(item.desc).trim()}`);
+  if (String(item.at_higher_lvls || item.at_higher || '').trim()) lines.push(`> At Higher Levels: ${String(item.at_higher_lvls || item.at_higher).trim()}`);
+  return lines;
+}
 function sendAbilityCard(subType, index) {
   const bundle = getAbilityChatBundle(subType);
   const list = getActiveData()[bundle.key] || [];
   const item = list[index];
   if (!item) return;
-  const lines = [`> Category: ${bundle.label}`];
-  if (subType === 'active') {
-    lines.push(`> Type: ${item.type || 'Standard'}`);
-    lines.push(`> Uses: ${item.u_curr ?? 0}/${item.u_max ?? 0}`);
-    lines.push(`> Attack Type: ${item.attack_type || '—'} | Damage: ${item.damage || '—'}`);
-  } else if (item.type) {
-    lines.push(`> Type: ${item.type}`);
+  const lines = subType === 'active' ? abilityCardLines(item, bundle.label) : [`> Category: ${bundle.label}`];
+  if (subType !== 'active') {
+    if (item.type) lines.push(`> Type: ${item.type}`);
+    if (item.link) lines.push(`> Link: ${item.link}`);
+    if (String(item.desc || '').trim()) lines.push(`> Description: ${String(item.desc).trim()}`);
+    if (String(item.at_higher_lvls || item.at_higher || '').trim()) lines.push(`> At Higher Levels: ${String(item.at_higher_lvls || item.at_higher).trim()}`);
   }
-  if (item.link) lines.push(`> Link: ${item.link}`);
-  if (String(item.desc || '').trim()) lines.push(`> Description: ${String(item.desc).trim()}`);
-  if (String(item.at_higher_lvls || item.at_higher || '').trim()) lines.push(`> At Higher Levels: ${String(item.at_higher_lvls || item.at_higher).trim()}`);
   routeChatEntry({
     kind: 'info',
     title: item.name || bundle.label,
@@ -4299,12 +4828,12 @@ function sendAbilityCard(subType, index) {
     results: []
   });
 }
-function rollAbilityAction(index) {
+function rollAbilityAction(index, options = {}) {
   const list = getActiveData().activeAbilities || [];
   const item = list[index];
   if (!item) return;
   const attack = abilityAttackConfig(item);
-  if (!attack) { rollAbilityDamage(index); return; }
+  if (!attack) { rollAbilityDamage(index, options); return; }
   const attackRoll = rollD20WithModifier(attack.total);
   const isCrit = attackRoll.die === 20 && attack.mode !== 'cmb';
   const calcLines = [rollCalcLine(attackRoll, attack.parts, 'AR Calc')];
@@ -4326,11 +4855,13 @@ function rollAbilityAction(index) {
     multiplier: 2,
     attackLabel: attack.label
   });
-  const discordLines = calcLines.concat(critBundle.calcLines);
+  const cardLines = options.includeCard ? abilityCardLines(item) : [];
+  const displayLines = cardLines.concat(calcLines);
+  const discordLines = cardLines.concat(calcLines, critBundle.calcLines);
   const discordResults = results.concat(critBundle.resultLines);
-  routeChatEntry({ kind: 'roll', title: `${item.name || 'Active Ability'}${isCrit ? ' — Crit!' : ''}`, subtitle: currentChatSheetLabel(), lines: calcLines, results, discordLines, discordResults });
+  routeChatEntry({ kind: 'roll', title: `${item.name || 'Active Ability'}${isCrit ? ' — Crit!' : ''}`, subtitle: currentChatSheetLabel(), lines: displayLines, results, discordLines, discordResults });
 }
-function rollAbilityDamage(index) {
+function rollAbilityDamage(index, options = {}) {
   const list = getActiveData().activeAbilities || [];
   const item = list[index];
   if (!item) return;
@@ -4338,11 +4869,14 @@ function rollAbilityDamage(index) {
   if (!damageExpr) return;
   const damageResult = rollDamageExpression(damageExpr);
   const dmgLine = damageCalcLine(damageResult, 'Dmg Calc');
+  const calcLines = dmgLine ? [dmgLine] : [];
+  const cardLines = options.includeCard ? abilityCardLines(item) : [];
   routeChatEntry({
     kind: 'roll',
     title: `${item.name || 'Active Ability'} Damage`,
     subtitle: currentChatSheetLabel(),
-    lines: dmgLine ? [dmgLine] : [],
+    lines: cardLines.concat(calcLines),
+    discordLines: cardLines.concat(calcLines),
     results: [`<strong>Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`]
   });
 }
@@ -4359,15 +4893,47 @@ function sendAbilityCheck(stat) {
     results: simpleRollResultLines(roll, 'Total')
   });
 }
+function isTrainedOnlySkillRow(row) {
+  const cell = row?.querySelector('.skill-name-cell');
+  if (!cell) return false;
+  const skillLabel = String(cell.textContent || '');
+  return TRAINED_ONLY.some(name => skillLabel.includes(name));
+}
+function syncSkillRollAvailability(row) {
+  if (!row) return false;
+  const cell = row.querySelector('.skill-name-cell');
+  const ranks = Number(row.querySelector('.skill-ranks')?.value) || 0;
+  const trainedOnly = isTrainedOnlySkillRow(row);
+  const missingRequiredRank = trainedOnly && ranks < 1;
+  const canRoll = !missingRequiredRank;
+  if (!cell) return canRoll;
+  cell.classList.toggle('trained-untrained', missingRequiredRank);
+  cell.classList.toggle('trained-trained', trainedOnly && !missingRequiredRank);
+  cell.classList.toggle('rollable', canRoll);
+  cell.classList.toggle('skill-roll-disabled', !canRoll);
+  cell.tabIndex = canRoll ? 0 : -1;
+  cell.setAttribute('aria-disabled', canRoll ? 'false' : 'true');
+  cell.title = canRoll ? 'Click to roll this skill to Discord chat' : 'Requires at least 1 rank to roll';
+  return canRoll;
+}
 function bindSkillRollTargets(scope = document) {
   scope.querySelectorAll('#skillsTableBody .skill-name-cell').forEach(cell => {
+    const row = cell.closest('tr');
+    syncSkillRollAvailability(row);
     if (cell.dataset.rollBound === '1') return;
     cell.dataset.rollBound = '1';
-    cell.classList.add('rollable');
-    cell.title = 'Click to roll this skill to chat';
     cell.addEventListener('click', event => {
-      if (event.target.closest('input,button,textarea,select')) return;
-      sendSkillCheck(cell.closest('tr'));
+      if (event.target.closest('button,textarea,select')) return;
+      if (event.target.closest('input') && document.body.classList.contains('skill-edit-mode')) return;
+      if (!syncSkillRollAvailability(row)) return;
+      sendSkillCheck(row);
+    });
+    cell.addEventListener('keydown', event => {
+      if (!document.body.classList.contains('skill-edit-mode') && (event.key === 'Enter' || event.key === ' ')) {
+        if (!syncSkillRollAvailability(row)) return;
+        event.preventDefault();
+        sendSkillCheck(row);
+      }
     });
   });
 }
@@ -4390,11 +4956,8 @@ window.rollAttackCheck = rollAttackCheck;
 window.toggleLocalChat = toggleLocalChat;
 window.clearLocalChat = clearLocalChat;
 window.persistChatTarget = persistChatTarget;
-window.toggleRollOverlay = toggleRollOverlay;
-window.syncRollOverlayToggle = syncRollOverlayToggle;
 window.setChatView = setChatView;
 window.togglePanelMenu = togglePanelMenu;
-window.toggleCharacterQuickPanel = toggleCharacterQuickPanel;
 
 window.addEventListener('click', event => {
   if (!event.target.closest('.roll-menu') && !event.target.closest('#saveRollMenuBtn') && !event.target.closest('#attackRollMenuBtn')) closeAllRollMenus();
@@ -4408,13 +4971,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setPanelState(CHAT_PANEL_STORAGE_KEY, { ...chatPanelState, open:false });
   ensureChatStateLoaded();
   bindSkillRollTargets();
+  applySkillEditMode(false);
   refreshAbilityRollTargets();
   renderChatViewControls();
-  syncRollOverlayToggle();
   initChatPanelDrag();
-  renderCharacterQuickPanel();
-  initDraggableFloatingPanel('characterQuickPanel', 'characterQuickPanelHandle', CHARACTER_PANEL_STORAGE_KEY, defaultCharacterPanelPosition);
-  applyFloatingPanelState('characterQuickPanel', CHARACTER_PANEL_STORAGE_KEY, defaultCharacterPanelPosition);
   applyFloatingPanelState('localChatPanel', CHAT_PANEL_STORAGE_KEY, defaultChatPanelPosition);
 });
 
@@ -4437,6 +4997,119 @@ document.addEventListener('DOMContentLoaded', () => {
     if(abilityBtn) abilityBtn.innerHTML = '🎲';
     syncSizeFields(); computeDerivedStats(); renderSelectedCombatDisplays(); renderNotesList(); bindCriticalFieldPersistence(); ensureChatStateLoaded(); bindSkillRollTargets(); refreshAbilityRollTargets();
 });
+
+
+/* --- v16 Player calendar month view + character-bound shop frame --- */
+let playerCalendarModeV16 = 'month';
+let playerCalendarBrowseYearV16 = null;
+let playerCalendarBrowseMonthV16 = null;
+function clampCalendarYearV16(value, fallback = 1) {
+    const parsed = Number(value);
+    const year = Number.isFinite(parsed) ? Math.trunc(parsed) : Math.trunc(Number(fallback) || 1);
+    return Math.max(-1000, Math.min(5000, year));
+}
+function groupCurrentDateV16(group) {
+    const raw = group?.calendarCurrentDay || {};
+    return { year:clampCalendarYearV16(raw.year ?? group?.calendarCurrentYear, 1), month:Math.max(1, Math.min(12, Number(raw.month) || 1)), day:Math.max(1, Math.min(31, Number(raw.day) || 1)) };
+}
+function resetPlayerCalendarBrowseV16(group) {
+    const current = groupCurrentDateV16(group);
+    playerCalendarBrowseYearV16 = current.year;
+    playerCalendarBrowseMonthV16 = current.month;
+    playerCalendarModeV16 = 'month';
+}
+function playerCalendarEventsV16(group, year, month, day) {
+    const fallback = groupCurrentDateV16(group).year;
+    return (Array.isArray(group?.calendarEvents) ? group.calendarEvents : []).filter(event => clampCalendarYearV16(event.year, fallback) === year && Number(event.month) === month && Number(event.day) === day);
+}
+function playerCalendarDayHtmlV16(group, year, month, day, rich) {
+    const current = groupCurrentDateV16(group);
+    const events = playerCalendarEventsV16(group, year, month, day);
+    const cls = ['calendar-day'];
+    if(current.year===year && current.month===month && current.day===day) cls.push('current');
+    if(events.length) cls.push('has-event');
+    if(!rich) return `<button type="button" class="${cls.join(' ')}" onclick="openPlayerCalendarDay(${month},${day},${year})">${day}</button>`;
+    const chips = events.slice(0,2).map((event,index) => `<button class="calendar-event-chip" type="button" onclick="event.stopPropagation();openPlayerCalendarEventV16('${calendarEscape(String(event.id || index))}',${month},${day},${year})">${calendarEscape(event.title || 'Event')}</button>`).join('');
+    const more = events.length > 2 ? `<span class="calendar-more-events">+${events.length-2} more</span>` : '';
+    return `<div role="button" tabindex="0" class="${cls.join(' ')}" onclick="openPlayerCalendarDay(${month},${day},${year})" onkeydown="if(event.key==='Enter')openPlayerCalendarDay(${month},${day},${year})"><span class="calendar-day-number">${day}</span>${chips}${more}</div>`;
+}
+function syncPlayerCalendarControlsV16(group) {
+    const names = calendarMonthNames(group);
+    const monthSelect = document.getElementById('playerCalendarBrowseMonth');
+    const yearInput = document.getElementById('playerCalendarBrowseYear');
+    if(monthSelect) monthSelect.innerHTML = names.map((name, index) => `<option value="${index+1}" ${Number(playerCalendarBrowseMonthV16)===index+1?'selected':''}>${calendarEscape(name)}</option>`).join('');
+    if(yearInput) yearInput.value = String(playerCalendarBrowseYearV16);
+    document.getElementById('playerCalendarMonthMode')?.classList.toggle('active', playerCalendarModeV16 === 'month');
+    document.getElementById('playerCalendarYearMode')?.classList.toggle('active', playerCalendarModeV16 === 'year');
+}
+window.setPlayerCalendarView = mode => { playerCalendarModeV16 = mode === 'year' ? 'year' : 'month'; renderPlayerCalendar(); };
+window.setPlayerCalendarMonth = value => { playerCalendarBrowseMonthV16 = Math.max(1, Math.min(12, Number(value) || 1)); playerCalendarModeV16='month'; renderPlayerCalendar(); };
+window.setPlayerCalendarYear = value => { playerCalendarBrowseYearV16 = clampCalendarYearV16(value, playerCalendarBrowseYearV16); renderPlayerCalendar(); };
+window.stepPlayerCalendarMonth = delta => {
+    let month = Number(playerCalendarBrowseMonthV16) || 1;
+    let year = clampCalendarYearV16(playerCalendarBrowseYearV16, 1);
+    month += Number(delta) || 0;
+    while(month < 1) { month += 12; year -= 1; }
+    while(month > 12) { month -= 12; year += 1; }
+    playerCalendarBrowseYearV16 = clampCalendarYearV16(year, playerCalendarBrowseYearV16);
+    playerCalendarBrowseMonthV16 = month;
+    playerCalendarModeV16='month';
+    renderPlayerCalendar();
+};
+window.selectPlayerCalendar = groupId => { selectedPlayerCalendarId = groupId; const group=playerCalendarGroups.find(item=>item.id===groupId); resetPlayerCalendarBrowseV16(group); renderPlayerCalendar(); };
+window.openPlayerCalendarDay = (month, day, year = playerCalendarBrowseYearV16) => {
+    const group = playerCalendarGroups.find(item => item.id === selectedPlayerCalendarId);
+    const box = document.getElementById('playerCalendarEventDetails');
+    if(!group || !box) return;
+    const names = calendarMonthNames(group);
+    const chosenYear = clampCalendarYearV16(year, groupCurrentDateV16(group).year);
+    const items = playerCalendarEventsV16(group, chosenYear, month, day);
+    box.classList.add('show');
+    box.innerHTML = `<h3>${calendarEscape(group.name)} — ${calendarEscape(names[month-1])} ${day}, Year ${chosenYear}</h3>` + (items.length ? items.map(event => `<div class="calendar-event-row"><strong>${calendarEscape(event.title || 'Event')}</strong>${event.description ? `<br>${calendarEscape(event.description)}` : ''}</div>`).join('') : '<div class="calendar-event-row">No events on this day.</div>');
+};
+window.openPlayerCalendarEventV16 = (eventId, month, day, year) => {
+    const group=playerCalendarGroups.find(item=>item.id===selectedPlayerCalendarId);
+    const box=document.getElementById('playerCalendarEventDetails');
+    if(!group || !box) return;
+    const names=calendarMonthNames(group);
+    const items=playerCalendarEventsV16(group, clampCalendarYearV16(year), month, day);
+    const chosen=items.find(item=>String(item.id)===String(eventId)) || items[0];
+    if(!chosen) return openPlayerCalendarDay(month,day,year);
+    box.classList.add('show');
+    box.innerHTML=`<h3>${calendarEscape(chosen.title || 'Event')}</h3><div class="calendar-event-row"><strong>${calendarEscape(names[month-1])} ${day}, Year ${clampCalendarYearV16(year)}</strong>${chosen.description ? `<br>${calendarEscape(chosen.description)}` : ''}</div>`;
+};
+renderPlayerCalendar = function() {
+    const tabs=document.getElementById('playerCalendarGroupTabs'), status=document.getElementById('playerCalendarStatus'), months=document.getElementById('playerCalendarMonths'), pill=document.getElementById('playerCalendarCurrentDay'), details=document.getElementById('playerCalendarEventDetails');
+    if(!tabs || !status || !months || !pill || !details) return;
+    tabs.innerHTML=playerCalendarGroups.map(group=>`<button type="button" class="calendar-group-btn ${group.id===selectedPlayerCalendarId?'active':''}" onclick="selectPlayerCalendar('${calendarEscape(group.id)}')">${calendarEscape(group.name)}</button>`).join('');
+    const group=playerCalendarGroups.find(item=>item.id===selectedPlayerCalendarId);
+    if(!group) { months.innerHTML=''; pill.textContent='No group calendar selected'; status.classList.remove('hidden'); return; }
+    if(playerCalendarBrowseYearV16===null || playerCalendarBrowseMonthV16===null) resetPlayerCalendarBrowseV16(group);
+    const current=groupCurrentDateV16(group), names=calendarMonthNames(group);
+    status.classList.add('hidden'); pill.textContent=`${group.name}: ${names[current.month-1]} ${current.day}, Year ${current.year}`;
+    syncPlayerCalendarControlsV16(group);
+    details.classList.remove('show'); details.innerHTML='';
+    if(playerCalendarModeV16==='month') {
+        const month=playerCalendarBrowseMonthV16;
+        const days=Array.from({length:31},(_,i)=>playerCalendarDayHtmlV16(group,playerCalendarBrowseYearV16,month,i+1,true)).join('');
+        months.className='fantasy-calendar-grid month-only';
+        months.innerHTML=`<section class="calendar-month"><h3>${calendarEscape(names[month-1])} — Year ${playerCalendarBrowseYearV16}</h3><div class="calendar-days">${days}</div></section>`;
+    } else {
+        months.className='fantasy-calendar-grid';
+        months.innerHTML=names.map((name,index)=>`<section class="calendar-month"><h3>${calendarEscape(name)} — Year ${playerCalendarBrowseYearV16}</h3><div class="calendar-days">${Array.from({length:31},(_,i)=>playerCalendarDayHtmlV16(group,playerCalendarBrowseYearV16,index+1,i+1,false)).join('')}</div></section>`).join('');
+    }
+};
+function syncEmbeddedShopCharacterV16() {
+    const frame=document.getElementById('playerShopFrame');
+    if(!frame || !currentSummonId) return;
+    const wanted=`tools.html?embed=shop&character=${encodeURIComponent(currentSummonId)}`;
+    if(frame.getAttribute('src') !== wanted) frame.setAttribute('src', wanted);
+}
+const switchOtherTabV15 = window.switchOtherTab;
+window.switchOtherTab = name => { switchOtherTabV15(name); if(name === 'shop') syncEmbeddedShopCharacterV16(); };
+let lastShopCharacterV16 = '';
+window.setInterval(() => { if(currentSummonId && currentSummonId !== lastShopCharacterV16) { lastShopCharacterV16=currentSummonId; syncEmbeddedShopCharacterV16(); } }, 400);
+
 </script>
 
 <script>
@@ -4552,6 +5225,37 @@ document.addEventListener('DOMContentLoaded', () => {
     initAbilityDrawerPatch();
   }
 })();
+
+
+/* --- Spell tab visibility toggle --- */
+const SPELL_TAB_VISIBILITY_KEY = 'mountAetheriaSpellsTabHidden';
+function spellsTabIsHidden() {
+  try { return localStorage.getItem(SPELL_TAB_VISIBILITY_KEY) === '1'; } catch (_err) { return false; }
+}
+function applySpellTabVisibility() {
+  const wrapper = document.getElementById('spellsNavControl');
+  const toggle = document.getElementById('spellsVisibilityToggle');
+  const tab = document.getElementById('spellsSubBtn');
+  const group = document.getElementById('c-spells');
+  if (!wrapper || !toggle || !tab) return;
+  const hidden = spellsTabIsHidden();
+  wrapper.classList.toggle('spells-collapsed', hidden);
+  toggle.textContent = hidden ? '›' : '‹';
+  toggle.title = hidden ? 'Show Spells tab' : 'Hide Spells tab';
+  toggle.setAttribute('aria-label', toggle.title);
+  toggle.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+  if (hidden && group && (group.style.display === 'block' || group.classList.contains('active'))) {
+    if (typeof switchSub === 'function') switchSub('c-general');
+  }
+}
+window.toggleSpellTabVisibility = (event) => {
+  event?.stopPropagation?.();
+  const hidden = !spellsTabIsHidden();
+  try { localStorage.setItem(SPELL_TAB_VISIBILITY_KEY, hidden ? '1' : '0'); } catch (_err) {}
+  applySpellTabVisibility();
+};
+window.addEventListener('DOMContentLoaded', () => setTimeout(applySpellTabVisibility, 0));
+
 </script>
 </body>
 </html>
