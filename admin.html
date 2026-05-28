@@ -953,6 +953,65 @@ body.skill-edit-mode #skillsTable .skill-stat-tag{color:#888;font-weight:normal;
 }
 </style>
 
+
+<style>
+/* --- v24 centered quick-skill cards + MP spell casting controls --- */
+.spell-mp-panel{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;background:linear-gradient(135deg,#101a22,#151515);border:1px solid rgba(74,190,255,.48);border-radius:14px;padding:12px 14px;margin:0 0 12px;box-shadow:0 0 18px rgba(73,179,235,.10);}
+.spell-mp-label{font-family:'Uncial Antiqua',serif;color:#91deff;font-weight:800;margin-right:6px;}
+.spell-mp-panel strong{font-size:25px;color:#91deff;line-height:1;text-shadow:0 0 12px rgba(84,198,255,.45);}
+.spell-mp-divider,#spellMpMaximum{font-size:20px;font-weight:800;color:#d9e9f2;}
+.spell-mp-panel small{flex-basis:100%;text-align:center;color:#8ea3ae;font-size:11px;margin-top:2px;}
+.spell-use-btn{width:auto;min-height:30px;border-radius:999px;border:1px solid #42d06f;background:#176b33;color:#fff;padding:5px 12px;font-weight:900;cursor:pointer;transition:filter .16s ease,transform .16s ease,box-shadow .16s ease;white-space:nowrap;}
+.spell-use-btn:not(:disabled):hover{filter:brightness(1.13);transform:translateY(-1px);box-shadow:0 0 14px rgba(66,208,111,.34);}
+.spell-use-btn.unavailable,.spell-use-btn:disabled{background:#5c1717;border-color:#b84444;color:#fff;opacity:1;cursor:not-allowed;box-shadow:none;}
+body:not(.skill-edit-mode) .skills-container{padding:0 4px;background:transparent;border-radius:0;overflow:visible;}
+body:not(.skill-edit-mode) #skillsTable{display:block !important;width:100% !important;border-spacing:0 !important;}
+body:not(.skill-edit-mode) #skillsTable thead{display:none !important;}
+body:not(.skill-edit-mode) #skillsTableBody{display:grid !important;grid-template-columns:repeat(auto-fit,minmax(225px,280px)) !important;justify-content:center !important;align-items:stretch !important;gap:8px !important;width:100% !important;}
+body:not(.skill-edit-mode) #skillsTableBody tr{width:100% !important;min-height:42px !important;display:grid !important;grid-template-columns:minmax(0,1fr) auto !important;align-items:center !important;background:linear-gradient(145deg,#242424,#1e1e1e) !important;border:1px solid #363636 !important;border-radius:12px !important;padding:0 3px !important;box-shadow:0 2px 6px rgba(0,0,0,.18) !important;}
+body:not(.skill-edit-mode) #skillsTableBody tr:hover{border-color:rgba(255,214,103,.62) !important;box-shadow:0 0 12px rgba(255,214,103,.12) !important;}
+body:not(.skill-edit-mode) #skillsTableBody td{display:none !important;border:0 !important;}
+body:not(.skill-edit-mode) #skillsTableBody td:nth-child(2){display:block !important;text-align:left !important;padding:8px 7px 8px 10px !important;min-width:0;font-weight:900 !important;font-size:13px !important;line-height:1.15 !important;}
+body:not(.skill-edit-mode) #skillsTableBody td:nth-child(6){display:flex !important;align-items:center;justify-content:center !important;padding:8px 10px 8px 5px !important;min-width:40px !important;color:var(--accent);font-size:15px;font-weight:900;}
+body:not(.skill-edit-mode) .skill-stat-tag{display:inline;font-size:10px;color:#9a9a9a;font-weight:800;margin-left:4px;text-transform:uppercase;}
+.spell-row .spell-row-primary{display:flex;align-items:center;gap:9px;min-width:0;}
+@media(max-width:540px){body:not(.skill-edit-mode) #skillsTableBody{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:6px !important;}body:not(.skill-edit-mode) #skillsTableBody tr{min-height:40px !important;}body:not(.skill-edit-mode) #skillsTableBody td:nth-child(2){font-size:12px !important;padding:7px 4px 7px 8px !important;}body:not(.skill-edit-mode) #skillsTableBody td:nth-child(6){font-size:14px !important;padding:7px 8px 7px 2px !important;}}
+@media(max-width:390px){body:not(.skill-edit-mode) #skillsTableBody{grid-template-columns:1fr !important;max-width:285px;margin:0 auto;}}
+</style>
+
+<style>
+
+/* --- v28 Live Group Roll Stack: safe capped remote feed --- */
+#groupRollStackV26.group-roll-stack{
+  position:fixed!important; inset:auto 16px 18px auto!important;
+  width:min(360px,calc(100vw - 28px)); max-height:calc(100vh - 80px);
+  display:flex!important; flex-direction:column-reverse; align-items:stretch; gap:10px;
+  pointer-events:none; z-index:6800; opacity:1!important; transform:none!important;
+}
+.group-roll-toast{
+  flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:10px 12px;
+  background:rgba(8,8,8,.90); border:1px solid rgba(255,214,92,.92); border-radius:18px;
+  box-shadow:0 12px 28px rgba(0,0,0,.46),0 0 22px rgba(255,215,90,.2);
+  animation:groupRollToastIn .34s cubic-bezier(.2,.86,.2,1);
+  transition:opacity .22s ease,transform .22s ease,max-height .22s ease,margin .22s ease,padding .22s ease;
+  overflow:hidden;
+}
+.group-roll-toast.removing{opacity:0;transform:translateX(28px) scale(.96);max-height:0;margin:0;padding-top:0;padding-bottom:0;border-width:0;}
+.group-roll-toast .roll-overlay-dice-row{display:flex;gap:6px;flex-shrink:0;}
+.group-roll-toast .roll-overlay-die-wrap{gap:3px;}
+.group-roll-toast .roll-dice-face{width:58px;height:58px;border-radius:15px;border-width:2px;transform:none;}
+.group-roll-toast .roll-overlay-total{min-width:38px;height:38px;font-size:21px;transform:none;}
+.group-roll-toast .roll-dice-pip{width:6px;height:6px;}
+.group-roll-toast .roll-dice-pip.p1{left:9px;top:9px}.group-roll-toast .roll-dice-pip.p2{right:9px;top:9px}
+.group-roll-toast .roll-dice-pip.p3{left:9px;bottom:9px}.group-roll-toast .roll-dice-pip.p4{right:9px;bottom:9px}
+.group-roll-toast .roll-overlay-mini-label{font-size:9px;color:#d4d4d4;}
+.group-roll-copy{min-width:0;display:flex;flex-direction:column;gap:3px;}
+.group-roll-copy .roll-overlay-label{font-size:13px;text-align:left;max-width:none;font-weight:900;color:#fff;}
+.group-roll-source{font-size:11px;color:#ffd95c;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@keyframes groupRollToastIn{from{opacity:0;transform:translateX(26px) scale(.94)}to{opacity:1;transform:translateX(0) scale(1)}}
+@media(max-width:700px){#groupRollStackV26.group-roll-stack{right:8px;bottom:10px;width:min(330px,calc(100vw - 16px));gap:8px}.group-roll-toast{padding:8px 10px}.group-roll-toast .roll-dice-face{width:52px;height:52px}.group-roll-toast .roll-overlay-total{min-width:34px;height:34px;font-size:19px}}
+
+</style>
 </head>
 <body>
 
@@ -1191,6 +1250,11 @@ setTimeout(() => {
   <div id="c-spells" class="sub-group" style="display:none">
       <h3>Spells</h3>
       <div class="stat-box" style="margin-bottom:10px;"><label>Spell DC Base</label><select id="spell_dc_base" class="save-field"><option value="str">STR</option><option value="dex">DEX</option><option value="con">CON</option><option value="int" selected>INT</option><option value="wis">WIS</option><option value="cha">CHA</option></select></div>
+      <section class="spell-mp-panel" aria-label="Available magic points">
+        <span class="spell-mp-label">💧 Available MP</span>
+        <strong id="spellMpAvailable">0</strong><span class="spell-mp-divider">/</span><span id="spellMpMaximum">0</span>
+        <small>Spell cost equals spell level. Cantrip = 0 MP.</small>
+      </section>
       <button class="btn-add" onclick="addNewItem('spell')">+ Add Spell</button>
       <div id="spellList"></div>
   </div>
@@ -1404,6 +1468,7 @@ setTimeout(() => {
   <button type="button" onclick="rollSaveCheck('will')">🎲 Roll Will</button>
 </div>
 <div id="rollResultOverlay" class="roll-result-overlay" aria-hidden="true"></div>
+<div id="groupRollStackV26" class="group-roll-stack" aria-live="polite" aria-atomic="false"></div>
 <div id="localChatBackdrop" class="local-chat-backdrop" onclick="toggleLocalChat(false)"></div>
 <aside id="localChatPanel" class="local-chat-panel" aria-hidden="true">
   <div class="local-chat-header">
@@ -1436,7 +1501,7 @@ setTimeout(() => {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, getDocs, doc, onSnapshot, setDoc, getDoc, deleteDoc, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, onSnapshot, setDoc, getDoc, deleteDoc, updateDoc, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = { apiKey: "AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw", authDomain: "mount-aetheria.firebaseapp.com", projectId: "mount-aetheria", storageBucket: "mount-aetheria.firebasestorage.app", messagingSenderId: "492855693446", appId: "1:492855693446:web:f99485569254a7220c38107", measurementId: "G-0PF84KDN7L" };
 const ADMIN_UID = "U7uyfcMtULSLJvXD0HzJaiMIeGE3";
@@ -2786,6 +2851,65 @@ function toggleSpellGroup(levelNum){
     renderSpells();
 }
 
+
+function spellMpCost(spell) {
+    return Math.max(0, spellLevelToNumber(spell?.lvl));
+}
+function currentSpellMp() {
+    return Math.max(0, Number(document.getElementById('mp_curr')?.value || 0) || 0);
+}
+function maxSpellMp() {
+    return Math.max(0, Number(document.getElementById('mp_max')?.value || 0) || 0);
+}
+function spellCanBeUsed(spell) {
+    return currentSpellMp() >= spellMpCost(spell);
+}
+function updateSpellMpPanel() {
+    const available = document.getElementById('spellMpAvailable');
+    const maximum = document.getElementById('spellMpMaximum');
+    if (available) available.textContent = String(currentSpellMp());
+    if (maximum) maximum.textContent = String(maxSpellMp());
+}
+function syncSpellUseButtons() {
+    const spells = getActiveData().spells || [];
+    document.querySelectorAll('.spell-use-btn[data-spell-index]').forEach(button => {
+        const spell = spells[Number(button.dataset.spellIndex)];
+        if (!spell) return;
+        const cost = spellMpCost(spell);
+        const canUse = spellCanBeUsed(spell);
+        button.disabled = !canUse;
+        button.classList.toggle('unavailable', !canUse);
+        button.classList.toggle('available', canUse);
+        button.textContent = cost > 0 ? `Use • ${cost} MP` : 'Use • Free';
+        button.title = canUse ? `Cast ${spell.name || 'spell'} for ${cost} MP` : `Not enough MP: requires ${cost} MP`;
+    });
+}
+function useSpellAction(index) {
+    const spells = getActiveData().spells || [];
+    const spell = spells[index];
+    if (!spell) return;
+    const cost = spellMpCost(spell);
+    const before = currentSpellMp();
+    if (before < cost) { syncSpellUseButtons(); return; }
+    const remaining = before - cost;
+    const mp = document.getElementById('mp_curr');
+    if (mp) mp.value = String(remaining);
+    if (typeof updateCalculations === 'function') updateCalculations();
+    if (typeof computeDerivedStats === 'function') computeDerivedStats();
+    if (typeof triggerSave === 'function') triggerSave();
+    updateSpellMpPanel();
+    syncSpellUseButtons();
+    if (typeof spellIsRollable === 'function' && spellIsRollable(spell)) rollSpellAction(index);
+    else sendSpellCard(index);
+}
+window.useSpellAction = useSpellAction;
+document.addEventListener('input', event => {
+    if (event.target && ['mp_curr','mp_max'].includes(event.target.id)) {
+        updateSpellMpPanel();
+        syncSpellUseButtons();
+    }
+});
+
 function renderSpells() {
     const data = getActiveData().spells || [];
     const container = document.getElementById('spellList');
@@ -2825,18 +2949,27 @@ function renderSpells() {
             const div = document.createElement('div');
             div.className = 'list-row spell-row';
             const linkHtml = s.link ? `<a class="spell-link-btn" href="${s.link}" target="_blank" onclick="event.stopPropagation()">Link</a>` : '';
-            const rollHtml = spellIsRollable(s) ? `<button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollSpellAction(${idx})" title="Roll spell attack or damage">🎲</button>` : '';
+            const spellCost = spellMpCost(s);
+            const spellReady = spellCanBeUsed(s);
+            const useHtml = `<button class="spell-use-btn ${spellReady ? 'available' : 'unavailable'}" data-spell-index="${idx}" type="button" ${spellReady ? '' : 'disabled'} onclick="event.stopPropagation(); useSpellAction(${idx})" title="${spellReady ? 'Cast spell' : 'Not enough MP'}">${spellCost > 0 ? `Use • ${spellCost} MP` : 'Use • Free'}</button>`;
+            const sendHtml = `<button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendSpellCard(${idx})" title="Send spell to chat without casting">💬</button>`;
             const actionType = s.type || 'Standard';
             div.innerHTML = `
               <div class="row-content" onclick="openView('spell',${idx})">
-                  <span class="list-row-title">${chatEscapeHtml(s.name||'New Spell')}</span>
+                  <div class="spell-row-primary">
+                    ${useHtml}
+                    <span class="list-row-title">${chatEscapeHtml(s.name||'New Spell')}</span>
+                    ${sendHtml}
+                  </div>
               </div>
-              <div class="row-actions">${rollHtml}<span class="spell-action-chip">${chatEscapeHtml(actionType)}</span>${linkHtml}<button type="button" class="btn-edit" onclick="event.stopPropagation(); openEditor('spell',${idx})">Edit</button></div>`;
+              <div class="row-actions"><span class="spell-action-chip">${chatEscapeHtml(actionType)}</span>${linkHtml}<button type="button" class="btn-edit" onclick="event.stopPropagation(); openEditor('spell',${idx})">Edit</button></div>`;
             bodyEl.appendChild(div);
         });
 
         container.appendChild(wrap);
     }
+    updateSpellMpPanel();
+    syncSpellUseButtons();
 }
 
 
@@ -4471,6 +4604,57 @@ function refreshAdminPlayerShopPreviewV18() {
     frame.src=src;
   }
 }
+
+
+
+// --- v25: live group roll feed and admin test action ---
+const GROUP_ROLL_COLLECTION_V25 = 'groupRollFeed';
+const GROUP_ROLL_PAGE_ID_V27 = `admin_page_${Date.now()}_${Math.random().toString(36).slice(2,11)}`;
+const GROUP_ROLL_CLIENT_ID_V25 = GROUP_ROLL_PAGE_ID_V27;
+let unsubscribeGroupRollsV25 = null;
+let groupRollSubscriptionKeyV25 = '';
+let groupRollSubscribedAtV25 = 0;
+const seenGroupRollDocsV25 = new Set();
+const seenAdminGroupRollOrderV27 = [];
+let lastAdminGroupRollPublishAtV27 = 0;
+const ADMIN_GROUP_ROLL_MIN_PUBLISH_MS_V27 = 140;
+function rememberAdminGroupRollDocV27(id){if(seenGroupRollDocsV25.has(id))return false;seenGroupRollDocsV25.add(id);seenAdminGroupRollOrderV27.push(id);while(seenAdminGroupRollOrderV27.length>100)seenGroupRollDocsV25.delete(seenAdminGroupRollOrderV27.shift());return true;}
+function adminActiveRollGroupTagsV25() { return Array.from(new Set((Array.isArray(fullSheetData?.group_tags) ? fullSheetData.group_tags : []).map(tag => String(tag || '').trim()).filter(Boolean))).sort(); }
+function adminGroupRollCreatedMsV25(value) { if(value && typeof value.toMillis === 'function') return value.toMillis(); if(value && typeof value.seconds === 'number') return value.seconds * 1000; return Number(value || 0) || 0; }
+function removeAdminGroupRollToastV25(node, fast=false) { if(!node || node.dataset.removing==='1') return; node.dataset.removing='1'; node.classList.add('removing'); window.setTimeout(()=>node.remove(), fast?115:235); }
+function showAdminStackedRollV25(entry, sourceLine='') {
+  if(!entry || entry.kind !== 'roll') return;
+  const stack=document.getElementById('groupRollStackV26'); const totals=adminRollOverlayTotals(entry); if(!stack || !totals.length) return;
+  stack.classList.add('group-roll-stack'); const toast=document.createElement('div'); toast.className='group-roll-toast';
+  const dice=totals.map(item=>`<div class="roll-overlay-die-wrap"><div class="roll-dice-face"><span class="roll-dice-pip p1"></span><span class="roll-dice-pip p2"></span><span class="roll-dice-pip p3"></span><span class="roll-dice-pip p4"></span><span class="roll-overlay-total">${escapeGroupHtml(item.total)}</span></div><div class="roll-overlay-mini-label">${escapeGroupHtml(item.label)}</div></div>`).join('');
+  toast.innerHTML=`<div class="roll-overlay-dice-row">${dice}</div><div class="group-roll-copy"><div class="roll-overlay-label">${escapeGroupHtml(entry.title || 'Roll')}</div><div class="group-roll-source">${escapeGroupHtml(sourceLine || entry.subtitle || currentChatSheetLabel())}</div></div>`;
+  stack.prepend(toast);
+  // Keep only three remote rolls and detach overflow synchronously to prevent
+  // the delayed-removal overflow loop from freezing on the next incoming roll.
+  while(stack.childElementCount > 3){
+    const oldest=stack.lastElementChild;
+    if(!oldest) break;
+    oldest.remove();
+  }
+  window.setTimeout(()=>removeAdminGroupRollToastV25(toast),4700);
+}
+// Local admin-sheet rolls retain the centered square overlay; incoming member rolls use the bottom-right stack.
+async function publishAdminGroupRollForTagsV25(entry, tags, characterId='') {
+  const clean=Array.from(new Set((tags || []).map(tag=>String(tag||'').trim()).filter(Boolean)));
+  if(!clean.length || !entry || entry.kind !== 'roll') return;
+  const now=Date.now(); if(now-lastAdminGroupRollPublishAtV27<ADMIN_GROUP_ROLL_MIN_PUBLISH_MS_V27)return; lastAdminGroupRollPublishAtV27=now;
+  const payload={kind:'roll',title:String(entry.title||'Roll'),subtitle:String(entry.subtitle||''),results:Array.isArray(entry.results)?entry.results.slice(0,4):[],sheet:currentChatSheetLabel(),sourcePageId:GROUP_ROLL_PAGE_ID_V27,ownerUid:currentParentUid || ADMIN_UID,characterId:characterId || currentSummonId || '',clientTs:now,createdAt:new Date(now)};
+  try { await Promise.all(clean.map(groupTag=>addDoc(collection(db,GROUP_ROLL_COLLECTION_V25),{...payload,groupTag}))); } catch(err) { console.warn('Admin group roll broadcast failed',err); }
+}
+function refreshAdminGroupRollSubscriptionV25() {
+  const tags=adminActiveRollGroupTagsV25(); const normalizedTags=new Set(tags.map(tag=>tag.toLowerCase())); const key=`${currentParentUid||''}|${currentSummonId||''}|${tags.join('|')}`; if(key===groupRollSubscriptionKeyV25) return;
+  groupRollSubscriptionKeyV25=key; if(unsubscribeGroupRollsV25){unsubscribeGroupRollsV25();unsubscribeGroupRollsV25=null;} seenGroupRollDocsV25.clear(); seenAdminGroupRollOrderV27.length=0; groupRollSubscribedAtV25=Date.now(); if(!tags.length)return;
+  unsubscribeGroupRollsV25=onSnapshot(query(collection(db,GROUP_ROLL_COLLECTION_V25),orderBy('clientTs','desc'),limit(40)),snap=>{snap.docChanges().forEach(change=>{if(change.type!=='added'||!rememberAdminGroupRollDocV27(change.doc.id))return;const data=change.doc.data()||{};if(!normalizedTags.has(String(data.groupTag||'').trim().toLowerCase())||data.sourcePageId===GROUP_ROLL_PAGE_ID_V27)return;const created=Number(data.clientTs||0)||adminGroupRollCreatedMsV25(data.createdAt);if(!created||created<groupRollSubscribedAtV25-1200||Date.now()-created>12000)return;showAdminStackedRollV25({kind:'roll',title:data.title||'Roll',subtitle:data.subtitle||'',results:Array.isArray(data.results)?data.results:[]},`${data.sheet||'Group member'} · ${data.groupTag}`);});},err=>console.warn('Admin group roll listener failed',err));
+}
+const adminRouteChatEntryV25Original=routeChatEntry;
+routeChatEntry=function(entry){adminRouteChatEntryV25Original(entry);if(entry?.kind==='roll')publishAdminGroupRollForTagsV25(entry,adminActiveRollGroupTagsV25(),currentSummonId);};
+window.setInterval(refreshAdminGroupRollSubscriptionV25,500);
+window.addEventListener('beforeunload',()=>{try{if(unsubscribeGroupRollsV25)unsubscribeGroupRollsV25();}catch(_err){}});
 
 </script>
 </body>
