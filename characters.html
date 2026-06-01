@@ -1327,6 +1327,25 @@ body > .tab-content.active{
 }
 </style>
 
+
+<style>
+/* --- Edit-Mode HP/MP + inner tab scroll repair --- */
+.vital-number-grid.ma-v8-hp-grid,
+.vital-number-grid.ma-v8-mp-grid { grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
+.tab-content.active > .sub-nav-container,
+.tab-content.active > .other-sub-tabs,
+#combat.active .sub-nav-container,
+#c-abilities-main .sub-nav-container,
+#skills.active .skills-view-toolbar,
+#skills.active .skills-editor-toolbar,
+#other.active .other-sub-tabs,
+#other.active .fantasy-calendar-nav {
+  position:relative !important;
+  top:auto !important;
+  z-index:auto !important;
+}
+</style>
+
 </head>
 <body>
 
@@ -1475,13 +1494,14 @@ setTimeout(() => {
         <div class="vital-content">
           <div class="vital-title">MP</div>
           <input id="mp_max" type="hidden" class="live-field" value="0">
-          <input id="mp_temp" type="hidden" class="live-field" value="0">
-          <input id="mp_base" type="hidden" class="live-field" value="0">
-          <input id="mp_bonus" type="hidden" class="live-field" value="0">
-          <div class="vital-number-grid ma-v8-mp-grid">
-            <label><small>Current</small><input id="mp_curr" type="number" class="live-field main-vital-input"></label>
-            <label class="ma-v8-total"><small>Total MP</small><input id="mp_effective_max" type="number" class="main-vital-input readonly-yellow" readonly aria-readonly="true"></label>
-          </div>
+<input id="mp_max_temp" type="hidden" class="live-field" value="0">
+<input id="mp_base" type="hidden" class="live-field" value="0">
+<input id="mp_bonus" type="hidden" class="live-field" value="0">
+<div class="vital-number-grid ma-v8-mp-grid">
+  <label><small>Current</small><input id="mp_curr" type="number" class="live-field main-vital-input"></label>
+  <label><small>Temp</small><input id="mp_temp" type="number" class="live-field main-vital-input"></label>
+  <label class="ma-v8-total"><small>Total Max</small><input id="mp_effective_max" type="number" class="main-vital-input readonly-yellow" readonly aria-readonly="true"></label>
+</div>
         </div>
       </div>
     </section>
@@ -2507,6 +2527,12 @@ function loadCurrentSheet() {
 
     if(data.hp !== undefined && !document.getElementById('hp_curr').value) document.getElementById('hp_curr').value = data.hp;
     if(data.mp !== undefined && !document.getElementById('mp_curr').value) document.getElementById('mp_curr').value = data.mp;
+    if((data.mp_max_temp === undefined || data.mp_max_temp === null || data.mp_max_temp === '') && data.mp_temp !== undefined) {
+        const mpMaxTempEl = document.getElementById('mp_max_temp');
+        const mpTempEl = document.getElementById('mp_temp');
+        if(mpMaxTempEl) mpMaxTempEl.value = data.mp_temp || 0;
+        if(mpTempEl) mpTempEl.value = data.mp_current_temp || 0;
+    }
     if(data.init !== undefined && !document.getElementById('init_temp').value) document.getElementById('init_temp').value = data.init;
     if(!document.getElementById('size_category').value) document.getElementById('size_category').value = data.size || data.size_category || 'Medium';
     if(!document.getElementById('ar_melee_ability').value) document.getElementById('ar_melee_ability').value = 'str';
@@ -2982,7 +3008,7 @@ function currentSpellMp() {
     return Math.max(0, Number(document.getElementById('mp_curr')?.value || 0) || 0);
 }
 function maxSpellMp() {
-    return Math.max(0, Number(document.getElementById('mp_max')?.value || 0) || 0);
+    return Math.max(0, numVal('mp_max') + numVal('mp_max_temp'));
 }
 function spellCanBeUsed(spell) {
     return currentSpellMp() >= spellMpCost(spell);
@@ -3059,7 +3085,7 @@ function useSpellAction(index) {
 }
 window.useSpellAction = useSpellAction;
 document.addEventListener('input', event => {
-    if (event.target && ['mp_curr','mp_max'].includes(event.target.id)) {
+    if (event.target && ['mp_curr','mp_max','mp_max_temp'].includes(event.target.id)) {
         updateSpellMpPanel();
         syncSpellUseButtons();
     }
@@ -3960,7 +3986,7 @@ function updateCalcs() {
     if (typeof updateLimitBreakState === 'function') updateLimitBreakState();
 }
 
-const CRITICAL_SYNC_FIELDS = ['hp_curr','hp_temp','hp_max','mp_curr','mp_temp','mp_max','str','dex','con','int','wis','cha'];
+const CRITICAL_SYNC_FIELDS = ['hp_curr','hp_temp','hp_max','hp_max_temp','mp_curr','mp_temp','mp_max','mp_max_temp','str','dex','con','int','wis','cha'];
 function queueCriticalSave() {
   if (typeof triggerSave === 'function') triggerSave();
   else save();
@@ -4031,7 +4057,7 @@ if(skillsBodyEl && skillsBodyEl.dataset.delegateBound !== '1') {
   });
 }
 
-window.addEventListener('DOMContentLoaded', () => { const levelEl = document.getElementById('character_level'); if(levelEl && levelEl.dataset.skillCapBound !== '1'){ levelEl.dataset.skillCapBound = '1'; levelEl.addEventListener('change', () => { applySkillRankCapToInputs(true); updateCalcs(); save(true); }); } ['ac_view_mode','ar_view_mode'].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('change', () => { renderSelectedCombatDisplays(); save(true); }); }); ['hp_curr','hp_temp','hp_max','mp_curr','mp_temp','mp_max','str','dex','con','int','wis','cha'].forEach(id => { const el = document.getElementById(id); if(!el) return; el.addEventListener('input', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); save(); }); el.addEventListener('change', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); save(true); }); el.addEventListener('blur', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); save(true); }); }); const spellDcBaseEl = document.getElementById('spell_dc_base'); if(spellDcBaseEl){ spellDcBaseEl.addEventListener('input', () => { refreshSpellDcDisplays('spell_dc_base'); }); spellDcBaseEl.addEventListener('change', () => { refreshSpellDcDisplays('spell_dc_base'); }); } });
+window.addEventListener('DOMContentLoaded', () => { const levelEl = document.getElementById('character_level'); if(levelEl && levelEl.dataset.skillCapBound !== '1'){ levelEl.dataset.skillCapBound = '1'; levelEl.addEventListener('change', () => { applySkillRankCapToInputs(true); updateCalcs(); save(true); }); } ['ac_view_mode','ar_view_mode'].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('change', () => { renderSelectedCombatDisplays(); save(true); }); }); ['hp_curr','hp_temp','hp_max','hp_max_temp','mp_curr','mp_temp','mp_max','mp_max_temp','str','dex','con','int','wis','cha'].forEach(id => { const el = document.getElementById(id); if(!el) return; el.addEventListener('input', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); save(); }); el.addEventListener('change', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); save(true); }); el.addEventListener('blur', () => { updateCalcs(); computeDerivedStats(); renderSelectedCombatDisplays(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); save(true); }); }); const spellDcBaseEl = document.getElementById('spell_dc_base'); if(spellDcBaseEl){ spellDcBaseEl.addEventListener('input', () => { refreshSpellDcDisplays('spell_dc_base'); }); spellDcBaseEl.addEventListener('change', () => { refreshSpellDcDisplays('spell_dc_base'); }); } });
 window.addEventListener('beforeunload', () => { try { if(typeof save === 'function') save(true); } catch(e) {} });
 window.addEventListener('load', () => { if(typeof refreshCombatUi === 'function') { setTimeout(() => { refreshCombatUi(); renderAbilityDrawerScores(); }, 150); } else { setTimeout(renderAbilityDrawerScores, 150); } });
 
@@ -4073,7 +4099,7 @@ function performLongRest() {
   const hpEffectiveMax = Math.max(0, hpMax + numVal('hp_max_temp'));
   const hpAfter = hpEffectiveMax > 0 ? Math.min(hpEffectiveMax, hpBefore + level) : hpBefore + level;
   const mpBefore = numVal('mp_curr');
-  const mpAfter = Math.max(0, numVal('mp_max') + numVal('mp_temp'));
+  const mpAfter = Math.max(0, numVal('mp_max') + numVal('mp_max_temp'));
   setVal('hp_curr', hpAfter);
   setVal('mp_curr', mpAfter);
   let restoredAbilities = 0;
@@ -4101,8 +4127,10 @@ function computeDerivedStats() {
   syncSizeFields();
   const dex = modFor('dex'), str = modFor('str'), con = modFor('con'), wis = modFor('wis');
   const sizeMod = numVal('size_mod'), sizeSpecial = numVal('size_special');
-  const hpBase = numVal('hp_curr'), hpTemp = numVal('hp_temp'), hpMax = numVal('hp_max');
-  const mpBase = numVal('mp_curr'), mpTemp = numVal('mp_temp'), mpMax = numVal('mp_max');
+  const hpBase = numVal('hp_curr'), hpTemp = numVal('hp_temp'), hpMax = numVal('hp_max'), hpMaxTemp = numVal('hp_max_temp');
+  const mpBase = numVal('mp_curr'), mpTemp = numVal('mp_temp'), mpMax = numVal('mp_max'), mpMaxTemp = numVal('mp_max_temp');
+  const hpTotalMax = Math.max(0, hpMax + hpMaxTemp);
+  const mpTotalMax = Math.max(0, mpMax + mpMaxTemp);
   const init = dex + numVal('init_temp');
   const babTotal = numVal('bab') + numVal('bab_temp');
   const speedTotal = numVal('speed');
@@ -4124,8 +4152,8 @@ function computeDerivedStats() {
   const will = wis + numVal('will_base') + numVal('will_enhance') + numVal('will_temp');
   const setText = (id,val,plus=true) => { const el = document.getElementById(id); if(!el) return; const out = plus ? (val>=0?`+${val}`:`${val}`) : String(val); if('value' in el) el.value = out; else el.textContent = out; };
   const setPlain = (id,val) => { const el = document.getElementById(id); if(!el) return; const out = String(val); if('value' in el) el.value = out; else el.textContent = out; };
-  setPlain('hpBaseDisplay', hpBase); setPlain('hpTempDisplay', hpTemp); setPlain('hpMaxDisplay', Math.max(0, hpMax + numVal('hp_max_temp')));
-  setPlain('mpBaseDisplay', mpBase); setPlain('mpTempDisplay', mpTemp); setPlain('mpMaxDisplay', Math.max(0, mpMax + mpTemp));
+  setPlain('hpBaseDisplay', hpBase); setPlain('hpTempDisplay', hpTemp); setPlain('hpMaxDisplay', hpTotalMax); setPlain('hp_effective_max', hpTotalMax);
+  setPlain('mpBaseDisplay', mpBase); setPlain('mpTempDisplay', mpTemp); setPlain('mpMaxDisplay', mpTotalMax); setPlain('mp_effective_max', mpTotalMax);
   setText('initDisplayMain', init); setText('babDisplayMain', babTotal); setPlain('speedDisplayMain', speedTotal);
   setVal('ac_total', ac); setVal('cmd_total', cmd); setVal('ar_total', melee); setVal('cmb', cmb); setVal('touch_ac_total', touch); setVal('flat_ac_total', flat); setVal('ar_ranged_total', ranged); setVal('ar_touch_total', touchAttack); setVal('ar_ranged_touch_total', rangedTouchAttack);
   setVal('fort_bonus', fort); setVal('ref_bonus', ref); setVal('will_bonus', will);
@@ -4162,8 +4190,16 @@ function signedAttackTotal(val) {
 window.openStatEdit = (section) => {
   const body = document.getElementById('statEditBody'); const title = document.getElementById('statEditTitle'); if(!body) return;
   let html = '';
-  if(section === 'hp') { title.textContent = 'Edit HP'; html = `<div class="formula-line"><div class="formula-parts">${statField('Current','hp_curr')}${statField('Max Temp','hp_temp')}${statField('Auto Max','hp_max', {readonly:true})}</div></div>`; }
-  if(section === 'mp') { title.textContent = 'Edit MP'; html = `<div class="formula-line"><div class="formula-parts">${statField('Current','mp_curr')}${statField('Max Temp','mp_temp')}${statField('Auto Max','mp_max', {readonly:true})}</div></div>`; }
+  if(section === 'hp') {
+    const hpTotalMax = Math.max(0, numVal('hp_max') + numVal('hp_max_temp'));
+    title.textContent = 'Edit HP';
+    html = `<div class="formula-line"><div class="formula-parts">${statField('Base','hp_max', {readonly:true})}${statField('Max Temp','hp_max_temp')}<div class="mini-field"><label>Total Max</label><input class="graybase" readonly type="number" value="${hpTotalMax}"></div></div></div>`;
+  }
+  if(section === 'mp') {
+    const mpTotalMax = Math.max(0, numVal('mp_max') + numVal('mp_max_temp'));
+    title.textContent = 'Edit MP';
+    html = `<div class="formula-line"><div class="formula-parts">${statField('Base','mp_max', {readonly:true})}${statField('Max Temp','mp_max_temp')}<div class="mini-field"><label>Total Max</label><input class="graybase" readonly type="number" value="${mpTotalMax}"></div></div></div>`;
+  }
   if(section === 'general') { title.textContent = 'Edit Base Combat Stats'; html = `<div class="formula-line"><div class="formula-parts">${statField('Initiative Temp','init_temp')}${statField('BAB Base','bab', {readonly:true})}${statField('BAB Temp','bab_temp')}${statField('Speed','speed')}</div></div>`; }
   if(section === 'ac') { title.textContent = 'Edit Defense'; html = `
     <div class="formula-line"><strong>Armor Class</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Armor','ac_armor')}${statField('Natural','ac_natural')}${statField('Deflect','ac_deflect')}${statField('Dodge','ac_dodge')}${statField('Temp','ac_temp')}<div class="total-pill">${document.getElementById('ac_total')?.value||10}</div></div></div>
