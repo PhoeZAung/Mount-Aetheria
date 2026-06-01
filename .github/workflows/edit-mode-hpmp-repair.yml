@@ -1,0 +1,159 @@
+name: Edit-Mode HP MP repair
+
+on:
+  push:
+    branches: [Edit-Mode]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: edit-mode-hpmp-repair
+  cancel-in-progress: true
+
+jobs:
+  repair:
+    if: ${{ !contains(github.event.head_commit.message, '[skip edit-mode-hpmp-repair]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: Edit-Mode
+      - name: Patch character and admin vitals
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          CSS_PATCH = '''
+          <style>
+          /* --- Edit-Mode HP/MP + inner tab scroll repair --- */
+          .vital-number-grid.ma-v8-hp-grid,
+          .vital-number-grid.ma-v8-mp-grid { grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
+          .tab-content.active > .sub-nav-container,
+          .tab-content.active > .other-sub-tabs,
+          #combat.active .sub-nav-container,
+          #c-abilities-main .sub-nav-container,
+          #skills.active .skills-view-toolbar,
+          #skills.active .skills-editor-toolbar,
+          #other.active .other-sub-tabs,
+          #other.active .fantasy-calendar-nav {
+            position:relative !important;
+            top:auto !important;
+            z-index:auto !important;
+          }
+          </style>
+          '''
+
+          def replace_once(text, old, new, label):
+              if old not in text:
+                  print(f"skip exact replacement: {label}")
+                  return text
+              return text.replace(old, new, 1)
+
+          def patch_file(path):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              original = text
+
+              # Keep combat/skills/other inner tab bars in normal flow instead of sticking while the panel scrolls.
+              if 'Edit-Mode HP/MP + inner tab scroll repair' not in text:
+                  text = text.replace('</head>', CSS_PATCH + '\n</head>', 1)
+
+              # MP front page: Current / Temp / Total Max, with separate hidden max-temp.
+              mp_grid_pattern = re.compile(
+                  r'<input id="mp_max" type="hidden" class="(?P<class>[^"]+)" value="0">\s*'
+                  r'<input id="mp_temp" type="hidden" class="(?P=class)" value="0">\s*'
+                  r'<input id="mp_base" type="hidden" class="(?P=class)" value="0">\s*'
+                  r'<input id="mp_bonus" type="hidden" class="(?P=class)" value="0">\s*'
+                  r'<div class="vital-number-grid ma-v8-mp-grid">\s*'
+                  r'<label><small>Current</small><input id="mp_curr" type="number" class="(?P=class) main-vital-input"></label>\s*'
+                  r'<label class="ma-v8-total"><small>Total MP</small><input id="mp_effective_max" type="number" class="main-vital-input readonly-yellow" readonly aria-readonly="true"></label>\s*'
+                  r'</div>',
+                  re.S
+              )
+              def mp_grid_repl(match):
+                  cls = match.group('class')
+                  return f'''<input id="mp_max" type="hidden" class="{cls}" value="0">
+          <input id="mp_max_temp" type="hidden" class="{cls}" value="0">
+          <input id="mp_base" type="hidden" class="{cls}" value="0">
+          <input id="mp_bonus" type="hidden" class="{cls}" value="0">
+          <div class="vital-number-grid ma-v8-mp-grid">
+            <label><small>Current</small><input id="mp_curr" type="number" class="{cls} main-vital-input"></label>
+            <label><small>Temp</small><input id="mp_temp" type="number" class="{cls} main-vital-input"></label>
+            <label class="ma-v8-total"><small>Total Max</small><input id="mp_effective_max" type="number" class="main-vital-input readonly-yellow" readonly aria-readonly="true"></label>
+          </div>'''
+              text, count = mp_grid_pattern.subn(mp_grid_repl, text, count=1)
+              print(path, 'mp grid replacements:', count)
+
+              # Derived vital math: base max + max temp = total max. Current temp is separate.
+              text = replace_once(
+                  text,
+                  "  const hpBase = numVal('hp_curr'), hpTemp = numVal('hp_temp'), hpMax = numVal('hp_max');\n  const mpBase = numVal('mp_curr'), mpTemp = numVal('mp_temp'), mpMax = numVal('mp_max');",
+                  "  const hpBase = numVal('hp_curr'), hpTemp = numVal('hp_temp'), hpMax = numVal('hp_max'), hpMaxTemp = numVal('hp_max_temp');\n  const mpBase = numVal('mp_curr'), mpTemp = numVal('mp_temp'), mpMax = numVal('mp_max'), mpMaxTemp = numVal('mp_max_temp');\n  const hpTotalMax = Math.max(0, hpMax + hpMaxTemp);\n  const mpTotalMax = Math.max(0, mpMax + mpMaxTemp);",
+                  f'{path} vital constants'
+              )
+              text = replace_once(
+                  text,
+                  "  setPlain('hpBaseDisplay', hpBase); setPlain('hpTempDisplay', hpTemp); setPlain('hpMaxDisplay', Math.max(0, hpMax + numVal('hp_max_temp')));\n  setPlain('mpBaseDisplay', mpBase); setPlain('mpTempDisplay', mpTemp); setPlain('mpMaxDisplay', Math.max(0, mpMax + mpTemp));",
+                  "  setPlain('hpBaseDisplay', hpBase); setPlain('hpTempDisplay', hpTemp); setPlain('hpMaxDisplay', hpTotalMax); setPlain('hp_effective_max', hpTotalMax);\n  setPlain('mpBaseDisplay', mpBase); setPlain('mpTempDisplay', mpTemp); setPlain('mpMaxDisplay', mpTotalMax); setPlain('mp_effective_max', mpTotalMax);",
+                  f'{path} total max display'
+              )
+
+              # Edit modal: Base readonly, Max Temp editable, Total Max readonly.
+              text = replace_once(
+                  text,
+                  "  if(section === 'hp') { title.textContent = 'Edit HP'; html = `<div class=\"formula-line\"><div class=\"formula-parts\">${statField('Current','hp_curr')}${statField('Max Temp','hp_temp')}${statField('Auto Max','hp_max', {readonly:true})}</div></div>`; }",
+                  "  if(section === 'hp') {\n    const hpTotalMax = Math.max(0, numVal('hp_max') + numVal('hp_max_temp'));\n    title.textContent = 'Edit HP';\n    html = `<div class=\"formula-line\"><div class=\"formula-parts\">${statField('Base','hp_max', {readonly:true})}${statField('Max Temp','hp_max_temp')}<div class=\"mini-field\"><label>Total Max</label><input class=\"graybase\" readonly type=\"number\" value=\"${hpTotalMax}\"></div></div></div>`;\n  }",
+                  f'{path} hp edit modal'
+              )
+              text = replace_once(
+                  text,
+                  "  if(section === 'mp') { title.textContent = 'Edit MP'; html = `<div class=\"formula-line\"><div class=\"formula-parts\">${statField('Current','mp_curr')}${statField('Max Temp','mp_temp')}${statField('Auto Max','mp_max', {readonly:true})}</div></div>`; }",
+                  "  if(section === 'mp') {\n    const mpTotalMax = Math.max(0, numVal('mp_max') + numVal('mp_max_temp'));\n    title.textContent = 'Edit MP';\n    html = `<div class=\"formula-line\"><div class=\"formula-parts\">${statField('Base','mp_max', {readonly:true})}${statField('Max Temp','mp_max_temp')}<div class=\"mini-field\"><label>Total Max</label><input class=\"graybase\" readonly type=\"number\" value=\"${mpTotalMax}\"></div></div></div>`;\n  }",
+                  f'{path} mp edit modal'
+              )
+
+              # Spell/long-rest MP maximum should use total max, not current temp.
+              text = replace_once(
+                  text,
+                  "function maxSpellMp() {\n    return Math.max(0, Number(document.getElementById('mp_max')?.value || 0) || 0);\n}",
+                  "function maxSpellMp() {\n    return Math.max(0, numVal('mp_max') + numVal('mp_max_temp'));\n}",
+                  f'{path} maxSpellMp'
+              )
+              text = text.replace("['mp_curr','mp_max'].includes(event.target.id)", "['mp_curr','mp_max','mp_max_temp'].includes(event.target.id)")
+              text = text.replace("const mpAfter = Math.max(0, numVal('mp_max') + numVal('mp_temp'));", "const mpAfter = Math.max(0, numVal('mp_max') + numVal('mp_max_temp'));")
+
+              # Save/refresh bindings: include max temp fields.
+              text = text.replace("['hp_curr','hp_temp','hp_max','mp_curr','mp_temp','mp_max','str','dex','con','int','wis','cha']", "['hp_curr','hp_temp','hp_max','hp_max_temp','mp_curr','mp_temp','mp_max','mp_max_temp','str','dex','con','int','wis','cha']")
+
+              # One-time load migration for old MP data where mp_temp was previously max-temp.
+              migration_anchor = "    if(data.hp !== undefined && !document.getElementById('hp_curr').value) document.getElementById('hp_curr').value = data.hp;\n    if(data.mp !== undefined && !document.getElementById('mp_curr').value) document.getElementById('mp_curr').value = data.mp;"
+              migration_patch = migration_anchor + "\n    if((data.mp_max_temp === undefined || data.mp_max_temp === null || data.mp_max_temp === '') && data.mp_temp !== undefined) {\n        const mpMaxTempEl = document.getElementById('mp_max_temp');\n        const mpTempEl = document.getElementById('mp_temp');\n        if(mpMaxTempEl) mpMaxTempEl.value = data.mp_temp || 0;\n        if(mpTempEl) mpTempEl.value = data.mp_current_temp || 0;\n    }"
+              if migration_anchor in text and 'data.mp_current_temp' not in text:
+                  text = text.replace(migration_anchor, migration_patch, 1)
+
+              if text != original:
+                  p.write_text(text, encoding='utf-8')
+                  print(path, 'patched')
+              else:
+                  print(path, 'no changes')
+
+          for filename in ['characters.html', 'admin.html']:
+              patch_file(filename)
+      - name: Remove one-time workflow files
+        shell: bash
+        run: |
+          rm -f .github/workflows/edit-mode-hpmp-repair.yml .github/edit-mode-hpmp-trigger.txt
+      - name: Commit patched files
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add characters.html admin.html .github/workflows/edit-mode-hpmp-repair.yml .github/edit-mode-hpmp-trigger.txt
+          git commit -m "Fix HP MP max temp and scrolling tabs [skip edit-mode-hpmp-repair]"
+          git push
