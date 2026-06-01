@@ -1081,6 +1081,252 @@ body:not(.skill-edit-mode) .skill-stat-tag{font-size:10px !important;margin-left
 @media(max-width:700px){#groupRollStackV26.group-roll-stack{right:8px;bottom:10px;width:min(330px,calc(100vw - 16px));gap:8px}.group-roll-toast{padding:8px 10px}.group-roll-toast .roll-dice-face{width:52px;height:52px}.group-roll-toast .roll-overlay-total{min-width:34px;height:34px;font-size:19px}}
 
 </style>
+
+<style>
+/* --- FFD20 import/edit patch: fixed description textarea behavior --- */
+.modal-body textarea.scrollable-textarea,
+.modal-body textarea.ffd20-long-desc {
+  min-height: 170px;
+  max-height: 48vh;
+  resize: vertical;
+  overflow-y: auto !important;
+  line-height: 1.5;
+}
+.modal-body textarea.ffd20-long-desc {
+  min-height: 240px;
+}
+.ffd20-builder-panel {
+  background:#171717;
+  border:1px solid rgba(255,204,102,.55);
+  border-radius:12px;
+  padding:12px;
+  margin:14px 0;
+}
+.ffd20-builder-panel h3 {
+  margin:0 0 10px;
+}
+.ffd20-builder-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:8px;
+  align-items:end;
+}
+.ffd20-builder-actions {
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.ffd20-builder-note {
+  color:#999;
+  font-size:12px;
+  margin-top:8px;
+  line-height:1.45;
+}
+.ffd20-auto-chip {
+  display:inline-flex;
+  border:1px solid #51432a;
+  border-radius:999px;
+  color:var(--accent);
+  padding:2px 7px;
+  font-size:10px;
+  margin-left:6px;
+}
+</style>
+
+
+
+<style>
+/* --- FFD20 character-choice/level-up v2 patch --- */
+#ffd20BuilderPanel { display:none !important; }
+.ffd20-bio-three-col { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; align-items:start; margin:0 auto 18px; max-width:1120px; }
+.ffd20-bio-col { background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:12px; display:flex; flex-direction:column; gap:10px; min-width:0; }
+.ffd20-bio-col h3 { margin:0 0 4px; font-size:16px; text-align:left; }
+.ffd20-bio-col .bio-item { width:100%; }
+.ffd20-bio-col textarea { min-height:112px; resize:vertical; overflow-y:auto; }
+.ffd20-choice-note { color:#999; font-size:12px; line-height:1.4; background:#171717; border:1px dashed #3d3d3d; border-radius:10px; padding:8px 10px; }
+.ffd20-multiclass-list { display:flex; flex-direction:column; gap:7px; }
+.ffd20-multiclass-row { display:flex; justify-content:space-between; gap:8px; align-items:center; background:#171717; border:1px solid #333; border-radius:9px; padding:8px 9px; }
+.ffd20-multiclass-row strong { color:var(--accent); }
+.ffd20-multiclass-row small { color:#aaa; display:block; margin-top:2px; }
+.ffd20-mini-btn { width:auto; border-radius:999px; border:1px solid #555; background:#242424; color:#f2f2f2; padding:7px 11px; font-weight:800; cursor:pointer; }
+.ffd20-mini-btn:hover { background:var(--accent); color:#000; border-color:var(--accent); }
+.ffd20-mini-btn.danger:hover { background:#ff6666; color:#000; border-color:#ff6666; }
+.ffd20-modal-overlay { position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:18px; background:rgba(0,0,0,.82); backdrop-filter:blur(3px); z-index:7200; }
+.ffd20-modal-overlay.show { display:flex; }
+.ffd20-modal { width:min(980px,96vw); max-height:90vh; overflow:auto; background:#202020; border:1px solid var(--accent); border-radius:18px; box-shadow:0 22px 60px rgba(0,0,0,.55); }
+.ffd20-modal-head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; background:#111; border-bottom:1px solid #333; }
+.ffd20-modal-head h3 { margin:0; text-align:left; }
+.ffd20-modal-body { padding:14px 16px; display:flex; flex-direction:column; gap:12px; }
+.ffd20-modal-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.ffd20-modal-actions { display:flex; justify-content:flex-end; gap:10px; padding:14px 16px; border-top:1px solid #333; background:#171717; }
+.ffd20-level-summary { background:#171717; border:1px solid #383838; border-radius:12px; padding:12px; color:#ddd; line-height:1.45; }
+.ffd20-level-summary ul { margin:8px 0 0 18px; padding:0; }
+.ffd20-milestone-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:8px; }
+@media(max-width:850px){ .ffd20-bio-three-col,.ffd20-modal-grid{ grid-template-columns:1fr; } }
+</style>
+
+<style>
+/* --- Character page scroll fix --- */
+html, body { min-height:100%; height:auto; overflow-y:auto; }
+body { display:block; }
+.tab-content { overflow:visible; padding-bottom:120px; }
+.main-tabs { position:sticky; top:50px; }
+</style>
+
+
+
+<style>
+/* --- v3 repair: separate main tabs from inner tabs and prevent overlap --- */
+html, body {
+  height:100vh !important;
+  min-height:100vh !important;
+  overflow:hidden !important;
+}
+body {
+  display:flex !important;
+  flex-direction:column !important;
+  padding-top:50px !important;
+  padding-bottom:0 !important;
+}
+.top-nav {
+  position:fixed !important;
+  top:0 !important;
+  left:0 !important;
+  right:0 !important;
+  height:50px !important;
+  z-index:3000 !important;
+}
+.main-tabs {
+  position:relative !important;
+  top:auto !important;
+  z-index:1200 !important;
+  flex:0 0 auto !important;
+  min-height:46px !important;
+  max-height:46px !important;
+}
+.tab-content {
+  flex:1 1 auto !important;
+  min-height:0 !important;
+}
+.tab-content.active {
+  display:block !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  height:auto !important;
+  max-height:none !important;
+  min-height:0 !important;
+  padding-bottom:130px !important;
+  overscroll-behavior:contain;
+}
+.sub-nav-container,
+.other-sub-tabs,
+.item-section-tabs,
+.skills-view-toolbar,
+.skills-editor-toolbar,
+.sheet-toolbar,
+.fantasy-calendar-nav {
+  position:sticky !important;
+  top:0 !important;
+  z-index:700 !important;
+  background:var(--bg, #1a1a1a) !important;
+  padding-top:8px !important;
+  margin-top:0 !important;
+}
+.sheet-toolbar {
+  border-bottom:1px solid var(--border, #333) !important;
+}
+.sub-nav,
+.other-sub-tabs,
+.item-section-tabs {
+  flex-wrap:wrap !important;
+}
+#combatSubNav,
+#abilitiesSubSubNav {
+  position:relative !important;
+  z-index:710 !important;
+}
+.other-sub-panel.active,
+.sub-group.active,
+.sub-sub-group.active {
+  overflow:visible !important;
+  max-height:none !important;
+}
+#items.active,
+#other.active,
+#combat.active,
+#skills.active,
+#character.active {
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+@media(max-width:700px){
+  body { padding-top:50px !important; }
+  .main-tabs { min-height:44px !important; max-height:none !important; }
+  .tab-content.active { padding-bottom:165px !important; }
+  .sub-nav-container,
+  .other-sub-tabs,
+  .item-section-tabs,
+  .skills-view-toolbar,
+  .skills-editor-toolbar,
+  .sheet-toolbar,
+  .fantasy-calendar-nav {
+    top:0 !important;
+    z-index:700 !important;
+  }
+}
+</style>
+
+
+<style>
+/* --- v4 repair: fixed top main tabs + sticky inner tabs + clean vitals display --- */
+body > .main-tabs{
+  position:fixed !important;
+  top:50px !important;
+  left:0 !important;
+  right:0 !important;
+  height:46px !important;
+  min-height:46px !important;
+  max-height:46px !important;
+  z-index:2600 !important;
+  flex:0 0 auto !important;
+}
+body:has(> .main-tabs){
+  padding-top:96px !important;
+  overflow:hidden !important;
+  height:100vh !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+body > .tab-content.active{
+  height:calc(100vh - 96px) !important;
+  max-height:calc(100vh - 96px) !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  padding-bottom:150px !important;
+  min-height:0 !important;
+}
+.tab-content.active > .sub-nav-container,
+.tab-content.active > .other-sub-tabs,
+#items.active .item-section-tabs,
+#skills.active .skills-view-toolbar{
+  position:sticky !important;
+  top:0 !important;
+  z-index:1800 !important;
+  background:var(--bg,#1a1a1a) !important;
+  padding-top:6px !important;
+}
+#combat.active .sub-nav-container{ border-bottom:1px solid var(--border,#333); }
+.vital-number-grid.ma-vitals-v4{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
+.vital-number-grid.ma-vitals-v4 label.ma-vital-temp-hidden{ display:none !important; }
+.vital-number-grid.ma-vitals-v4 .ma-vital-display-max input{ background:#141414 !important; color:var(--accent) !important; }
+@media(max-width:700px){
+  body > .main-tabs{height:46px !important;}
+  body > .tab-content.active{height:calc(100vh - 96px) !important;max-height:calc(100vh - 96px) !important;padding-bottom:170px !important;}
+  .vital-number-grid.ma-vitals-v4{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
+}
+</style>
+
 </head>
 <body>
 
@@ -1137,25 +1383,33 @@ body:not(.skill-edit-mode) .skill-stat-tag{font-size:10px !important;margin-left
     <p>Create a new character to begin.</p>
     <button class="btn-add" id="btnCreateFirstCharacter" type="button">+ Create New Character</button>
   </div>
-  <h2 id="sheetTitle">Character Bio</h2>
-  <div class="bio-grid">
-    <div class="bio-item"><label>Name</label><input id="charName" class="live-field"></div>
-    <div class="bio-item"><label>Race</label><input id="race" class="live-field"></div>
-    <div class="bio-item"><label>Class</label><input id="class" class="live-field"></div>
-    <div class="bio-item"><label>Align</label><input id="alignment" class="live-field"></div>
-    <div class="bio-item"><label for="size_category">Size</label><select id="size_category" class="live-field" aria-label="Character Size" onchange="syncSizeFields(); computeDerivedStats(); renderSelectedCombatDisplays(); save(true);"><option value="">Select Size</option><option value="Fine">Fine</option><option value="Diminutive">Diminutive</option><option value="Tiny">Tiny</option><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Huge">Huge</option><option value="Gargantuan">Gargantuan</option><option value="Colossal">Colossal</option></select><input id="size" class="live-field" type="hidden"></div>
-    <div class="bio-item"><label>Languages</label><input id="languages" class="live-field"></div>
-    <div class="bio-item" style="grid-column: 1 / -1;"><label>Senses</label><input id="senses" class="live-field"></div>
-  </div>
-  <div class="character-level-row">
-    <label for="character_level">Level</label>
-    <select id="character_level" class="live-field" aria-label="Character Level">
-      <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
-      <option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
-      <option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option>
-      <option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option>
-    </select>
-  </div>
+  <h2 id="sheetTitle">Identity &amp; Build</h2>
+  <section id="ffd20ChoiceGrid" class="ffd20-bio-three-col ffd20-v3-grid" aria-label="Identity and Build">
+    <div class="ffd20-bio-col">
+      <h3>Identity</h3>
+      <div class="bio-item"><label>Name</label><input id="charName" class="live-field"></div>
+      <div class="bio-item"><label>Alignment</label><select id="alignment" class="live-field"><option value="">Choose alignment</option><option value="LG">LG</option><option value="NG">NG</option><option value="CG">CG</option><option value="LN">LN</option><option value="N">N</option><option value="CN">CN</option><option value="LE">LE</option><option value="NE">NE</option><option value="CE">CE</option></select></div>
+      <div class="bio-item"><label for="size_category">Size</label><select id="size_category" class="live-field" aria-label="Character Size"><option value="">Select Size</option><option value="Fine">Fine</option><option value="Diminutive">Diminutive</option><option value="Tiny">Tiny</option><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Huge">Huge</option><option value="Gargantuan">Gargantuan</option><option value="Colossal">Colossal</option></select><input id="size" class="live-field" type="hidden"></div>
+      <div class="bio-item"><label>Languages</label><input id="languages" class="live-field"></div>
+      <div class="bio-item"><label>Senses</label><input id="senses" class="live-field"></div>
+    </div>
+    <div class="ffd20-bio-col">
+      <h3>Build</h3>
+      <div class="bio-item"><label>Race</label><select id="race" class="live-field ma-ffd20-race"><option value="">Loading races...</option></select></div>
+      <select id="class" class="live-field ma-ffd20-class ma-ffd20-hidden-select"><option value="">Choose class</option></select>
+      <select id="archetype" class="live-field ma-ffd20-archetype ma-ffd20-hidden-select"><option value="">No archetype</option></select>
+      <select id="character_level" class="live-field ma-ffd20-level ma-ffd20-hidden-select" aria-label="Character Level"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option></select>
+      <button id="maClassBuildCard" class="ma-build-card" type="button" title="Edit class, archetype, and level">
+        <span class="ma-class-click-label">Class</span>
+        <span class="ma-class-slot-main"><strong id="maPrimaryClassTitle" class="ma-build-card-title">Choose Class</strong><small id="maPrimaryClassSub" class="ma-build-card-sub">No archetype selected</small></span>
+        <span id="maPrimaryClassLevel" class="ma-build-card-level">Lv 1</span>
+      </button>
+      <div id="maMulticlassList" class="ffd20-multiclass-list"></div>
+      <div class="bio-item ma-add-multiclass-wrap"><button class="ffd20-mini-btn" type="button" id="maAddMulticlassBtn">+ Add Multiclass</button></div>
+      <div id="maBuildProgressionSummary"></div>
+      
+    </div>
+  </section>
   <div class="ability-heading-row"><h3>Ability Scores</h3></div>
   <div style="background:var(--panel); border-radius:8px; overflow:hidden;">
     <table style="width:100%; border-collapse:collapse; text-align:center;">
@@ -1206,10 +1460,12 @@ setTimeout(() => {
         <div class="vital-icon" aria-hidden="true">❤️</div>
         <div class="vital-content">
           <div class="vital-title">HP</div>
-          <div class="vital-number-grid">
-            <label><small>Base</small><input id="hp_curr" type="number" class="live-field main-vital-input"></label>
+          <input id="hp_max" type="hidden" class="live-field" value="0">
+          <input id="hp_max_temp" type="hidden" class="live-field" value="0">
+          <div class="vital-number-grid ma-v8-hp-grid">
+            <label><small>Current</small><input id="hp_curr" type="number" class="live-field main-vital-input"></label>
             <label><small>Temp</small><input id="hp_temp" type="number" class="live-field main-vital-input"></label>
-            <label><small>Max</small><input id="hp_max" type="number" class="live-field main-vital-input readonly-yellow" readonly aria-readonly="true"></label>
+            <label class="ma-v8-total"><small>Total Max</small><input id="hp_effective_max" type="number" class="main-vital-input readonly-yellow" readonly aria-readonly="true"></label>
           </div>
         </div>
       </div>
@@ -1218,10 +1474,13 @@ setTimeout(() => {
         <div class="vital-icon" aria-hidden="true">💧</div>
         <div class="vital-content">
           <div class="vital-title">MP</div>
-          <div class="vital-number-grid">
-            <label><small>Base</small><input id="mp_curr" type="number" class="live-field main-vital-input"></label>
-            <label><small>Temp</small><input id="mp_temp" type="number" class="live-field main-vital-input"></label>
-            <label><small>Max</small><input id="mp_max" type="number" class="live-field main-vital-input readonly-yellow" readonly aria-readonly="true"></label>
+          <input id="mp_max" type="hidden" class="live-field" value="0">
+          <input id="mp_temp" type="hidden" class="live-field" value="0">
+          <input id="mp_base" type="hidden" class="live-field" value="0">
+          <input id="mp_bonus" type="hidden" class="live-field" value="0">
+          <div class="vital-number-grid ma-v8-mp-grid">
+            <label><small>Current</small><input id="mp_curr" type="number" class="live-field main-vital-input"></label>
+            <label class="ma-v8-total"><small>Total MP</small><input id="mp_effective_max" type="number" class="main-vital-input readonly-yellow" readonly aria-readonly="true"></label>
           </div>
         </div>
       </div>
@@ -1301,11 +1560,13 @@ setTimeout(() => {
         <div class="sub-nav" id="abilitiesSubSubNav">
             <button class="sub-btn active" onclick="switchSubSub('a-active')">Active</button>
             <button class="sub-btn" id="btn-sub-passive" onclick="switchSubSub('a-passive')">Passive</button>
+            <button class="sub-btn" id="btn-sub-racial" onclick="switchSubSub('a-racial')">Racial</button>
             <button class="sub-btn" onclick="switchSubSub('a-feats')">Feats</button>
         </div>
       </div>
       <div id="a-active" class="sub-sub-group active"><div id="activeList"></div><button class="btn-add" onclick="addNewItem('active')">+ Add Active Ability</button></div>
       <div id="a-passive" class="sub-sub-group" style="display:none"><div id="passiveList"></div><button class="btn-add" onclick="addNewItem('passive')">+ Add Passive Ability</button></div>
+      <div id="a-racial" class="sub-sub-group" style="display:none"><div id="racialList"></div><button class="btn-add" onclick="addNewItem('racial')">+ Add Racial Ability</button></div>
       <div id="a-feats" class="sub-sub-group" style="display:none">
           <div id="featList"></div>
           <button class="btn-add" onclick="addNewItem('feat')">+ Add Feat</button>
@@ -1525,7 +1786,7 @@ const db = getFirestore(app);
 let currentUser = null;
 let saveTimeout = null;
 let isRemoteUpdate = false;
-let fullData = { items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], feats: [], slot_cap: 20 };
+let fullData = { items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], racialAbilities: [], feats: [], slot_cap: 20 };
 let currentSummonId = null; // selected character id
 let characterSheets = [];
 let unsubscribeCharacters = null;
@@ -1542,6 +1803,7 @@ function captureBlankSheetTemplate() {
         spells: [],
         activeAbilities: [],
         passiveAbilities: [],
+        racialAbilities: [],
         feats: [],
         skills: [],
         slot_cap: 20
@@ -1789,6 +2051,7 @@ function sanitizeCharacterDoc(raw = {}, fallbackName = 'New Character') {
         spells: [],
         activeAbilities: [],
         passiveAbilities: [],
+        racialAbilities: [],
         feats: [],
         slot_cap: 20,
         ...raw
@@ -1801,6 +2064,7 @@ function sanitizeCharacterDoc(raw = {}, fallbackName = 'New Character') {
     if (!Array.isArray(data.spells)) data.spells = [];
     if (!Array.isArray(data.activeAbilities)) data.activeAbilities = [];
     if (!Array.isArray(data.passiveAbilities)) data.passiveAbilities = [];
+    if (!Array.isArray(data.racialAbilities)) data.racialAbilities = [];
     if (!Array.isArray(data.feats)) data.feats = [];
     if (!data.charName) data.charName = fallbackName;
     if (data.slot_cap === undefined || data.slot_cap === null || data.slot_cap === '') data.slot_cap = 20;
@@ -1999,7 +2263,7 @@ function showNoCharacterState(show) {
     const createBtn = document.getElementById('btnCreateFirstCharacter');
     const addBtn = document.getElementById('btnAddSummon');
     const title = document.getElementById('sheetTitle');
-    if (title && show) title.textContent = 'Character Bio';
+    if (title && show) title.textContent = 'Identity & Build';
     if (deleteBtn) deleteBtn.style.display = show ? 'none' : 'block';
     if (createBtn) createBtn.onclick = createNewSummon;
     if (addBtn) {
@@ -2251,7 +2515,7 @@ function loadCurrentSheet() {
     if(!document.getElementById('ar_ranged_touch_ability').value) document.getElementById('ar_ranged_touch_ability').value = 'dex';
     document.querySelectorAll('textarea.live-field').forEach(tx => { autoExpand(tx); tx.addEventListener('input', () => autoExpand(tx)); });
     
-    renderWeapons(); renderSpells(); renderAbilities('active'); renderAbilities('passive'); renderAbilities('feat'); renderItems();
+    renderWeapons(); renderSpells(); renderAbilities('active'); renderAbilities('passive'); renderAbilities('racial'); renderAbilities('feat'); renderItems();
     refreshCombatUi();
     
     if(data.skills) {
@@ -2282,7 +2546,21 @@ function loadCurrentSheet() {
 
 function autoExpand(el) { el.style.height = 'auto'; el.style.height = (el.scrollHeight + 5) + 'px'; }
 
-const listContainerIds = { weapon: 'weaponList', spell: 'spellList', active: 'activeList', passive: 'passiveList', feat: 'featList', item: 'itemList' };
+const listContainerIds = { weapon: 'weaponList', spell: 'spellList', active: 'activeList', passive: 'passiveList', racial: 'racialList', feat: 'featList', item: 'itemList' };
+function abilityCollectionKey(type) {
+    if(type === 'active') return 'activeAbilities';
+    if(type === 'passive') return 'passiveAbilities';
+    if(type === 'racial') return 'racialAbilities';
+    if(type === 'feat') return 'feats';
+    return type + 's';
+}
+function abilityCollectionLabel(type) {
+    if(type === 'active') return 'Active Ability';
+    if(type === 'passive') return 'Passive Ability';
+    if(type === 'racial') return 'Racial Ability';
+    if(type === 'feat') return 'Feat';
+    return type;
+}
 
 let currentItemView = 'storage';
 
@@ -2477,14 +2755,14 @@ window.openView = (type, index) => {
     // Prevent view from opening if we are dragging
     if(isDragging) return;
     const data = getActiveData();
-    let col = type === 'active' ? 'activeAbilities' : type === 'passive' ? 'passiveAbilities' : type === 'feat' ? 'feats' : type + 's';
+    let col = ['active','passive','racial','feat'].includes(type) ? abilityCollectionKey(type) : type + 's';
     currentViewContext = { type, index, col };
     populateViewModal(type, data[col][index], index);
 };
 
 window.openEditor = (type, index) => {
     const data = getActiveData();
-    let col = type === 'active' ? 'activeAbilities' : type === 'passive' ? 'passiveAbilities' : type === 'feat' ? 'feats' : type + 's';
+    let col = ['active','passive','racial','feat'].includes(type) ? abilityCollectionKey(type) : type + 's';
     populateEditorModal(type, data[col][index], index, col);
 };
 
@@ -2587,7 +2865,7 @@ function normalizeAttackModeValue(value){
     return String(value || '').trim().toLowerCase().replace(/\s+/g, '_');
 }
 function attackFormulaPartsForMode(mode){
-    const babTotal = numVal('bab');
+    const babTotal = numVal('bab') + numVal('bab_temp');
     const sizeMod = numVal('size_mod');
     const sizeSpecial = numVal('size_special');
     if(mode === 'melee') {
@@ -2880,7 +3158,7 @@ function getActiveAbilityUseState(ability) {
 }
 
 function renderAbilities(subType) {
-    let prop = subType === 'active' ? 'activeAbilities' : subType === 'passive' ? 'passiveAbilities' : 'feats';
+    let prop = abilityCollectionKey(subType);
     const data = getActiveData()[prop] || [];
     const container = document.getElementById(listContainerIds[subType]); 
     container.innerHTML = '';
@@ -3047,7 +3325,7 @@ function handleTouchEnd(e) {
             
             if(type === targetRow.dataset.type) {
                 const data = getActiveData();
-                let col = type === 'active' ? 'activeAbilities' : type === 'passive' ? 'passiveAbilities' : 'feats';
+                let col = abilityCollectionKey(type);
                 const arr = data[col];
                 const item = arr[srcIdx];
                 arr.splice(srcIdx, 1);
@@ -3273,7 +3551,7 @@ function populateViewModal(type, item, index = -1) {
           </div>`;
         return;
     }
-    if(type === 'passive' || type === 'feat') {
+    if(type === 'passive' || type === 'racial' || type === 'feat') {
         const esc = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
         const nl2br = (value) => esc(value).replace(/\n/g, '<br>');
         const show = (value, fallback = '—') => {
@@ -3422,7 +3700,7 @@ function populateEditorModal(type, item, index, col) {
         createTextArea('Description', item.desc, 'desc');
         createEditorSection('At Higher Levels');
         createTextArea('At Higher Levels', item.at_higher_lvls || item.at_higher, 'at_higher_lvls');
-    } else if(['active','passive','feat'].includes(type)) {
+    } else if(['active','passive','racial','feat'].includes(type)) {
         createEditorSection('Description');
         createTextArea('Description', item.desc, 'desc');
         createEditorSection('At Higher Levels');
@@ -3451,7 +3729,7 @@ function prepareScrollableTextarea(t, opts = {}) {
     setTimeout(() => autoExpand(t), 0);
     return t;
 }
-function createTextArea(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const t=document.createElement('textarea'); t.value=v||''; prepareScrollableTextarea(t); t.oninput=e=>{autoExpand(t); updateCurrentItem(k,e.target.value)}; modalBody.appendChild(lb); modalBody.appendChild(t); }
+function createTextArea(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const t=document.createElement('textarea'); t.value=v||''; prepareScrollableTextarea(t, { longDesc: k === 'desc' || k === 'at_higher_lvls' }); t.oninput=e=>{autoExpand(t); updateCurrentItem(k,e.target.value)}; modalBody.appendChild(lb); modalBody.appendChild(t); }
 function createSelect(l, v, k, ops) { const lb=document.createElement('label'); lb.textContent=l; const s=document.createElement('select'); ops.forEach(o=>{const op=document.createElement('option'); op.text=o; op.value=o; if(o===v) op.selected=true; s.appendChild(op)}); s.onchange=e=>{ updateCurrentItem(k,e.target.value); if(currentEditContext && currentEditContext.type === 'item') populateEditorModal('item', getActiveData().items[currentEditContext.index], currentEditContext.index, 'items'); }; modalBody.appendChild(lb); modalBody.appendChild(s); }
 function createCheckbox(l, v, k) { const lb=document.createElement('label'); lb.textContent=l; const w=document.createElement('div'); w.style.cssText='display:flex; align-items:center; gap:10px;'; const i=document.createElement('input'); i.type='checkbox'; i.checked=!!v; i.style.width='18px'; i.style.height='18px'; i.onchange=e=>updateCurrentItem(k,e.target.checked); w.appendChild(i); modalBody.appendChild(lb); modalBody.appendChild(w); }
 function createEditorSection(title) { const div = document.createElement('div'); div.className = 'editor-section-title'; div.textContent = title; modalBody.appendChild(div); }
@@ -3483,7 +3761,7 @@ function refreshList(t) { if(t==='weapon') renderWeapons(); else if(t==='spell')
 window.addNewItem = (t) => {
     const d = getActiveData();
     let n={name:''}, c='';
-    if(t==='weapon'){c='weapons';n.mod='STR';n.ability_mod='STR';n.attack_misc='';n.damage='';n.type='';n.crit_range='20';n.crit_mult='x2';n.range='';n.ammo='';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';n.attack_type='None';n.spell_resist='No';n.saving_throw='';n.school='';n.target='';n.range='';n.duration='';n.damage='';n.at_higher_lvls='';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;n.attack_type='None';n.damage='';n.at_higher_lvls='';n.restoreOnLongRest=false;} else if(t==='passive'){c='passiveAbilities';n.at_higher_lvls='';} else if(t==='feat'){c='feats';n.at_higher_lvls='';} else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
+    if(t==='weapon'){c='weapons';n.mod='STR';n.ability_mod='STR';n.attack_misc='';n.damage='';n.type='';n.crit_range='20';n.crit_mult='x2';n.range='';n.ammo='';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';n.attack_type='None';n.spell_resist='No';n.saving_throw='';n.school='';n.target='';n.range='';n.duration='';n.damage='';n.at_higher_lvls='';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;n.attack_type='None';n.damage='';n.at_higher_lvls='';n.restoreOnLongRest=false;} else if(t==='passive'){c='passiveAbilities';n.at_higher_lvls='';} else if(t==='racial'){c='racialAbilities';n.type='Racial';n.at_higher_lvls='';} else if(t==='feat'){c='feats';n.at_higher_lvls='';} else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
     if(!d[c]) d[c]=[]; d[c].push(n);
     saveDataOnly(); refreshList(t); openEditor(t, d[c].length-1);
 };
@@ -3501,9 +3779,12 @@ function scrapeCurrentSheet() {
     p.spells = m.spells || [];
     p.activeAbilities = m.activeAbilities || [];
     p.passiveAbilities = m.passiveAbilities || [];
+    p.racialAbilities = m.racialAbilities || [];
     p.feats = m.feats || [];
     p.items = m.items || [];
+    p.multiclasses = Array.isArray(m.multiclasses) ? m.multiclasses : [];
     p.slot_cap = fullData.slot_cap || 20;
+    p.multiclasses = Array.isArray(m.multiclasses) ? m.multiclasses : [];
     return p;
 }
 
@@ -3789,9 +4070,10 @@ function performLongRest() {
   const level = Math.max(1, Math.min(20, Number(document.getElementById('character_level')?.value) || 1));
   const hpBefore = numVal('hp_curr');
   const hpMax = numVal('hp_max');
-  const hpAfter = hpMax > 0 ? Math.min(hpMax, hpBefore + level) : hpBefore + level;
+  const hpEffectiveMax = Math.max(0, hpMax + numVal('hp_max_temp'));
+  const hpAfter = hpEffectiveMax > 0 ? Math.min(hpEffectiveMax, hpBefore + level) : hpBefore + level;
   const mpBefore = numVal('mp_curr');
-  const mpAfter = numVal('mp_max');
+  const mpAfter = Math.max(0, numVal('mp_max') + numVal('mp_temp'));
   setVal('hp_curr', hpAfter);
   setVal('mp_curr', mpAfter);
   let restoredAbilities = 0;
@@ -3822,7 +4104,7 @@ function computeDerivedStats() {
   const hpBase = numVal('hp_curr'), hpTemp = numVal('hp_temp'), hpMax = numVal('hp_max');
   const mpBase = numVal('mp_curr'), mpTemp = numVal('mp_temp'), mpMax = numVal('mp_max');
   const init = dex + numVal('init_temp');
-  const babTotal = numVal('bab');
+  const babTotal = numVal('bab') + numVal('bab_temp');
   const speedTotal = numVal('speed');
   const ac = 10 + dex + sizeMod + numVal('ac_armor') + numVal('ac_natural') + numVal('ac_deflect') + numVal('ac_dodge') + numVal('ac_temp');
   const touch = 10 + dex + sizeMod + numVal('ac_deflect') + numVal('ac_dodge') + numVal('touch_temp');
@@ -3842,8 +4124,8 @@ function computeDerivedStats() {
   const will = wis + numVal('will_base') + numVal('will_enhance') + numVal('will_temp');
   const setText = (id,val,plus=true) => { const el = document.getElementById(id); if(!el) return; const out = plus ? (val>=0?`+${val}`:`${val}`) : String(val); if('value' in el) el.value = out; else el.textContent = out; };
   const setPlain = (id,val) => { const el = document.getElementById(id); if(!el) return; const out = String(val); if('value' in el) el.value = out; else el.textContent = out; };
-  setPlain('hpBaseDisplay', hpBase); setPlain('hpTempDisplay', hpTemp); setPlain('hpMaxDisplay', hpMax);
-  setPlain('mpBaseDisplay', mpBase); setPlain('mpTempDisplay', mpTemp); setPlain('mpMaxDisplay', mpMax);
+  setPlain('hpBaseDisplay', hpBase); setPlain('hpTempDisplay', hpTemp); setPlain('hpMaxDisplay', Math.max(0, hpMax + numVal('hp_max_temp')));
+  setPlain('mpBaseDisplay', mpBase); setPlain('mpTempDisplay', mpTemp); setPlain('mpMaxDisplay', Math.max(0, mpMax + mpTemp));
   setText('initDisplayMain', init); setText('babDisplayMain', babTotal); setPlain('speedDisplayMain', speedTotal);
   setVal('ac_total', ac); setVal('cmd_total', cmd); setVal('ar_total', melee); setVal('cmb', cmb); setVal('touch_ac_total', touch); setVal('flat_ac_total', flat); setVal('ar_ranged_total', ranged); setVal('ar_touch_total', touchAttack); setVal('ar_ranged_touch_total', rangedTouchAttack);
   setVal('fort_bonus', fort); setVal('ref_bonus', ref); setVal('will_bonus', will);
@@ -3880,9 +4162,9 @@ function signedAttackTotal(val) {
 window.openStatEdit = (section) => {
   const body = document.getElementById('statEditBody'); const title = document.getElementById('statEditTitle'); if(!body) return;
   let html = '';
-  if(section === 'hp') { title.textContent = 'Edit HP'; html = `<div class="formula-line"><div class="formula-parts">${statField('Base','hp_curr')}${statField('Temp','hp_temp')}${statField('Max','hp_max')}</div></div>`; }
-  if(section === 'mp') { title.textContent = 'Edit MP'; html = `<div class="formula-line"><div class="formula-parts">${statField('Base','mp_curr')}${statField('Temp','mp_temp')}${statField('Max','mp_max')}</div></div>`; }
-  if(section === 'general') { title.textContent = 'Edit Base Combat Stats'; html = `<div class="formula-line"><div class="formula-parts">${statField('Initiative Temp','init_temp')}${statField('BAB','bab')}${statField('Speed','speed')}</div></div>`; }
+  if(section === 'hp') { title.textContent = 'Edit HP'; html = `<div class="formula-line"><div class="formula-parts">${statField('Current','hp_curr')}${statField('Max Temp','hp_temp')}${statField('Auto Max','hp_max', {readonly:true})}</div></div>`; }
+  if(section === 'mp') { title.textContent = 'Edit MP'; html = `<div class="formula-line"><div class="formula-parts">${statField('Current','mp_curr')}${statField('Max Temp','mp_temp')}${statField('Auto Max','mp_max', {readonly:true})}</div></div>`; }
+  if(section === 'general') { title.textContent = 'Edit Base Combat Stats'; html = `<div class="formula-line"><div class="formula-parts">${statField('Initiative Temp','init_temp')}${statField('BAB Base','bab', {readonly:true})}${statField('BAB Temp','bab_temp')}${statField('Speed','speed')}</div></div>`; }
   if(section === 'ac') { title.textContent = 'Edit Defense'; html = `
     <div class="formula-line"><strong>Armor Class</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Armor','ac_armor')}${statField('Natural','ac_natural')}${statField('Deflect','ac_deflect')}${statField('Dodge','ac_dodge')}${statField('Temp','ac_temp')}<div class="total-pill">${document.getElementById('ac_total')?.value||10}</div></div></div>
     <div class="formula-line"><strong>Touch AC</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_mod')?.value||0}" readonly class="graybase"></div>${statField('Deflect','ac_deflect')}${statField('Dodge','ac_dodge')}${statField('Temp','touch_temp')}<div class="total-pill">${10 + modFor('dex') + numVal('size_mod') + numVal('ac_deflect') + numVal('ac_dodge') + numVal('touch_temp')}</div></div></div>
@@ -3890,7 +4172,7 @@ window.openStatEdit = (section) => {
     <div class="formula-line"><strong>CMD</strong><div class="formula-parts"><div class="mini-field"><label>Base</label><input value="10" readonly class="graybase"></div><div class="mini-field"><label>STR</label><input value="${modFor('str')}" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_special')?.value||0}" readonly class="graybase"></div>${statField('Temp','cmd_temp')}<div class="total-pill">${document.getElementById('cmd_total')?.value||10}</div></div></div>`; }
   if(section === 'ar') { 
     title.textContent = 'Edit Attack'; 
-    const babShown = numVal('bab');
+    const babShown = numVal('bab') + numVal('bab_temp');
     const sizeShown = numVal('size_mod');
     const meleeAbilityKey = getAttackAbility('ar_melee_ability', 'str');
     const rangedAbilityKey = getAttackAbility('ar_ranged_ability', 'dex');
@@ -4593,7 +4875,7 @@ function readWeaponAbilityModifier(weapon) {
   return (typeof modFor === 'function') ? modFor(ability) : getMod(ability);
 }
 function readWeaponAttackBonus(weapon) {
-  const bab = readNumericValue('bab', 0);
+  const bab = readNumericValue('bab', 0) + readNumericValue('bab_temp', 0);
   const misc = Number(weapon?.attack_misc || 0) || 0;
   const size = readNumericValue('size_mod', 0);
   const abilityKey = normalizeAbilityKey(weapon?.ability_mod || weapon?.mod || 'STR', 'STR');
@@ -5402,6 +5684,905 @@ routeChatEntry = function(entry) { routeChatEntryV25Original(entry); if(entry?.k
 window.setInterval(refreshGroupRollSubscriptionV25, 500);
 window.addEventListener('beforeunload', () => { try { if(unsubscribeGroupRollsV25) unsubscribeGroupRollsV25(); } catch(_err) {} });
 
+
+
+/* --- FFD20 v2: normal character choices, creation wizard, level-up helper --- */
+const MA_FFD20_IS_ADMIN = false;
+const MA_FFD20_DATA_URL = './data/ffd20_data.json';
+let maFfd20Library = null;
+let maFfd20ApplyingChoice = false;
+let maFfd20ChoiceUiReady = false;
+
+const MA_ALIGNMENTS = [
+  'Lawful Good','Neutral Good','Chaotic Good',
+  'Lawful Neutral','True Neutral','Chaotic Neutral',
+  'Lawful Evil','Neutral Evil','Chaotic Evil'
+];
+const MA_SIZES = ['Fine','Diminutive','Tiny','Small','Medium','Large','Huge','Gargantuan','Colossal'];
+const MA_STATS = ['str','dex','con','int','wis','cha'];
+
+function maFfd20Esc(value){ return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+function maFfd20Norm(value){ return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
+function maFfd20Level(value){ const n = Number(String(value || '').match(/\d+/)?.[0] || value || 0); return Number.isFinite(n) ? Math.max(0, Math.trunc(n)) : 0; }
+function maFfd20FieldClass(){ return MA_FFD20_IS_ADMIN ? 'save-field' : 'live-field'; }
+function maFfd20ActiveData(){ return typeof getActiveData === 'function' ? getActiveData() : (MA_FFD20_IS_ADMIN ? fullSheetData : fullData); }
+function maFfd20SaveNow(){
+  if(MA_FFD20_IS_ADMIN){ if(typeof triggerSave === 'function') triggerSave(); else if(typeof saveData === 'function') saveData(); }
+  else { if(typeof save === 'function') save(true); else if(typeof saveDataOnly === 'function') saveDataOnly(); }
+}
+function maFfd20RenderAll(){
+  try { if(typeof renderAbilities === 'function'){ renderAbilities('active'); renderAbilities('passive'); renderAbilities('racial'); renderAbilities('feat'); } } catch(e){ console.warn(e); }
+  try { if(typeof renderSpells === 'function') renderSpells(); } catch(e){ console.warn(e); }
+  try { if(typeof updateCalculations === 'function') updateCalculations(); } catch(e){ console.warn(e); }
+  try { if(typeof updateCalcs === 'function') updateCalcs(); } catch(e){ console.warn(e); }
+  try { if(typeof computeDerivedStats === 'function') computeDerivedStats(); } catch(e){ console.warn(e); }
+  try { if(typeof renderSelectedCombatDisplays === 'function') renderSelectedCombatDisplays(); } catch(e){ console.warn(e); }
+  try { if(typeof renderAbilityDrawerScores === 'function') renderAbilityDrawerScores(); } catch(e){ console.warn(e); }
+}
+async function maFfd20LoadLibrary(){
+  if(maFfd20Library) return maFfd20Library;
+  const response = await fetch(MA_FFD20_DATA_URL, { cache:'no-store' });
+  if(!response.ok) throw new Error(`Missing ${MA_FFD20_DATA_URL}. Run the scraper and upload the JSON first.`);
+  maFfd20Library = await response.json();
+  if(!Array.isArray(maFfd20Library.classes)) maFfd20Library.classes = [];
+  if(!Array.isArray(maFfd20Library.races)) maFfd20Library.races = [];
+  if(!Array.isArray(maFfd20Library.prestigeClasses)) maFfd20Library.prestigeClasses = [];
+  return maFfd20Library;
+}
+function maFfd20Find(list, name){ const target = maFfd20Norm(name); return (list || []).find(item => maFfd20Norm(item.name) === target); }
+function maFfd20AddOption(select, value, text){ const opt = document.createElement('option'); opt.value = value || ''; opt.textContent = text || value || ''; select.appendChild(opt); }
+function maFfd20FillSelect(select, list, placeholder, currentValue=''){
+  if(!select) return;
+  const current = currentValue || select.value || '';
+  select.innerHTML = '';
+  maFfd20AddOption(select, '', placeholder);
+  (list || []).forEach(item => maFfd20AddOption(select, item.name || '', item.name || ''));
+  if(current && !(list || []).some(item => item.name === current)) maFfd20AddOption(select, current, `${current} (current)`);
+  select.value = current;
+}
+function maFfd20FillSimple(select, values, placeholder, currentValue=''){
+  if(!select) return;
+  const current = currentValue || select.value || '';
+  select.innerHTML = '';
+  maFfd20AddOption(select, '', placeholder);
+  values.forEach(v => maFfd20AddOption(select, v, v));
+  if(current && !values.includes(current)) maFfd20AddOption(select, current, `${current} (current)`);
+  select.value = current;
+}
+function maFfd20LevelOptions(current='1'){
+  return Array.from({length:20}, (_,i)=>`<option value="${i+1}" ${String(current)==String(i+1)?'selected':''}>${i+1}</option>`).join('');
+}
+function maFfd20CaptureBioValues(){
+  const ids = ['charName','bio','race','class','archetype','character_level','alignment','size_category','size','languages','senses','shop_tags','prestige_class','prestige_level'];
+  const out = {};
+  ids.forEach(id => { const el = document.getElementById(id); if(el) out[id] = el.value; });
+  return out;
+}
+function maFfd20BuildChoiceGrid(){
+  const character = document.getElementById('character');
+  const oldGrid = character?.querySelector('.bio-grid');
+  if(!character || !oldGrid || document.getElementById('ffd20ChoiceGrid')) return;
+  const values = maFfd20CaptureBioValues();
+  const fieldClass = maFfd20FieldClass();
+  const prestigeBlock = MA_FFD20_IS_ADMIN ? `
+      <div class="bio-item"><label>Prestige Class</label><select id="prestige_class" class="${fieldClass} ma-ffd20-prestige"><option value="">No prestige</option></select></div>
+      <div class="bio-item"><label>Prestige Level</label><select id="prestige_level" class="${fieldClass}">${maFfd20LevelOptions(values.prestige_level || '1')}</select></div>` : '';
+  const shopTags = MA_FFD20_IS_ADMIN ? `<div class="bio-item"><label>Shop Access Tags</label><input id="shop_tags" class="${fieldClass}" placeholder="starter, magic_shop, blacksmith, potion_shop" value="${maFfd20Esc(values.shop_tags || '')}"></div>` : '';
+  const grid = document.createElement('section');
+  grid.id = 'ffd20ChoiceGrid';
+  grid.className = 'ffd20-bio-three-col';
+  grid.innerHTML = `
+    <div class="ffd20-bio-col">
+      <h3>Identity</h3>
+      <div class="bio-item"><label>Name</label><input id="charName" class="${fieldClass}" value="${maFfd20Esc(values.charName || '')}"></div>
+      <div class="bio-item"><label>Alignment</label><select id="alignment" class="${fieldClass}"></select></div>
+      <div class="bio-item"><label>Size</label><select id="size_category" class="${fieldClass}" aria-label="Character Size"></select><input id="size" class="${fieldClass}" type="hidden" value="${maFfd20Esc(values.size || values.size_category || '')}"></div>
+      <div class="bio-item"><label>Languages</label><input id="languages" class="${fieldClass}" value="${maFfd20Esc(values.languages || '')}"></div>
+      <div class="bio-item"><label>Senses</label><input id="senses" class="${fieldClass}" value="${maFfd20Esc(values.senses || '')}"></div>
+    </div>
+    <div class="ffd20-bio-col">
+      <h3>Build</h3>
+      <div class="bio-item"><label>Race</label><select id="race" class="${fieldClass} ma-ffd20-race"><option value="${maFfd20Esc(values.race || '')}">${maFfd20Esc(values.race || 'Loading races...')}</option></select></div>
+      <div class="bio-item"><label>Class</label><select id="class" class="${fieldClass} ma-ffd20-class"><option value="${maFfd20Esc(values.class || '')}">${maFfd20Esc(values.class || 'Loading classes...')}</option></select></div>
+      <div class="bio-item"><label>Archetype</label><select id="archetype" class="${fieldClass} ma-ffd20-archetype"><option value="${maFfd20Esc(values.archetype || '')}">${maFfd20Esc(values.archetype || 'No archetype')}</option></select></div>
+      <div class="bio-item"><label>Level</label><select id="character_level" class="${fieldClass} ma-ffd20-level" aria-label="Character Level">${maFfd20LevelOptions(values.character_level || '1')}</select></div>
+      <div id="maMulticlassList" class="ffd20-multiclass-list"></div>
+      <div class="bio-item ma-add-multiclass-wrap"><button class="ffd20-mini-btn" type="button" id="maAddMulticlassBtn">+ Add Multiclass</button></div>
+      ${prestigeBlock}
+      <div class="ffd20-choice-note">Auto abilities update from <code>data/ffd20_data.json</code>. Manual abilities stay untouched.</div>
+    </div>`;
+  oldGrid.replaceWith(grid);
+  document.querySelector('.character-level-row')?.remove();
+  maFfd20FillSimple(document.getElementById('alignment'), MA_ALIGNMENTS, 'Choose alignment', values.alignment || '');
+  maFfd20FillSimple(document.getElementById('size_category'), MA_SIZES, 'Select Size', values.size_category || values.size || 'Medium');
+  const sizeEl = document.getElementById('size');
+  if(sizeEl && !sizeEl.value) sizeEl.value = document.getElementById('size_category')?.value || 'Medium';
+  document.getElementById('maAddMulticlassBtn')?.addEventListener('click', () => maFfd20OpenMulticlassDialog());
+  document.getElementById('class')?.addEventListener('change', async () => { await maFfd20RefreshArchetypes(); await maFfd20ApplySheetChoices({silent:true}); });
+  document.getElementById('race')?.addEventListener('change', () => maFfd20ApplySheetChoices({silent:true}));
+  document.getElementById('archetype')?.addEventListener('change', () => maFfd20ApplySheetChoices({silent:true}));
+  document.getElementById('prestige_class')?.addEventListener('change', () => maFfd20ApplySheetChoices({silent:true}));
+  document.getElementById('prestige_level')?.addEventListener('change', () => maFfd20ApplySheetChoices({silent:true}));
+  document.getElementById('size_category')?.addEventListener('change', () => { const h=document.getElementById('size'); if(h) h.value=document.getElementById('size_category').value; try{ syncSizeFields(); }catch(e){} });
+  document.getElementById('character_level')?.addEventListener('change', maFfd20HandleLevelChanged);
+}
+async function maFfd20RefreshOptions(){
+  maFfd20BuildChoiceGrid();
+  let lib;
+  try { lib = await maFfd20LoadLibrary(); }
+  catch(e){
+    ['race','class','archetype','prestige_class'].forEach(id => { const el=document.getElementById(id); if(el && !el.options.length) maFfd20AddOption(el, '', e.message); });
+    console.warn(e); return null;
+  }
+  maFfd20FillSelect(document.getElementById('race'), lib.races, 'Choose race', document.getElementById('race')?.value || maFfd20ActiveData()?.race || '');
+  maFfd20FillSelect(document.getElementById('class'), lib.classes, 'Choose class', document.getElementById('class')?.value || maFfd20ActiveData()?.class || '');
+  if(MA_FFD20_IS_ADMIN) maFfd20FillSelect(document.getElementById('prestige_class'), lib.prestigeClasses, 'No prestige', document.getElementById('prestige_class')?.value || maFfd20ActiveData()?.prestige_class || '');
+  await maFfd20RefreshArchetypes();
+  maFfd20RenderMulticlasses();
+  return lib;
+}
+async function maFfd20RefreshArchetypes(){
+  let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ return; }
+  const className = document.getElementById('class')?.value || '';
+  const cls = maFfd20Find(lib.classes, className);
+  maFfd20FillSelect(document.getElementById('archetype'), cls?.archetypes || [], 'No archetype', document.getElementById('archetype')?.value || maFfd20ActiveData()?.archetype || '');
+}
+function maFfd20ReadSelection(){
+  const data = maFfd20ActiveData() || {};
+  return {
+    race: document.getElementById('race')?.value || data.race || '',
+    className: document.getElementById('class')?.value || data.class || '',
+    archetype: document.getElementById('archetype')?.value || data.archetype || '',
+    level: maFfd20Level(document.getElementById('character_level')?.value || data.character_level || 1),
+    prestigeClass: MA_FFD20_IS_ADMIN ? (document.getElementById('prestige_class')?.value || data.prestige_class || '') : (data.prestige_class || ''),
+    prestigeLevel: MA_FFD20_IS_ADMIN ? maFfd20Level(document.getElementById('prestige_level')?.value || data.prestige_level || 1) : maFfd20Level(data.prestige_level || 1),
+    multiclasses: Array.isArray(data.multiclasses) ? data.multiclasses : []
+  };
+}
+function maFfd20Bucket(entry){
+  const explicit = String(entry?.bucket || entry?.sheetBucket || '').toLowerCase();
+  if(['active','passive','racial','feat','spell'].includes(explicit)) return explicit;
+  const action = String(entry?.action || entry?.type || '').toLowerCase();
+  if(/\b(standard|move|swift|immediate|free|full|full-round|round|reaction)\b/.test(action)) return 'active';
+  const text = String(entry?.desc || entry?.description || '').toLowerCase();
+  if(/\b(as an?|spend|use).{0,40}\b(standard|move|swift|immediate|free|full-round|full round|round|reaction)\s+action\b/.test(text)) return 'active';
+  return entry?.originType === 'race' ? 'racial' : 'passive';
+}
+function maFfd20AutoKey(entry, sourcePrefix=''){
+  return ['ffd20', sourcePrefix || entry?.originType || 'source', entry?.originName || entry?.sourceName || '', entry?.level || 0, entry?.name || ''].map(maFfd20Norm).filter(Boolean).join(':');
+}
+function maFfd20ToAbility(entry, sourcePrefix=''){
+  const bucket = maFfd20Bucket(entry);
+  const sourceKind = entry.originType || sourcePrefix || '';
+  const ability = {
+    name: entry.name || '',
+    type: entry.type || entry.action || (bucket === 'active' ? 'Standard' : sourceKind === 'race' ? 'Racial' : ''),
+    desc: entry.desc || entry.description || '',
+    at_higher_lvls: entry.at_higher_lvls || '',
+    link: entry.url || entry.sourceUrl || '',
+    sourceUrl: entry.url || entry.sourceUrl || '',
+    sourceKind,
+    sourceName: entry.originName || entry.sourceName || '',
+    sourceLevel: entry.level || 0,
+    autoGenerated: true,
+    autoKey: maFfd20AutoKey(entry, sourcePrefix),
+    replaces: Array.isArray(entry.replaces) ? entry.replaces : []
+  };
+  if(bucket === 'active') { ability.u_curr = Number(entry.u_curr ?? 0); ability.u_max = Number(entry.u_max ?? 0); ability.attack_type = entry.attack_type || 'None'; ability.damage = entry.damage || ''; ability.restoreOnLongRest = !!entry.restoreOnLongRest; }
+  return { bucket, ability };
+}
+function maFfd20Collect(source, level, originType, originName){
+  const list = Array.isArray(source?.features) ? source.features : Array.isArray(source?.traits) ? source.traits : [];
+  return list.filter(entry => maFfd20Level(entry.level || 1) <= level).map(entry => ({...entry, originType, originName, sourceUrl:entry.url || entry.sourceUrl || source.url}));
+}
+function maFfd20BuildImported(lib, selection){
+  const imported = [];
+  const race = maFfd20Find(lib.races, selection.race);
+  if(race) maFfd20Collect(race, 1, 'race', race.name).forEach(e => imported.push(maFfd20ToAbility(e, 'race')));
+  const cls = maFfd20Find(lib.classes, selection.className);
+  if(cls){
+    maFfd20Collect(cls, selection.level || 1, 'class', cls.name).forEach(e => imported.push(maFfd20ToAbility(e, 'class')));
+    const arch = maFfd20Find(cls.archetypes, selection.archetype);
+    if(arch) maFfd20Collect(arch, selection.level || 1, 'archetype', arch.name).forEach(e => imported.push(maFfd20ToAbility(e, 'archetype')));
+  }
+  (selection.multiclasses || []).forEach((mc, idx) => {
+    const mcls = maFfd20Find(lib.classes, mc.className || mc.class || mc.name);
+    if(!mcls) return;
+    const mLevel = maFfd20Level(mc.level || 1) || 1;
+    maFfd20Collect(mcls, mLevel, 'multiclass', `Secondary ${idx+1}: ${mcls.name}`).forEach(e => imported.push(maFfd20ToAbility(e, 'multiclass')));
+    const march = maFfd20Find(mcls.archetypes, mc.archetype);
+    if(march) maFfd20Collect(march, mLevel, 'multiclass', `Secondary ${idx+1}: ${march.name}`).forEach(e => imported.push(maFfd20ToAbility(e, 'multiclass')));
+  });
+  const prestige = maFfd20Find(lib.prestigeClasses, selection.prestigeClass);
+  if(prestige) maFfd20Collect(prestige, selection.prestigeLevel || 1, 'prestige', prestige.name).forEach(e => imported.push(maFfd20ToAbility(e, 'prestige')));
+  return imported;
+}
+function maFfd20RemoveOldAuto(data){
+  const sourceSet = new Set(['race','class','archetype','multiclass','prestige']);
+  ['activeAbilities','passiveAbilities','racialAbilities','feats','spells'].forEach(key => {
+    if(!Array.isArray(data[key])) data[key] = [];
+    data[key] = data[key].filter(item => !item?.autoGenerated || !sourceSet.has(String(item.sourceKind || '').toLowerCase()));
+  });
+}
+function maFfd20Push(data, imported){
+  const replaceNames = imported.flatMap(x => Array.isArray(x.ability?.replaces) ? x.ability.replaces : []).map(maFfd20Norm).filter(Boolean);
+  if(replaceNames.length){
+    ['activeAbilities','passiveAbilities','racialAbilities'].forEach(key => { if(Array.isArray(data[key])) data[key] = data[key].filter(item => !replaceNames.includes(maFfd20Norm(item.name))); });
+  }
+  imported.forEach(({bucket, ability}) => {
+    const key = bucket === 'active' ? 'activeAbilities' : bucket === 'racial' ? 'racialAbilities' : bucket === 'feat' ? 'feats' : bucket === 'spell' ? 'spells' : 'passiveAbilities';
+    if(!Array.isArray(data[key])) data[key] = [];
+    if(!data[key].some(x => x.autoKey && x.autoKey === ability.autoKey)) data[key].push(ability);
+  });
+}
+async function maFfd20ApplySheetChoices({silent=false}={}){
+  if(maFfd20ApplyingChoice) return;
+  maFfd20ApplyingChoice = true;
+  try {
+    const lib = await maFfd20LoadLibrary();
+    const data = maFfd20ActiveData();
+    const sel = maFfd20ReadSelection();
+    data.race = sel.race; data.class = sel.className; data.archetype = sel.archetype; data.character_level = String(sel.level || 1);
+    if(MA_FFD20_IS_ADMIN){ data.prestige_class = sel.prestigeClass; data.prestige_level = String(sel.prestigeLevel || 1); }
+    if(!Array.isArray(data.racialAbilities)) data.racialAbilities = [];
+    maFfd20RemoveOldAuto(data);
+    const imported = maFfd20BuildImported(lib, sel);
+    maFfd20Push(data, imported);
+    maFfd20RenderAll();
+    maFfd20SaveNow();
+    if(!silent) alert(`Updated ${imported.length} FFD20 entries. Manual entries were kept.`);
+  } catch(e) { if(!silent) alert(e.message); else console.warn(e); }
+  finally { maFfd20ApplyingChoice = false; }
+}
+function maFfd20HitDie(cls){ const m = String(cls?.hitDie || cls?.hit_die || '').match(/d\s*(\d+)/i); return m ? Number(m[1]) : 8; }
+function maFfd20AvgHp(die){ return Math.floor(Number(die || 8) / 2) + 1; }
+function maFfd20SkillBase(cls){ const m = String(cls?.skillPoints || cls?.skill_points || '').match(/\d+/); return m ? Number(m[0]) : 4; }
+function maFfd20Mod(stat){ const n = Number(document.getElementById(stat)?.value || maFfd20ActiveData()?.[stat] || 10); return Math.floor(((Number.isFinite(n) ? n : 10) - 10) / 2); }
+function maFfd20ClassObj(lib, name){ return maFfd20Find(lib.classes, name || document.getElementById('class')?.value || maFfd20ActiveData()?.class || ''); }
+function maFfd20InitialHpSkill(cls, level, favored){
+  const die = maFfd20HitDie(cls), con = maFfd20Mod('con'), intel = maFfd20Mod('int');
+  const hp1 = Math.max(1, die + con);
+  const hpLater = Math.max(1, maFfd20AvgHp(die) + con);
+  const skillEach = Math.max(1, maFfd20SkillBase(cls) + intel);
+  let hp = hp1 + Math.max(0, level - 1) * hpLater;
+  let skill = skillEach * 4 + Math.max(0, level - 1) * skillEach;
+  if(favored === 'skill') skill += level; else hp += level;
+  return { hp, skill, die, hpLater, skillEach };
+}
+function maFfd20ApplyHpSkillToData(data, cls, level, favored){
+  const calc = maFfd20InitialHpSkill(cls, level, favored);
+  data.hp_curr = String(calc.hp); data.hp_max = String(calc.hp); data.hp_temp = data.hp_temp || '0';
+  data.skill_points = String(calc.skill);
+  return calc;
+}
+function maFfd20MilestonesBetween(oldLevel, newLevel){ const out=[]; for(let i=oldLevel+1;i<=newLevel;i++) if([4,8,12,16,20].includes(i)) out.push(i); return out; }
+function maFfd20OddLevelsBetween(oldLevel, newLevel){ const out=[]; for(let i=oldLevel+1;i<=newLevel;i++) if(i % 2 === 1) out.push(i); return out; }
+function maFfd20Dialog(title, bodyHtml, confirmText='Save'){
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'ffd20-modal-overlay show';
+    overlay.innerHTML = `<div class="ffd20-modal"><div class="ffd20-modal-head"><h3>${maFfd20Esc(title)}</h3><button class="btn-close" type="button" data-close>&times;</button></div><div class="ffd20-modal-body">${bodyHtml}</div><div class="ffd20-modal-actions"><button class="ffd20-mini-btn" type="button" data-close>Cancel</button><button class="btn-save" type="button" data-confirm>${maFfd20Esc(confirmText)}</button></div></div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => { overlay.remove(); resolve(null); }));
+    overlay.querySelector('[data-confirm]')?.addEventListener('click', () => { resolve(overlay); overlay.remove(); });
+  });
+}
+async function maFfd20HandleLevelChanged(event){
+  const select = event?.target || document.getElementById('character_level');
+  const oldLevel = maFfd20Level(select?.dataset.prevLevel || maFfd20ActiveData()?.character_level || 1) || 1;
+  const newLevel = maFfd20Level(select?.value || 1) || 1;
+  if(select) select.dataset.prevLevel = String(newLevel);
+  if(newLevel <= oldLevel){ await maFfd20ApplySheetChoices({silent:true}); return; }
+  let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ alert(e.message); return; }
+  const cls = maFfd20ClassObj(lib);
+  const die = maFfd20HitDie(cls), avg = maFfd20AvgHp(die), con = maFfd20Mod('con'), intel = maFfd20Mod('int'), skillEach = Math.max(1, maFfd20SkillBase(cls) + intel);
+  const milestones = maFfd20MilestonesBetween(oldLevel, newLevel);
+  const feats = maFfd20OddLevelsBetween(oldLevel, newLevel);
+  const milestoneHtml = milestones.length ? `<div class="ffd20-milestone-grid">${milestones.map(l => `<label>Level ${l} ability +1<select data-ability-level="${l}">${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div>` : '<div class="ffd20-choice-note">No ability-score increase on this level.</div>';
+  const overlay = await maFfd20Dialog(`Level Up: ${oldLevel} → ${newLevel}`, `
+    <div class="ffd20-level-summary">
+      <strong>Gains to apply now:</strong>
+      <ul>
+        <li>HP per new level: Avg d${die} = ${avg} + CON mod ${con >= 0 ? '+' : ''}${con}</li>
+        <li>Skill points per new level: ${maFfd20SkillBase(cls)} + INT mod ${intel >= 0 ? '+' : ''}${intel} = ${skillEach}</li>
+        <li>Feat reminder: ${feats.length ? feats.map(x=>'level '+x).join(', ') : 'no odd-level feat in this increase'}</li>
+        <li>TODO reminder: BAB, saves, and MP automation still need rules hookup.</li>
+      </ul>
+    </div>
+    <label>Favored class bonus for this level-up<select id="maLevelFavored"><option value="hp">+1 HP</option><option value="skill">+1 Skill Point</option></select></label>
+    ${milestoneHtml}
+  `, 'Apply Level Up');
+  if(!overlay) return;
+  const favored = overlay.querySelector('#maLevelFavored')?.value || 'hp';
+  const data = maFfd20ActiveData();
+  const levelsGained = newLevel - oldLevel;
+  const hpGain = levelsGained * Math.max(1, avg + con) + (favored === 'hp' ? levelsGained : 0);
+  const skillGain = levelsGained * skillEach + (favored === 'skill' ? levelsGained : 0);
+  ['hp_curr','hp_max'].forEach(id => { const el = document.getElementById(id); if(el) el.value = String((Number(el.value)||0) + hpGain); data[id] = el?.value || String((Number(data[id])||0) + hpGain); });
+  const sp = document.getElementById('skill_points'); if(sp){ sp.value = String((Number(sp.value)||0) + skillGain); data.skill_points = sp.value; }
+  overlay.querySelectorAll('[data-ability-level]').forEach(sel => { const stat = sel.value; const el = document.getElementById(stat); if(el){ const base = Number(el.value) || 10; el.value = String(base + 1); data[stat] = el.value; } });
+  await maFfd20ApplySheetChoices({silent:true});
+  maFfd20RenderAll(); maFfd20SaveNow();
+  alert(`Level-up applied. Added ${hpGain} max HP and ${skillGain} unused skill points. ${feats.length ? 'Pick feat(s) for: ' + feats.join(', ') + '.' : ''}`);
+}
+function maFfd20RenderMulticlasses(){
+  const list = document.getElementById('maMulticlassList'); if(!list) return;
+  const data = maFfd20ActiveData(); if(!Array.isArray(data.multiclasses)) data.multiclasses = [];
+  list.innerHTML = '';
+  data.multiclasses.forEach((mc, index) => {
+    const row = document.createElement('div'); row.className = 'ffd20-multiclass-row';
+    row.innerHTML = `<div><strong>Secondary ${index+1}: ${maFfd20Esc(mc.className || mc.class || 'Class')}</strong><small>${maFfd20Esc(mc.archetype || 'No archetype')} · Level ${maFfd20Esc(mc.level || 1)}</small></div><button class="ffd20-mini-btn danger" type="button">Delete</button>`;
+    row.querySelector('button')?.addEventListener('click', async () => { data.multiclasses.splice(index,1); maFfd20RenderMulticlasses(); await maFfd20ApplySheetChoices({silent:true}); maFfd20SaveNow(); });
+    list.appendChild(row);
+  });
+}
+async function maFfd20OpenMulticlassDialog(){
+  let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ alert(e.message); return; }
+  const body = `<div class="ffd20-modal-grid"><label>Class<select id="maMultiClass"></select></label><label>Archetype<select id="maMultiArch"><option value="">No archetype</option></select></label><label>Level<select id="maMultiLevel">${maFfd20LevelOptions('1')}</select></label></div>`;
+  const overlayPromise = maFfd20Dialog('Add Multiclass', body, 'Add Multiclass');
+  setTimeout(() => {
+    const c = document.getElementById('maMultiClass'), a = document.getElementById('maMultiArch');
+    maFfd20FillSelect(c, lib.classes, 'Choose class');
+    c?.addEventListener('change', () => { const cls=maFfd20Find(lib.classes,c.value); maFfd20FillSelect(a, cls?.archetypes || [], 'No archetype'); });
+  }, 0);
+  const overlay = await overlayPromise; if(!overlay) return;
+  const data = maFfd20ActiveData(); if(!Array.isArray(data.multiclasses)) data.multiclasses = [];
+  const className = overlay.querySelector('#maMultiClass')?.value || '';
+  if(!className) return;
+  data.multiclasses.push({ className, archetype: overlay.querySelector('#maMultiArch')?.value || '', level: overlay.querySelector('#maMultiLevel')?.value || '1' });
+  maFfd20RenderMulticlasses(); await maFfd20ApplySheetChoices({silent:true}); maFfd20SaveNow();
+}
+
+
+/* --- MODULE PATCH: compact class rows + working class overlay, inside Firebase module scope --- */
+function maClassRowsRefreshCard(){
+  const d = maFfd20ActiveData ? (maFfd20ActiveData() || {}) : {};
+  const classVal = document.getElementById('class')?.value || d.class || d.className || '';
+  const archVal = document.getElementById('archetype')?.value || d.archetype || '';
+  const lvlVal = document.getElementById('character_level')?.value || d.character_level || d.level || '1';
+  const title = document.getElementById('maPrimaryClassTitle'); if(title) title.textContent = classVal || 'Choose Class';
+  const sub = document.getElementById('maPrimaryClassSub'); if(sub) sub.textContent = archVal || 'No archetype selected';
+  const badge = document.getElementById('maPrimaryClassLevel'); if(badge) badge.textContent = 'Lv ' + (lvlVal || '1');
+}
+function maClassRowsSetSelectValue(select, value, label){
+  if(!select) return;
+  const val = String(value || '');
+  if(val && !Array.from(select.options || []).some(opt => opt.value === val)) maFfd20AddOption(select, val, label || val);
+  select.value = val;
+}
+function maClassRowsInstallClicks(){
+  if(document.body.dataset.maClassRowsModuleClicks === '1') return;
+  document.body.dataset.maClassRowsModuleClicks = '1';
+  document.addEventListener('click', event => {
+    const primary = event.target.closest('#maClassBuildCard');
+    if(primary){
+      event.preventDefault();
+      event.stopPropagation();
+      maClassRowsOpenDialog('primary', null);
+      return;
+    }
+    const add = event.target.closest('#maAddMulticlassBtn');
+    if(add){
+      event.preventDefault();
+      event.stopPropagation();
+      maClassRowsOpenDialog('multi', null);
+      return;
+    }
+    const edit = event.target.closest('#maMulticlassList .ma-multiclass-edit');
+    if(edit){
+      const cards = Array.from(document.querySelectorAll('#maMulticlassList .ma-multiclass-edit'));
+      const index = cards.indexOf(edit);
+      if(index >= 0){
+        event.preventDefault();
+        event.stopPropagation();
+        maClassRowsOpenDialog('multi', index);
+      }
+    }
+  }, true);
+}
+maFfd20BuildChoiceGrid = function(force=false){
+  const character = document.getElementById('character');
+  if(!character) return;
+  const currentGrid = document.getElementById('ffd20ChoiceGrid');
+  if(currentGrid?.dataset?.maClassRows === '1' && !force){
+    maClassRowsInstallClicks();
+    maClassRowsRefreshCard();
+    return;
+  }
+  const oldGrid = currentGrid || character.querySelector('.bio-grid');
+  if(!oldGrid) return;
+  const values = maFfd20CaptureBioValues ? maFfd20CaptureBioValues() : {};
+  const d = maFfd20ActiveData ? (maFfd20ActiveData() || {}) : {};
+  ['charName','race','class','archetype','character_level','alignment','size_category','size','languages','senses','shop_tags','prestige_class','prestige_level'].forEach(id => {
+    if(values[id] === undefined || values[id] === '') values[id] = d[id] ?? values[id] ?? '';
+  });
+  if(!values.charName && d.name) values.charName = d.name;
+  if(!values.class && d.className) values.class = d.className;
+  if(!values.character_level && d.level) values.character_level = d.level;
+  if(!values.size_category && d.size) values.size_category = d.size;
+  const fieldClass = maFfd20FieldClass();
+  const prestigeBlock = MA_FFD20_IS_ADMIN ? `<div class="ma-prestige-admin"><div class="bio-item"><label>Prestige Class</label><select id="prestige_class" class="${fieldClass} ma-ffd20-prestige"><option value="${maFfd20Esc(values.prestige_class || '')}">${maFfd20Esc(values.prestige_class || 'No prestige')}</option></select></div><div class="bio-item"><label>Prestige Level</label><select id="prestige_level" class="${fieldClass}">${maFfd20LevelOptions(values.prestige_level || '1')}</select></div></div>` : '';
+  const shopTags = MA_FFD20_IS_ADMIN ? `<div class="bio-item"><label>Shop Access Tags</label><input id="shop_tags" class="${fieldClass}" placeholder="starter, magic_shop, blacksmith, potion_shop" value="${maFfd20Esc(values.shop_tags || '')}"></div>` : '';
+  const grid = document.createElement('section');
+  grid.id = 'ffd20ChoiceGrid';
+  grid.dataset.maClassRows = '1';
+  grid.className = 'ffd20-bio-three-col ffd20-v3-grid';
+  grid.setAttribute('aria-label','Identity and Build');
+  grid.innerHTML = `
+    <div class="ffd20-bio-col">
+      <h3>Identity</h3>
+      <div class="bio-item"><label>Name</label><input id="charName" class="${fieldClass}" value="${maFfd20Esc(values.charName || '')}"></div>
+      <div class="bio-item"><label>Alignment</label><select id="alignment" class="${fieldClass}"></select></div>
+      <div class="bio-item"><label>Size</label><select id="size_category" class="${fieldClass}" aria-label="Character Size"></select><input id="size" class="${fieldClass}" type="hidden" value="${maFfd20Esc(values.size || values.size_category || '')}"></div>
+      <div class="bio-item"><label>Languages</label><input id="languages" class="${fieldClass}" value="${maFfd20Esc(values.languages || '')}"></div>
+      <div class="bio-item"><label>Senses</label><input id="senses" class="${fieldClass}" value="${maFfd20Esc(values.senses || '')}"></div>
+    </div>
+    <div class="ffd20-bio-col">
+      <h3>Build</h3>
+      <div class="bio-item"><label>Race</label><select id="race" class="${fieldClass} ma-ffd20-race"><option value="${maFfd20Esc(values.race || '')}">${maFfd20Esc(values.race || 'Loading races...')}</option></select></div>
+      <select id="class" class="${fieldClass} ma-ffd20-class ma-ffd20-hidden-select"><option value="${maFfd20Esc(values.class || '')}">${maFfd20Esc(values.class || 'Choose class')}</option></select>
+      <select id="archetype" class="${fieldClass} ma-ffd20-archetype ma-ffd20-hidden-select"><option value="${maFfd20Esc(values.archetype || '')}">${maFfd20Esc(values.archetype || 'No archetype')}</option></select>
+      <select id="character_level" class="${fieldClass} ma-ffd20-level ma-ffd20-hidden-select" aria-label="Character Level">${maFfd20LevelOptions(values.character_level || '1')}</select>
+      <button id="maClassBuildCard" class="ma-build-card" type="button" title="Edit class, archetype, and level"><span class="ma-class-click-label">Class</span><span class="ma-class-slot-main"><strong id="maPrimaryClassTitle" class="ma-build-card-title">${maFfd20Esc(values.class || 'Choose Class')}</strong><small id="maPrimaryClassSub" class="ma-build-card-sub">${maFfd20Esc(values.archetype || 'No archetype selected')}</small></span><span id="maPrimaryClassLevel" class="ma-build-card-level">Lv ${maFfd20Esc(values.character_level || '1')}</span></button>
+      <div id="maMulticlassList" class="ffd20-multiclass-list"></div>
+      <div class="bio-item ma-add-multiclass-wrap"><button class="ffd20-mini-btn" type="button" id="maAddMulticlassBtn">+ Add Multiclass</button></div>
+      ${prestigeBlock}
+      <div id="maBuildProgressionSummary"></div>
+      ${shopTags}
+    </div>`;
+  oldGrid.replaceWith(grid);
+  document.querySelector('.character-level-row')?.remove();
+  maFfd20FillSimple(document.getElementById('alignment'), MA_ALIGNMENTS, 'Choose alignment', values.alignment || '');
+  maFfd20FillSimple(document.getElementById('size_category'), MA_SIZES, 'Select Size', values.size_category || values.size || 'Medium');
+  const levelEl = document.getElementById('character_level'); if(levelEl) levelEl.dataset.prevLevel = String(maFfd20Level(values.character_level || 1) || 1);
+  document.getElementById('class')?.addEventListener('change', async () => { await maFfd20RefreshArchetypes(); maClassRowsRefreshCard(); await maFfd20ApplySheetChoices({silent:true}); });
+  document.getElementById('race')?.addEventListener('change', () => maFfd20ApplySheetChoices({silent:true}));
+  document.getElementById('archetype')?.addEventListener('change', () => { maClassRowsRefreshCard(); maFfd20ApplySheetChoices({silent:true}); });
+  document.getElementById('prestige_class')?.addEventListener('change', () => maFfd20ApplySheetChoices({silent:true}));
+  document.getElementById('prestige_level')?.addEventListener('change', () => maFfd20ApplySheetChoices({silent:true}));
+  document.getElementById('size_category')?.addEventListener('change', () => { const h=document.getElementById('size'); if(h) h.value=document.getElementById('size_category').value; try{ syncSizeFields(); }catch(e){} maFfd20SaveNow(); });
+  document.getElementById('character_level')?.addEventListener('change', maFfd20HandleLevelChanged);
+  document.getElementById('maClassBuildCard')?.addEventListener('click', () => maClassRowsOpenDialog('primary', null));
+  document.getElementById('maAddMulticlassBtn')?.addEventListener('click', () => maClassRowsOpenDialog('multi', null));
+  maClassRowsInstallClicks();
+  maClassRowsRefreshCard();
+};
+maFfd20HandleLevelChanged = async function(event){
+  const select = event?.target || document.getElementById('character_level');
+  const newLevel = maFfd20Level(select?.value || maFfd20ActiveData()?.character_level || 1) || 1;
+  if(select){ select.value = String(newLevel); select.dataset.prevLevel = String(newLevel); }
+  const d = maFfd20ActiveData(); if(d) d.character_level = String(newLevel);
+  maClassRowsRefreshCard();
+  await maFfd20ApplySheetChoices({silent:true});
+  maFfd20RenderAll();
+  maFfd20SaveNow();
+};
+async function maClassRowsOpenDialog(kind='primary', index=null){
+  let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ alert(e.message || e); return; }
+  const d = maFfd20ActiveData(); if(d && !Array.isArray(d.multiclasses)) d.multiclasses = [];
+  const isMulti = kind === 'multi';
+  const mc = isMulti && index !== null ? (d.multiclasses[index] || {}) : {};
+  const curClass = isMulti ? (mc.className || mc.class || '') : (document.getElementById('class')?.value || d.class || '');
+  const curArch = isMulti ? (mc.archetype || '') : (document.getElementById('archetype')?.value || d.archetype || '');
+  const curLevel = isMulti ? (mc.level || '1') : (document.getElementById('character_level')?.value || d.character_level || '1');
+  const title = isMulti ? (index === null ? 'Add Class' : `Edit Class ${index+2}`) : 'Edit Class';
+  const body = `<div class="ffd20-modal-grid"><label>Class<select id="maEditClass"></select></label><label>Archetype<select id="maEditArch"><option value="">No archetype</option></select></label><label>Level<select id="maEditLevel">${maFfd20LevelOptions(curLevel)}</select></label></div>`;
+  const overlayPromise = maFfd20Dialog(title, body, 'Save Class');
+  setTimeout(() => {
+    const c = document.getElementById('maEditClass'), a = document.getElementById('maEditArch');
+    maFfd20FillSelect(c, lib.classes, 'Choose class', curClass);
+    const fillArch = (keep=true) => { const cls = maFfd20Find(lib.classes, c?.value || ''); maFfd20FillSelect(a, cls?.archetypes || [], 'No archetype', keep ? curArch : ''); };
+    fillArch(true);
+    c?.addEventListener('change', () => fillArch(false));
+  }, 0);
+  const target = isMulti && index !== null ? document.querySelectorAll('#maMulticlassList .ma-build-card')[index] : document.getElementById('maClassBuildCard');
+  target?.classList.add('ma-glow'); setTimeout(()=>target?.classList.remove('ma-glow'),700);
+  const overlay = await overlayPromise; if(!overlay) return;
+  const className = overlay.querySelector('#maEditClass')?.value || '';
+  if(!className) return;
+  const archetype = overlay.querySelector('#maEditArch')?.value || '';
+  const level = String(maFfd20Level(overlay.querySelector('#maEditLevel')?.value || 1) || 1);
+  if(isMulti){
+    const item = { className, archetype, level };
+    if(index === null) d.multiclasses.push(item); else d.multiclasses[index] = item;
+    maFfd20RenderMulticlasses();
+    await maFfd20ApplySheetChoices({silent:true});
+    maFfd20SaveNow();
+    return;
+  }
+  const classSelect = document.getElementById('class');
+  const archSelect = document.getElementById('archetype');
+  const levelSelect = document.getElementById('character_level');
+  maClassRowsSetSelectValue(classSelect, className, className);
+  if(d) d.class = className;
+  await maFfd20RefreshArchetypes();
+  maClassRowsSetSelectValue(archSelect, archetype, archetype || 'No archetype');
+  if(d) d.archetype = archetype;
+  maClassRowsSetSelectValue(levelSelect, level, level);
+  if(levelSelect) levelSelect.dataset.prevLevel = level;
+  if(d) d.character_level = level;
+  maClassRowsRefreshCard();
+  await maFfd20ApplySheetChoices({silent:true});
+  maFfd20SaveNow();
+}
+maFfd20RenderMulticlasses = function(){
+  const list = document.getElementById('maMulticlassList'); if(!list) return;
+  const d = maFfd20ActiveData(); if(!d) return;
+  if(!Array.isArray(d.multiclasses)) d.multiclasses = [];
+  list.innerHTML = '';
+  d.multiclasses.forEach((mc, index) => {
+    const row = document.createElement('div');
+    row.className = 'ma-multiclass-card';
+    row.innerHTML = `<button type="button" class="ma-build-card ma-multiclass-edit"><span class="ma-class-click-label">Class ${index+2}</span><span class="ma-class-slot-main"><strong class="ma-build-card-title">${maFfd20Esc(mc.className || mc.class || 'Choose Class')}</strong><small class="ma-build-card-sub">${maFfd20Esc(mc.archetype || 'No archetype')}</small></span><span class="ma-build-card-level">Lv ${maFfd20Esc(mc.level || 1)}</span></button><button class="ffd20-mini-btn danger" type="button">Delete</button>`;
+    row.querySelector('.ma-multiclass-edit')?.addEventListener('click', () => maClassRowsOpenDialog('multi', index));
+    row.querySelector('button.danger')?.addEventListener('click', async () => { d.multiclasses.splice(index,1); maFfd20RenderMulticlasses(); await maFfd20ApplySheetChoices({silent:true}); maFfd20SaveNow(); });
+    list.appendChild(row);
+  });
+};
+maClassRowsInstallClicks();
+setTimeout(() => { maFfd20BuildChoiceGrid(true); maFfd20RefreshOptions(); maFfd20RenderMulticlasses(); maClassRowsRefreshCard(); }, 0);
+
+function maFfd20CreateMilestoneFields(level){
+  const milestones = [4,8,12,16,20].filter(x => x <= level);
+  if(!milestones.length) return '<div class="ffd20-choice-note">No ability-score increase before this starting level.</div>';
+  return `<div class="ffd20-milestone-grid">${milestones.map(l => `<label>Level ${l} ability +1<select data-create-ability-level="${l}">${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div>`;
+}
+async function maFfd20OpenCreationWizard(){
+  if(MA_FFD20_IS_ADMIN) return;
+  if(!currentUser) return;
+  let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ alert(e.message); return; }
+  const nextIndex = (characterSheets?.length || 0) + 1;
+  const body = `
+    <div class="ffd20-modal-grid">
+      <label>Name<input id="maCreateName" value="New Character ${nextIndex}"></label>
+      <label>Race<select id="maCreateRace"></select></label>
+      <label>Class<select id="maCreateClass"></select></label>
+      <label>Archetype<select id="maCreateArch"><option value="">No archetype</option></select></label>
+      <label>Level<select id="maCreateLevel">${maFfd20LevelOptions('1')}</select></label>
+      <label>Alignment<select id="maCreateAlignment"></select></label>
+      <label>Size<select id="maCreateSize"></select></label>
+      <label>Languages<input id="maCreateLanguages" placeholder="Common, ..."></label>
+      <label>Senses<input id="maCreateSenses" placeholder="Darkvision, low-light, ..."></label>
+      <label>Favored class bonus<select id="maCreateFavored"><option value="hp">+1 HP each level</option><option value="skill">+1 Skill Point each level</option></select></label>
+    </div>
+    <div class="ffd20-level-summary"><strong>Starting calculations</strong><ul><li>Level 1 HP = Hit Die + CON mod.</li><li>Later HP = average Hit Die + CON mod. Example: d8 = 5 + CON.</li><li>Level 1 skill points are multiplied by 4.</li><li>Odd levels remind you to pick feats.</li><li>TODO reminder: BAB, saves, and MP automation still need rules hookup.</li></ul></div>
+    <div id="maCreateMilestones">${maFfd20CreateMilestoneFields(1)}</div>`;
+  const overlayPromise = maFfd20Dialog('Create FFD20 Character', body, 'Create Character');
+  setTimeout(() => {
+    maFfd20FillSelect(document.getElementById('maCreateRace'), lib.races, 'Choose race');
+    maFfd20FillSelect(document.getElementById('maCreateClass'), lib.classes, 'Choose class');
+    maFfd20FillSimple(document.getElementById('maCreateAlignment'), MA_ALIGNMENTS, 'Choose alignment');
+    maFfd20FillSimple(document.getElementById('maCreateSize'), MA_SIZES, 'Select Size', 'Medium');
+    document.getElementById('maCreateClass')?.addEventListener('change', () => { const cls=maFfd20Find(lib.classes, document.getElementById('maCreateClass').value); maFfd20FillSelect(document.getElementById('maCreateArch'), cls?.archetypes || [], 'No archetype'); });
+    document.getElementById('maCreateLevel')?.addEventListener('change', e => { const target=document.getElementById('maCreateMilestones'); if(target) target.innerHTML = maFfd20CreateMilestoneFields(maFfd20Level(e.target.value)); });
+  }, 0);
+  const overlay = await overlayPromise; if(!overlay) return;
+  const level = maFfd20Level(overlay.querySelector('#maCreateLevel')?.value || 1) || 1;
+  const name = overlay.querySelector('#maCreateName')?.value?.trim() || `New Character ${nextIndex}`;
+  const className = overlay.querySelector('#maCreateClass')?.value || '';
+  const race = overlay.querySelector('#maCreateRace')?.value || '';
+  try {
+    const newData = createBlankCharacterData(name);
+    newData.charName = name;
+    newData.race = race;
+    newData.class = className;
+    newData.archetype = overlay.querySelector('#maCreateArch')?.value || '';
+    newData.character_level = String(level);
+    newData.alignment = overlay.querySelector('#maCreateAlignment')?.value || '';
+    newData.size_category = overlay.querySelector('#maCreateSize')?.value || 'Medium';
+    newData.size = newData.size_category;
+    newData.languages = overlay.querySelector('#maCreateLanguages')?.value || '';
+    newData.senses = overlay.querySelector('#maCreateSenses')?.value || '';
+    newData.racialAbilities = Array.isArray(newData.racialAbilities) ? newData.racialAbilities : [];
+    newData.multiclasses = [];
+    overlay.querySelectorAll('[data-create-ability-level]').forEach(sel => { const stat = sel.value; newData[stat] = String((Number(newData[stat]) || 10) + 1); });
+    const cls = maFfd20Find(lib.classes, className);
+    const calc = maFfd20ApplyHpSkillToData(newData, cls, level, overlay.querySelector('#maCreateFavored')?.value || 'hp');
+    maFfd20Push(newData, maFfd20BuildImported(lib, { race, className, archetype:newData.archetype, level, multiclasses:[] }));
+    const ref = await addDoc(collection(db, 'users', currentUser.uid, 'characters'), newData);
+    try { await setDoc(doc(db, 'users', currentUser.uid), { charactersMigrated:true }, { merge:true }); } catch(e){ console.warn(e); }
+    currentSummonId = ref.id;
+    fullData = sanitizeCharacterDoc({ id:ref.id, ...newData }, name);
+    showNoCharacterState(false);
+    loadCurrentSheet(); updateSummonMenu();
+    document.getElementById('summonMenu')?.classList.remove('show');
+    const feats = Array.from({length:level}, (_,i)=>i+1).filter(x => x % 2 === 1);
+    alert(`Created ${name}. Starting HP: ${calc.hp}. Unused skill points: ${calc.skill}. Feat reminder for level(s): ${feats.join(', ')}.`);
+  } catch(err){ console.error(err); alert('Error creating character: ' + (err?.message || err)); }
+}
+function maFfd20SyncAfterPopulate(){
+  maFfd20BuildChoiceGrid();
+  const data = maFfd20ActiveData() || {};
+  ['charName','bio','race','class','archetype','character_level','alignment','size_category','languages','senses','shop_tags','prestige_class','prestige_level'].forEach(id => { const el=document.getElementById(id); if(el && data[id] !== undefined) el.value = data[id]; });
+  const levelEl = document.getElementById('character_level'); if(levelEl) levelEl.dataset.prevLevel = String(maFfd20Level(levelEl.value || data.character_level || 1) || 1);
+  maFfd20RefreshOptions(); maFfd20RenderMulticlasses();
+}
+function maFfd20InitChoiceUi(){
+  if(maFfd20ChoiceUiReady) return;
+  maFfd20ChoiceUiReady = true;
+  document.getElementById('ffd20BuilderPanel')?.remove();
+  maFfd20BuildChoiceGrid(); maFfd20RefreshOptions();
+  if(!MA_FFD20_IS_ADMIN && window.createNewSummon){
+    window.createNewSummon = maFfd20OpenCreationWizard;
+    try { createNewSummon = window.createNewSummon; } catch(e) {}
+  }
+}
+if(MA_FFD20_IS_ADMIN){
+  const maOldPopulateSheet = populateSheet;
+  populateSheet = function(...args){ const result = maOldPopulateSheet.apply(this, args); maFfd20SyncAfterPopulate(); return result; };
+} else {
+  const maOldLoadCurrentSheet = loadCurrentSheet;
+  loadCurrentSheet = function(...args){ const result = maOldLoadCurrentSheet.apply(this, args); maFfd20SyncAfterPopulate(); const addBtn=document.getElementById('btnAddSummon'); if(addBtn) addBtn.onclick = window.createNewSummon || maFfd20OpenCreationWizard; return result; };
+}
+window.addEventListener('DOMContentLoaded', maFfd20InitChoiceUi);
+setTimeout(maFfd20InitChoiceUi, 0);
+
+
+
+/* --- v4 repair: class math, vitals display, and level-up save rollback --- */
+function maV4Num(id, fallback=0){
+  const el = document.getElementById(id);
+  const d = maFfd20ActiveData?.() || {};
+  const raw = el?.value ?? d[id] ?? fallback;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : fallback;
+}
+function maV4Set(id, val){
+  const el = document.getElementById(id);
+  const out = String(Number.isFinite(Number(val)) ? Math.trunc(Number(val)) : val);
+  if(el) el.value = out;
+  const d = maFfd20ActiveData?.();
+  if(d) d[id] = out;
+}
+function maV4Level(v){ return Math.max(0, Math.trunc(Number(String(v ?? '').match(/\d+/)?.[0] || v || 0) || 0)); }
+function maV4Int(v){ const m = String(v ?? '').match(/[+-]?\d+/); return m ? Number(m[0]) || 0 : 0; }
+function maV4StatMod(stat){
+  const n = Number(document.getElementById(stat)?.value || maFfd20ActiveData()?.[stat] || 10);
+  return Math.floor(((Number.isFinite(n) ? n : 10) - 10) / 2);
+}
+function maV4HitDie(cls){ return Math.max(1, maV4Int(cls?.hitDie || '8') || 8); }
+function maV4AvgDie(die){ return Math.floor(die / 2) + 1; }
+function maV4SkillBase(cls){ return Math.max(0, maV4Int(cls?.skillPoints || '0') || 0); }
+function maV4ProgressionAt(cls, lvl){
+  const rows = Array.isArray(cls?.progression) ? cls.progression : [];
+  let best = null;
+  for(const row of rows){ if(maV4Level(row.level) <= lvl) best = row; }
+  best = best || rows[0] || {};
+  const hasExplicitMp = Object.prototype.hasOwnProperty.call(best, 'mpValue') || Object.prototype.hasOwnProperty.call(best, 'mp');
+  const mpRaw = best.mpValue ?? best.mp;
+  return {
+    bab: Number(best.babValue ?? maV4Int(best.bab)) || 0,
+    fort: Number(best.fortValue ?? maV4Int(best.fort)) || 0,
+    ref: Number(best.refValue ?? maV4Int(best.ref)) || 0,
+    will: Number(best.willValue ?? maV4Int(best.will)) || 0,
+    mp: hasExplicitMp ? (Number(mpRaw ?? 0) || 0) : 0,
+    hasMp: hasExplicitMp && String(mpRaw ?? '').trim() !== '' && String(mpRaw ?? '').trim() !== '—'
+  };
+}
+function maV4ClassEntries(lib, sel){
+  const out = [];
+  const mainName = sel?.className || sel?.class || document.getElementById('class')?.value || '';
+  const mainLevel = maV4Level(sel?.level || sel?.character_level || document.getElementById('character_level')?.value || 1) || 1;
+  if(mainName) out.push({label:'Class', name:mainName, level:mainLevel, cls:maFfd20Find(lib.classes, mainName)});
+  const mcs = Array.isArray(sel?.multiclasses) ? sel.multiclasses : (Array.isArray(maFfd20ActiveData()?.multiclasses) ? maFfd20ActiveData().multiclasses : []);
+  mcs.forEach((mc,i)=>{
+    const name = mc.className || mc.class || mc.name || '';
+    if(name) out.push({label:`Class ${i+2}`, name, level:maV4Level(mc.level || 1) || 1, cls:maFfd20Find(lib.classes, name)});
+  });
+  return out;
+}
+function maV4ReadSelection(){
+  const d = maFfd20ActiveData?.() || {};
+  return {
+    className: document.getElementById('class')?.value || d.class || d.className || '',
+    archetype: document.getElementById('archetype')?.value || d.archetype || '',
+    level: document.getElementById('character_level')?.value || d.character_level || 1,
+    multiclasses: Array.isArray(d.multiclasses) ? JSON.parse(JSON.stringify(d.multiclasses)) : []
+  };
+}
+function maV4TotalLevel(sel){
+  return maV4ClassEntries({classes:[]}, sel).reduce((sum,e)=>sum+(maV4Level(e.level)||0),0);
+}
+function maV4Totals(lib, sel){
+  const con = maV4StatMod('con'), intel = maV4StatMod('int');
+  const totals = {hp:0, skill:0, bab:0, fort:0, ref:0, will:0, mp:0, hasMp:false, rows:[]};
+  let overallLevel = 0;
+  maV4ClassEntries(lib, sel).forEach(entry=>{
+    const die = maV4HitDie(entry.cls);
+    const avg = maV4AvgDie(die);
+    const skillEach = Math.max(1, maV4SkillBase(entry.cls) + intel);
+    let hpGain = 0, skillGain = 0;
+    for(let i=1;i<=entry.level;i++){
+      overallLevel++;
+      const firstOverall = overallLevel === 1;
+      hpGain += Math.max(1, (firstOverall ? die : avg) + con);
+      skillGain += firstOverall ? (skillEach * 4) : skillEach;
+    }
+    const p = maV4ProgressionAt(entry.cls, entry.level);
+    totals.hp += hpGain; totals.skill += skillGain;
+    totals.bab += p.bab; totals.fort += p.fort; totals.ref += p.ref; totals.will += p.will;
+    totals.mp += p.mp;
+    if(p.hasMp) totals.hasMp = true;
+    totals.rows.push({...entry, die, avg, skillEach, hpGain, skillGain, prog:p});
+  });
+  if(!totals.hasMp) totals.mp = 0;
+  return totals;
+}
+function maV4FeatureNamesBetween(lib, oldSel, newSel){
+  const oldEntries = maV4ClassEntries(lib, oldSel);
+  const oldByLabel = new Map(oldEntries.map(e=>[e.label, e]));
+  const names = [];
+  maV4ClassEntries(lib, newSel).forEach(e=>{
+    const oldLevel = oldByLabel.get(e.label)?.level || 0;
+    (Array.isArray(e.cls?.features) ? e.cls.features : []).forEach(f=>{
+      const fl = maV4Level(f.level || 1);
+      if(fl > oldLevel && fl <= e.level && f.name) names.push(`${e.label}: ${f.name}`);
+    });
+  });
+  return [...new Set(names)].slice(0,30);
+}
+function maV4Plus(n){ n=Number(n)||0; return n>0?`+${n}`:String(n); }
+function maV4Formula(t){
+  return t.rows.map(r=>`${r.label} ${r.level}: d${r.die}, HP ${r.hpGain}, skill ${r.skillGain}, BAB ${maV4Plus(r.prog.bab)}, saves ${maV4Plus(r.prog.fort)}/${maV4Plus(r.prog.ref)}/${maV4Plus(r.prog.will)}${r.prog.hasMp ? `, MP ${r.prog.mp}` : ''}`).join(' · ') || 'No class data found.';
+}
+function maV4LevelList(oldTotal,newTotal,pred){ const out=[]; for(let l=oldTotal+1;l<=newTotal;l++){ if(pred(l)) out.push(l); } return out; }
+async function maV4LevelUpOverlay(lib, oldSel, newSel, label){
+  const oldTotal = maV4TotalLevel(oldSel), newTotal = maV4TotalLevel(newSel);
+  if(newTotal <= oldTotal) return {oldTotals:maV4Totals(lib, oldSel), newTotals:maV4Totals(lib, newSel), pickedStats:[]};
+  const oldTotals = maV4Totals(lib, oldSel), newTotals = maV4Totals(lib, newSel);
+  const feats = maV4LevelList(oldTotal, newTotal, l=>l%2===1 && l>1);
+  const abilityLevels = maV4LevelList(oldTotal, newTotal, l=>[4,8,12,16,20].includes(l));
+  const abilityHtml = abilityLevels.length
+    ? `<div class="ma-levelup-picks">${abilityLevels.map(l=>`<label>Level ${l} +1<select data-ability-level="${l}">${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div>`
+    : '<div class="ma-levelup-note">No ability score increase crossed.</div>';
+  const abilities = maV4FeatureNamesBetween(lib, oldSel, newSel);
+  const body = `
+    <div class="ma-levelup-hero"><div class="ma-levelup-runes"><i></i><i></i><i></i><i></i><i></i></div><div class="ma-levelup-title">LEVEL UP</div><div class="ma-levelup-sub">${maFfd20Esc(label)} · Character Level ${oldTotal} → ${newTotal}</div></div>
+    <div class="ma-levelup-grid">
+      <div class="ma-levelup-card"><small>HP</small><strong>${maV4Plus(newTotals.hp-oldTotals.hp)}</strong><span>Auto base max: ${newTotals.hp}</span></div>
+      <div class="ma-levelup-card"><small>Skill</small><strong>${maV4Plus(newTotals.skill-oldTotals.skill)}</strong><span>Total class skill points: ${newTotals.skill}</span></div>
+      <div class="ma-levelup-card"><small>BAB</small><strong>${maV4Plus(newTotals.bab)}</strong><span>${maV4Plus(newTotals.bab-oldTotals.bab)} from this change</span></div>
+      <div class="ma-levelup-card"><small>Saves</small><strong>${maV4Plus(newTotals.fort)}/${maV4Plus(newTotals.ref)}/${maV4Plus(newTotals.will)}</strong><span>Fort / Ref / Will</span></div>
+      <div class="ma-levelup-card"><small>MP</small><strong>${newTotals.hasMp ? newTotals.mp : '—'}</strong><span>${newTotals.hasMp ? `${maV4Plus(newTotals.mp-oldTotals.mp)} from MP table` : 'No MP table for this class'}</span></div>
+    </div>
+    <div class="ma-levelup-section"><h4>Feats</h4><div class="ma-levelup-pill-list">${feats.length ? feats.map(l=>`<span class="ma-levelup-pill ma-levelup-feat">Feat gained at level ${l}</span>`).join('') : '<span class="ma-levelup-note">No odd-level feat crossed.</span>'}</div></div>
+    <div class="ma-levelup-section ${abilityLevels.length?'ma-levelup-ability-required':''}"><h4>Ability Score</h4>${abilityHtml}</div>
+    <div class="ma-levelup-section"><h4>New Class Abilities</h4><div class="ma-levelup-pill-list">${abilities.length ? abilities.map(n=>`<span class="ma-levelup-pill">${maFfd20Esc(n)}</span>`).join('') : '<span class="ma-levelup-note">No new class abilities found in the data.</span>'}</div></div>
+    <div class="ma-levelup-section"><h4>Class Math</h4><div class="ma-levelup-note">${maFfd20Esc(maV4Formula(newTotals))}</div></div>`;
+  const overlay = await maFfd20Dialog('Level Up', body, 'Apply Level Up');
+  if(!overlay) return null;
+  return {oldTotals, newTotals, pickedStats:Array.from(overlay.querySelectorAll('[data-ability-level]')).map(s=>s.value).filter(Boolean)};
+}
+function maV4ApplyAbilityPicks(picks){
+  (picks || []).forEach(stat=>{
+    const el = document.getElementById(stat);
+    const cur = maV4Num(stat, 10);
+    maV4Set(stat, cur+1);
+  });
+}
+function maV4RefreshVitalsDisplay(){
+  [['hp','HP'],['mp','MP']].forEach(([prefix])=>{
+    const curr = document.getElementById(prefix+'_curr');
+    const base = document.getElementById(prefix+'_max');
+    const temp = document.getElementById(prefix+'_temp');
+    const grid = curr?.closest('.vital-number-grid');
+    if(!grid) return;
+    grid.classList.remove('vital-four');
+    grid.classList.add('ma-vitals-v4');
+    const currSmall = curr.closest('label')?.querySelector('small'); if(currSmall) currSmall.textContent='Current';
+    const baseLabel = base?.closest('label'); const baseSmall = baseLabel?.querySelector('small'); if(baseSmall) baseSmall.textContent='Base';
+    const tempLabel = temp?.closest('label'); if(tempLabel) tempLabel.classList.add('ma-vital-temp-hidden');
+    let max = document.getElementById(prefix+'_effective_max');
+    if(!max){
+      const wrap = document.createElement('label');
+      wrap.className = 'ma-vital-display-max';
+      wrap.innerHTML = `<small>Max</small><input id="${prefix}_effective_max" type="number" readonly aria-readonly="true" class="main-vital-input readonly-yellow">`;
+      grid.appendChild(wrap); max = wrap.querySelector('input');
+    }
+    max.value = String(Math.max(0, maV4Num(prefix+'_max') + maV4Num(prefix+'_temp')));
+  });
+}
+window.refreshEffectiveVitals = maV4RefreshVitalsDisplay;
+function maV4ApplyTotals(lib, oldSel, newSel, result=null){
+  maV4ApplyAbilityPicks(result?.pickedStats || []);
+  const oldTotals = result?.oldTotals || maV4Totals(lib, oldSel);
+  const totals = maV4Totals(lib, newSel);
+  const oldHpBase = maV4Num('hp_max', oldTotals.hp);
+  const oldHpCurr = maV4Num('hp_curr', 0);
+  const hpTemp = maV4Num('hp_temp', 0);
+  const hpGain = totals.hp - oldHpBase;
+  const hpMaxEff = Math.max(0, totals.hp + hpTemp);
+  maV4Set('hp_max', totals.hp);
+  if(document.getElementById('hp_temp') && (document.getElementById('hp_temp').value === '' || maFfd20ActiveData().hp_temp === undefined)) maV4Set('hp_temp', 0);
+  const newHpCurr = result ? Math.min(hpMaxEff, Math.max(0, oldHpCurr + Math.max(0,hpGain))) : (oldHpCurr ? Math.min(oldHpCurr, hpMaxEff) : hpMaxEff);
+  maV4Set('hp_curr', newHpCurr);
+  maV4Set('bab', totals.bab);
+  maV4Set('fort_base', totals.fort); maV4Set('ref_base', totals.ref); maV4Set('will_base', totals.will);
+  const mpBase = totals.hasMp ? totals.mp : 0;
+  const oldMpBase = maV4Num('mp_max', oldTotals.mp);
+  const oldMpCurr = maV4Num('mp_curr', 0);
+  const mpTemp = maV4Num('mp_temp', 0);
+  const mpEff = Math.max(0, mpBase + mpTemp);
+  maV4Set('mp_max', mpBase);
+  if(document.getElementById('mp_temp') && (document.getElementById('mp_temp').value === '' || maFfd20ActiveData().mp_temp === undefined)) maV4Set('mp_temp', 0);
+  const mpGain = mpBase - oldMpBase;
+  maV4Set('mp_curr', totals.hasMp ? (result ? Math.min(mpEff, Math.max(0, oldMpCurr + Math.max(0,mpGain))) : (oldMpCurr ? Math.min(oldMpCurr, mpEff) : mpEff)) : 0);
+  try{ maV4RefreshVitalsDisplay(); }catch(e){}
+  try{ updateCalcs?.(); updateCalculations?.(); computeDerivedStats?.(); renderSelectedCombatDisplays?.(); }catch(e){}
+  return totals;
+}
+async function maV4RecalcAndSave(silent=true){
+  let lib; try{ lib = await maFfd20LoadLibrary(); }catch(e){ if(!silent) alert(e.message || e); return null; }
+  const sel = maV4ReadSelection();
+  const totals = maV4ApplyTotals(lib, sel, sel, null);
+  try{ maFfd20RenderAll(); }catch(e){}
+  try{ maFfd20SaveNow(); }catch(e){}
+  return totals;
+}
+window.maV4RecalcAndSave = maV4RecalcAndSave;
+
+maClassRowsOpenDialog = async function(kind='primary', index=null){
+  let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ alert(e.message || e); return; }
+  const d = maFfd20ActiveData(); if(d && !Array.isArray(d.multiclasses)) d.multiclasses = [];
+  const oldSel = maV4ReadSelection();
+  const isMulti = kind === 'multi';
+  const mc = isMulti && index !== null ? (d.multiclasses[index] || {}) : {};
+  const curClass = isMulti ? (mc.className || mc.class || '') : (document.getElementById('class')?.value || d.class || '');
+  const curArch = isMulti ? (mc.archetype || '') : (document.getElementById('archetype')?.value || d.archetype || '');
+  const curLevel = isMulti ? (mc.level || '1') : (document.getElementById('character_level')?.value || d.character_level || '1');
+  const title = isMulti ? (index === null ? 'Add Class' : `Edit Class ${index+2}`) : 'Edit Class';
+  const body = `<div class="ffd20-modal-grid"><label>Class<select id="maEditClass"></select></label><label>Archetype<select id="maEditArch"><option value="">No archetype</option></select></label><label>Level<select id="maEditLevel">${maFfd20LevelOptions(curLevel)}</select></label></div>`;
+  const overlayPromise = maFfd20Dialog(title, body, 'Save Class');
+  setTimeout(() => {
+    const c = document.getElementById('maEditClass'), a = document.getElementById('maEditArch');
+    maFfd20FillSelect(c, lib.classes, 'Choose class', curClass);
+    const fillArch = (keep=true) => { const cls = maFfd20Find(lib.classes, c?.value || ''); maFfd20FillSelect(a, cls?.archetypes || [], 'No archetype', keep ? curArch : ''); };
+    fillArch(true); c?.addEventListener('change', () => fillArch(false));
+  }, 0);
+  const overlay = await overlayPromise;
+  if(!overlay) return;
+  const className = overlay.querySelector('#maEditClass')?.value || '';
+  if(!className) return;
+  const archetype = overlay.querySelector('#maEditArch')?.value || '';
+  const level = String(maV4Level(overlay.querySelector('#maEditLevel')?.value || 1) || 1);
+  const newSel = JSON.parse(JSON.stringify(oldSel));
+  if(isMulti){
+    const item = { className, archetype, level };
+    if(index === null) newSel.multiclasses.push(item); else newSel.multiclasses[index] = item;
+  } else {
+    newSel.className = className; newSel.class = className; newSel.archetype = archetype; newSel.level = level; newSel.character_level = level;
+  }
+  const oldTotal = maV4TotalLevel(oldSel), newTotal = maV4TotalLevel(newSel);
+  let levelResult = null;
+  if(newTotal > oldTotal){
+    levelResult = await maV4LevelUpOverlay(lib, oldSel, newSel, isMulti ? (index===null ? `Class ${newSel.multiclasses.length+1}` : `Class ${index+2}`) : 'Class');
+    if(!levelResult) return;
+  }
+  if(isMulti){
+    const item = { className, archetype, level };
+    if(index === null) d.multiclasses.push(item); else d.multiclasses[index] = item;
+    maFfd20RenderMulticlasses();
+  } else {
+    const classSelect = document.getElementById('class'), archSelect = document.getElementById('archetype'), levelSelect = document.getElementById('character_level');
+    maClassRowsSetSelectValue(classSelect, className, className); if(d) d.class = className;
+    await maFfd20RefreshArchetypes();
+    maClassRowsSetSelectValue(archSelect, archetype, archetype || 'No archetype'); if(d) d.archetype = archetype;
+    maClassRowsSetSelectValue(levelSelect, level, level); if(levelSelect) levelSelect.dataset.prevLevel = level; if(d) d.character_level = level;
+  }
+  maV4ApplyTotals(lib, oldSel, maV4ReadSelection(), levelResult);
+  maClassRowsRefreshCard(); await maFfd20ApplySheetChoices({silent:true}); maV4ApplyTotals(lib, oldSel, maV4ReadSelection(), levelResult);
+  maFfd20RenderAll(); maFfd20SaveNow();
+};
+
+const maV4OldSyncAfterPopulate = maFfd20SyncAfterPopulate;
+maFfd20SyncAfterPopulate = function(...args){
+  const result = maV4OldSyncAfterPopulate.apply(this,args);
+  setTimeout(()=>{ maV4RefreshVitalsDisplay(); maV4RecalcAndSave(true); }, 80);
+  return result;
+};
+window.addEventListener('DOMContentLoaded', ()=>{ maV4RefreshVitalsDisplay(); setTimeout(()=>maV4RecalcAndSave(true), 250); });
+setTimeout(()=>{ maV4RefreshVitalsDisplay(); maV4RecalcAndSave(true); }, 900);
+
 </script>
 
 <script>
@@ -5548,6 +6729,1432 @@ window.toggleSpellTabVisibility = (event) => {
 };
 window.addEventListener('DOMContentLoaded', () => setTimeout(applySpellTabVisibility, 0));
 
+
+
+/* --- FFD20 JSON importer / DnD-Beyond-style auto population patch --- */
+const FFD20_DATA_URL = './data/ffd20_data.json';
+let ffd20LibraryCache = null;
+
+function ffd20Escape(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function ffd20NormalizeName(value) {
+    return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+function ffd20LevelNumber(value) {
+    const n = Number(String(value || '').match(/\d+/)?.[0] || value || 0);
+    return Number.isFinite(n) ? n : 0;
+}
+function ffd20AbilityBucket(entry) {
+    const explicit = String(entry?.bucket || entry?.sheetBucket || '').toLowerCase();
+    if(['active','passive','racial','feat','spell'].includes(explicit)) return explicit;
+    const action = String(entry?.action || entry?.type || '').toLowerCase();
+    if(/\b(standard|move|swift|immediate|free|full|full-round|round|reaction)\b/.test(action)) return 'active';
+    const text = String(entry?.desc || entry?.description || '').toLowerCase();
+    if(/\b(as an?|spend|use).{0,30}\b(standard|move|swift|immediate|free|full-round|full round|round|reaction)\s+action\b/.test(text)) return 'active';
+    return entry?.originType === 'race' ? 'racial' : 'passive';
+}
+function ffd20EntryAutoKey(entry, sourcePrefix = '') {
+    return [
+        'ffd20',
+        sourcePrefix || entry?.originType || 'source',
+        entry?.originName || entry?.sourceName || '',
+        entry?.level || 0,
+        entry?.name || ''
+    ].map(ffd20NormalizeName).filter(Boolean).join(':');
+}
+function ffd20ToSheetAbility(entry, sourcePrefix = '') {
+    const bucket = ffd20AbilityBucket(entry);
+    const ability = {
+        name: entry.name || '',
+        type: entry.type || entry.action || (bucket === 'active' ? 'Standard' : entry.originType === 'race' ? 'Racial' : ''),
+        desc: entry.desc || entry.description || '',
+        at_higher_lvls: entry.at_higher_lvls || '',
+        link: entry.url || entry.sourceUrl || '',
+        sourceUrl: entry.url || entry.sourceUrl || '',
+        sourceKind: entry.originType || sourcePrefix || '',
+        sourceName: entry.originName || entry.sourceName || '',
+        sourceLevel: entry.level || 0,
+        autoGenerated: true,
+        autoKey: ffd20EntryAutoKey(entry, sourcePrefix),
+        replaces: Array.isArray(entry.replaces) ? entry.replaces : []
+    };
+    if(bucket === 'active') {
+        ability.u_curr = Number(entry.u_curr ?? 0);
+        ability.u_max = Number(entry.u_max ?? 0);
+        ability.attack_type = entry.attack_type || 'None';
+        ability.damage = entry.damage || '';
+        ability.restoreOnLongRest = !!entry.restoreOnLongRest;
+    }
+    return { bucket, ability };
+}
+async function ffd20LoadLibrary() {
+    if(ffd20LibraryCache) return ffd20LibraryCache;
+    const response = await fetch(FFD20_DATA_URL, { cache: 'no-store' });
+    if(!response.ok) throw new Error(`Could not load ${FFD20_DATA_URL}`);
+    ffd20LibraryCache = await response.json();
+    return ffd20LibraryCache;
+}
+function ffd20GetCurrentLevel() {
+    return ffd20LevelNumber(document.getElementById('character_level')?.value || 1);
+}
+function ffd20RemoveOldAutoForSources(data, sources) {
+    const sourceSet = new Set(sources.map(s => String(s || '').toLowerCase()));
+    ['activeAbilities','passiveAbilities','racialAbilities','feats','spells'].forEach(key => {
+        if(!Array.isArray(data[key])) data[key] = [];
+        data[key] = data[key].filter(item => {
+            if(!item?.autoGenerated) return true;
+            const source = String(item.sourceKind || item.originType || '').toLowerCase();
+            return !sourceSet.has(source);
+        });
+    });
+}
+function ffd20ApplyReplacements(data, importedAbilities) {
+    const replaceNames = importedAbilities.flatMap(x => Array.isArray(x.ability?.replaces) ? x.ability.replaces : [])
+        .map(ffd20NormalizeName)
+        .filter(Boolean);
+    if(!replaceNames.length) return;
+    ['activeAbilities','passiveAbilities','racialAbilities'].forEach(key => {
+        if(!Array.isArray(data[key])) return;
+        data[key] = data[key].filter(item => !replaceNames.includes(ffd20NormalizeName(item.name)));
+    });
+}
+function ffd20CollectFeaturesByLevel(source, level, originType, originName) {
+    const list = Array.isArray(source?.features) ? source.features : Array.isArray(source?.traits) ? source.traits : [];
+    return list
+      .filter(entry => ffd20LevelNumber(entry.level || 1) <= level)
+      .map(entry => ({ ...entry, originType, originName, sourceUrl: entry.url || entry.sourceUrl || source.url }));
+}
+function ffd20FindByName(list, name) {
+    const target = ffd20NormalizeName(name);
+    return (list || []).find(item => ffd20NormalizeName(item.name) === target);
+}
+function ffd20BuildImportedAbilities(library, selection) {
+    const imported = [];
+    const level = ffd20LevelNumber(selection.level || ffd20GetCurrentLevel() || 1);
+    const race = ffd20FindByName(library.races, selection.race);
+    if(race) {
+        ffd20CollectFeaturesByLevel(race, 1, 'race', race.name).forEach(entry => imported.push(ffd20ToSheetAbility(entry, 'race')));
+    }
+    const cls = ffd20FindByName(library.classes, selection.className);
+    if(cls) {
+        ffd20CollectFeaturesByLevel(cls, level, 'class', cls.name).forEach(entry => imported.push(ffd20ToSheetAbility(entry, 'class')));
+        const arch = ffd20FindByName(cls.archetypes, selection.archetype);
+        if(arch) {
+            ffd20CollectFeaturesByLevel(arch, level, 'archetype', arch.name).forEach(entry => imported.push(ffd20ToSheetAbility(entry, 'archetype')));
+        }
+    }
+    const prestige = ffd20FindByName(library.prestigeClasses, selection.prestigeClass);
+    if(prestige) {
+        const pLevel = ffd20LevelNumber(selection.prestigeLevel || 1);
+        ffd20CollectFeaturesByLevel(prestige, pLevel, 'prestige', prestige.name).forEach(entry => imported.push(ffd20ToSheetAbility(entry, 'prestige')));
+    }
+    return imported;
+}
+function ffd20PushImportedAbilities(data, imported) {
+    ffd20ApplyReplacements(data, imported);
+    imported.forEach(({ bucket, ability }) => {
+        const key = bucket === 'active' ? 'activeAbilities'
+            : bucket === 'racial' ? 'racialAbilities'
+            : bucket === 'feat' ? 'feats'
+            : bucket === 'spell' ? 'spells'
+            : 'passiveAbilities';
+        if(!Array.isArray(data[key])) data[key] = [];
+        if(!data[key].some(existing => existing.autoKey && existing.autoKey === ability.autoKey)) data[key].push(ability);
+    });
+}
+async function ffd20ApplyBuilderSelection() {
+    const race = document.getElementById('ffd20RaceSelect')?.value || '';
+    const className = document.getElementById('ffd20ClassSelect')?.value || '';
+    const archetype = document.getElementById('ffd20ArchetypeSelect')?.value || '';
+    const prestigeClass = document.getElementById('ffd20PrestigeSelect')?.value || '';
+    const prestigeLevel = document.getElementById('ffd20PrestigeLevel')?.value || '1';
+    const level = document.getElementById('character_level')?.value || '1';
+    const library = await ffd20LoadLibrary();
+    const data = getActiveData();
+    ffd20RemoveOldAutoForSources(data, ['race','class','archetype','prestige']);
+    const imported = ffd20BuildImportedAbilities(library, { race, className, archetype, prestigeClass, prestigeLevel, level });
+    ffd20PushImportedAbilities(data, imported);
+    if(race) {
+        const raceInput = document.getElementById('race');
+        if(raceInput) raceInput.value = race;
+    }
+    if(className) {
+        const classInput = document.getElementById('class');
+        if(classInput) classInput.value = prestigeClass ? `${className} / ${prestigeClass}` : className;
+    }
+    if(typeof renderAbilities === 'function') {
+        renderAbilities('active'); renderAbilities('passive'); renderAbilities('racial'); renderAbilities('feat');
+    }
+    if(typeof renderSpells === 'function') renderSpells();
+    if(typeof triggerSave === 'function') triggerSave();
+    else if(typeof saveDataOnly === 'function') saveDataOnly();
+    alert(`Imported ${imported.length} FFD20 entries. Manual abilities were kept.`);
+}
+function ffd20FillSelect(select, list, placeholder) {
+    if(!select) return;
+    select.innerHTML = `<option value="">${ffd20Escape(placeholder)}</option>`;
+    (list || []).forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.name || '';
+        opt.textContent = item.name || '';
+        select.appendChild(opt);
+    });
+}
+async function ffd20RefreshArchetypeSelect() {
+    try {
+        const library = await ffd20LoadLibrary();
+        const cls = ffd20FindByName(library.classes, document.getElementById('ffd20ClassSelect')?.value);
+        ffd20FillSelect(document.getElementById('ffd20ArchetypeSelect'), cls?.archetypes || [], 'No archetype');
+    } catch(e) {
+        console.warn(e);
+    }
+}
+async function initFfd20BuilderPanel() {
+    if(document.getElementById('ffd20BuilderPanel')) return;
+    const levelRow = document.querySelector('.character-level-row');
+    if(!levelRow) return;
+    const panel = document.createElement('section');
+    panel.id = 'ffd20BuilderPanel';
+    panel.className = 'ffd20-builder-panel';
+    panel.innerHTML = `
+      <h3>FFD20 Auto Builder</h3>
+      <div class="ffd20-builder-grid">
+        <label>Race<select id="ffd20RaceSelect"><option value="">Load data first</option></select></label>
+        <label>Class<select id="ffd20ClassSelect"><option value="">Load data first</option></select></label>
+        <label>Archetype<select id="ffd20ArchetypeSelect"><option value="">No archetype</option></select></label>
+        <label>Prestige Class<select id="ffd20PrestigeSelect"><option value="">No prestige</option></select></label>
+        <label>Prestige Level<input id="ffd20PrestigeLevel" type="number" min="1" max="10" value="1"></label>
+      </div>
+      <div class="ffd20-builder-actions">
+        <button class="btn-edit" type="button" id="ffd20LoadDataBtn">Load FFD20 Data</button>
+        <button class="btn-save" type="button" id="ffd20ApplyBtn">Apply Auto Abilities</button>
+      </div>
+      <div class="ffd20-builder-note">Uses <code>data/ffd20_data.json</code>. Re-running replaces only auto-generated FFD20 entries and keeps anything you manually added.</div>
+    `;
+    levelRow.insertAdjacentElement('afterend', panel);
+    document.getElementById('ffd20LoadDataBtn')?.addEventListener('click', async () => {
+        try {
+            const library = await ffd20LoadLibrary();
+            ffd20FillSelect(document.getElementById('ffd20RaceSelect'), library.races || [], 'Choose race');
+            ffd20FillSelect(document.getElementById('ffd20ClassSelect'), library.classes || [], 'Choose class');
+            ffd20FillSelect(document.getElementById('ffd20PrestigeSelect'), library.prestigeClasses || [], 'No prestige');
+            await ffd20RefreshArchetypeSelect();
+            alert('FFD20 data loaded.');
+        } catch(e) {
+            alert(`Could not load data/ffd20_data.json. Run the scraper first and upload the JSON. ${e.message}`);
+        }
+    });
+    document.getElementById('ffd20ClassSelect')?.addEventListener('change', ffd20RefreshArchetypeSelect);
+    document.getElementById('ffd20ApplyBtn')?.addEventListener('click', () => ffd20ApplyBuilderSelection().catch(e => alert(e.message)));
+}
+// initFfd20BuilderPanel disabled: v2 uses normal character choices and creation/level-up flow.
+window.ffd20ApplyBuilderSelection = ffd20ApplyBuilderSelection;
+
+</script>
+<style>
+/* --- FFD20 v3: Identity + Build layout, clickable class cards, compact level-up --- */
+body.ma-ffd20-player { min-height:100vh !important; height:auto !important; overflow-y:auto !important; }
+body.ma-ffd20-player .tab-content.active { overflow:visible !important; }
+body.ma-ffd20-player #character { padding-bottom:110px; }
+#ffd20ChoiceGrid.ffd20-v3-grid { grid-template-columns:minmax(245px,.9fr) minmax(320px,1.25fr); max-width:980px; }
+#ffd20ChoiceGrid.ffd20-v3-grid .ffd20-bio-col textarea { min-height:78px; }
+.ma-ffd20-hidden-select { display:none !important; }
+.ma-build-card { width:100%; border:1px solid #444; background:linear-gradient(145deg,#202020,#171717); color:#eee; border-radius:16px; padding:13px 14px; text-align:left; cursor:pointer; box-shadow:0 7px 18px rgba(0,0,0,.24); transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease; }
+.ma-build-card:hover, .ma-build-card:focus-visible, .ma-build-card.ma-glow { border-color:var(--accent); box-shadow:0 0 0 1px rgba(255,204,102,.42),0 0 22px rgba(255,204,102,.25); transform:translateY(-1px); outline:none; }
+.ma-build-card.ma-glow { animation: maFfd20Glow .65s ease; }
+@keyframes maFfd20Glow { 0%{box-shadow:0 0 0 rgba(255,204,102,0)} 35%{box-shadow:0 0 0 2px rgba(255,204,102,.5),0 0 28px rgba(255,204,102,.55)} 100%{box-shadow:0 0 0 1px rgba(255,204,102,.25),0 0 12px rgba(255,204,102,.14)} }
+.ma-build-card-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:7px; }
+.ma-build-card-title { color:var(--accent); font-family:'Uncial Antiqua',serif; font-weight:900; font-size:17px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ma-build-card-level { flex:0 0 auto; border:1px solid rgba(255,204,102,.75); color:var(--accent); border-radius:999px; padding:3px 8px; font-size:12px; font-weight:900; }
+.ma-build-card-sub { color:#aaa; font-size:12px; margin-bottom:9px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ma-stat-strip { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; }
+.ma-stat-chip { background:#101010; border:1px solid #333; border-radius:10px; padding:7px 5px; text-align:center; min-width:0; }
+.ma-stat-chip small { display:block; color:#888; font-size:9px; text-transform:uppercase; letter-spacing:.06em; font-weight:900; margin-bottom:2px; }
+.ma-stat-chip strong { color:var(--accent); font-size:14px; line-height:1; }
+.ma-build-summary { margin-top:10px; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; }
+.ma-prestige-admin { border-top:1px solid #373737; padding-top:10px; margin-top:2px; }
+.ma-levelup-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+.ma-level-card { background:linear-gradient(145deg,#202020,#151515); border:1px solid #393939; border-radius:14px; padding:12px; min-height:78px; }
+.ma-level-card small { display:block; color:#999; text-transform:uppercase; font-size:10px; letter-spacing:.07em; font-weight:900; margin-bottom:6px; }
+.ma-level-card strong { display:block; color:var(--accent); font-size:20px; line-height:1.1; }
+.ma-level-card span { display:block; color:#ddd; font-size:12px; margin-top:4px; line-height:1.35; }
+.ma-new-ability-list { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.ma-new-ability-pill { background:#101010; border:1px solid #4c422c; color:#ffd66f; border-radius:999px; padding:5px 9px; font-size:12px; font-weight:800; }
+.ma-ability-score-picks { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:8px; margin-top:8px; }
+.ma-multiclass-card { display:flex; justify-content:space-between; gap:8px; align-items:center; background:#171717; border:1px solid #363636; border-radius:12px; padding:9px; }
+.ma-multiclass-card button:first-child { flex:1; min-width:0; background:none; border:0; color:#eee; text-align:left; cursor:pointer; padding:0; }
+.ma-multiclass-card button:first-child:hover strong { color:var(--accent); text-shadow:0 0 8px rgba(255,204,102,.35); }
+.ma-multiclass-card strong { display:block; color:var(--accent); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ma-multiclass-card small { display:block; color:#aaa; margin-top:2px; }
+
+/* --- Class slot layout: Class/Class 2 text opens the three-choice overlay --- */
+.ma-build-card{
+  display:grid !important;
+  grid-template-columns:82px minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  min-height:58px;
+  border-radius:12px;
+  padding:10px 11px;
+  box-shadow:none;
+}
+.ma-class-click-label{
+  color:var(--accent);
+  font-family:'Uncial Antiqua',serif;
+  font-weight:900;
+  font-size:15px;
+  line-height:1.1;
+  padding-right:10px;
+  border-right:1px solid #3a3a3a;
+  white-space:nowrap;
+}
+.ma-class-slot-main{min-width:0;display:flex;flex-direction:column;gap:2px;}
+.ma-build-card-title{display:block;color:#f2f2f2;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:900;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ma-build-card-sub{display:block;color:#999;font-size:12px;margin:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ma-build-card-level{justify-self:end;align-self:center;}
+#maPrimaryClassStats{display:none!important;}
+.ma-multiclass-card{display:flex;align-items:center;gap:8px;background:transparent;border:0;border-radius:0;padding:0;margin-top:8px;}
+.ma-multiclass-card .ma-build-card{flex:1;min-width:0;}
+.ma-multiclass-card .ffd20-mini-btn.danger{flex:0 0 auto;}
+.ma-multiclass-card button:first-child:hover strong{color:#fff;text-shadow:none;}
+.ma-build-card:hover .ma-build-card-title,.ma-build-card:focus-visible .ma-build-card-title{color:#fff;}
+@media(max-width:520px){.ma-build-card{grid-template-columns:72px minmax(0,1fr) auto;gap:7px;padding:9px}.ma-class-click-label{font-size:13px;padding-right:7px}.ma-build-card-level{font-size:11px;padding:2px 6px;}}
+
+
+/* --- Multiclass rows: same full-width visual layout as Class 1 --- */
+#maMulticlassList{margin-top:8px;margin-bottom:8px;}
+.ma-add-multiclass-wrap{margin-top:8px;}
+.ma-multiclass-card{
+  display:block !important;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  padding:0 !important;
+  margin-top:8px !important;
+}
+.ma-multiclass-card .ma-build-card{
+  width:100% !important;
+  min-width:0 !important;
+  background:linear-gradient(145deg,#202020,#171717) !important;
+  border:1px solid #444 !important;
+  color:#eee !important;
+  border-radius:12px !important;
+  padding:10px 11px !important;
+  text-align:left !important;
+  cursor:pointer !important;
+}
+.ma-multiclass-card .ma-build-card:hover,
+.ma-multiclass-card .ma-build-card:focus-visible{
+  border-color:var(--accent) !important;
+  box-shadow:0 0 0 1px rgba(255,204,102,.42),0 0 22px rgba(255,204,102,.25) !important;
+}
+.ma-multiclass-card .ffd20-mini-btn.danger{
+  display:block !important;
+  width:auto !important;
+  margin:5px 0 0 auto !important;
+  padding:5px 9px !important;
+  font-size:11px !important;
+  line-height:1.2 !important;
+}
+
+
+
+
+/* --- Level-up overlay v1: neon crystal celebration --- */
+.ma-levelup-modal{max-width:780px!important;border-color:#74f7ff!important;box-shadow:0 0 0 1px rgba(116,247,255,.35),0 0 42px rgba(116,247,255,.24),0 24px 70px rgba(0,0,0,.62)!important;overflow:hidden;}
+.ma-levelup-hero{position:relative;text-align:center;padding:18px 12px 14px;margin:-4px -2px 14px;border:1px solid rgba(116,247,255,.45);border-radius:18px;background:radial-gradient(circle at 50% 0%,rgba(116,247,255,.22),rgba(255,204,102,.07) 42%,rgba(10,10,10,.1) 70%);}
+.ma-levelup-title{font-family:'Uncial Antiqua',serif;color:#bffcff;font-size:34px;line-height:1;text-shadow:0 0 9px rgba(116,247,255,.95),0 0 26px rgba(255,204,102,.42);letter-spacing:.04em;}
+.ma-levelup-sub{color:#f1e7c7;font-weight:800;margin-top:7px;}
+.ma-levelup-runes{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:18px;}
+.ma-levelup-runes i{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent);animation:maRuneFloat 2.8s linear infinite;opacity:.75;}
+.ma-levelup-runes i:nth-child(1){left:9%;top:18%;animation-delay:.1s}.ma-levelup-runes i:nth-child(2){left:26%;top:72%;animation-delay:.7s}.ma-levelup-runes i:nth-child(3){left:76%;top:22%;animation-delay:.35s}.ma-levelup-runes i:nth-child(4){left:88%;top:66%;animation-delay:1s}.ma-levelup-runes i:nth-child(5){left:50%;top:10%;animation-delay:1.35s}
+@keyframes maRuneFloat{0%{transform:translateY(12px) scale(.7);opacity:.15}45%{opacity:.9}100%{transform:translateY(-26px) scale(1.15);opacity:.1}}
+.ma-levelup-section{background:#151515;border:1px solid #333;border-radius:14px;padding:12px;margin:11px 0;}
+.ma-levelup-section h4{margin:0 0 8px;text-align:left;font-size:15px;}
+.ma-levelup-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:9px;}
+.ma-levelup-card{background:linear-gradient(145deg,#222,#121212);border:1px solid #3a3a3a;border-radius:13px;padding:10px;min-height:72px;}
+.ma-levelup-card small{display:block;color:#8defff;text-transform:uppercase;letter-spacing:.06em;font-size:10px;font-weight:900;margin-bottom:5px;}
+.ma-levelup-card strong{display:block;color:var(--accent);font-size:20px;line-height:1.1;}
+.ma-levelup-card span{display:block;color:#d8d8d8;font-size:12px;margin-top:4px;line-height:1.32;}
+.ma-levelup-pill-list{display:flex;flex-wrap:wrap;gap:7px;}
+.ma-levelup-pill{background:#0e0e0e;border:1px solid #4f452e;border-radius:999px;color:#ffdc80;padding:6px 10px;font-size:12px;font-weight:800;}
+.ma-levelup-picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;}
+.ma-levelup-note{color:#aaa;font-size:12px;line-height:1.45;margin-top:7px;}
+.ma-levelup-feat{border-color:#725a21;color:#ffe19a;}
+.ma-levelup-ability-required{border-color:#74f7ff;box-shadow:0 0 16px rgba(116,247,255,.13);}
+
+/* --- Class row click reliability patch --- */
+#maClassBuildCard,
+#maAddMulticlassBtn,
+#maMulticlassList .ma-multiclass-edit {
+  pointer-events:auto !important;
+  position:relative;
+  z-index:4;
+}
+.ma-ffd20-hidden-select { pointer-events:none !important; }
+
+@media(max-width:850px){ #ffd20ChoiceGrid.ffd20-v3-grid { grid-template-columns:1fr; } .ma-stat-strip,.ma-build-summary{grid-template-columns:repeat(5,minmax(52px,1fr));} }
+@media(max-width:520px){ .ma-stat-strip,.ma-build-summary{grid-template-columns:repeat(3,minmax(0,1fr));} }
+</style>
+<script>
+/* --- FFD20 v3 override layer: keeps v2 data model, changes UX + progression stats --- */
+(function(){
+  if(typeof maFfd20Esc === 'undefined') return;
+  const IS_ADMIN = (typeof MA_FFD20_IS_ADMIN !== 'undefined' && MA_FFD20_IS_ADMIN);
+  document.body.classList.add(IS_ADMIN ? 'ma-ffd20-admin' : 'ma-ffd20-player');
+
+  function data(){ return maFfd20ActiveData ? (maFfd20ActiveData() || {}) : {}; }
+  function value(id, fallback=''){ const el=document.getElementById(id); return el ? el.value : (data()[id] ?? fallback); }
+  function setField(id, val){ const el=document.getElementById(id); const str=String(val ?? ''); if(el) el.value=str; data()[id]=str; }
+  function intVal(v){ const m=String(v ?? '').match(/[+-]?\d+/); return m ? parseInt(m[0],10) : 0; }
+  function plus(n){ n=Number(n)||0; return n >= 0 ? `+${n}` : String(n); }
+  function levelOf(v){ return maFfd20Level ? (maFfd20Level(v)||0) : (parseInt(v,10)||0); }
+  function statMod(stat){ const n=Number(document.getElementById(stat)?.value || data()[stat] || 10); return Math.floor(((Number.isFinite(n)?n:10)-10)/2); }
+
+  function maAutoReadNumber(id, fallback=0){
+    const el = document.getElementById(id);
+    const raw = el ? el.value : data()[id];
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : fallback;
+  }
+  function maCurrentSelectionClone(){
+    const sel = maFfd20ReadSelection ? maFfd20ReadSelection() : {};
+    sel.multiclasses = Array.isArray(data().multiclasses) ? data().multiclasses.map(x => ({...x})) : [];
+    return sel;
+  }
+  function maTotalCharacterLevel(sel){
+    let total = levelOf(sel?.level || sel?.character_level || 1) || 1;
+    (sel?.multiclasses || []).forEach(mc => { total += levelOf(mc.level || 0) || 0; });
+    if(IS_ADMIN && sel?.prestigeClass) total += levelOf(sel.prestigeLevel || 0) || 0;
+    return Math.max(1,total);
+  }
+  function maClassEntryList(lib, sel){
+    const rows = [];
+    const primaryLevel = levelOf(sel?.level || 1) || 1;
+    const primaryClass = maFfd20Find(lib.classes, sel?.className || sel?.class || '');
+    const primaryArch = primaryClass ? maFfd20Find(primaryClass.archetypes, sel?.archetype || '') : null;
+    if(primaryClass) rows.push({slot:'primary', label:'Class', className:primaryClass.name, archetype:sel?.archetype || '', level:primaryLevel, cls:primaryClass, arch:primaryArch, firstOverall:true});
+    (sel?.multiclasses || []).forEach((mc, i) => {
+      const className = mc.className || mc.class || mc.name || '';
+      const cls = maFfd20Find(lib.classes, className);
+      const arch = cls ? maFfd20Find(cls.archetypes, mc.archetype || '') : null;
+      if(cls) rows.push({slot:`multi${i}`, label:`Class ${i+2}`, className:cls.name, archetype:mc.archetype || '', level:levelOf(mc.level || 1) || 1, cls, arch, firstOverall:false});
+    });
+    if(IS_ADMIN && sel?.prestigeClass){
+      const cls = maFfd20Find(lib.prestigeClasses, sel.prestigeClass);
+      if(cls) rows.push({slot:'prestige', label:'Prestige', className:cls.name, archetype:'', level:levelOf(sel.prestigeLevel || 1) || 1, cls, arch:null, firstOverall:false});
+    }
+    return rows;
+  }
+  function maCalcClassTotals(lib, sel){
+    const con = statMod('con');
+    const intel = statMod('int');
+    const totals = { hp:0, skill:0, bab:0, fort:0, ref:0, will:0, mp:0, hasMp:false, totalLevel:maTotalCharacterLevel(sel), rows:[] };
+    maClassEntryList(lib, sel).forEach(entry => {
+      const die = maFfd20HitDie ? maFfd20HitDie(entry.cls) : 8;
+      const avg = maFfd20AvgHp ? maFfd20AvgHp(die) : (Math.floor(die/2)+1);
+      const skillBase = maFfd20SkillBase ? maFfd20SkillBase(entry.cls) : 4;
+      const skillEach = Math.max(1, skillBase + intel);
+      let hpGain = 0, skillGain = 0;
+      for(let lvl=1; lvl<=entry.level; lvl++){
+        const firstOverall = entry.firstOverall && lvl === 1;
+        hpGain += Math.max(1, (firstOverall ? die : avg) + con);
+        skillGain += firstOverall ? (skillEach * 4) : skillEach;
+      }
+      const prog = progressionAt(entry.cls, entry.level);
+      totals.hp += hpGain; totals.skill += skillGain;
+      totals.bab += prog.babValue || 0; totals.fort += prog.fortValue || 0; totals.ref += prog.refValue || 0; totals.will += prog.willValue || 0; totals.mp += prog.mpValue || 0;
+      if(entry.cls?.hasMp || entry.cls?.spellcaster || prog.mpValue) totals.hasMp = true;
+      totals.rows.push({...entry, die, avg, skillBase, skillEach, hpGain, skillGain, prog});
+    });
+    return totals;
+  }
+  function maLevelsBetween(oldLevel, newLevel, predicate){
+    const out=[]; for(let i=oldLevel+1;i<=newLevel;i++){ if(predicate(i)) out.push(i); } return out;
+  }
+  function maAbilityPicksHtml(milestones){
+    if(!milestones.length) return '<div class="ma-levelup-note">No ability-score increase crossed on this class save.</div>';
+    return `<div class="ma-levelup-picks">${milestones.map(l => `<label>Level ${l} +1<select data-ability-level="${l}">${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div><div class="ma-levelup-note">Ability score pick is required before applying the level-up.</div>`;
+  }
+  function maFeatureNamesBetween(lib, oldSel, newSel){
+    const oldRows = new Map(maClassEntryList(lib, oldSel).map(r => [r.slot, r]));
+    const names=[];
+    maClassEntryList(lib, newSel).forEach(row => {
+      const oldLevel = oldRows.get(row.slot)?.level || 0;
+      function addFeatures(source, sourceLabel){
+        (Array.isArray(source?.features) ? source.features : []).forEach(f => {
+          const fl = levelOf(f.level || 1);
+          if(fl > oldLevel && fl <= row.level && f.name) names.push(`${row.label}: ${f.name}`);
+        });
+      }
+      addFeatures(row.cls, row.label);
+      if(row.arch) addFeatures(row.arch, `${row.label} Archetype`);
+    });
+    return [...new Set(names)].slice(0,30);
+  }
+  function maClassFormulaLine(totals){
+    if(!totals?.rows?.length) return 'No class data found.';
+    return totals.rows.map(r => `${r.label} ${r.level}: d${r.die}, ${r.skillBase}+INT skill, BAB ${plus(r.prog.babValue||0)}, saves ${plus(r.prog.fortValue||0)}/${plus(r.prog.refValue||0)}/${plus(r.prog.willValue||0)}${r.prog.mpValue ? `, MP ${r.prog.mpValue}` : ''}`).join(' · ');
+  }
+  async function maShowLevelUpScreen(lib, oldSel, newSel, slotLabel){
+    const oldTotalLevel = maTotalCharacterLevel(oldSel);
+    const newTotalLevel = maTotalCharacterLevel(newSel);
+    if(newTotalLevel <= oldTotalLevel) return { oldTotals:maCalcClassTotals(lib, oldSel), newTotals:maCalcClassTotals(lib, newSel), pickedStats:[] };
+    const oldTotals = maCalcClassTotals(lib, oldSel);
+    const newTotals = maCalcClassTotals(lib, newSel);
+    const hpDelta = newTotals.hp - oldTotals.hp;
+    const skillDelta = newTotals.skill - oldTotals.skill;
+    const feats = maLevelsBetween(oldTotalLevel, newTotalLevel, l => l % 2 === 1 && l > 1);
+    const milestones = maLevelsBetween(oldTotalLevel, newTotalLevel, l => [4,8,12,16,20].includes(l));
+    const abilities = maFeatureNamesBetween(lib, oldSel, newSel);
+    const body = `
+      <div class="ma-levelup-hero"><div class="ma-levelup-runes"><i></i><i></i><i></i><i></i><i></i></div><div class="ma-levelup-title">LEVEL UP</div><div class="ma-levelup-sub">${maFfd20Esc(slotLabel)} · Character Level ${oldTotalLevel} → ${newTotalLevel}</div></div>
+      <div class="ma-levelup-grid">
+        <div class="ma-levelup-card"><small>HP</small><strong>${plus(hpDelta)}</strong><span>New auto max: ${newTotals.hp}</span></div>
+        <div class="ma-levelup-card"><small>Skill Points</small><strong>${plus(skillDelta)}</strong><span>Unused points added</span></div>
+        <div class="ma-levelup-card"><small>BAB</small><strong>${plus(newTotals.bab)}</strong><span>${plus(newTotals.bab-oldTotals.bab)} from this change</span></div>
+        <div class="ma-levelup-card"><small>Saves</small><strong>${plus(newTotals.fort)}/${plus(newTotals.ref)}/${plus(newTotals.will)}</strong><span>Fort / Ref / Will</span></div>
+        <div class="ma-levelup-card"><small>MP</small><strong>${newTotals.hasMp ? newTotals.mp : '—'}</strong><span>${newTotals.hasMp ? `${plus(newTotals.mp-oldTotals.mp)} from tables` : 'No MP table'}</span></div>
+      </div>
+      <div class="ma-levelup-section"><h4>Feats</h4><div class="ma-levelup-pill-list">${feats.length ? feats.map(l=>`<span class="ma-levelup-pill ma-levelup-feat">Feat gained at level ${l}</span>`).join('') : '<span class="ma-levelup-note">No odd-level feat crossed.</span>'}</div></div>
+      <div class="ma-levelup-section ${milestones.length?'ma-levelup-ability-required':''}"><h4>Ability Score</h4>${maAbilityPicksHtml(milestones)}</div>
+      <div class="ma-levelup-section"><h4>New Class Abilities</h4><div class="ma-levelup-pill-list">${abilities.length ? abilities.map(n=>`<span class="ma-levelup-pill">${maFfd20Esc(n)}</span>`).join('') : '<span class="ma-levelup-note">No new class abilities found in the scraper data for this increase.</span>'}</div></div>
+      <div class="ma-levelup-section"><h4>Class Math</h4><div class="ma-levelup-note">${maFfd20Esc(maClassFormulaLine(newTotals))}</div></div>
+    `;
+    const overlay = await maFfd20Dialog('Level Up', body, 'Apply Level Up');
+    if(!overlay) return null;
+    return { oldTotals, newTotals, pickedStats:Array.from(overlay.querySelectorAll('[data-ability-level]')).map(sel => sel.value).filter(Boolean) };
+  }
+  function maApplyAbilityPicks(pickedStats){
+    (pickedStats || []).forEach(stat => {
+      const el = document.getElementById(stat);
+      const cur = Number(el?.value || data()[stat] || 10) || 10;
+      if(el) el.value = String(cur + 1);
+      data()[stat] = String(cur + 1);
+    });
+  }
+  function maSetCoreProgressionFields(finalTotals){
+    setBaseField('bab', finalTotals.bab || 0);
+    setBaseField('fort_base', finalTotals.fort || 0);
+    setBaseField('ref_base', finalTotals.ref || 0);
+    setBaseField('will_base', finalTotals.will || 0);
+    setBaseField('mp_max', finalTotals.hasMp ? finalTotals.mp : 0);
+  }
+  function maApplyFinalClassTotals(lib, oldSel, newSel, levelResult){
+    const oldTotals = levelResult?.oldTotals || maCalcClassTotals(lib, oldSel);
+    maApplyAbilityPicks(levelResult?.pickedStats || []);
+    const finalTotals = maCalcClassTotals(lib, newSel);
+    const d = data();
+    const prevHpMax = Number(d.hp_max || document.getElementById('hp_max')?.value || oldTotals.hp) || oldTotals.hp;
+    const hpGain = finalTotals.hp - prevHpMax;
+    const hpTemp = Number(d.hp_temp || document.getElementById('hp_temp')?.value || 0) || 0;
+    const curHp = Number(d.hp_curr || document.getElementById('hp_curr')?.value || 0) || 0;
+    const newEffectiveHpMax = Math.max(0, finalTotals.hp + hpTemp);
+    const newHpCurr = levelResult ? Math.min(newEffectiveHpMax, Math.max(0, curHp + Math.max(0,hpGain))) : Math.min(curHp || newEffectiveHpMax, newEffectiveHpMax);
+    setBaseField('hp_max', finalTotals.hp);
+    setBaseField('hp_curr', newHpCurr);
+    if(d.hp_temp === undefined || d.hp_temp === null || d.hp_temp === '') setBaseField('hp_temp', 0);
+    const prevSkillTotal = oldTotals.skill;
+    const skillGain = Math.max(0, finalTotals.skill - prevSkillTotal);
+    const spEl = document.getElementById('skill_points');
+    if(levelResult && skillGain){
+      const nextSp = (Number(spEl?.value || d.skill_points || 0) || 0) + skillGain;
+      if(spEl) spEl.value = String(nextSp);
+      d.skill_points = String(nextSp);
+    }
+    const oldMpMax = Number(d.mp_max || document.getElementById('mp_max')?.value || oldTotals.mp) || oldTotals.mp;
+    maSetCoreProgressionFields(finalTotals);
+    const mpTemp = Number(d.mp_temp || document.getElementById('mp_temp')?.value || 0) || 0;
+    const curMp = Number(d.mp_curr || document.getElementById('mp_curr')?.value || 0) || 0;
+    const mpGain = (finalTotals.hasMp ? finalTotals.mp : 0) - oldMpMax;
+    const effectiveMpMax = Math.max(0, (finalTotals.hasMp ? finalTotals.mp : 0) + mpTemp);
+    const newMpCurr = finalTotals.hasMp ? (levelResult ? Math.min(effectiveMpMax, Math.max(0, curMp + Math.max(0,mpGain))) : Math.min(curMp || effectiveMpMax, effectiveMpMax)) : 0;
+    setBaseField('mp_curr', newMpCurr);
+    refreshCards(finalTotals);
+    try{ computeDerivedStats(); }catch(e){}
+    return finalTotals;
+  }
+
+
+  function progressionAt(cls, level){
+    const rows = Array.isArray(cls?.progression) ? cls.progression : [];
+    if(!rows.length) return { level, babValue:0, fortValue:0, refValue:0, willValue:0, mpValue:0 };
+    let best = rows[0];
+    for(const row of rows){ if(levelOf(row.level) <= level) best = row; }
+    return {
+      level,
+      babValue: Number(best.babValue ?? intVal(best.bab)) || 0,
+      fortValue: Number(best.fortValue ?? intVal(best.fort)) || 0,
+      refValue: Number(best.refValue ?? intVal(best.ref)) || 0,
+      willValue: Number(best.willValue ?? intVal(best.will)) || 0,
+      mpValue: Number(best.mpValue ?? intVal(best.mp)) || 0,
+      raw: best
+    };
+  }
+  function combineProgression(lib, selection){
+    const totals = { bab:0, fort:0, ref:0, will:0, mp:0, hasMp:false };
+    function add(cls, lvl){
+      if(!cls || !lvl) return;
+      const p = progressionAt(cls, lvl);
+      totals.bab += p.babValue || 0;
+      totals.fort += p.fortValue || 0;
+      totals.ref += p.refValue || 0;
+      totals.will += p.willValue || 0;
+      totals.mp += p.mpValue || 0;
+      if(cls.hasMp || cls.spellcaster || p.mpValue) totals.hasMp = true;
+    }
+    add(maFfd20Find(lib.classes, selection.className), levelOf(selection.level || 1));
+    (selection.multiclasses || []).forEach(mc => add(maFfd20Find(lib.classes, mc.className || mc.class || mc.name), levelOf(mc.level || 1)));
+    if(IS_ADMIN && selection.prestigeClass) add(maFfd20Find(lib.prestigeClasses, selection.prestigeClass), levelOf(selection.prestigeLevel || 1));
+    return totals;
+  }
+  async function currentProgression(){
+    const lib = await maFfd20LoadLibrary();
+    return combineProgression(lib, maFfd20ReadSelection());
+  }
+  function setBaseField(id, val){ const el=document.getElementById(id); if(el) el.value=String(val); data()[id]=String(val); }
+  async function updateProgressionFields(){
+    let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ return null; }
+    const sel = maCurrentSelectionClone();
+    const totals = maCalcClassTotals(lib, sel);
+    maSetCoreProgressionFields(totals);
+    const d = data();
+    const oldHpMax = Number(d.hp_max || document.getElementById('hp_max')?.value || 0) || 0;
+    const oldHpCurr = Number(d.hp_curr || document.getElementById('hp_curr')?.value || 0) || 0;
+    const newHpBase = totals.hp || 0;
+    const hpDelta = newHpBase - oldHpMax;
+    setBaseField('hp_max', newHpBase);
+    if(d.hp_temp === undefined || d.hp_temp === null || d.hp_temp === '') setBaseField('hp_temp', 0);
+    const hpEffectiveMax = Math.max(0, newHpBase + (Number(d.hp_temp || document.getElementById('hp_temp')?.value || 0) || 0));
+    if(!oldHpCurr || oldHpCurr > hpEffectiveMax) setBaseField('hp_curr', hpEffectiveMax);
+    else if(hpDelta > 0) setBaseField('hp_curr', Math.min(hpEffectiveMax, oldHpCurr + hpDelta));
+    const mpCurr = document.getElementById('mp_curr');
+    const mpTemp = Number(document.getElementById('mp_temp')?.value || d.mp_temp || 0) || 0;
+    const effectiveMpMax = Math.max(0, (totals.hasMp ? totals.mp : 0) + mpTemp);
+    if(mpCurr && (!mpCurr.value || Number(mpCurr.value) === 0 || Number(mpCurr.value) > effectiveMpMax)) { mpCurr.value = String(totals.hasMp ? effectiveMpMax : 0); d.mp_curr = mpCurr.value; }
+    try{ refreshEffectiveVitals(); }catch(e){}
+    refreshCards(totals);
+    try{ computeDerivedStats(); }catch(e){}
+    return totals;
+  }
+  function statStrip(t){
+    t = t || {bab:0,fort:0,ref:0,will:0,mp:0,hasMp:false};
+    return `<div class="ma-stat-strip"><div class="ma-stat-chip"><small>BAB</small><strong>${plus(t.bab)}</strong></div><div class="ma-stat-chip"><small>Fort</small><strong>${plus(t.fort)}</strong></div><div class="ma-stat-chip"><small>Ref</small><strong>${plus(t.ref)}</strong></div><div class="ma-stat-chip"><small>Will</small><strong>${plus(t.will)}</strong></div><div class="ma-stat-chip"><small>MP</small><strong>${t.hasMp ? (t.mp||0) : '—'}</strong></div></div>`;
+  }
+  function refreshCards(totals){
+    const cls = value('class',''); const arch = value('archetype',''); const lvl = value('character_level','1');
+    const title = document.getElementById('maPrimaryClassTitle'); if(title) title.textContent = cls || 'Choose Class';
+    const sub = document.getElementById('maPrimaryClassSub'); if(sub) sub.textContent = arch || 'No archetype selected';
+    const badge = document.getElementById('maPrimaryClassLevel'); if(badge) badge.textContent = `Lv ${lvl || 1}`;
+    const stat = document.getElementById('maPrimaryClassStats'); if(stat) stat.innerHTML = statStrip(totals);
+    const compact = document.getElementById('maBuildProgressionSummary'); if(compact) compact.innerHTML = statStrip(totals).replace('ma-stat-strip','ma-build-summary');
+  }
+  async function refreshCardsFromLibrary(){ try { refreshCards(await currentProgression()); } catch(e){ refreshCards(null); } }
+
+  maFfd20BuildChoiceGrid = function(force=false){
+    const character = document.getElementById('character');
+    if(!character) return;
+    const existing = document.getElementById('ffd20ChoiceGrid');
+    if(existing && existing.dataset.version === 'v3' && !force) return;
+    const oldGrid = existing || character.querySelector('.bio-grid');
+    if(!oldGrid) return;
+    const values = maFfd20CaptureBioValues ? maFfd20CaptureBioValues() : {};
+    const d = data();
+    ['charName','race','class','archetype','character_level','alignment','size_category','size','languages','senses','shop_tags','prestige_class','prestige_level'].forEach(id => {
+      let saved = d[id];
+      if((saved === undefined || saved === null || String(saved).trim() === '') && id === 'charName') saved = d.name;
+      if((saved === undefined || saved === null || String(saved).trim() === '') && id === 'class') saved = d.className;
+      if((saved === undefined || saved === null || String(saved).trim() === '') && id === 'character_level') saved = d.level;
+      if((saved === undefined || saved === null || String(saved).trim() === '') && id === 'size_category') saved = d.size;
+      if((saved === undefined || saved === null || String(saved).trim() === '') && id === 'size') saved = d.size_category;
+      if((values[id] === undefined || values[id] === null || String(values[id]).trim() === '') && saved !== undefined && saved !== null && String(saved).trim() !== '') values[id] = saved;
+    });
+    const fieldClass = maFfd20FieldClass ? maFfd20FieldClass() : (IS_ADMIN ? 'save-field' : 'live-field');
+    const shopTags = IS_ADMIN ? `<div class="bio-item"><label>Shop Access Tags</label><input id="shop_tags" class="${fieldClass}" placeholder="starter, magic_shop, blacksmith, potion_shop" value="${maFfd20Esc(values.shop_tags || '')}"></div>` : '';
+    const prestigeBlock = IS_ADMIN ? `<div class="ma-prestige-admin"><div class="bio-item"><label>Prestige Class</label><select id="prestige_class" class="${fieldClass} ma-ffd20-prestige"><option value="${maFfd20Esc(values.prestige_class || '')}">${maFfd20Esc(values.prestige_class || 'No prestige')}</option></select></div><div class="bio-item"><label>Prestige Level</label><select id="prestige_level" class="${fieldClass}">${maFfd20LevelOptions(values.prestige_level || '1')}</select></div></div>` : '';
+    const grid = document.createElement('section');
+    grid.id = 'ffd20ChoiceGrid'; grid.dataset.version = 'v3'; grid.className = 'ffd20-bio-three-col ffd20-v3-grid';
+    grid.innerHTML = `
+      <div class="ffd20-bio-col">
+        <h3>Identity</h3>
+        <div class="bio-item"><label>Name</label><input id="charName" class="${fieldClass}" value="${maFfd20Esc(values.charName || '')}"></div>
+        <div class="bio-item"><label>Alignment</label><select id="alignment" class="${fieldClass}"></select></div>
+        <div class="bio-item"><label>Size</label><select id="size_category" class="${fieldClass}" aria-label="Character Size"></select><input id="size" class="${fieldClass}" type="hidden" value="${maFfd20Esc(values.size || values.size_category || '')}"></div>
+        <div class="bio-item"><label>Languages</label><input id="languages" class="${fieldClass}" value="${maFfd20Esc(values.languages || '')}"></div>
+        <div class="bio-item"><label>Senses</label><input id="senses" class="${fieldClass}" value="${maFfd20Esc(values.senses || '')}"></div>
+      </div>
+      <div class="ffd20-bio-col">
+        <h3>Build</h3>
+        <div class="bio-item"><label>Race</label><select id="race" class="${fieldClass} ma-ffd20-race"><option value="${maFfd20Esc(values.race || '')}">${maFfd20Esc(values.race || 'Loading races...')}</option></select></div>
+        <select id="class" class="${fieldClass} ma-ffd20-class ma-ffd20-hidden-select"><option value="${maFfd20Esc(values.class || '')}">${maFfd20Esc(values.class || 'Choose class')}</option></select>
+        <select id="archetype" class="${fieldClass} ma-ffd20-archetype ma-ffd20-hidden-select"><option value="${maFfd20Esc(values.archetype || '')}">${maFfd20Esc(values.archetype || 'No archetype')}</option></select>
+        <select id="character_level" class="${fieldClass} ma-ffd20-level ma-ffd20-hidden-select" aria-label="Character Level">${maFfd20LevelOptions(values.character_level || '1')}</select>
+        <button id="maClassBuildCard" class="ma-build-card" type="button" title="Edit class, archetype, and level"><span class="ma-class-click-label">Class</span><span class="ma-class-slot-main"><strong id="maPrimaryClassTitle" class="ma-build-card-title">${maFfd20Esc(values.class || 'Choose Class')}</strong><small id="maPrimaryClassSub" class="ma-build-card-sub">${maFfd20Esc(values.archetype ? values.archetype : 'No archetype selected')}</small></span><span id="maPrimaryClassLevel" class="ma-build-card-level">Lv ${maFfd20Esc(values.character_level || '1')}</span><span id="maPrimaryClassStats" hidden>${statStrip(null)}</span></button>
+        <div id="maMulticlassList" class="ffd20-multiclass-list"></div>
+        <div class="bio-item ma-add-multiclass-wrap"><button class="ffd20-mini-btn" type="button" id="maAddMulticlassBtn">+ Add Multiclass</button></div>
+        ${prestigeBlock}
+        <div id="maBuildProgressionSummary"></div>
+        ${shopTags}
+      </div>`;
+    oldGrid.replaceWith(grid);
+    document.querySelector('.character-level-row')?.remove();
+    maFfd20FillSimple(document.getElementById('alignment'), MA_ALIGNMENTS, 'Choose alignment', values.alignment || '');
+    maFfd20FillSimple(document.getElementById('size_category'), MA_SIZES, 'Select Size', values.size_category || values.size || 'Medium');
+    const lvlEl = document.getElementById('character_level'); if(lvlEl) lvlEl.dataset.prevLevel = String(levelOf(values.character_level || 1) || 1);
+    document.getElementById('race')?.addEventListener('change', () => maFfd20ApplySheetChoices({silent:true}));
+    document.getElementById('size_category')?.addEventListener('change', () => { const h=document.getElementById('size'); if(h) h.value=document.getElementById('size_category').value; try{ syncSizeFields(); }catch(e){} maFfd20SaveNow(); });
+    document.getElementById('maClassBuildCard')?.addEventListener('click', () => openClassDialog('primary'));
+    document.getElementById('maAddMulticlassBtn')?.addEventListener('click', () => openClassDialog('multi'));
+    document.getElementById('prestige_class')?.addEventListener('change', () => maFfd20ApplySheetChoices({silent:true}));
+    document.getElementById('prestige_level')?.addEventListener('change', () => maFfd20ApplySheetChoices({silent:true}));
+  };
+
+  maFfd20RefreshOptions = async function(){
+    maFfd20BuildChoiceGrid();
+    let lib;
+    try { lib = await maFfd20LoadLibrary(); }
+    catch(e){ console.warn(e); return null; }
+    maFfd20FillSelect(document.getElementById('race'), lib.races, 'Choose race', document.getElementById('race')?.value || data().race || '');
+    maFfd20FillSelect(document.getElementById('class'), lib.classes, 'Choose class', document.getElementById('class')?.value || data().class || '');
+    await maFfd20RefreshArchetypes();
+    if(IS_ADMIN) maFfd20FillSelect(document.getElementById('prestige_class'), lib.prestigeClasses, 'No prestige', document.getElementById('prestige_class')?.value || data().prestige_class || '');
+    maFfd20RenderMulticlasses();
+    await updateProgressionFields();
+    return lib;
+  };
+
+  maFfd20RefreshArchetypes = async function(){
+    let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ return; }
+    const cls = maFfd20Find(lib.classes, document.getElementById('class')?.value || data().class || '');
+    maFfd20FillSelect(document.getElementById('archetype'), cls?.archetypes || [], 'No archetype', document.getElementById('archetype')?.value || data().archetype || '');
+  };
+
+  const oldApplyChoices = maFfd20ApplySheetChoices;
+  maFfd20ApplySheetChoices = async function(opts={}){
+    const out = await oldApplyChoices.call(this, opts);
+    await updateProgressionFields();
+    maFfd20RenderMulticlasses();
+    await refreshCardsFromLibrary();
+    try{ maFfd20SaveNow(); }catch(e){}
+    return out;
+  };
+
+  function newAbilityNames(lib, oldLevel, newLevel){
+    const sel = maCurrentSelectionClone();
+    const oldSel = {...sel, level:oldLevel};
+    const newSel = {...sel, level:newLevel};
+    return maFeatureNamesBetween(lib, oldSel, newSel).map(x => x.replace(/^Class:\s*/,'')).slice(0,18);
+  }
+  function milestonePickerHtml(milestones){
+    if(!milestones.length) return '';
+    return `<div class="ma-level-card"><small>Ability Score</small><strong>+1</strong><span>${milestones.map(l=>'Level '+l).join(', ')}</span></div><div class="ma-ability-score-picks">${milestones.map(l => `<label>Level ${l} +1<select data-ability-level="${l}">${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div>`;
+  }
+
+  maFfd20HandleLevelChanged = async function(event){
+    const select = event?.target || document.getElementById('character_level');
+    const oldSel = maCurrentSelectionClone();
+    const oldLevel = levelOf(select?.dataset.prevLevel || oldSel.level || 1) || 1;
+    const newLevel = levelOf(select?.value || oldLevel) || oldLevel;
+    const newSel = {...oldSel, level:newLevel};
+    if(newLevel > oldLevel){
+      let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ alert(e.message); if(select) select.value=String(oldLevel); return false; }
+      const result = await maShowLevelUpScreen(lib, {...oldSel, level:oldLevel}, newSel, 'Class');
+      if(!result){ if(select) select.value=String(oldLevel); return false; }
+      if(select) select.dataset.prevLevel = String(newLevel);
+      setField('character_level', newLevel);
+      maApplyFinalClassTotals(lib, {...oldSel, level:oldLevel}, newSel, result);
+    } else {
+      if(select) select.dataset.prevLevel = String(newLevel);
+      setField('character_level', newLevel);
+    }
+    await maFfd20ApplySheetChoices({silent:true});
+    maFfd20RenderAll();
+    maFfd20SaveNow();
+    return true;
+  };
+
+  async function openClassDialog(kind='primary', index=null){
+    let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ alert(e.message); return; }
+    const isMulti = kind === 'multi';
+    const oldSel = maCurrentSelectionClone();
+    const mc = isMulti && index !== null ? (data().multiclasses || [])[index] || {} : {};
+    const curClass = isMulti ? (mc.className || mc.class || '') : value('class','');
+    const curArch = isMulti ? (mc.archetype || '') : value('archetype','');
+    const curLevel = isMulti ? (mc.level || 1) : value('character_level','1');
+    const title = isMulti ? (index === null ? 'Add Multiclass' : `Edit Class ${index+2}`) : 'Edit Class';
+    const body = `<div class="ffd20-modal-grid"><label>Class<select id="maEditClass"></select></label><label>Archetype<select id="maEditArch"><option value="">No archetype</option></select></label><label>Level<select id="maEditLevel">${maFfd20LevelOptions(curLevel)}</select></label></div>`;
+    const promise = maFfd20Dialog(title, body, 'Save Class');
+    setTimeout(() => {
+      const c=document.getElementById('maEditClass'), a=document.getElementById('maEditArch');
+      maFfd20FillSelect(c, lib.classes, 'Choose class', curClass);
+      const fillA=(keepCurrent=true)=>{ const cls=maFfd20Find(lib.classes, c?.value || ''); maFfd20FillSelect(a, cls?.archetypes || [], 'No archetype', keepCurrent ? curArch : ''); };
+      fillA(true); c?.addEventListener('change', () => fillA(false));
+    },0);
+    const glowTarget = isMulti && index !== null ? document.querySelectorAll('#maMulticlassList .ma-build-card')[index] : document.getElementById('maClassBuildCard'); glowTarget?.classList.add('ma-glow'); setTimeout(()=>glowTarget?.classList.remove('ma-glow'),700);
+    const overlay = await promise; if(!overlay) return;
+    const className=overlay.querySelector('#maEditClass')?.value || '';
+    const arch=overlay.querySelector('#maEditArch')?.value || '';
+    const lvl=levelOf(overlay.querySelector('#maEditLevel')?.value || '1') || 1;
+    if(!className) return;
+    const newSel = {...oldSel, multiclasses:Array.isArray(oldSel.multiclasses) ? oldSel.multiclasses.map(x=>({...x})) : []};
+    let slotLabel = 'Class';
+    if(isMulti){
+      const item={className, archetype:arch, level:String(lvl)};
+      if(index === null){ newSel.multiclasses.push(item); slotLabel = `Class ${newSel.multiclasses.length + 1}`; }
+      else { newSel.multiclasses[index]=item; slotLabel = `Class ${index+2}`; }
+    } else {
+      newSel.className = className; newSel.class = className; newSel.archetype = arch; newSel.level = lvl;
+    }
+    const oldTotal = maTotalCharacterLevel(oldSel);
+    const newTotal = maTotalCharacterLevel(newSel);
+    let levelResult = null;
+    if(newTotal > oldTotal){
+      levelResult = await maShowLevelUpScreen(lib, oldSel, newSel, slotLabel);
+      if(!levelResult) return;
+    }
+    if(isMulti){
+      if(!Array.isArray(data().multiclasses)) data().multiclasses=[];
+      if(index === null) data().multiclasses.push({className, archetype:arch, level:String(lvl)}); else data().multiclasses[index]={className, archetype:arch, level:String(lvl)};
+      maFfd20RenderMulticlasses();
+    } else {
+      setField('class', className); await maFfd20RefreshArchetypes(); setField('archetype', arch);
+      const levelEl=document.getElementById('character_level');
+      if(levelEl){ levelEl.value=String(lvl); levelEl.dataset.prevLevel = String(lvl); }
+      setField('character_level', lvl);
+    }
+    maApplyFinalClassTotals(lib, oldSel, newSel, levelResult);
+    await maFfd20ApplySheetChoices({silent:true});
+    maApplyFinalClassTotals(lib, oldSel, newSel, levelResult);
+    try{ refreshEffectiveVitals(); }catch(e){}
+    maFfd20RenderMulticlasses();
+    maFfd20SaveNow();
+  }
+
+  maFfd20RenderMulticlasses = function(){
+    const list=document.getElementById('maMulticlassList'); if(!list) return;
+    if(!Array.isArray(data().multiclasses)) data().multiclasses=[];
+    list.innerHTML = '';
+    data().multiclasses.forEach((mc,index)=>{
+      const row=document.createElement('div'); row.className='ma-multiclass-card';
+      row.innerHTML = `<button type="button" class="ma-build-card ma-multiclass-edit"><span class="ma-class-click-label">Class ${index+2}</span><span class="ma-class-slot-main"><strong class="ma-build-card-title">${maFfd20Esc(mc.className || mc.class || 'Choose Class')}</strong><small class="ma-build-card-sub">${maFfd20Esc(mc.archetype || 'No archetype')}</small></span><span class="ma-build-card-level">Lv ${maFfd20Esc(mc.level || 1)}</span></button><button class="ffd20-mini-btn danger" type="button">Delete</button>`;
+      row.querySelector('button:first-child')?.addEventListener('click',()=>openClassDialog('multi',index));
+      row.querySelector('button.danger')?.addEventListener('click',async()=>{ data().multiclasses.splice(index,1); maFfd20RenderMulticlasses(); await maFfd20ApplySheetChoices({silent:true}); maFfd20SaveNow(); });
+      list.appendChild(row);
+    });
+  };
+
+  function createMilestoneHtml(level){ const milestones=[4,8,12,16,20].filter(x=>x<=level); return milestonePickerHtml(milestones); }
+  maFfd20OpenCreationWizard = async function(){
+    if(IS_ADMIN || !currentUser) return;
+    let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ alert(e.message); return; }
+    const nextIndex=(characterSheets?.length || 0)+1;
+    const body = `<div class="ffd20-modal-grid"><label>Name<input id="maCreateName" value="New Character ${nextIndex}"></label><label>Race<select id="maCreateRace"></select></label><label>Class<select id="maCreateClass"></select></label><label>Archetype<select id="maCreateArch"><option value="">No archetype</option></select></label><label>Level<select id="maCreateLevel">${maFfd20LevelOptions('1')}</select></label><label>Alignment<select id="maCreateAlignment"></select></label><label>Size<select id="maCreateSize"></select></label><label>Languages<input id="maCreateLanguages" placeholder="Common, ..."></label><label>Senses<input id="maCreateSenses" placeholder="Darkvision, low-light, ..."></label><label>Favored class bonus<select id="maCreateFavored"><option value="hp">+1 HP each level</option><option value="skill">+1 Skill Point each level</option></select></label></div><div class="ffd20-level-summary"><strong>Starting rules</strong><div class="ma-new-ability-list"><span class="ma-new-ability-pill">Level 1 HP = HD + CON</span><span class="ma-new-ability-pill">Level-up HP = Avg HD + CON</span><span class="ma-new-ability-pill">Level 1 skills ×4</span></div></div><div id="maCreateMilestones"></div>`;
+    const promise=maFfd20Dialog('Create Character', body, 'Create Character');
+    setTimeout(()=>{
+      maFfd20FillSelect(document.getElementById('maCreateRace'), lib.races, 'Choose race');
+      maFfd20FillSelect(document.getElementById('maCreateClass'), lib.classes, 'Choose class');
+      maFfd20FillSimple(document.getElementById('maCreateAlignment'), MA_ALIGNMENTS, 'Choose alignment');
+      maFfd20FillSimple(document.getElementById('maCreateSize'), MA_SIZES, 'Select Size', 'Medium');
+      const c=document.getElementById('maCreateClass'), a=document.getElementById('maCreateArch');
+      c?.addEventListener('change',()=>{ const cls=maFfd20Find(lib.classes,c.value); maFfd20FillSelect(a, cls?.archetypes || [], 'No archetype'); });
+      document.getElementById('maCreateLevel')?.addEventListener('change',e=>{ const target=document.getElementById('maCreateMilestones'); if(target) target.innerHTML=createMilestoneHtml(levelOf(e.target.value)); });
+    },0);
+    const overlay=await promise; if(!overlay) return;
+    const level=levelOf(overlay.querySelector('#maCreateLevel')?.value || 1) || 1;
+    const name=overlay.querySelector('#maCreateName')?.value?.trim() || `New Character ${nextIndex}`;
+    const className=overlay.querySelector('#maCreateClass')?.value || '';
+    const race=overlay.querySelector('#maCreateRace')?.value || '';
+    try{
+      const newData=createBlankCharacterData(name);
+      Object.assign(newData,{charName:name,race,class:className,archetype:overlay.querySelector('#maCreateArch')?.value || '',character_level:String(level),alignment:overlay.querySelector('#maCreateAlignment')?.value || '',size_category:overlay.querySelector('#maCreateSize')?.value || 'Medium',size:overlay.querySelector('#maCreateSize')?.value || 'Medium',languages:overlay.querySelector('#maCreateLanguages')?.value || '',senses:overlay.querySelector('#maCreateSenses')?.value || '',multiclasses:[]});
+      overlay.querySelectorAll('[data-ability-level]').forEach(sel=>{ const stat=sel.value; newData[stat]=String((Number(newData[stat]) || 10)+1); });
+      const cls=maFfd20Find(lib.classes,className); const calc=maFfd20ApplyHpSkillToData(newData, cls, level, overlay.querySelector('#maCreateFavored')?.value || 'hp');
+      const prog=combineProgression(lib,{className,archetype:newData.archetype,level,multiclasses:[]});
+      newData.bab=String(prog.bab); newData.fort_base=String(prog.fort); newData.ref_base=String(prog.ref); newData.will_base=String(prog.will); newData.mp_max=String(prog.hasMp?prog.mp:0); newData.mp_curr=String(prog.hasMp?prog.mp:0); newData.mp_temp=newData.mp_temp||'0'; newData.hp_temp=newData.hp_temp||'0';
+      newData.racialAbilities=Array.isArray(newData.racialAbilities)?newData.racialAbilities:[];
+      maFfd20Push(newData, maFfd20BuildImported(lib,{race,className,archetype:newData.archetype,level,multiclasses:[]}));
+      const ref=await addDoc(collection(db,'users',currentUser.uid,'characters'),newData);
+      try{ await setDoc(doc(db,'users',currentUser.uid),{charactersMigrated:true},{merge:true}); }catch(e){ console.warn(e); }
+      currentSummonId=ref.id; fullData=sanitizeCharacterDoc({id:ref.id,...newData},name); showNoCharacterState(false); loadCurrentSheet(); updateSummonMenu(); document.getElementById('summonMenu')?.classList.remove('show');
+      alert(`Created ${name}. HP ${calc.hp}. Skill points ${calc.skill}.`);
+    }catch(err){ console.error(err); alert('Error creating character: ' + (err?.message || err)); }
+  };
+
+  maFfd20SyncAfterPopulate = function(){
+    const existing=document.getElementById('ffd20ChoiceGrid'); if(existing) existing.remove();
+    maFfd20BuildChoiceGrid(true);
+    const d=data();
+    ['charName','race','class','archetype','character_level','alignment','size_category','size','languages','senses','shop_tags','prestige_class','prestige_level'].forEach(id=>{
+      const el=document.getElementById(id); if(!el) return;
+      let saved=d[id];
+      if((saved === undefined || saved === null || String(saved).trim() === '') && id === 'charName') saved=d.name;
+      if((saved === undefined || saved === null || String(saved).trim() === '') && id === 'class') saved=d.className;
+      if((saved === undefined || saved === null || String(saved).trim() === '') && id === 'character_level') saved=d.level;
+      if((saved === undefined || saved === null || String(saved).trim() === '') && id === 'size_category') saved=d.size;
+      if((saved === undefined || saved === null || String(saved).trim() === '') && id === 'size') saved=d.size_category;
+      if(saved === undefined || saved === null || String(saved).trim() === '') return;
+      const str=String(saved);
+      if(el.tagName === 'SELECT' && !Array.from(el.options || []).some(opt => opt.value === str)) maFfd20AddOption(el, str, str);
+      el.value=str;
+    });
+    const levelEl=document.getElementById('character_level'); if(levelEl) levelEl.dataset.prevLevel=String(levelOf(levelEl.value || d.character_level || 1)||1);
+    maFfd20RefreshOptions(); maFfd20RenderMulticlasses(); refreshCardsFromLibrary();
+  };
+
+
+  /* --- v5 repair: HP temp vs max-temp, MP bonus conversion from CON, and cleaner vital edit views --- */
+  const MA_V5_BONUS_MP_TABLE = [
+    {min:10,max:11, vals:[0,0,0,0,0,0,0,0,0]},
+    {min:12,max:13, vals:[1,1,1,1,1,1,1,1,1]},
+    {min:14,max:15, vals:[1,3,3,3,3,3,3,3,3]},
+    {min:16,max:17, vals:[1,3,6,6,6,6,6,6,6]},
+    {min:18,max:19, vals:[1,3,6,10,10,10,10,10,10]},
+    {min:20,max:21, vals:[2,4,7,11,16,16,16,16,16]},
+    {min:22,max:23, vals:[2,6,9,13,18,24,24,24,24]},
+    {min:24,max:25, vals:[2,6,12,16,21,27,34,34,34]},
+    {min:26,max:27, vals:[2,6,12,20,25,31,38,46,46]},
+    {min:28,max:29, vals:[3,7,13,21,31,37,44,52,61]},
+    {min:30,max:999, vals:[3,9,15,23,33,45,52,60,69]},
+  ];
+  const MA_V5_FIELD_CLASS = IS_ADMIN ? 'save-field' : 'live-field';
+  function maV5RuntimeField(id, fallback='0'){
+    let el = document.getElementById(id);
+    const d = data();
+    if(!el){
+      el = document.createElement('input');
+      el.type = 'hidden';
+      el.id = id;
+      el.className = MA_V5_FIELD_CLASS;
+      document.body.appendChild(el);
+    }
+    if((el.value === undefined || el.value === null || String(el.value).trim() === '') && d[id] !== undefined && d[id] !== null && String(d[id]).trim() !== '') el.value = String(d[id]);
+    if(el.value === undefined || el.value === null || String(el.value).trim() === '') el.value = String(fallback);
+    if(d[id] === undefined || d[id] === null || String(d[id]).trim() === '') d[id] = el.value;
+    return el;
+  }
+  function maV5EnsureRuntimeFields(){
+    maV5RuntimeField('hp_max_temp','0');
+    maV5RuntimeField('mp_base','0');
+    maV5RuntimeField('mp_bonus','0');
+    maV5RuntimeField('mp_temp','0');
+    maV5RuntimeField('hp_temp','0');
+  }
+  function maV5Score(stat){
+    const raw = Number(document.getElementById(stat)?.value || data()[stat] || 10);
+    return Number.isFinite(raw) ? Math.trunc(raw) : 10;
+  }
+  function maV5BonusMp(score, spellLevel){
+    const lvl = Math.max(0, Math.min(9, Math.trunc(Number(spellLevel)||0)));
+    if(lvl <= 0 || score < 10) return 0;
+    const row = MA_V5_BONUS_MP_TABLE.find(r => score >= r.min && score <= r.max) || MA_V5_BONUS_MP_TABLE[MA_V5_BONUS_MP_TABLE.length-1];
+    return Number(row.vals[lvl-1] || 0) || 0;
+  }
+  function maV5HighestSpellLevel(classLevel, prog){
+    if(!prog?.hasExplicitMp) return 0;
+    // FFd20 full caster progression example: 2nd-level spells become available at class level 3.
+    return Math.max(1, Math.min(9, Math.ceil((Number(classLevel)||1) / 2)));
+  }
+  progressionAt = function(cls, level){
+    const rows = Array.isArray(cls?.progression) ? cls.progression : [];
+    if(!rows.length) return { level, babValue:0, fortValue:0, refValue:0, willValue:0, mpValue:0, hasExplicitMp:false, raw:{} };
+    let best = rows[0];
+    for(const row of rows){ if(levelOf(row.level) <= level) best = row; }
+    const hasOwnMp = Object.prototype.hasOwnProperty.call(best, 'mpValue') || Object.prototype.hasOwnProperty.call(best, 'mp');
+    const mpRaw = best.mpValue ?? best.mp;
+    const mpText = String(mpRaw ?? '').trim();
+    const hasExplicitMp = hasOwnMp && mpText !== '' && mpText !== '—' && mpText !== '-';
+    return {
+      level,
+      babValue: Number(best.babValue ?? intVal(best.bab)) || 0,
+      fortValue: Number(best.fortValue ?? intVal(best.fort)) || 0,
+      refValue: Number(best.refValue ?? intVal(best.ref)) || 0,
+      willValue: Number(best.willValue ?? intVal(best.will)) || 0,
+      mpValue: hasExplicitMp ? (Number(mpRaw) || 0) : 0,
+      hasExplicitMp,
+      raw: best
+    };
+  };
+  maCalcClassTotals = function(lib, sel){
+    maV5EnsureRuntimeFields();
+    const con = statMod('con');
+    const conScore = maV5Score('con');
+    const intel = statMod('int');
+    const totals = { hp:0, skill:0, bab:0, fort:0, ref:0, will:0, mpBase:0, mpBonus:0, mp:0, hasMp:false, totalLevel:maTotalCharacterLevel(sel), rows:[] };
+    maClassEntryList(lib, sel).forEach(entry => {
+      const die = maFfd20HitDie ? maFfd20HitDie(entry.cls) : 8;
+      const avg = maFfd20AvgHp ? maFfd20AvgHp(die) : (Math.floor(die/2)+1);
+      const skillBase = maFfd20SkillBase ? maFfd20SkillBase(entry.cls) : 4;
+      const skillEach = Math.max(1, skillBase + intel);
+      let hpGain = 0, skillGain = 0;
+      for(let lvl=1; lvl<=entry.level; lvl++){
+        const firstOverall = entry.firstOverall && lvl === 1;
+        hpGain += Math.max(1, (firstOverall ? die : avg) + con);
+        skillGain += firstOverall ? (skillEach * 4) : skillEach;
+      }
+      const prog = progressionAt(entry.cls, entry.level);
+      const spellLevel = maV5HighestSpellLevel(entry.level, prog);
+      const bonusMp = prog.hasExplicitMp ? maV5BonusMp(conScore, spellLevel) : 0;
+      totals.hp += hpGain; totals.skill += skillGain;
+      totals.bab += prog.babValue || 0; totals.fort += prog.fortValue || 0; totals.ref += prog.refValue || 0; totals.will += prog.willValue || 0;
+      totals.mpBase += prog.hasExplicitMp ? (prog.mpValue || 0) : 0;
+      totals.mpBonus += bonusMp;
+      if(prog.hasExplicitMp) totals.hasMp = true;
+      totals.rows.push({...entry, die, avg, skillBase, skillEach, hpGain, skillGain, prog, spellLevel, bonusMp});
+    });
+    totals.mp = totals.hasMp ? (totals.mpBase + totals.mpBonus) : 0;
+    return totals;
+  };
+  maSetCoreProgressionFields = function(finalTotals){
+    maV5EnsureRuntimeFields();
+    setBaseField('bab', finalTotals.bab || 0);
+    setBaseField('fort_base', finalTotals.fort || 0);
+    setBaseField('ref_base', finalTotals.ref || 0);
+    setBaseField('will_base', finalTotals.will || 0);
+    setBaseField('mp_base', finalTotals.hasMp ? (finalTotals.mpBase || 0) : 0);
+    setBaseField('mp_bonus', finalTotals.hasMp ? (finalTotals.mpBonus || 0) : 0);
+    setBaseField('mp_max', finalTotals.hasMp ? (finalTotals.mp || 0) : 0);
+    if(data().mp_temp === undefined || data().mp_temp === null || String(data().mp_temp).trim() === '') setBaseField('mp_temp', 0);
+  };
+  maApplyFinalClassTotals = function(lib, oldSel, newSel, levelResult){
+    maV5EnsureRuntimeFields();
+    const oldTotals = levelResult?.oldTotals || maCalcClassTotals(lib, oldSel);
+    maApplyAbilityPicks(levelResult?.pickedStats || []);
+    const finalTotals = maCalcClassTotals(lib, newSel);
+    const d = data();
+    const prevHpBase = Number(d.hp_max || document.getElementById('hp_max')?.value || oldTotals.hp) || oldTotals.hp;
+    const hpGain = finalTotals.hp - prevHpBase;
+    const hpMaxTemp = Number(d.hp_max_temp || document.getElementById('hp_max_temp')?.value || 0) || 0;
+    const curHp = Number(d.hp_curr || document.getElementById('hp_curr')?.value || 0) || 0;
+    const newEffectiveHpMax = Math.max(0, finalTotals.hp + hpMaxTemp);
+    const newHpCurr = levelResult ? Math.min(newEffectiveHpMax, Math.max(0, curHp + Math.max(0,hpGain))) : Math.min(curHp || newEffectiveHpMax, newEffectiveHpMax);
+    setBaseField('hp_max', finalTotals.hp);
+    setBaseField('hp_curr', newHpCurr);
+    if(d.hp_temp === undefined || d.hp_temp === null || d.hp_temp === '') setBaseField('hp_temp', 0);
+    if(d.hp_max_temp === undefined || d.hp_max_temp === null || d.hp_max_temp === '') setBaseField('hp_max_temp', 0);
+    const prevSkillTotal = oldTotals.skill;
+    const skillGain = Math.max(0, finalTotals.skill - prevSkillTotal);
+    const spEl = document.getElementById('skill_points');
+    if(levelResult && skillGain){
+      const nextSp = (Number(spEl?.value || d.skill_points || 0) || 0) + skillGain;
+      if(spEl) spEl.value = String(nextSp);
+      d.skill_points = String(nextSp);
+    }
+    const oldMpAuto = Number(d.mp_max || document.getElementById('mp_max')?.value || oldTotals.mp) || oldTotals.mp;
+    maSetCoreProgressionFields(finalTotals);
+    const mpMaxTemp = Number(d.mp_temp || document.getElementById('mp_temp')?.value || 0) || 0;
+    const curMp = Number(d.mp_curr || document.getElementById('mp_curr')?.value || 0) || 0;
+    const mpGain = (finalTotals.hasMp ? finalTotals.mp : 0) - oldMpAuto;
+    const effectiveMpMax = Math.max(0, (finalTotals.hasMp ? finalTotals.mp : 0) + mpMaxTemp);
+    const newMpCurr = finalTotals.hasMp ? (levelResult ? Math.min(effectiveMpMax, Math.max(0, curMp + Math.max(0,mpGain))) : Math.min(curMp || effectiveMpMax, effectiveMpMax)) : 0;
+    setBaseField('mp_curr', newMpCurr);
+    if(typeof window.refreshEffectiveVitals === 'function') window.refreshEffectiveVitals();
+    refreshCards(finalTotals);
+    try{ computeDerivedStats(); }catch(e){}
+    return finalTotals;
+  };
+  updateProgressionFields = async function(){
+    maV5EnsureRuntimeFields();
+    let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ return null; }
+    const sel = maCurrentSelectionClone();
+    const totals = maCalcClassTotals(lib, sel);
+    maSetCoreProgressionFields(totals);
+    const d = data();
+    const oldHpBase = Number(d.hp_max || document.getElementById('hp_max')?.value || 0) || 0;
+    const oldHpCurr = Number(d.hp_curr || document.getElementById('hp_curr')?.value || 0) || 0;
+    const newHpBase = totals.hp || 0;
+    const hpDelta = newHpBase - oldHpBase;
+    setBaseField('hp_max', newHpBase);
+    if(d.hp_temp === undefined || d.hp_temp === null || d.hp_temp === '') setBaseField('hp_temp', 0);
+    if(d.hp_max_temp === undefined || d.hp_max_temp === null || d.hp_max_temp === '') setBaseField('hp_max_temp', 0);
+    const hpEffectiveMax = Math.max(0, newHpBase + (Number(d.hp_max_temp || document.getElementById('hp_max_temp')?.value || 0) || 0));
+    if(!oldHpCurr || oldHpCurr > hpEffectiveMax) setBaseField('hp_curr', hpEffectiveMax);
+    else if(hpDelta > 0) setBaseField('hp_curr', Math.min(hpEffectiveMax, oldHpCurr + hpDelta));
+    const mpCurr = document.getElementById('mp_curr');
+    const mpMaxTemp = Number(document.getElementById('mp_temp')?.value || d.mp_temp || 0) || 0;
+    const effectiveMpMax = Math.max(0, (totals.hasMp ? totals.mp : 0) + mpMaxTemp);
+    if(mpCurr && (!mpCurr.value || Number(mpCurr.value) === 0 || Number(mpCurr.value) > effectiveMpMax)) { mpCurr.value = String(totals.hasMp ? effectiveMpMax : 0); d.mp_curr = mpCurr.value; }
+    if(typeof window.refreshEffectiveVitals === 'function') window.refreshEffectiveVitals();
+    refreshCards(totals);
+    try{ computeDerivedStats(); }catch(e){}
+    return totals;
+  };
+  statStrip = function(t){
+    t = t || {bab:0,fort:0,ref:0,will:0,mp:0,hasMp:false};
+    return `<div class="ma-stat-strip"><div class="ma-stat-chip"><small>BAB</small><strong>${plus(t.bab)}</strong></div><div class="ma-stat-chip"><small>Fort</small><strong>${plus(t.fort)}</strong></div><div class="ma-stat-chip"><small>Ref</small><strong>${plus(t.ref)}</strong></div><div class="ma-stat-chip"><small>Will</small><strong>${plus(t.will)}</strong></div><div class="ma-stat-chip"><small>MP</small><strong>${t.hasMp ? (t.mp||0) : '—'}</strong></div></div>`;
+  };
+  maClassFormulaLine = function(totals){
+    if(!totals?.rows?.length) return 'No class data found.';
+    return totals.rows.map(r => `${r.label} ${r.level}: d${r.die}, ${r.skillBase}+INT skill, BAB ${plus(r.prog.babValue||0)}, saves ${plus(r.prog.fortValue||0)}/${plus(r.prog.refValue||0)}/${plus(r.prog.willValue||0)}${r.prog.hasExplicitMp ? `, MP ${r.prog.mpValue||0} + bonus ${r.bonusMp||0} (CON, max spell ${r.spellLevel})` : ''}`).join(' · ');
+  };
+  const maV5PreviousOpenStatEdit = window.openStatEdit;
+  function maV5EditField(label,id, opts={}){
+    const el = document.getElementById(id);
+    const value = el?.value ?? data()[id] ?? opts.defaultValue ?? '';
+    const ro = opts.readonly ? 'readonly aria-readonly="true"' : `data-stat-field="${id}"`;
+    const cls = opts.readonly ? 'graybase' : '';
+    return `<div class="mini-field"><label>${label}</label><input class="${cls}" ${ro} type="number" value="${String(value).replace(/"/g,'&quot;')}"></div>`;
+  }
+  function maV5TotalPill(value){ return `<div class="total-pill">${Math.max(0, Number(value)||0)}</div>`; }
+  function maV5ApplyStatInput(input, section){
+    const id = input.dataset.statField;
+    if(!id) return;
+    const target = maV5RuntimeField(id, '0');
+    target.value = String(input.value || 0);
+    data()[id] = target.value;
+    target.dispatchEvent(new Event('input', {bubbles:true}));
+    target.dispatchEvent(new Event('change', {bubbles:true}));
+    if(typeof window.refreshEffectiveVitals === 'function') window.refreshEffectiveVitals();
+    if(section === 'hp' || section === 'mp') setTimeout(()=>window.openStatEdit(section), 0);
+  }
+  window.openStatEdit = function(section){
+    maV5EnsureRuntimeFields();
+    if(section !== 'hp' && section !== 'mp') return maV5PreviousOpenStatEdit ? maV5PreviousOpenStatEdit(section) : undefined;
+    const body = document.getElementById('statEditBody'); const title = document.getElementById('statEditTitle'); if(!body) return;
+    if(section === 'hp'){
+      const total = Math.max(0, (Number(document.getElementById('hp_max')?.value || data().hp_max || 0)||0) + (Number(document.getElementById('hp_max_temp')?.value || data().hp_max_temp || 0)||0));
+      if(title) title.textContent = 'Edit HP Max';
+      body.innerHTML = `<div class="formula-line"><strong>HP Maximum</strong><div class="formula-parts">${maV5EditField('Base','hp_max',{readonly:true})}${maV5EditField('Max Temp','hp_max_temp')}${maV5TotalPill(total)}</div><div class="section-note">Current HP and temporary shield HP are adjusted on the base HP card.</div></div>`;
+    } else {
+      const total = Math.max(0, (Number(document.getElementById('mp_max')?.value || data().mp_max || 0)||0) + (Number(document.getElementById('mp_temp')?.value || data().mp_temp || 0)||0));
+      if(title) title.textContent = 'Edit MP Max';
+      body.innerHTML = `<div class="formula-line"><strong>MP Maximum</strong><div class="formula-parts">${maV5EditField('Base','mp_base',{readonly:true})}${maV5EditField('Extra Conversion','mp_bonus',{readonly:true})}${maV5EditField('Max Temp','mp_temp')}${maV5TotalPill(total)}</div><div class="section-note">Base MP comes from class progression; Extra Conversion uses CON and highest spell level available.</div></div>`;
+    }
+    body.querySelectorAll('[data-stat-field]').forEach(input => {
+      input.addEventListener('input', () => maV5ApplyStatInput(input, section));
+      input.addEventListener('change', () => maV5ApplyStatInput(input, section));
+    });
+    const overlay = document.getElementById('statEditOverlay'); if(overlay) overlay.style.display = 'flex';
+  };
+
+
+  function installBuildClickDelegates(){
+    if(document.body.dataset.maBuildClickDelegate === '1') return;
+    document.body.dataset.maBuildClickDelegate = '1';
+    document.addEventListener('click', event => {
+      const primary = event.target.closest('#maClassBuildCard');
+      if(primary){
+        event.preventDefault();
+        event.stopPropagation();
+        openClassDialog('primary');
+        return;
+      }
+      const add = event.target.closest('#maAddMulticlassBtn');
+      if(add){
+        event.preventDefault();
+        event.stopPropagation();
+        openClassDialog('multi', null);
+        return;
+      }
+      const multi = event.target.closest('#maMulticlassList .ma-multiclass-edit');
+      if(multi){
+        const cards = Array.from(document.querySelectorAll('#maMulticlassList .ma-multiclass-edit'));
+        const index = cards.indexOf(multi);
+        if(index >= 0){
+          event.preventDefault();
+          event.stopPropagation();
+          openClassDialog('multi', index);
+        }
+      }
+    }, true);
+  }
+
+
+  /* --- v6 repair: compact multiclass slots + HP Temp vs Max Temp semantics --- */
+  function maV6CleanMulticlasses(){
+    const d = data();
+    const raw = Array.isArray(d.multiclasses) ? d.multiclasses : [];
+    const clean = raw
+      .filter(mc => mc && String(mc.className || mc.class || mc.name || '').trim())
+      .map(mc => ({
+        className: String(mc.className || mc.class || mc.name || '').trim(),
+        archetype: String(mc.archetype || '').trim(),
+        level: String(levelOf(mc.level || 1) || 1)
+      }));
+    d.multiclasses = clean;
+    return clean;
+  }
+  function maV6ClearLegacyMulticlassKeys(){
+    const d = data();
+    Object.keys(d || {}).forEach(k => {
+      if(/^(maMulti|multiClass|multiclass_|multiclass\d+|class[2-9]\b|archetype[2-9]\b|level[2-9]\b)/.test(k)) delete d[k];
+    });
+  }
+  const maV6OldSelectionClone = maCurrentSelectionClone;
+  maCurrentSelectionClone = function(){
+    const sel = maV6OldSelectionClone ? maV6OldSelectionClone() : (maFfd20ReadSelection ? maFfd20ReadSelection() : {});
+    sel.multiclasses = maV6CleanMulticlasses().map(x => ({...x}));
+    return sel;
+  };
+  maFfd20RenderMulticlasses = function(){
+    const list = document.getElementById('maMulticlassList');
+    if(!list) return;
+    const rows = maV6CleanMulticlasses();
+    list.innerHTML = '';
+    rows.forEach((mc, index) => {
+      const row = document.createElement('div');
+      row.className = 'ma-multiclass-card';
+      row.innerHTML = `<button type="button" class="ma-build-card ma-multiclass-edit" data-mc-index="${index}"><span class="ma-class-click-label">Class ${index+2}</span><span class="ma-class-slot-main"><strong class="ma-build-card-title">${maFfd20Esc(mc.className || 'Choose Class')}</strong><small class="ma-build-card-sub">${maFfd20Esc(mc.archetype || 'No archetype')}</small></span><span class="ma-build-card-level">Lv ${maFfd20Esc(mc.level || 1)}</span></button><button class="ffd20-mini-btn danger ma-multiclass-delete" type="button" data-mc-index="${index}">Delete</button>`;
+      row.querySelector('.ma-multiclass-edit')?.addEventListener('click', () => openClassDialog('multi', index));
+      row.querySelector('.ma-multiclass-delete')?.addEventListener('click', async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const d = data();
+        const current = maV6CleanMulticlasses();
+        current.splice(index, 1);
+        d.multiclasses = current;
+        maV6ClearLegacyMulticlassKeys();
+        maFfd20RenderMulticlasses();
+        await maFfd20ApplySheetChoices({silent:true});
+        maFfd20RenderMulticlasses();
+        try{ await updateProgressionFields(); }catch(e){}
+        maFfd20SaveNow();
+      });
+      list.appendChild(row);
+    });
+  };
+  openClassDialog = async function(kind='primary', index=null){
+    let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ alert(e.message); return; }
+    const isMulti = kind === 'multi';
+    maV6CleanMulticlasses();
+    const oldSel = maCurrentSelectionClone();
+    const rows = maV6CleanMulticlasses();
+    const safeIndex = index === null || index === undefined ? null : Number(index);
+    const mc = isMulti && safeIndex !== null ? (rows[safeIndex] || {}) : {};
+    const curClass = isMulti ? (mc.className || mc.class || '') : value('class','');
+    const curArch = isMulti ? (mc.archetype || '') : value('archetype','');
+    const curLevel = isMulti ? (mc.level || 1) : value('character_level','1');
+    const title = isMulti ? (safeIndex === null ? `Add Class ${rows.length + 2}` : `Edit Class ${safeIndex+2}`) : 'Edit Class';
+    const body = `<div class="ffd20-modal-grid"><label>Class<select id="maEditClass"></select></label><label>Archetype<select id="maEditArch"><option value="">No archetype</option></select></label><label>Level<select id="maEditLevel">${maFfd20LevelOptions(curLevel)}</select></label></div>`;
+    const promise = maFfd20Dialog(title, body, 'Save Class');
+    setTimeout(() => {
+      const c=document.getElementById('maEditClass'), a=document.getElementById('maEditArch');
+      maFfd20FillSelect(c, lib.classes, 'Choose class', curClass);
+      const fillA=(keepCurrent=true)=>{ const cls=maFfd20Find(lib.classes, c?.value || ''); maFfd20FillSelect(a, cls?.archetypes || [], 'No archetype', keepCurrent ? curArch : ''); };
+      fillA(true); c?.addEventListener('change', () => fillA(false));
+    },0);
+    const glowTarget = isMulti && safeIndex !== null ? document.querySelectorAll('#maMulticlassList .ma-build-card')[safeIndex] : document.getElementById('maClassBuildCard');
+    glowTarget?.classList.add('ma-glow'); setTimeout(()=>glowTarget?.classList.remove('ma-glow'),700);
+    const overlay = await promise; if(!overlay) return;
+    const className=overlay.querySelector('#maEditClass')?.value || '';
+    const arch=overlay.querySelector('#maEditArch')?.value || '';
+    const lvl=levelOf(overlay.querySelector('#maEditLevel')?.value || '1') || 1;
+    if(!className) return;
+    const newSel = {...oldSel, multiclasses:maV6CleanMulticlasses().map(x=>({...x}))};
+    let slotLabel = 'Class';
+    if(isMulti){
+      const item={className, archetype:arch, level:String(lvl)};
+      if(safeIndex === null){ newSel.multiclasses.push(item); slotLabel = `Class ${newSel.multiclasses.length + 1}`; }
+      else { newSel.multiclasses[safeIndex]=item; slotLabel = `Class ${safeIndex+2}`; }
+    } else {
+      newSel.className = className; newSel.class = className; newSel.archetype = arch; newSel.level = lvl;
+    }
+    const oldTotal = maTotalCharacterLevel(oldSel);
+    const newTotal = maTotalCharacterLevel(newSel);
+    let levelResult = null;
+    if(newTotal > oldTotal){
+      levelResult = await maShowLevelUpScreen(lib, oldSel, newSel, slotLabel);
+      if(!levelResult) return;
+    }
+    if(isMulti){
+      const d = data();
+      d.multiclasses = newSel.multiclasses.filter(mc => mc && String(mc.className || mc.class || '').trim());
+      maV6ClearLegacyMulticlassKeys();
+      maFfd20RenderMulticlasses();
+    } else {
+      setField('class', className); await maFfd20RefreshArchetypes(); setField('archetype', arch);
+      const levelEl=document.getElementById('character_level');
+      if(levelEl){ levelEl.value=String(lvl); levelEl.dataset.prevLevel = String(lvl); }
+      setField('character_level', lvl);
+    }
+    maApplyFinalClassTotals(lib, oldSel, newSel, levelResult);
+    await maFfd20ApplySheetChoices({silent:true});
+    maApplyFinalClassTotals(lib, oldSel, newSel, levelResult);
+    if(typeof window.refreshEffectiveVitals === 'function') window.refreshEffectiveVitals();
+    maFfd20RenderMulticlasses();
+    maFfd20SaveNow();
+  };
+
+
+  installBuildClickDelegates();
+  setTimeout(()=>{ maFfd20BuildChoiceGrid(true); maFfd20RefreshOptions(); refreshCardsFromLibrary(); }, 0);
+})();
+</script>
+
+
+
+
+<style>
+/* --- v8 clean final: one scroll system + one HP/MP system --- */
+html, body { height:100vh !important; overflow:hidden !important; }
+body { min-height:100vh !important; padding-bottom:0 !important; }
+body > .main-tabs{
+  flex:0 0 auto !important;
+  position:relative !important;
+  top:auto !important;
+  left:auto !important;
+  right:auto !important;
+  z-index:3000 !important;
+  background:#000 !important;
+}
+body > .tab-content{
+  display:none !important;
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  height:calc(100vh - 96px) !important;
+  max-height:calc(100vh - 96px) !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  padding-bottom:120px !important;
+  scrollbar-width:auto !important;
+}
+body > .tab-content.active{ display:block !important; }
+body > .tab-content::-webkit-scrollbar{ width:10px !important; height:10px !important; display:block !important; }
+body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border-radius:999px !important; }
+#combat > .sub-nav-container,
+#combat #c-abilities-main > .sub-nav-container,
+#skills .skills-view-toolbar,
+#skills .skills-editor-toolbar,
+#items .item-section-tabs,
+#other > .other-sub-tabs,
+#other .fantasy-calendar-nav{
+  position:sticky !important;
+  top:0 !important;
+  z-index:2200 !important;
+  background:var(--bg,#1a1a1a) !important;
+  border-bottom:1px solid var(--border,#333) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.32) !important;
+  margin-top:0 !important;
+}
+#combat > .sub-nav-container,
+#combat #c-abilities-main > .sub-nav-container,
+#items .item-section-tabs,
+#other > .other-sub-tabs,
+#other .fantasy-calendar-nav{ padding:8px 0 7px !important; }
+#combat > .sub-nav-container .sub-nav,
+#combat #c-abilities-main > .sub-nav-container .sub-nav,
+#items .item-section-tabs,
+#other > .other-sub-tabs{
+  max-width:900px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+#skills .skills-view-toolbar,
+#skills .skills-editor-toolbar{ padding:10px 12px !important; }
+.vital-number-grid.ma-v8-hp-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
+.vital-number-grid.ma-v8-mp-grid{ grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+.vital-number-grid input[readonly], .ma-v8-total input{ background:#141414 !important; color:var(--accent) !important; }
+.ma-v8-hidden{ display:none !important; }
+@media(max-width:700px){
+  body > .tab-content{ height:calc(100vh - 96px) !important; max-height:calc(100vh - 96px) !important; padding-bottom:150px !important; }
+  .vital-number-grid.ma-v8-hp-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
+  .vital-number-grid.ma-v8-mp-grid{ grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+}
+</style>
+<script>
+/* --- v8 clean final: HP Temp separate from Max Temp; MP current/total view --- */
+(function(){
+  const priorOpenStatEdit = window.openStatEdit;
+  function activeData(){
+    try { if (typeof getActiveData === 'function') return getActiveData() || {}; } catch(e) {}
+    try { if (typeof data === 'function') return data() || {}; } catch(e) {}
+    return {};
+  }
+  function cls(){
+    const probe=document.getElementById('hp_curr')||document.getElementById('mp_curr');
+    if(probe?.classList?.contains('save-field')) return 'save-field';
+    return 'live-field';
+  }
+  function ensureHidden(id, fallback='0'){
+    let el=document.getElementById(id);
+    if(!el){
+      el=document.createElement('input'); el.type='hidden'; el.id=id; el.className=cls(); document.body.appendChild(el);
+    }
+    if(el.type !== 'hidden') return el;
+    const d=activeData();
+    if((el.value === '' || el.value == null) && d[id] !== undefined && d[id] !== null && String(d[id]).trim() !== '') el.value=String(d[id]);
+    if(el.value === '' || el.value == null) el.value=String(fallback);
+    d[id]=el.value;
+    return el;
+  }
+  function num(id){ return Number(document.getElementById(id)?.value || activeData()[id] || 0) || 0; }
+  function setVal(id, value){
+    const el=document.getElementById(id); if(!el) return;
+    el.value=String(value);
+    activeData()[id]=String(value);
+  }
+  function labelFor(id, text){ const s=document.getElementById(id)?.closest('label')?.querySelector('small'); if(s) s.textContent=text; }
+  function refreshVitals(){
+    ensureHidden('hp_max','0'); ensureHidden('hp_max_temp','0'); ensureHidden('mp_max','0'); ensureHidden('mp_temp','0'); ensureHidden('mp_base','0'); ensureHidden('mp_bonus','0');
+    const hpGrid=document.getElementById('hp_curr')?.closest('.vital-number-grid');
+    if(hpGrid){
+      hpGrid.className='vital-number-grid ma-v8-hp-grid';
+      labelFor('hp_curr','Current'); labelFor('hp_temp','Temp'); labelFor('hp_effective_max','Total Max');
+      const hpCurr=document.getElementById('hp_curr'), hpTemp=document.getElementById('hp_temp'), hpTotal=document.getElementById('hp_effective_max');
+      if(hpCurr){ hpCurr.readOnly=false; hpCurr.removeAttribute('aria-readonly'); hpCurr.classList.remove('readonly-yellow'); }
+      if(hpTemp){ hpTemp.readOnly=false; hpTemp.removeAttribute('aria-readonly'); hpTemp.classList.remove('readonly-yellow'); }
+      if(hpTotal){ hpTotal.readOnly=true; hpTotal.setAttribute('aria-readonly','true'); hpTotal.value=String(Math.max(0, num('hp_max') + num('hp_max_temp'))); }
+    }
+    const mpGrid=document.getElementById('mp_curr')?.closest('.vital-number-grid');
+    if(mpGrid){
+      mpGrid.className='vital-number-grid ma-v8-mp-grid';
+      labelFor('mp_curr','Current'); labelFor('mp_effective_max','Total MP');
+      const mpCurr=document.getElementById('mp_curr'), mpTotal=document.getElementById('mp_effective_max');
+      if(mpCurr){ mpCurr.readOnly=false; mpCurr.removeAttribute('aria-readonly'); mpCurr.classList.remove('readonly-yellow'); }
+      if(mpTotal){ mpTotal.readOnly=true; mpTotal.setAttribute('aria-readonly','true'); mpTotal.value=String(Math.max(0, num('mp_max') + num('mp_temp'))); }
+    }
+  }
+  window.refreshEffectiveVitals = refreshVitals;
+  function mini(label,id,readonly=false){
+    const el=ensureHidden(id,'0');
+    const value=String(el.value||'0').replace(/"/g,'&quot;');
+    return '<div class="mini-field"><label>'+label+'</label><input type="number" '+(readonly?'readonly aria-readonly="true" class="graybase"':'data-ma-v8-field="'+id+'"')+' value="'+value+'"></div>';
+  }
+  function total(label,value){ return '<div class="mini-field"><label>'+label+'</label><div class="total-pill" id="maV8TotalPill">'+Math.max(0,Number(value)||0)+'</div></div>'; }
+  function bindEdit(body, ids, calc){
+    const recalc=()=>{ const p=body.querySelector('#maV8TotalPill'); if(p) p.textContent=String(Math.max(0, calc())); refreshVitals(); };
+    body.querySelectorAll('[data-ma-v8-field]').forEach(inp=>{
+      const run=()=>{ setVal(inp.dataset.maV8Field, inp.value || 0); const hidden=document.getElementById(inp.dataset.maV8Field); if(hidden){ hidden.dispatchEvent(new Event('input',{bubbles:true})); hidden.dispatchEvent(new Event('change',{bubbles:true})); } recalc(); try{ if(typeof save==='function') save(true); }catch(e){} };
+      inp.addEventListener('input',run); inp.addEventListener('change',run);
+    });
+    recalc();
+  }
+  window.openStatEdit = function(section){
+    const overlay=document.getElementById('statEditOverlay');
+    const body=document.getElementById('statEditBody');
+    const title=document.getElementById('statEditTitle');
+    if(!body) return typeof priorOpenStatEdit==='function' ? priorOpenStatEdit(section) : undefined;
+    if(section === 'hp'){
+      ensureHidden('hp_max','0'); ensureHidden('hp_max_temp','0');
+      if(title) title.textContent='Edit HP';
+      body.innerHTML='<div class="formula-line"><strong>HP Maximum</strong><div class="formula-parts">'+mini('Base','hp_max',true)+mini('Max Temp','hp_max_temp',false)+total('Total Max', num('hp_max')+num('hp_max_temp'))+'</div><div class="section-note">Current HP and Temp HP are edited on the HP card. Base is calculated from class HP. Max Temp modifies the total maximum.</div></div>';
+      bindEdit(body,['hp_max_temp'],()=>num('hp_max')+num('hp_max_temp'));
+      if(overlay) overlay.style.display='flex';
+      return;
+    }
+    if(section === 'mp'){
+      ensureHidden('mp_max','0'); ensureHidden('mp_temp','0'); ensureHidden('mp_base','0'); ensureHidden('mp_bonus','0');
+      if(title) title.textContent='Edit MP';
+      body.innerHTML='<div class="formula-line"><strong>MP Maximum</strong><div class="formula-parts">'+mini('Base','mp_base',true)+mini('Extra Conversion','mp_bonus',true)+mini('Max Temp','mp_temp',false)+total('Total MP', num('mp_max')+num('mp_temp'))+'</div><div class="section-note">Base and Extra Conversion come from class/spell data. Max Temp manually modifies Total MP.</div></div>';
+      bindEdit(body,['mp_temp'],()=>num('mp_max')+num('mp_temp'));
+      if(overlay) overlay.style.display='flex';
+      return;
+    }
+    return typeof priorOpenStatEdit==='function' ? priorOpenStatEdit(section) : undefined;
+  };
+  ['hp_curr','hp_temp','hp_max','hp_max_temp','mp_curr','mp_max','mp_temp','mp_base','mp_bonus','str','dex','con','int','wis','cha'].forEach(id=>{
+    document.addEventListener('input', e=>{ if(e.target && e.target.id===id) setTimeout(refreshVitals,0); }, true);
+    document.addEventListener('change', e=>{ if(e.target && e.target.id===id) setTimeout(refreshVitals,0); }, true);
+  });
+  const oldSwitchTab=window.switchTab;
+  window.switchTab=function(id){
+    if(typeof oldSwitchTab==='function') oldSwitchTab(id);
+    setTimeout(refreshVitals,0);
+  };
+  document.addEventListener('DOMContentLoaded', refreshVitals);
+  setTimeout(refreshVitals,50); setTimeout(refreshVitals,300); setTimeout(refreshVitals,1000);
+})();
 </script>
 </body>
 </html>
