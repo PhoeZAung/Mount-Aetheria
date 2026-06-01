@@ -1,0 +1,1 @@
+Trigger one-time HP/MP and scrolling tab repair for Edit-Mode.
