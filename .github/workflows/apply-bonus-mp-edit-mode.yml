@@ -149,3 +149,5 @@ function maV4TotalMpWithBonus(lib, sel){
           fi
           git commit -m "Add FFD20 bonus MP to character totals"
           git push origin HEAD:Edit-Mode
+
+# trigger: 2026-06-02 bonus-mp
