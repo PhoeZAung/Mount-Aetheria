@@ -1696,7 +1696,7 @@ setTimeout(() => {
     <button id="skillsEnterEditBtn" class="skills-mode-btn" type="button" onclick="toggleSkillEditMode(true)" aria-label="Edit skills">✏️ Edit Skills</button>
   </div>
   <div class="skills-editor-toolbar" aria-label="Skill editing controls">
-    <div class="skill-points-wrap"><span>Unused Skill Points</span><input id="skill_points" class="save-field" type="number" min="0" step="1" aria-label="Unused skill points" readonly><button id="skillPointsEditBtn" class="skill-points-edit-btn" type="button" onclick="toggleSkillPointEdit()" title="Edit unused skill points" aria-label="Edit unused skill points">✎</button></div>
+    <div class="skill-points-wrap"><span>Unused Skill Points</span><input id="skill_points" class="save-field" type="number" min="0" step="1" aria-label="Unused skill points" readonly title="Skill points are earned from class levels and spent by adding ranks."></div>
     <button id="skillsExitEditBtn" class="skills-mode-btn" type="button" onclick="toggleSkillEditMode(false)" aria-label="Finish editing skills">✓ Done</button>
   </div>
   <div id="mobileSkillHeader" style="display:none; color:#888; font-size:12px;"><span style="display:inline-block; width:40%;"></span><span style="display:inline-block; width:18%; text-align:right;">TEMP</span><span style="display:inline-block; width:21%; text-align:right;">RANKS</span><span style="display:inline-block; width:21%; text-align:right;">TOTAL</span></div>
@@ -2706,15 +2706,12 @@ function setUnusedSkillPoints(value) {
 function sanitizeSkillPoolUi() {
     const el = getSkillPointsEl();
     if(!el) return;
-    const unlocked = document.body.classList.contains('skill-edit-mode') && document.body.classList.contains('skill-points-unlocked');
-    el.readOnly = !unlocked;
-    el.setAttribute('aria-readonly', unlocked ? 'false' : 'true');
+    el.readOnly = true;
+    el.setAttribute('aria-readonly', 'true');
+    el.title = 'Skill points are calculated from class levels and spent by adding skill ranks.';
     const btn = document.getElementById('skillPointsEditBtn');
     if(btn) {
-        btn.textContent = unlocked ? '✓' : '✎';
-        btn.classList.toggle('unlocked', unlocked);
-        btn.title = unlocked ? 'Finish editing unused skill points' : 'Edit unused skill points';
-        btn.setAttribute('aria-label', btn.title);
+        btn.remove();
     }
 }
 function applySkillRankChange(input) {
@@ -2803,15 +2800,9 @@ window.toggleSkillEditMode = (force) => {
     const next = (typeof force === 'boolean') ? force : !document.body.classList.contains('skill-edit-mode');
     applySkillEditMode(next);
 };
-window.toggleSkillPointEdit = (force) => {
-    if(!document.body.classList.contains('skill-edit-mode')) return;
-    const currentlyUnlocked = document.body.classList.contains('skill-points-unlocked');
-    const unlock = (typeof force === 'boolean') ? force : !currentlyUnlocked;
-    document.body.classList.toggle('skill-points-unlocked', unlock);
+window.toggleSkillPointEdit = () => {
     sanitizeSkillPoolUi();
-    const el = getSkillPointsEl();
-    if(unlock && el) { el.focus(); el.select(); }
-    if(!unlock) { setUnusedSkillPoints(getUnusedSkillPoints()); triggerSave(); }
+    alert('Unused skill points are calculated from class level-ups. Spend them by adding skill ranks.');
 };
 
 function bindSkillRowEvents(row) {
@@ -5613,8 +5604,33 @@ function maFfd20Dialog(title, bodyHtml, confirmText='Save'){
     overlay.className = 'ffd20-modal-overlay show';
     overlay.innerHTML = `<div class="ffd20-modal"><div class="ffd20-modal-head"><h3>${maFfd20Esc(title)}</h3><button class="btn-close" type="button" data-close>&times;</button></div><div class="ffd20-modal-body">${bodyHtml}</div><div class="ffd20-modal-actions"><button class="ffd20-mini-btn" type="button" data-close>Cancel</button><button class="btn-save" type="button" data-confirm>${maFfd20Esc(confirmText)}</button></div></div>`;
     document.body.appendChild(overlay);
+    const confirmBtn = overlay.querySelector('[data-confirm]');
+    const refreshRequiredPicks = () => {
+      const missing = Array.from(overlay.querySelectorAll('[data-required-pick="true"]')).some(el => !String(el.value || '').trim());
+      if(confirmBtn){
+        confirmBtn.disabled = missing;
+        confirmBtn.classList.toggle('disabled', missing);
+        confirmBtn.title = missing ? 'Pick the required option first.' : '';
+        confirmBtn.setAttribute('aria-disabled', missing ? 'true' : 'false');
+      }
+    };
     overlay.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => { overlay.remove(); resolve(null); }));
-    overlay.querySelector('[data-confirm]')?.addEventListener('click', () => { resolve(overlay); overlay.remove(); });
+    overlay.addEventListener('change', event => {
+      if(event.target?.matches?.('[data-required-pick="true"]')) refreshRequiredPicks();
+    });
+    overlay.addEventListener('input', event => {
+      if(event.target?.matches?.('[data-required-pick="true"]')) refreshRequiredPicks();
+    });
+    confirmBtn?.addEventListener('click', () => {
+      refreshRequiredPicks();
+      if(confirmBtn.disabled){
+        alert('Please pick the required ability score before applying.');
+        return;
+      }
+      resolve(overlay);
+      overlay.remove();
+    });
+    setTimeout(refreshRequiredPicks, 0);
   });
 }
 async function maFfd20HandleLevelChanged(event){
@@ -5874,8 +5890,8 @@ setTimeout(() => { maFfd20BuildChoiceGrid(true); maFfd20RefreshOptions(); maFfd2
 
 function maFfd20CreateMilestoneFields(level){
   const milestones = [4,8,12,16,20].filter(x => x <= level);
-  if(!milestones.length) return '<div class="ffd20-choice-note">No ability-score increase before this starting level.</div>';
-  return `<div class="ffd20-milestone-grid">${milestones.map(l => `<label>Level ${l} ability +1<select data-create-ability-level="${l}">${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div>`;
+  if(!milestones.length) return '';
+  return `<div class="ffd20-milestone-grid">${milestones.map(l => `<label>Level ${l} ability +1<select data-create-ability-level="${l}" data-required-pick="true"><option value="">Pick</option>${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div>`;
 }
 async function maFfd20OpenCreationWizard(){
   if(MA_FFD20_IS_ADMIN) return;
@@ -6076,32 +6092,43 @@ function maV4Formula(t){
   return t.rows.map(r=>`${r.label} ${r.level}: d${r.die}, HP ${r.hpGain}, skill ${r.skillGain}, BAB ${maV4Plus(r.prog.bab)}, saves ${maV4Plus(r.prog.fort)}/${maV4Plus(r.prog.ref)}/${maV4Plus(r.prog.will)}${r.prog.hasMp ? `, MP ${r.prog.mp}` : ''}`).join(' · ') || 'No class data found.';
 }
 function maV4LevelList(oldTotal,newTotal,pred){ const out=[]; for(let l=oldTotal+1;l<=newTotal;l++){ if(pred(l)) out.push(l); } return out; }
-async function maV4LevelUpOverlay(lib, oldSel, newSel, label){
+async async function maV4LevelUpOverlay(lib, oldSel, newSel, label){
   const oldTotal = maV4TotalLevel(oldSel), newTotal = maV4TotalLevel(newSel);
   if(newTotal <= oldTotal) return {oldTotals:maV4Totals(lib, oldSel), newTotals:maV4Totals(lib, newSel), pickedStats:[]};
   const oldTotals = maV4Totals(lib, oldSel), newTotals = maV4Totals(lib, newSel);
   const feats = maV4LevelList(oldTotal, newTotal, l=>l%2===1 && l>1);
   const abilityLevels = maV4LevelList(oldTotal, newTotal, l=>[4,8,12,16,20].includes(l));
-  const abilityHtml = abilityLevels.length
-    ? `<div class="ma-levelup-picks">${abilityLevels.map(l=>`<label>Level ${l} +1<select data-ability-level="${l}">${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div>`
-    : '<div class="ma-levelup-note">No ability score increase crossed.</div>';
   const abilities = maV4FeatureNamesBetween(lib, oldSel, newSel);
+  const featSection = feats.length
+    ? `<div class="ma-levelup-section"><h4>Feats</h4><div class="ma-levelup-pill-list">${feats.map(l=>`<span class="ma-levelup-pill ma-levelup-feat">Feat gained at level ${l}</span>`).join('')}</div></div>`
+    : '';
+  const abilitySection = abilityLevels.length
+    ? `<div class="ma-levelup-section ma-levelup-ability-required"><h4>Ability Score</h4><div class="ma-levelup-picks">${abilityLevels.map(l=>`<label>Level ${l} +1<select data-ability-level="${l}" data-required-pick="true"><option value="">Pick</option>${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div><div class="ma-levelup-note">Ability score pick is required before applying the level-up.</div></div>`
+    : '';
+  const classAbilitySection = abilities.length
+    ? `<div class="ma-levelup-section"><h4>New Class Abilities</h4><div class="ma-levelup-pill-list">${abilities.map(n=>`<span class="ma-levelup-pill">${maFfd20Esc(n)}</span>`).join('')}</div></div>`
+    : '';
   const body = `
     <div class="ma-levelup-hero"><div class="ma-levelup-runes"><i></i><i></i><i></i><i></i><i></i></div><div class="ma-levelup-title">LEVEL UP</div><div class="ma-levelup-sub">${maFfd20Esc(label)} · Character Level ${oldTotal} → ${newTotal}</div></div>
     <div class="ma-levelup-grid">
       <div class="ma-levelup-card"><small>HP</small><strong>${maV4Plus(newTotals.hp-oldTotals.hp)}</strong><span>Auto base max: ${newTotals.hp}</span></div>
-      <div class="ma-levelup-card"><small>Skill</small><strong>${maV4Plus(newTotals.skill-oldTotals.skill)}</strong><span>Total class skill points: ${newTotals.skill}</span></div>
+      <div class="ma-levelup-card"><small>Skill</small><strong>${maV4Plus(newTotals.skill-oldTotals.skill)}</strong><span>Added to unused points</span></div>
       <div class="ma-levelup-card"><small>BAB</small><strong>${maV4Plus(newTotals.bab)}</strong><span>${maV4Plus(newTotals.bab-oldTotals.bab)} from this change</span></div>
       <div class="ma-levelup-card"><small>Saves</small><strong>${maV4Plus(newTotals.fort)}/${maV4Plus(newTotals.ref)}/${maV4Plus(newTotals.will)}</strong><span>Fort / Ref / Will</span></div>
       <div class="ma-levelup-card"><small>MP</small><strong>${newTotals.hasMp ? newTotals.mp : '—'}</strong><span>${newTotals.hasMp ? `${maV4Plus(newTotals.mp-oldTotals.mp)} from MP table` : 'No MP table for this class'}</span></div>
     </div>
-    <div class="ma-levelup-section"><h4>Feats</h4><div class="ma-levelup-pill-list">${feats.length ? feats.map(l=>`<span class="ma-levelup-pill ma-levelup-feat">Feat gained at level ${l}</span>`).join('') : '<span class="ma-levelup-note">No odd-level feat crossed.</span>'}</div></div>
-    <div class="ma-levelup-section ${abilityLevels.length?'ma-levelup-ability-required':''}"><h4>Ability Score</h4>${abilityHtml}</div>
-    <div class="ma-levelup-section"><h4>New Class Abilities</h4><div class="ma-levelup-pill-list">${abilities.length ? abilities.map(n=>`<span class="ma-levelup-pill">${maFfd20Esc(n)}</span>`).join('') : '<span class="ma-levelup-note">No new class abilities found in the data.</span>'}</div></div>
+    ${featSection}
+    ${abilitySection}
+    ${classAbilitySection}
     <div class="ma-levelup-section"><h4>Class Math</h4><div class="ma-levelup-note">${maFfd20Esc(maV4Formula(newTotals))}</div></div>`;
   const overlay = await maFfd20Dialog('Level Up', body, 'Apply Level Up');
   if(!overlay) return null;
-  return {oldTotals, newTotals, pickedStats:Array.from(overlay.querySelectorAll('[data-ability-level]')).map(s=>s.value).filter(Boolean)};
+  const pickedStats = Array.from(overlay.querySelectorAll('[data-ability-level]')).map(s=>s.value).filter(Boolean);
+  if(abilityLevels.length && pickedStats.length !== abilityLevels.length){
+    alert('Please pick an ability score for every ability-score increase.');
+    return null;
+  }
+  return {oldTotals, newTotals, pickedStats};
 }
 function maV4ApplyAbilityPicks(picks){
   (picks || []).forEach(stat=>{
@@ -6457,8 +6484,8 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     const out=[]; for(let i=oldLevel+1;i<=newLevel;i++){ if(predicate(i)) out.push(i); } return out;
   }
   function maAbilityPicksHtml(milestones){
-    if(!milestones.length) return '<div class="ma-levelup-note">No ability-score increase crossed on this class save.</div>';
-    return `<div class="ma-levelup-picks">${milestones.map(l => `<label>Level ${l} +1<select data-ability-level="${l}">${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div><div class="ma-levelup-note">Ability score pick is required before applying the level-up.</div>`;
+    if(!milestones.length) return '';
+    return `<div class="ma-levelup-picks">${milestones.map(l => `<label>Level ${l} +1<select data-ability-level="${l}" data-required-pick="true"><option value="">Pick</option>${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div><div class="ma-levelup-note">Ability score pick is required before applying the level-up.</div>`;
   }
   function maFeatureNamesBetween(lib, oldSel, newSel){
     const oldRows = new Map(maClassEntryList(lib, oldSel).map(r => [r.slot, r]));
@@ -6491,23 +6518,37 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     const feats = maLevelsBetween(oldTotalLevel, newTotalLevel, l => l % 2 === 1 && l > 1);
     const milestones = maLevelsBetween(oldTotalLevel, newTotalLevel, l => [4,8,12,16,20].includes(l));
     const abilities = maFeatureNamesBetween(lib, oldSel, newSel);
+    const featSection = feats.length
+      ? `<div class="ma-levelup-section"><h4>Feats</h4><div class="ma-levelup-pill-list">${feats.map(l=>`<span class="ma-levelup-pill ma-levelup-feat">Feat gained at level ${l}</span>`).join('')}</div></div>`
+      : '';
+    const abilitySection = milestones.length
+      ? `<div class="ma-levelup-section ma-levelup-ability-required"><h4>Ability Score</h4>${maAbilityPicksHtml(milestones)}</div>`
+      : '';
+    const classAbilitySection = abilities.length
+      ? `<div class="ma-levelup-section"><h4>New Class Abilities</h4><div class="ma-levelup-pill-list">${abilities.map(n=>`<span class="ma-levelup-pill">${maFfd20Esc(n)}</span>`).join('')}</div></div>`
+      : '';
     const body = `
       <div class="ma-levelup-hero"><div class="ma-levelup-runes"><i></i><i></i><i></i><i></i><i></i></div><div class="ma-levelup-title">LEVEL UP</div><div class="ma-levelup-sub">${maFfd20Esc(slotLabel)} · Character Level ${oldTotalLevel} → ${newTotalLevel}</div></div>
       <div class="ma-levelup-grid">
         <div class="ma-levelup-card"><small>HP</small><strong>${plus(hpDelta)}</strong><span>New auto max: ${newTotals.hp}</span></div>
-        <div class="ma-levelup-card"><small>Skill Points</small><strong>${plus(skillDelta)}</strong><span>Unused points added</span></div>
+        <div class="ma-levelup-card"><small>Skill Points</small><strong>${plus(skillDelta)}</strong><span>Added to unused points</span></div>
         <div class="ma-levelup-card"><small>BAB</small><strong>${plus(newTotals.bab)}</strong><span>${plus(newTotals.bab-oldTotals.bab)} from this change</span></div>
         <div class="ma-levelup-card"><small>Saves</small><strong>${plus(newTotals.fort)}/${plus(newTotals.ref)}/${plus(newTotals.will)}</strong><span>Fort / Ref / Will</span></div>
         <div class="ma-levelup-card"><small>MP</small><strong>${newTotals.hasMp ? newTotals.mp : '—'}</strong><span>${newTotals.hasMp ? `${plus(newTotals.mp-oldTotals.mp)} from tables` : 'No MP table'}</span></div>
       </div>
-      <div class="ma-levelup-section"><h4>Feats</h4><div class="ma-levelup-pill-list">${feats.length ? feats.map(l=>`<span class="ma-levelup-pill ma-levelup-feat">Feat gained at level ${l}</span>`).join('') : '<span class="ma-levelup-note">No odd-level feat crossed.</span>'}</div></div>
-      <div class="ma-levelup-section ${milestones.length?'ma-levelup-ability-required':''}"><h4>Ability Score</h4>${maAbilityPicksHtml(milestones)}</div>
-      <div class="ma-levelup-section"><h4>New Class Abilities</h4><div class="ma-levelup-pill-list">${abilities.length ? abilities.map(n=>`<span class="ma-levelup-pill">${maFfd20Esc(n)}</span>`).join('') : '<span class="ma-levelup-note">No new class abilities found in the scraper data for this increase.</span>'}</div></div>
+      ${featSection}
+      ${abilitySection}
+      ${classAbilitySection}
       <div class="ma-levelup-section"><h4>Class Math</h4><div class="ma-levelup-note">${maFfd20Esc(maClassFormulaLine(newTotals))}</div></div>
     `;
     const overlay = await maFfd20Dialog('Level Up', body, 'Apply Level Up');
     if(!overlay) return null;
-    return { oldTotals, newTotals, pickedStats:Array.from(overlay.querySelectorAll('[data-ability-level]')).map(sel => sel.value).filter(Boolean) };
+    const pickedStats = Array.from(overlay.querySelectorAll('[data-ability-level]')).map(sel => sel.value).filter(Boolean);
+    if(milestones.length && pickedStats.length !== milestones.length){
+      alert('Please pick an ability score for every ability-score increase.');
+      return null;
+    }
+    return { oldTotals, newTotals, pickedStats };
   }
   function maApplyAbilityPicks(pickedStats){
     (pickedStats || []).forEach(stat => {
@@ -6531,9 +6572,9 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     const d = data();
     const prevHpMax = Number(d.hp_max || document.getElementById('hp_max')?.value || oldTotals.hp) || oldTotals.hp;
     const hpGain = finalTotals.hp - prevHpMax;
-    const hpTemp = Number(d.hp_temp || document.getElementById('hp_temp')?.value || 0) || 0;
+    const hpMaxTemp = Number(d.hp_max_temp || document.getElementById('hp_max_temp')?.value || 0) || 0;
     const curHp = Number(d.hp_curr || document.getElementById('hp_curr')?.value || 0) || 0;
-    const newEffectiveHpMax = Math.max(0, finalTotals.hp + hpTemp);
+    const newEffectiveHpMax = Math.max(0, finalTotals.hp + hpMaxTemp);
     const newHpCurr = levelResult ? Math.min(newEffectiveHpMax, Math.max(0, curHp + Math.max(0,hpGain))) : Math.min(curHp || newEffectiveHpMax, newEffectiveHpMax);
     setBaseField('hp_max', finalTotals.hp);
     setBaseField('hp_curr', newHpCurr);
@@ -6548,10 +6589,10 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     }
     const oldMpMax = Number(d.mp_max || document.getElementById('mp_max')?.value || oldTotals.mp) || oldTotals.mp;
     maSetCoreProgressionFields(finalTotals);
-    const mpTemp = Number(d.mp_temp || document.getElementById('mp_temp')?.value || 0) || 0;
+    const mpMaxTemp = Number(d.mp_max_temp || document.getElementById('mp_max_temp')?.value || 0) || 0;
     const curMp = Number(d.mp_curr || document.getElementById('mp_curr')?.value || 0) || 0;
     const mpGain = (finalTotals.hasMp ? finalTotals.mp : 0) - oldMpMax;
-    const effectiveMpMax = Math.max(0, (finalTotals.hasMp ? finalTotals.mp : 0) + mpTemp);
+    const effectiveMpMax = Math.max(0, (finalTotals.hasMp ? finalTotals.mp : 0) + mpMaxTemp);
     const newMpCurr = finalTotals.hasMp ? (levelResult ? Math.min(effectiveMpMax, Math.max(0, curMp + Math.max(0,mpGain))) : Math.min(curMp || effectiveMpMax, effectiveMpMax)) : 0;
     setBaseField('mp_curr', newMpCurr);
     refreshCards(finalTotals);
@@ -7070,48 +7111,7 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     if(!totals?.rows?.length) return 'No class data found.';
     return totals.rows.map(r => `${r.label} ${r.level}: d${r.die}, ${r.skillBase}+INT skill, BAB ${plus(r.prog.babValue||0)}, saves ${plus(r.prog.fortValue||0)}/${plus(r.prog.refValue||0)}/${plus(r.prog.willValue||0)}${r.prog.hasExplicitMp ? `, MP ${r.prog.mpValue||0} + bonus ${r.bonusMp||0} (CON, max spell ${r.spellLevel})` : ''}`).join(' · ');
   };
-  const maV5PreviousOpenStatEdit = window.openStatEdit;
-  function maV5EditField(label,id, opts={}){
-    const el = document.getElementById(id);
-    const value = el?.value ?? data()[id] ?? opts.defaultValue ?? '';
-    const ro = opts.readonly ? 'readonly aria-readonly="true"' : `data-stat-field="${id}"`;
-    const cls = opts.readonly ? 'graybase' : '';
-    return `<div class="mini-field"><label>${label}</label><input class="${cls}" ${ro} type="number" value="${String(value).replace(/"/g,'&quot;')}"></div>`;
-  }
-  function maV5TotalPill(value){ return `<div class="total-pill">${Math.max(0, Number(value)||0)}</div>`; }
-  function maV5ApplyStatInput(input, section){
-    const id = input.dataset.statField;
-    if(!id) return;
-    const target = maV5RuntimeField(id, '0');
-    target.value = String(input.value || 0);
-    data()[id] = target.value;
-    target.dispatchEvent(new Event('input', {bubbles:true}));
-    target.dispatchEvent(new Event('change', {bubbles:true}));
-    if(typeof window.refreshEffectiveVitals === 'function') window.refreshEffectiveVitals();
-    if(section === 'hp' || section === 'mp') setTimeout(()=>window.openStatEdit(section), 0);
-  }
-  window.openStatEdit = function(section){
-    maV5EnsureRuntimeFields();
-    if(section !== 'hp' && section !== 'mp') return maV5PreviousOpenStatEdit ? maV5PreviousOpenStatEdit(section) : undefined;
-    const body = document.getElementById('statEditBody'); const title = document.getElementById('statEditTitle'); if(!body) return;
-    if(section === 'hp'){
-      const total = Math.max(0, (Number(document.getElementById('hp_max')?.value || data().hp_max || 0)||0) + (Number(document.getElementById('hp_max_temp')?.value || data().hp_max_temp || 0)||0));
-      if(title) title.textContent = 'Edit HP Max';
-      body.innerHTML = `<div class="formula-line"><strong>HP Maximum</strong><div class="formula-parts">${maV5EditField('Base','hp_max',{readonly:true})}${maV5EditField('Max Temp','hp_max_temp')}${maV5TotalPill(total)}</div><div class="section-note">Current HP and temporary shield HP are adjusted on the base HP card.</div></div>`;
-    } else {
-      const total = Math.max(0, (Number(document.getElementById('mp_max')?.value || data().mp_max || 0)||0) + (Number(document.getElementById('mp_temp')?.value || data().mp_temp || 0)||0));
-      if(title) title.textContent = 'Edit MP Max';
-      body.innerHTML = `<div class="formula-line"><strong>MP Maximum</strong><div class="formula-parts">${maV5EditField('Base','mp_base',{readonly:true})}${maV5EditField('Extra Conversion','mp_bonus',{readonly:true})}${maV5EditField('Max Temp','mp_temp')}${maV5TotalPill(total)}</div><div class="section-note">Base MP comes from class progression; Extra Conversion uses CON and highest spell level available.</div></div>`;
-    }
-    body.querySelectorAll('[data-stat-field]').forEach(input => {
-      input.addEventListener('input', () => maV5ApplyStatInput(input, section));
-      input.addEventListener('change', () => maV5ApplyStatInput(input, section));
-    });
-    const overlay = document.getElementById('statEditOverlay'); if(overlay) overlay.style.display = 'flex';
-  };
-
-
-  function installBuildClickDelegates(){
+    function installBuildClickDelegates(){
     if(document.body.dataset.maBuildClickDelegate === '1') return;
     document.body.dataset.maBuildClickDelegate = '1';
     document.addEventListener('click', event => {
