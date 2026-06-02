@@ -1166,116 +1166,8 @@ body:not(.skill-edit-mode) .skill-stat-tag{font-size:10px !important;margin-left
 @media(max-width:850px){ .ffd20-bio-three-col,.ffd20-modal-grid{ grid-template-columns:1fr; } }
 </style>
 
-<style>
-/* --- Character page scroll fix --- */
-html, body { min-height:100%; height:auto; overflow-y:auto; }
-body { display:block; }
-.tab-content { overflow:visible; padding-bottom:120px; }
-.main-tabs { position:sticky; top:50px; }
-</style>
 
 
-
-<style>
-/* --- v3 repair: separate main tabs from inner tabs and prevent overlap --- */
-html, body {
-  height:100vh !important;
-  min-height:100vh !important;
-  overflow:hidden !important;
-}
-body {
-  display:flex !important;
-  flex-direction:column !important;
-  padding-top:50px !important;
-  padding-bottom:0 !important;
-}
-.top-nav {
-  position:fixed !important;
-  top:0 !important;
-  left:0 !important;
-  right:0 !important;
-  height:50px !important;
-  z-index:3000 !important;
-}
-.main-tabs {
-  position:relative !important;
-  top:auto !important;
-  z-index:1200 !important;
-  flex:0 0 auto !important;
-  min-height:46px !important;
-  max-height:46px !important;
-}
-.tab-content {
-  flex:1 1 auto !important;
-  min-height:0 !important;
-}
-.tab-content.active {
-  display:block !important;
-  overflow-y:auto !important;
-  overflow-x:hidden !important;
-  height:auto !important;
-  max-height:none !important;
-  min-height:0 !important;
-  padding-bottom:130px !important;
-  overscroll-behavior:contain;
-}
-.sub-nav-container,
-.other-sub-tabs,
-.item-section-tabs,
-.skills-view-toolbar,
-.skills-editor-toolbar,
-.sheet-toolbar,
-.fantasy-calendar-nav {
-  position:sticky !important;
-  top:0 !important;
-  z-index:700 !important;
-  background:var(--bg, #1a1a1a) !important;
-  padding-top:8px !important;
-  margin-top:0 !important;
-}
-.sheet-toolbar {
-  border-bottom:1px solid var(--border, #333) !important;
-}
-.sub-nav,
-.other-sub-tabs,
-.item-section-tabs {
-  flex-wrap:wrap !important;
-}
-#combatSubNav,
-#abilitiesSubSubNav {
-  position:relative !important;
-  z-index:710 !important;
-}
-.other-sub-panel.active,
-.sub-group.active,
-.sub-sub-group.active {
-  overflow:visible !important;
-  max-height:none !important;
-}
-#items.active,
-#other.active,
-#combat.active,
-#skills.active,
-#character.active {
-  overflow-y:auto !important;
-  overflow-x:hidden !important;
-}
-@media(max-width:700px){
-  body { padding-top:50px !important; }
-  .main-tabs { min-height:44px !important; max-height:none !important; }
-  .tab-content.active { padding-bottom:165px !important; }
-  .sub-nav-container,
-  .other-sub-tabs,
-  .item-section-tabs,
-  .skills-view-toolbar,
-  .skills-editor-toolbar,
-  .sheet-toolbar,
-  .fantasy-calendar-nav {
-    top:0 !important;
-    z-index:700 !important;
-  }
-}
-</style>
 
 
 <style>
@@ -1306,24 +1198,9 @@ body > .tab-content.active{
   padding-bottom:150px !important;
   min-height:0 !important;
 }
-.tab-content.active > .sub-nav-container,
-.tab-content.active > .other-sub-tabs,
-#items.active .item-section-tabs,
-#skills.active .skills-view-toolbar{
-  position:sticky !important;
-  top:0 !important;
-  z-index:1800 !important;
-  background:var(--bg,#1a1a1a) !important;
-  padding-top:6px !important;
-}
-#combat.active .sub-nav-container{ border-bottom:1px solid var(--border,#333); }
-.vital-number-grid.ma-vitals-v4{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
-.vital-number-grid.ma-vitals-v4 label.ma-vital-temp-hidden{ display:none !important; }
-.vital-number-grid.ma-vitals-v4 .ma-vital-display-max input{ background:#141414 !important; color:var(--accent) !important; }
 @media(max-width:700px){
   body > .main-tabs{height:46px !important;}
   body > .tab-content.active{height:calc(100vh - 96px) !important;max-height:calc(100vh - 96px) !important;padding-bottom:170px !important;}
-  .vital-number-grid.ma-vitals-v4{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
 }
 </style>
 
@@ -6637,28 +6514,7 @@ function maV4ApplyAbilityPicks(picks){
     maV4Set(stat, cur+1);
   });
 }
-function maV4RefreshVitalsDisplay(){
-  [['hp','HP'],['mp','MP']].forEach(([prefix])=>{
-    const curr = document.getElementById(prefix+'_curr');
-    const base = document.getElementById(prefix+'_max');
-    const temp = document.getElementById(prefix+'_temp');
-    const grid = curr?.closest('.vital-number-grid');
-    if(!grid) return;
-    grid.classList.remove('vital-four');
-    grid.classList.add('ma-vitals-v4');
-    const currSmall = curr.closest('label')?.querySelector('small'); if(currSmall) currSmall.textContent='Current';
-    const baseLabel = base?.closest('label'); const baseSmall = baseLabel?.querySelector('small'); if(baseSmall) baseSmall.textContent='Base';
-    const tempLabel = temp?.closest('label'); if(tempLabel) tempLabel.classList.add('ma-vital-temp-hidden');
-    let max = document.getElementById(prefix+'_effective_max');
-    if(!max){
-      const wrap = document.createElement('label');
-      wrap.className = 'ma-vital-display-max';
-      wrap.innerHTML = `<small>Max</small><input id="${prefix}_effective_max" type="number" readonly aria-readonly="true" class="main-vital-input readonly-yellow">`;
-      grid.appendChild(wrap); max = wrap.querySelector('input');
-    }
-    max.value = String(Math.max(0, maV4Num(prefix+'_max') + maV4Num(prefix+'_temp')));
-  });
-}
+
 window.refreshEffectiveVitals = maV4RefreshVitalsDisplay;
 function maV4ApplyTotals(lib, oldSel, newSel, result=null){
   maV4ApplyAbilityPicks(result?.pickedStats || []);
@@ -7965,46 +7821,6 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     if(!totals?.rows?.length) return 'No class data found.';
     return totals.rows.map(r => `${r.label} ${r.level}: d${r.die}, ${r.skillBase}+INT skill, BAB ${plus(r.prog.babValue||0)}, saves ${plus(r.prog.fortValue||0)}/${plus(r.prog.refValue||0)}/${plus(r.prog.willValue||0)}${r.prog.hasExplicitMp ? `, MP ${r.prog.mpValue||0} + bonus ${r.bonusMp||0} (CON, max spell ${r.spellLevel})` : ''}`).join(' · ');
   };
-  const maV5PreviousOpenStatEdit = window.openStatEdit;
-  function maV5EditField(label,id, opts={}){
-    const el = document.getElementById(id);
-    const value = el?.value ?? data()[id] ?? opts.defaultValue ?? '';
-    const ro = opts.readonly ? 'readonly aria-readonly="true"' : `data-stat-field="${id}"`;
-    const cls = opts.readonly ? 'graybase' : '';
-    return `<div class="mini-field"><label>${label}</label><input class="${cls}" ${ro} type="number" value="${String(value).replace(/"/g,'&quot;')}"></div>`;
-  }
-  function maV5TotalPill(value){ return `<div class="total-pill">${Math.max(0, Number(value)||0)}</div>`; }
-  function maV5ApplyStatInput(input, section){
-    const id = input.dataset.statField;
-    if(!id) return;
-    const target = maV5RuntimeField(id, '0');
-    target.value = String(input.value || 0);
-    data()[id] = target.value;
-    target.dispatchEvent(new Event('input', {bubbles:true}));
-    target.dispatchEvent(new Event('change', {bubbles:true}));
-    if(typeof window.refreshEffectiveVitals === 'function') window.refreshEffectiveVitals();
-    if(section === 'hp' || section === 'mp') setTimeout(()=>window.openStatEdit(section), 0);
-  }
-  window.openStatEdit = function(section){
-    maV5EnsureRuntimeFields();
-    if(section !== 'hp' && section !== 'mp') return maV5PreviousOpenStatEdit ? maV5PreviousOpenStatEdit(section) : undefined;
-    const body = document.getElementById('statEditBody'); const title = document.getElementById('statEditTitle'); if(!body) return;
-    if(section === 'hp'){
-      const total = Math.max(0, (Number(document.getElementById('hp_max')?.value || data().hp_max || 0)||0) + (Number(document.getElementById('hp_max_temp')?.value || data().hp_max_temp || 0)||0));
-      if(title) title.textContent = 'Edit HP Max';
-      body.innerHTML = `<div class="formula-line"><strong>HP Maximum</strong><div class="formula-parts">${maV5EditField('Base','hp_max',{readonly:true})}${maV5EditField('Max Temp','hp_max_temp')}${maV5TotalPill(total)}</div><div class="section-note">Current HP and temporary shield HP are adjusted on the base HP card.</div></div>`;
-    } else {
-      const total = Math.max(0, (Number(document.getElementById('mp_max')?.value || data().mp_max || 0)||0) + (Number(document.getElementById('mp_temp')?.value || data().mp_temp || 0)||0));
-      if(title) title.textContent = 'Edit MP Max';
-      body.innerHTML = `<div class="formula-line"><strong>MP Maximum</strong><div class="formula-parts">${maV5EditField('Base','mp_base',{readonly:true})}${maV5EditField('Extra Conversion','mp_bonus',{readonly:true})}${maV5EditField('Max Temp','mp_temp')}${maV5TotalPill(total)}</div><div class="section-note">Base MP comes from class progression; Extra Conversion uses CON and highest spell level available.</div></div>`;
-    }
-    body.querySelectorAll('[data-stat-field]').forEach(input => {
-      input.addEventListener('input', () => maV5ApplyStatInput(input, section));
-      input.addEventListener('change', () => maV5ApplyStatInput(input, section));
-    });
-    const overlay = document.getElementById('statEditOverlay'); if(overlay) overlay.style.display = 'flex';
-  };
-
 
   function installBuildClickDelegates(){
     if(document.body.dataset.maBuildClickDelegate === '1') return;
