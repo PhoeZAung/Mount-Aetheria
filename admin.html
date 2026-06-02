@@ -6092,7 +6092,7 @@ function maV4Formula(t){
   return t.rows.map(r=>`${r.label} ${r.level}: d${r.die}, HP ${r.hpGain}, skill ${r.skillGain}, BAB ${maV4Plus(r.prog.bab)}, saves ${maV4Plus(r.prog.fort)}/${maV4Plus(r.prog.ref)}/${maV4Plus(r.prog.will)}${r.prog.hasMp ? `, MP ${r.prog.mp}` : ''}`).join(' · ') || 'No class data found.';
 }
 function maV4LevelList(oldTotal,newTotal,pred){ const out=[]; for(let l=oldTotal+1;l<=newTotal;l++){ if(pred(l)) out.push(l); } return out; }
-async async async async function maV4LevelUpOverlay(lib, oldSel, newSel, label){
+async async async async async function maV4LevelUpOverlay(lib, oldSel, newSel, label){
   const oldTotal = maV4TotalLevel(oldSel), newTotal = maV4TotalLevel(newSel);
   if(newTotal <= oldTotal) return {oldTotals:maV4Totals(lib, oldSel), newTotals:maV4Totals(lib, newSel), pickedStats:[]};
   const oldTotals = maV4Totals(lib, oldSel), newTotals = maV4Totals(lib, newSel);
