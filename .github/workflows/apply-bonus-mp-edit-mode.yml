@@ -1,0 +1,151 @@
+name: Apply Bonus MP to Edit Mode
+
+on:
+  push:
+    branches: [Edit-Mode]
+    paths:
+      - '.github/workflows/apply-bonus-mp-edit-mode.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: Edit-Mode
+      - name: Patch characters.html bonus MP calculation
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('characters.html')
+          text = p.read_text(encoding='utf-8')
+          old = text
+
+          helper_anchor = "function maV4Totals(lib, sel){\n"
+          helper = r"""
+const MA_FFD20_MP_CASTER_ABILITY = {
+  'black-mage':'int', 'blue-mage':'int', 'time-mage':'int',
+  'astrologian':'wis', 'druid':'wis', 'geomancer':'wis', 'ninja':'wis', 'white-mage':'wis',
+  'bard':'cha', 'dark-knight':'cha', 'holy-knight':'cha', 'illusionist':'cha', 'red-mage':'cha', 'necromancer':'cha', 'summoner':'cha'
+};
+const MA_FFD20_BONUS_MP_TABLE = [
+  {min:10,max:11,vals:[0,0,0,0,0,0,0,0,0]},
+  {min:12,max:13,vals:[1,1,1,1,1,1,1,1,1]},
+  {min:14,max:15,vals:[1,3,3,3,3,3,3,3,3]},
+  {min:16,max:17,vals:[1,3,6,6,6,6,6,6,6]},
+  {min:18,max:19,vals:[1,3,6,10,10,10,10,10,10]},
+  {min:20,max:21,vals:[2,4,7,11,16,16,16,16,16]},
+  {min:22,max:23,vals:[2,6,9,13,18,24,24,24,24]},
+  {min:24,max:25,vals:[2,6,12,16,21,27,34,34,34]},
+  {min:26,max:27,vals:[2,6,12,20,25,31,38,46,46]},
+  {min:28,max:29,vals:[3,7,13,21,31,37,44,52,61]},
+  {min:30,max:31,vals:[3,9,15,23,33,45,52,60,69]},
+  {min:32,max:33,vals:[3,9,18,26,36,48,62,70,79]},
+  {min:34,max:35,vals:[3,9,18,30,40,52,66,82,91]},
+  {min:36,max:37,vals:[4,10,19,31,46,58,72,88,106]},
+  {min:38,max:39,vals:[4,12,21,33,48,66,80,96,114]},
+  {min:40,max:41,vals:[4,12,24,36,51,69,90,106,124]},
+  {min:42,max:43,vals:[4,12,24,40,55,73,94,118,136]},
+  {min:44,max:45,vals:[5,13,25,41,61,79,100,124,151]}
+];
+function maV4BonusMpCastingStat(className){
+  return MA_FFD20_MP_CASTER_ABILITY[maFfd20Norm(className)] || '';
+}
+function maV4ProgressionSpellLevel(row){
+  const keys = ['spellLevelValue','spellLevel','spell_level','spellLvl','spell_lvl','maxSpellLevel','max_spell_level','highestSpellLevel','highest_spell_level','spellsLevel','spells_level','spellcastingLevel','spellcasting_level'];
+  for(const key of keys){
+    if(row && Object.prototype.hasOwnProperty.call(row, key)){
+      const level = maV4Level(row[key]);
+      if(level > 0) return Math.min(9, level);
+    }
+  }
+  return 0;
+}
+function maV4BonusMpHighestSpellLevel(entry){
+  const explicit = maV4ProgressionSpellLevel(entry?.prog?.row || {});
+  if(explicit > 0) return explicit;
+  if(!entry?.prog?.hasMp || !maV4BonusMpCastingStat(entry?.name)) return 0;
+  return Math.max(1, Math.min(9, Math.floor((maV4Level(entry.level) + 1) / 2)));
+}
+function maV4BonusMpFor(score, spellLevel){
+  const level = Math.max(0, Math.min(9, maV4Level(spellLevel)));
+  const ability = Math.trunc(Number(score) || 0);
+  if(level < 1 || ability < 10) return 0;
+  const row = MA_FFD20_BONUS_MP_TABLE.find(r => ability >= r.min && ability <= r.max) || (ability > 45 ? MA_FFD20_BONUS_MP_TABLE[MA_FFD20_BONUS_MP_TABLE.length - 1] : null);
+  return row ? (Number(row.vals[level - 1]) || 0) : 0;
+}
+function maV4BonusMpForEntry(entry){
+  const stat = maV4BonusMpCastingStat(entry?.name);
+  if(!stat || !entry?.prog?.hasMp) return 0;
+  return maV4BonusMpFor(maV4Num(stat, 10), maV4BonusMpHighestSpellLevel(entry));
+}
+function maV4BonusMpTotalFromTotals(totals){
+  return (totals?.rows || []).reduce((sum, entry) => sum + maV4BonusMpForEntry(entry), 0);
+}
+function maV4TotalMpWithBonus(lib, sel){
+  const totals = maV4Totals(lib, sel);
+  return totals.hasMp ? (totals.mp + maV4BonusMpTotalFromTotals(totals)) : 0;
+}
+"""
+          if "const MA_FFD20_BONUS_MP_TABLE" not in text:
+              if helper_anchor not in text:
+                  raise SystemExit('maV4Totals anchor not found')
+              text = text.replace(helper_anchor, helper + "\n" + helper_anchor, 1)
+
+          old_progression = """    mp: hasExplicitMp ? (Number(mpRaw ?? 0) || 0) : 0,
+    hasMp: hasExplicitMp && String(mpRaw ?? '').trim() !== '' && String(mpRaw ?? '').trim() !== '—'
+  };"""
+          new_progression = """    mp: hasExplicitMp ? (Number(mpRaw ?? 0) || 0) : 0,
+    hasMp: hasExplicitMp && String(mpRaw ?? '').trim() !== '' && String(mpRaw ?? '').trim() !== '—',
+    row: best,
+    spellLevel: maV4ProgressionSpellLevel(best)
+  };"""
+          if old_progression in text:
+              text = text.replace(old_progression, new_progression, 1)
+
+          old_level_card = """      <div class="ma-levelup-card"><small>MP</small><strong>${newTotals.hasMp ? newTotals.mp : '—'}</strong><span>${newTotals.hasMp ? `${maV4Plus(newTotals.mp-oldTotals.mp)} from MP table` : 'No MP table for this class'}</span></div>"""
+          new_level_card = """      <div class="ma-levelup-card"><small>MP</small><strong>${newTotals.hasMp ? maV4TotalMpWithBonus(lib, newSel) : '—'}</strong><span>${newTotals.hasMp ? `${maV4Plus(maV4TotalMpWithBonus(lib, newSel)-maV4TotalMpWithBonus(lib, oldSel))} incl. bonus MP` : 'No MP table for this class'}</span></div>"""
+          if old_level_card in text:
+              text = text.replace(old_level_card, new_level_card, 1)
+
+          old_mp = """  const mpBase = totals.hasMp ? totals.mp : 0;
+  const oldMpBase = maV4Num('mp_max', oldTotals.mp);
+  const oldMpCurr = maV4Num('mp_curr', 0);
+  const mpTemp = maV4Num('mp_temp', 0);
+  const mpEff = Math.max(0, mpBase + maV4Num('mp_max_temp', 0));
+  maV4Set('mp_max', mpBase);"""
+          new_mp = """  const mpClassBase = totals.hasMp ? totals.mp : 0;
+  const mpBonus = totals.hasMp ? maV4BonusMpTotalFromTotals(totals) : 0;
+  const mpBase = mpClassBase + mpBonus;
+  const oldMpBase = maV4Num('mp_max', oldTotals.mp + maV4BonusMpTotalFromTotals(oldTotals));
+  const oldMpCurr = maV4Num('mp_curr', 0);
+  const mpTemp = maV4Num('mp_temp', 0);
+  const mpEff = Math.max(0, mpBase + maV4Num('mp_max_temp', 0));
+  maV4Set('mp_base', mpClassBase);
+  maV4Set('mp_bonus', mpBonus);
+  maV4Set('mp_max', mpBase);"""
+          if old_mp in text:
+              text = text.replace(old_mp, new_mp, 1)
+          elif "const mpClassBase = totals.hasMp ? totals.mp : 0;" not in text:
+              raise SystemExit('MP calculation block not found')
+
+          if text == old:
+              print('No changes needed; bonus MP patch already present.')
+          else:
+              p.write_text(text, encoding='utf-8')
+      - name: Commit patched characters.html
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add characters.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Add FFD20 bonus MP to character totals"
+          git push origin HEAD:Edit-Mode
