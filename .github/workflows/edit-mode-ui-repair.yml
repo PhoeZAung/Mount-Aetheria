@@ -1,0 +1,203 @@
+name: Edit-Mode UI repair
+
+on:
+  push:
+    branches: [Edit-Mode]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: edit-mode-ui-repair
+  cancel-in-progress: true
+
+jobs:
+  repair:
+    if: ${{ !contains(github.event.head_commit.message, '[skip edit-mode-ui-repair]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: Edit-Mode
+      - name: Patch HP/MP edit forms and clean tab toolbars
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          OLD_COMMENT = 'Edit-Mode HP/MP + inner tab scroll repair'
+          NEW_CSS = '''
+          <style>
+          /* --- Edit-Mode HP/MP + clean inner tabs repair v2 --- */
+          .vital-number-grid.ma-v8-hp-grid,
+          .vital-number-grid.ma-v8-mp-grid { grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
+
+          .tab-content.active > .sub-nav-container,
+          #combat.active > .sub-nav-container,
+          #c-abilities-main > .sub-nav-container {
+            position:relative !important;
+            top:auto !important;
+            z-index:auto !important;
+            background:transparent !important;
+            border:0 !important;
+            margin:0 auto 14px !important;
+            padding:0 !important;
+            max-width:800px !important;
+          }
+          #combat.active .sub-nav-container { border-bottom:0 !important; }
+
+          #combatSubNav,
+          #abilitiesSubSubNav,
+          #skills.active .skills-view-toolbar,
+          #skills.active .skills-editor-toolbar,
+          #other.active .other-sub-tabs,
+          #other.active .fantasy-calendar-nav {
+            position:relative !important;
+            top:auto !important;
+            z-index:auto !important;
+            background:linear-gradient(180deg,#1b1b1b 0%,#121212 100%) !important;
+            border:1px solid rgba(255,204,102,.34) !important;
+            border-radius:16px !important;
+            box-shadow:0 8px 18px rgba(0,0,0,.24) !important;
+            padding:8px !important;
+            margin:0 auto 14px !important;
+            max-width:800px !important;
+          }
+
+          #combatSubNav,
+          #abilitiesSubSubNav,
+          #other.active .other-sub-tabs,
+          #other.active .fantasy-calendar-nav {
+            display:flex !important;
+            align-items:center !important;
+            justify-content:center !important;
+            gap:8px !important;
+            flex-wrap:wrap !important;
+            border-bottom:1px solid rgba(255,204,102,.34) !important;
+          }
+
+          #combatSubNav .sub-btn,
+          #abilitiesSubSubNav .sub-btn,
+          #other.active .other-sub-btn,
+          #other.active .fantasy-calendar-nav button,
+          #skills.active .skills-mode-btn,
+          #skills.active .skill-points-edit-btn {
+            border-radius:999px !important;
+            border:1px solid #3e3e3e !important;
+            background:#202020 !important;
+            color:#ddd !important;
+            min-height:34px !important;
+            padding:7px 13px !important;
+            box-shadow:none !important;
+          }
+          #combatSubNav .sub-btn.active,
+          #abilitiesSubSubNav .sub-btn.active,
+          #other.active .other-sub-btn.active,
+          #other.active .fantasy-calendar-nav button.active,
+          #skills.active .skills-mode-btn:hover,
+          #skills.active .skill-points-edit-btn:hover {
+            background:var(--accent) !important;
+            color:#000 !important;
+            border-color:var(--accent) !important;
+          }
+
+          #spellsNavControl { display:inline-flex !important; align-items:center !important; gap:6px !important; }
+          #spellsVisibilityToggle { width:34px !important; min-width:34px !important; padding:0 !important; font-size:18px !important; }
+
+          #skills.active .skills-view-toolbar,
+          #skills.active .skills-editor-toolbar {
+            display:flex !important;
+            align-items:center !important;
+            justify-content:space-between !important;
+            gap:10px !important;
+            flex-wrap:wrap !important;
+          }
+          #skills.active .skills-view-toolbar h2 { margin:0 !important; text-align:left !important; }
+          #skills.active .skill-points-wrap {
+            width:auto !important;
+            display:flex !important;
+            align-items:center !important;
+            gap:8px !important;
+            background:#171717 !important;
+            border:1px solid #3a3a3a !important;
+            border-radius:999px !important;
+            padding:6px 8px 6px 12px !important;
+          }
+          #skills.active .skill-points-wrap span { white-space:nowrap !important; }
+          #skills.active .skill-points-wrap input { width:76px !important; min-width:60px !important; text-align:center !important; }
+
+          #other.active .fantasy-calendar-nav select,
+          #other.active .fantasy-calendar-nav input {
+            width:auto !important;
+            min-width:88px !important;
+            border-radius:999px !important;
+            background:#171717 !important;
+          }
+
+          @media(max-width:700px){
+            #combatSubNav,
+            #abilitiesSubSubNav,
+            #skills.active .skills-view-toolbar,
+            #skills.active .skills-editor-toolbar,
+            #other.active .other-sub-tabs,
+            #other.active .fantasy-calendar-nav { border-radius:14px !important; padding:7px !important; gap:6px !important; }
+            #combatSubNav .sub-btn,
+            #abilitiesSubSubNav .sub-btn,
+            #other.active .other-sub-btn,
+            #other.active .fantasy-calendar-nav button { flex:1 1 auto !important; min-width:90px !important; }
+          }
+          </style>
+          '''
+
+          def replace_once(text, old, new, label):
+              if old not in text:
+                  print(f'skip exact replacement: {label}')
+                  return text
+              return text.replace(old, new, 1)
+
+          def upsert_clean_css(text):
+              pattern = re.compile(r'\n\s*<style>\s*/\* --- Edit-Mode HP/MP \+ inner tab scroll repair --- \*/.*?</style>\s*', re.S)
+              if pattern.search(text):
+                  return pattern.sub('\n' + NEW_CSS + '\n', text, count=1)
+              if 'Edit-Mode HP/MP + clean inner tabs repair v2' not in text:
+                  return text.replace('</head>', NEW_CSS + '\n</head>', 1)
+              return text
+
+          def patch_file(path):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              original = text
+              text = upsert_clean_css(text)
+
+              old_hp = """  if(section === 'hp') {\n    const hpTotalMax = Math.max(0, numVal('hp_max') + numVal('hp_max_temp'));\n    title.textContent = 'Edit HP';\n    html = `<div class=\"formula-line\"><div class=\"formula-parts\">${statField('Base','hp_max', {readonly:true})}${statField('Max Temp','hp_max_temp')}<div class=\"mini-field\"><label>Total Max</label><input class=\"graybase\" readonly type=\"number\" value=\"${hpTotalMax}\"></div></div></div>`;\n  }"""
+              new_hp = """  if(section === 'hp') {\n    const hpTotalMax = Math.max(0, numVal('hp_max') + numVal('hp_max_temp'));\n    title.textContent = 'Edit HP';\n    html = `<div class=\"formula-line\"><div class=\"formula-parts\">${statField('Current','hp_curr')}${statField('Temp HP','hp_temp')}${statField('Base','hp_max', {readonly:true})}${statField('Max Temp','hp_max_temp')}<div class=\"mini-field\"><label>Total Max</label><input class=\"graybase\" readonly type=\"number\" value=\"${hpTotalMax}\"></div></div></div>`;\n  }"""
+              text = replace_once(text, old_hp, new_hp, f'{path} hp edit form')
+
+              old_mp = """  if(section === 'mp') {\n    const mpTotalMax = Math.max(0, numVal('mp_max') + numVal('mp_max_temp'));\n    title.textContent = 'Edit MP';\n    html = `<div class=\"formula-line\"><div class=\"formula-parts\">${statField('Base','mp_max', {readonly:true})}${statField('Max Temp','mp_max_temp')}<div class=\"mini-field\"><label>Total Max</label><input class=\"graybase\" readonly type=\"number\" value=\"${mpTotalMax}\"></div></div></div>`;\n  }"""
+              new_mp = """  if(section === 'mp') {\n    const mpTotalMax = Math.max(0, numVal('mp_max') + numVal('mp_max_temp'));\n    title.textContent = 'Edit MP';\n    html = `<div class=\"formula-line\"><div class=\"formula-parts\">${statField('Current','mp_curr')}${statField('Temp MP','mp_temp')}${statField('Base','mp_max', {readonly:true})}${statField('Max Temp','mp_max_temp')}<div class=\"mini-field\"><label>Total Max</label><input class=\"graybase\" readonly type=\"number\" value=\"${mpTotalMax}\"></div></div></div>`;\n  }"""
+              text = replace_once(text, old_mp, new_mp, f'{path} mp edit form')
+
+              if text != original:
+                  p.write_text(text, encoding='utf-8')
+                  print(path, 'patched')
+              else:
+                  print(path, 'no changes')
+
+          for filename in ['characters.html', 'admin.html']:
+              patch_file(filename)
+      - name: Remove one-time workflow files
+        shell: bash
+        run: |
+          rm -f .github/workflows/edit-mode-ui-repair.yml .github/edit-mode-ui-trigger.txt
+      - name: Commit patched files
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add characters.html admin.html .github/workflows/edit-mode-ui-repair.yml .github/edit-mode-ui-trigger.txt
+          git commit -m "Improve HP MP edit form and tab toolbar UI [skip edit-mode-ui-repair]"
+          git push
