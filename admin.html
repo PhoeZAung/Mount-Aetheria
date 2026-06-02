@@ -1371,6 +1371,45 @@ body > .tab-content.active{
 }
 </style>
 
+
+<style>
+/* --- Edit-Mode front vitals: always show Current / Temp / Total Max --- */
+.vital-number-grid.ma-v8-hp-grid,
+.vital-number-grid.ma-v8-mp-grid {
+  display:grid !important;
+  grid-template-columns:minmax(64px,1fr) minmax(64px,1fr) minmax(82px,1.15fr) !important;
+  gap:6px !important;
+  width:100% !important;
+}
+.vital-number-grid.ma-v8-hp-grid > label,
+.vital-number-grid.ma-v8-mp-grid > label {
+  display:flex !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  min-width:0 !important;
+  flex-direction:column !important;
+  align-items:center !important;
+}
+.vital-number-grid.ma-v8-hp-grid input,
+.vital-number-grid.ma-v8-mp-grid input {
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  width:100% !important;
+  min-width:0 !important;
+}
+.vital-number-grid.ma-v8-hp-grid .ma-v8-temp small,
+.vital-number-grid.ma-v8-mp-grid .ma-v8-temp small {
+  color:#f0d18a !important;
+}
+@media(max-width:430px){
+  .vital-number-grid.ma-v8-hp-grid,
+  .vital-number-grid.ma-v8-mp-grid { grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
+  .vital-number-grid.ma-v8-hp-grid small,
+  .vital-number-grid.ma-v8-mp-grid small { font-size:8px !important; letter-spacing:.03em !important; }
+}
+</style>
+
 </head>
 <body>
 
@@ -1506,7 +1545,7 @@ setTimeout(() => {
           <input id="hp_max_temp" type="hidden" class="save-field" value="0">
           <div class="vital-number-grid ma-v8-hp-grid">
             <label><small>Current</small><input id="hp_curr" type="number" class="save-field main-vital-input"></label>
-            <label><small>Temp</small><input id="hp_temp" type="number" class="save-field main-vital-input"></label>
+            <label class="ma-v8-temp"><small>Temp HP</small><input id="hp_temp" type="number" class="save-field main-vital-input"></label>
             <label class="ma-v8-total"><small>Total Max</small><input id="hp_effective_max" type="number" class="main-vital-input readonly-yellow" readonly aria-readonly="true"></label>
           </div>
         </div>
@@ -1522,7 +1561,7 @@ setTimeout(() => {
 <input id="mp_bonus" type="hidden" class="save-field" value="0">
 <div class="vital-number-grid ma-v8-mp-grid">
   <label><small>Current</small><input id="mp_curr" type="number" class="save-field main-vital-input"></label>
-  <label><small>Temp</small><input id="mp_temp" type="number" class="save-field main-vital-input"></label>
+  <label class="ma-v8-temp"><small>Temp MP</small><input id="mp_temp" type="number" class="save-field main-vital-input"></label>
   <label class="ma-v8-total"><small>Total Max</small><input id="mp_effective_max" type="number" class="main-vital-input readonly-yellow" readonly aria-readonly="true"></label>
 </div>
         </div>
