@@ -6650,12 +6650,12 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     const hpDelta = newHpBase - oldHpMax;
     setBaseField('hp_max', newHpBase);
     if(d.hp_temp === undefined || d.hp_temp === null || d.hp_temp === '') setBaseField('hp_temp', 0);
-    const hpEffectiveMax = Math.max(0, newHpBase + (Number(d.hp_temp || document.getElementById('hp_temp')?.value || 0) || 0));
+    const hpEffectiveMax = Math.max(0, newHpBase + (Number(d.hp_max_temp || document.getElementById('hp_max_temp')?.value || 0) || 0));
     if(!oldHpCurr || oldHpCurr > hpEffectiveMax) setBaseField('hp_curr', hpEffectiveMax);
     else if(hpDelta > 0) setBaseField('hp_curr', Math.min(hpEffectiveMax, oldHpCurr + hpDelta));
     const mpCurr = document.getElementById('mp_curr');
-    const mpTemp = Number(document.getElementById('mp_temp')?.value || d.mp_temp || 0) || 0;
-    const effectiveMpMax = Math.max(0, (totals.hasMp ? totals.mp : 0) + mpTemp);
+    const mpMaxTemp = Number(document.getElementById('mp_max_temp')?.value || d.mp_max_temp || 0) || 0;
+    const effectiveMpMax = Math.max(0, (totals.hasMp ? totals.mp : 0) + mpMaxTemp);
     if(mpCurr && (!mpCurr.value || Number(mpCurr.value) === 0 || Number(mpCurr.value) > effectiveMpMax)) { mpCurr.value = String(totals.hasMp ? effectiveMpMax : 0); d.mp_curr = mpCurr.value; }
     try{ refreshEffectiveVitals(); }catch(e){}
     refreshCards(totals);
