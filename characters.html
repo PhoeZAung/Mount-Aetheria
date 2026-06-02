@@ -6668,7 +6668,7 @@ function maV4ApplyTotals(lib, oldSel, newSel, result=null){
   const oldHpCurr = maV4Num('hp_curr', 0);
   const hpTemp = maV4Num('hp_temp', 0);
   const hpGain = totals.hp - oldHpBase;
-  const hpMaxEff = Math.max(0, totals.hp + hpTemp);
+  const hpMaxEff = Math.max(0, totals.hp + maV4Num('hp_max_temp', 0));
   maV4Set('hp_max', totals.hp);
   if(document.getElementById('hp_temp') && (document.getElementById('hp_temp').value === '' || maFfd20ActiveData().hp_temp === undefined)) maV4Set('hp_temp', 0);
   const newHpCurr = result ? Math.min(hpMaxEff, Math.max(0, oldHpCurr + Math.max(0,hpGain))) : (oldHpCurr ? Math.min(oldHpCurr, hpMaxEff) : hpMaxEff);
@@ -6679,7 +6679,7 @@ function maV4ApplyTotals(lib, oldSel, newSel, result=null){
   const oldMpBase = maV4Num('mp_max', oldTotals.mp);
   const oldMpCurr = maV4Num('mp_curr', 0);
   const mpTemp = maV4Num('mp_temp', 0);
-  const mpEff = Math.max(0, mpBase + mpTemp);
+  const mpEff = Math.max(0, mpBase + maV4Num('mp_max_temp', 0));
   maV4Set('mp_max', mpBase);
   if(document.getElementById('mp_temp') && (document.getElementById('mp_temp').value === '' || maFfd20ActiveData().mp_temp === undefined)) maV4Set('mp_temp', 0);
   const mpGain = mpBase - oldMpBase;
@@ -7920,7 +7920,7 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     }
     const oldMpAuto = Number(d.mp_max || document.getElementById('mp_max')?.value || oldTotals.mp) || oldTotals.mp;
     maSetCoreProgressionFields(finalTotals);
-    const mpMaxTemp = Number(d.mp_temp || document.getElementById('mp_temp')?.value || 0) || 0;
+    const mpMaxTemp = Number(d.mp_max_temp || document.getElementById('mp_max_temp')?.value || 0) || 0;
     const curMp = Number(d.mp_curr || document.getElementById('mp_curr')?.value || 0) || 0;
     const mpGain = (finalTotals.hasMp ? finalTotals.mp : 0) - oldMpAuto;
     const effectiveMpMax = Math.max(0, (finalTotals.hasMp ? finalTotals.mp : 0) + mpMaxTemp);
@@ -7949,7 +7949,7 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     if(!oldHpCurr || oldHpCurr > hpEffectiveMax) setBaseField('hp_curr', hpEffectiveMax);
     else if(hpDelta > 0) setBaseField('hp_curr', Math.min(hpEffectiveMax, oldHpCurr + hpDelta));
     const mpCurr = document.getElementById('mp_curr');
-    const mpMaxTemp = Number(document.getElementById('mp_temp')?.value || d.mp_temp || 0) || 0;
+    const mpMaxTemp = Number(document.getElementById('mp_max_temp')?.value || d.mp_max_temp || 0) || 0;
     const effectiveMpMax = Math.max(0, (totals.hasMp ? totals.mp : 0) + mpMaxTemp);
     if(mpCurr && (!mpCurr.value || Number(mpCurr.value) === 0 || Number(mpCurr.value) > effectiveMpMax)) { mpCurr.value = String(totals.hasMp ? effectiveMpMax : 0); d.mp_curr = mpCurr.value; }
     if(typeof window.refreshEffectiveVitals === 'function') window.refreshEffectiveVitals();
@@ -8220,13 +8220,13 @@ body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border
 #skills .skills-view-toolbar,
 #skills .skills-editor-toolbar{ padding:10px 12px !important; }
 .vital-number-grid.ma-v8-hp-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
-.vital-number-grid.ma-v8-mp-grid{ grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+.vital-number-grid.ma-v8-mp-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
 .vital-number-grid input[readonly], .ma-v8-total input{ background:#141414 !important; color:var(--accent) !important; }
 .ma-v8-hidden{ display:none !important; }
 @media(max-width:700px){
   body > .tab-content{ height:calc(100vh - 96px) !important; max-height:calc(100vh - 96px) !important; padding-bottom:150px !important; }
   .vital-number-grid.ma-v8-hp-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
-  .vital-number-grid.ma-v8-mp-grid{ grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+  .vital-number-grid.ma-v8-mp-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
 }
 </style>
 <script>
@@ -8263,7 +8263,7 @@ body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border
   }
   function labelFor(id, text){ const s=document.getElementById(id)?.closest('label')?.querySelector('small'); if(s) s.textContent=text; }
   function refreshVitals(){
-    ensureHidden('hp_max','0'); ensureHidden('hp_max_temp','0'); ensureHidden('mp_max','0'); ensureHidden('mp_temp','0'); ensureHidden('mp_base','0'); ensureHidden('mp_bonus','0');
+    ensureHidden('hp_max','0'); ensureHidden('hp_max_temp','0'); ensureHidden('mp_max','0'); ensureHidden('mp_max_temp','0'); ensureHidden('mp_base','0'); ensureHidden('mp_bonus','0');
     const hpGrid=document.getElementById('hp_curr')?.closest('.vital-number-grid');
     if(hpGrid){
       hpGrid.className='vital-number-grid ma-v8-hp-grid';
@@ -8276,10 +8276,11 @@ body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border
     const mpGrid=document.getElementById('mp_curr')?.closest('.vital-number-grid');
     if(mpGrid){
       mpGrid.className='vital-number-grid ma-v8-mp-grid';
-      labelFor('mp_curr','Current'); labelFor('mp_effective_max','Total MP');
-      const mpCurr=document.getElementById('mp_curr'), mpTotal=document.getElementById('mp_effective_max');
+      labelFor('mp_curr','Current'); labelFor('mp_temp','Temp MP'); labelFor('mp_effective_max','Total Max');
+      const mpCurr=document.getElementById('mp_curr'), mpTemp=document.getElementById('mp_temp'), mpTotal=document.getElementById('mp_effective_max');
       if(mpCurr){ mpCurr.readOnly=false; mpCurr.removeAttribute('aria-readonly'); mpCurr.classList.remove('readonly-yellow'); }
-      if(mpTotal){ mpTotal.readOnly=true; mpTotal.setAttribute('aria-readonly','true'); mpTotal.value=String(Math.max(0, num('mp_max') + num('mp_temp'))); }
+      if(mpTemp){ mpTemp.closest('label')?.classList.add('ma-v8-temp'); mpTemp.readOnly=false; mpTemp.removeAttribute('aria-readonly'); mpTemp.classList.remove('readonly-yellow'); }
+      if(mpTotal){ mpTotal.readOnly=true; mpTotal.setAttribute('aria-readonly','true'); mpTotal.value=String(Math.max(0, num('mp_max') + num('mp_max_temp'))); }
     }
   }
   window.refreshEffectiveVitals = refreshVitals;
@@ -8305,22 +8306,22 @@ body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border
     if(section === 'hp'){
       ensureHidden('hp_max','0'); ensureHidden('hp_max_temp','0');
       if(title) title.textContent='Edit HP';
-      body.innerHTML='<div class="formula-line"><strong>HP Maximum</strong><div class="formula-parts">'+mini('Base','hp_max',true)+mini('Max Temp','hp_max_temp',false)+total('Total Max', num('hp_max')+num('hp_max_temp'))+'</div><div class="section-note">Current HP and Temp HP are edited on the HP card. Base is calculated from class HP. Max Temp modifies the total maximum.</div></div>';
-      bindEdit(body,['hp_max_temp'],()=>num('hp_max')+num('hp_max_temp'));
+      body.innerHTML='<div class="formula-line"><strong>HP</strong><div class="formula-parts">'+mini('Current','hp_curr',false)+mini('Temp HP','hp_temp',false)+mini('Base','hp_max',true)+mini('Max Temp','hp_max_temp',false)+total('Total Max', num('hp_max')+num('hp_max_temp'))+'</div><div class="section-note">Temp HP is separate from Max Temp. Base is calculated from class HP. Max Temp modifies the total maximum.</div></div>';
+      bindEdit(body,['hp_curr','hp_temp','hp_max_temp'],()=>num('hp_max')+num('hp_max_temp'));
       if(overlay) overlay.style.display='flex';
       return;
     }
     if(section === 'mp'){
-      ensureHidden('mp_max','0'); ensureHidden('mp_temp','0'); ensureHidden('mp_base','0'); ensureHidden('mp_bonus','0');
+      ensureHidden('mp_max','0'); ensureHidden('mp_max_temp','0'); ensureHidden('mp_base','0'); ensureHidden('mp_bonus','0');
       if(title) title.textContent='Edit MP';
-      body.innerHTML='<div class="formula-line"><strong>MP Maximum</strong><div class="formula-parts">'+mini('Base','mp_base',true)+mini('Extra Conversion','mp_bonus',true)+mini('Max Temp','mp_temp',false)+total('Total MP', num('mp_max')+num('mp_temp'))+'</div><div class="section-note">Base and Extra Conversion come from class/spell data. Max Temp manually modifies Total MP.</div></div>';
-      bindEdit(body,['mp_temp'],()=>num('mp_max')+num('mp_temp'));
+      body.innerHTML='<div class="formula-line"><strong>MP</strong><div class="formula-parts">'+mini('Current','mp_curr',false)+mini('Temp MP','mp_temp',false)+mini('Base','mp_max',true)+mini('Max Temp','mp_max_temp',false)+total('Total Max', num('mp_max')+num('mp_max_temp'))+'</div><div class="section-note">Temp MP is separate from Max Temp. Base comes from class/spell data. Max Temp modifies Total Max.</div></div>';
+      bindEdit(body,['mp_curr','mp_temp','mp_max_temp'],()=>num('mp_max')+num('mp_max_temp'));
       if(overlay) overlay.style.display='flex';
       return;
     }
     return typeof priorOpenStatEdit==='function' ? priorOpenStatEdit(section) : undefined;
   };
-  ['hp_curr','hp_temp','hp_max','hp_max_temp','mp_curr','mp_max','mp_temp','mp_base','mp_bonus','str','dex','con','int','wis','cha'].forEach(id=>{
+  ['hp_curr','hp_temp','hp_max','hp_max_temp','mp_curr','mp_temp','mp_max','mp_max_temp','mp_base','mp_bonus','str','dex','con','int','wis','cha'].forEach(id=>{
     document.addEventListener('input', e=>{ if(e.target && e.target.id===id) setTimeout(refreshVitals,0); }, true);
     document.addEventListener('change', e=>{ if(e.target && e.target.id===id) setTimeout(refreshVitals,0); }, true);
   });
