@@ -5362,9 +5362,16 @@ function maFfd20RenderAll(){
 }
 async function maFfd20LoadLibrary(){
   if(maFfd20Library) return maFfd20Library;
-  const response = await fetch(MA_FFD20_DATA_URL, { cache:'no-store' });
-  if(!response.ok) throw new Error(`Missing ${MA_FFD20_DATA_URL}. Run the scraper and upload the JSON first.`);
-  maFfd20Library = await response.json();
+  try {
+    const response = await fetch(MA_FFD20_DATA_URL, { cache:'no-store' });
+    if(!response.ok) throw new Error(`Missing ${MA_FFD20_DATA_URL}. Run the scraper and upload the JSON first.`);
+    const raw = await response.text();
+    if(!raw.trim()) throw new Error(`${MA_FFD20_DATA_URL} is empty. Run the scraper and upload the JSON first.`);
+    maFfd20Library = JSON.parse(raw);
+  } catch(e) {
+    console.warn(e);
+    maFfd20Library = { classes:[], races:[], prestigeClasses:[], loadError:String(e?.message || e) };
+  }
   if(!Array.isArray(maFfd20Library.classes)) maFfd20Library.classes = [];
   if(!Array.isArray(maFfd20Library.races)) maFfd20Library.races = [];
   if(!Array.isArray(maFfd20Library.prestigeClasses)) maFfd20Library.prestigeClasses = [];
@@ -5644,7 +5651,7 @@ async function maFfd20HandleLevelChanged(event){
   const die = maFfd20HitDie(cls), avg = maFfd20AvgHp(die), con = maFfd20Mod('con'), intel = maFfd20Mod('int'), skillEach = Math.max(1, maFfd20SkillBase(cls) + intel);
   const milestones = maFfd20MilestonesBetween(oldLevel, newLevel);
   const feats = maFfd20OddLevelsBetween(oldLevel, newLevel);
-  const milestoneHtml = milestones.length ? `<div class="ffd20-milestone-grid">${milestones.map(l => `<label>Level ${l} ability +1<select data-ability-level="${l}">${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div>` : '<div class="ffd20-choice-note">No ability-score increase on this level.</div>';
+  const milestoneHtml = milestones.length ? `<div class="ffd20-milestone-grid">${milestones.map(l => `<label>Level ${l} ability +1<select data-ability-level="${l}" data-required-pick="true"><option value="">Pick</option>${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div>` : '<div class="ffd20-choice-note">No ability-score increase on this level.</div>';
   const overlay = await maFfd20Dialog(`Level Up: ${oldLevel} → ${newLevel}`, `
     <div class="ffd20-level-summary">
       <strong>Gains to apply now:</strong>
@@ -6092,7 +6099,7 @@ function maV4Formula(t){
   return t.rows.map(r=>`${r.label} ${r.level}: d${r.die}, HP ${r.hpGain}, skill ${r.skillGain}, BAB ${maV4Plus(r.prog.bab)}, saves ${maV4Plus(r.prog.fort)}/${maV4Plus(r.prog.ref)}/${maV4Plus(r.prog.will)}${r.prog.hasMp ? `, MP ${r.prog.mp}` : ''}`).join(' · ') || 'No class data found.';
 }
 function maV4LevelList(oldTotal,newTotal,pred){ const out=[]; for(let l=oldTotal+1;l<=newTotal;l++){ if(pred(l)) out.push(l); } return out; }
-async async async async async function maV4LevelUpOverlay(lib, oldSel, newSel, label){
+async function maV4LevelUpOverlay(lib, oldSel, newSel, label){
   const oldTotal = maV4TotalLevel(oldSel), newTotal = maV4TotalLevel(newSel);
   if(newTotal <= oldTotal) return {oldTotals:maV4Totals(lib, oldSel), newTotals:maV4Totals(lib, newSel), pickedStats:[]};
   const oldTotals = maV4Totals(lib, oldSel), newTotals = maV4Totals(lib, newSel);
@@ -6969,10 +6976,22 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     return Number.isFinite(raw) ? Math.trunc(raw) : 10;
   }
   function maV5BonusMp(score, spellLevel){
-    const lvl = Math.max(0, Math.min(9, Math.trunc(Number(spellLevel)||0)));
-    if(lvl <= 0 || score < 10) return 0;
-    const row = MA_V5_BONUS_MP_TABLE.find(r => score >= r.min && score <= r.max) || MA_V5_BONUS_MP_TABLE[MA_V5_BONUS_MP_TABLE.length-1];
-    return Number(row.vals[lvl-1] || 0) || 0;
+    const maxSpellLevel = Math.max(0, Math.min(9, Math.trunc(Number(spellLevel)||0)));
+    const abilityScore = Math.trunc(Number(score)||0);
+    const mod = Math.floor((abilityScore - 10) / 2);
+    if(maxSpellLevel <= 0 || mod < 1) return 0;
+    let total = 0;
+    for(let lvl=1; lvl<=maxSpellLevel; lvl++){
+      if(mod >= lvl) total += (Math.floor((mod - lvl) / 4) + 1) * lvl;
+    }
+    return total;
+  }
+  function maV5CastingStat(entry){
+    const name = String(entry?.className || entry?.cls?.name || '').toLowerCase();
+    if(name.includes('black mage') || name.includes('blue mage') || name.includes('time mage') || name.includes('scholar') || name.includes('chemist')) return 'int';
+    if(name.includes('white mage') || name.includes('geomancer')) return 'wis';
+    if(name.includes('red mage') || name.includes('summoner') || name.includes('bard') || name.includes('dark knight') || name.includes('paladin')) return 'cha';
+    return 'int';
   }
   function maV5HighestSpellLevel(classLevel, prog){
     if(!prog?.hasExplicitMp) return 0;
@@ -7002,7 +7021,6 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
   maCalcClassTotals = function(lib, sel){
     maV5EnsureRuntimeFields();
     const con = statMod('con');
-    const conScore = maV5Score('con');
     const intel = statMod('int');
     const totals = { hp:0, skill:0, bab:0, fort:0, ref:0, will:0, mpBase:0, mpBonus:0, mp:0, hasMp:false, totalLevel:maTotalCharacterLevel(sel), rows:[] };
     maClassEntryList(lib, sel).forEach(entry => {
@@ -7018,7 +7036,7 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
       }
       const prog = progressionAt(entry.cls, entry.level);
       const spellLevel = maV5HighestSpellLevel(entry.level, prog);
-      const bonusMp = prog.hasExplicitMp ? maV5BonusMp(conScore, spellLevel) : 0;
+      const bonusMp = prog.hasExplicitMp ? maV5BonusMp(maV5Score(maV5CastingStat(entry)), spellLevel) : 0;
       totals.hp += hpGain; totals.skill += skillGain;
       totals.bab += prog.babValue || 0; totals.fort += prog.fortValue || 0; totals.ref += prog.refValue || 0; totals.will += prog.willValue || 0;
       totals.mpBase += prog.hasExplicitMp ? (prog.mpValue || 0) : 0;
