@@ -1,0 +1,101 @@
+name: Patch Ability Score Load on Test
+
+on:
+  push:
+    branches: [test]
+    paths:
+      - '.github/workflows/patch-ability-score-load-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: test
+      - name: Patch characters.html ability score load
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('characters.html')
+          text = p.read_text(encoding='utf-8')
+          old = text
+
+          helper = r'''
+// ABILITY_LOAD_REPAIR_V1: keep saved ability scores and modifiers hydrated after refresh.
+function maRepairAbilityScoreDisplaysV1() {
+    const stats = ['str','dex','con','int','wis','cha'];
+    stats.forEach(stat => {
+        const scoreEl = document.getElementById(stat);
+        const modEl = document.getElementById('mod-' + stat);
+        if(!scoreEl || !modEl) return;
+        const raw = scoreEl.value;
+        const score = Number(raw);
+        const mod = Number.isFinite(score) ? Math.floor((score - 10) / 2) : 0;
+        modEl.textContent = (mod >= 0 ? '+' : '') + mod;
+    });
+    try { if (typeof renderAbilityDrawerScores === 'function') renderAbilityDrawerScores(); } catch(e) {}
+    try { if (typeof computeDerivedStats === 'function') computeDerivedStats(); } catch(e) {}
+    try { if (typeof renderSelectedCombatDisplays === 'function') renderSelectedCombatDisplays(); } catch(e) {}
+    try { if (typeof refreshSpellDcDisplays === 'function') stats.forEach(stat => refreshSpellDcDisplays(stat)); } catch(e) {}
+}
+
+function maRepairAbilityScoreLoadV1(data = {}) {
+    const stats = ['str','dex','con','int','wis','cha'];
+    let changed = false;
+    stats.forEach(stat => {
+        const el = document.getElementById(stat);
+        if(!el) return;
+        const hasSaved = data && Object.prototype.hasOwnProperty.call(data, stat)
+            && data[stat] !== undefined && data[stat] !== null && String(data[stat]).trim() !== '';
+        const next = hasSaved ? String(data[stat]) : ((el.value === '' || el.value === undefined || el.value === null) ? '10' : String(el.value));
+        if(String(el.value) !== next) {
+            el.value = next;
+            changed = true;
+        }
+    });
+    maRepairAbilityScoreDisplaysV1();
+    return changed;
+}
+'''
+
+          if 'ABILITY_LOAD_REPAIR_V1' not in text:
+              anchor = '\nfunction loadCurrentSheet() {\n'
+              if anchor not in text:
+                  raise SystemExit('loadCurrentSheet anchor not found')
+              text = text.replace(anchor, '\n' + helper + anchor, 1)
+
+          old_live = "    document.querySelectorAll('.live-field').forEach(el => { el.value = (data[el.id] !== undefined) ? data[el.id] : \"\"; });\n    if(!document.getElementById('character_level').value) document.getElementById('character_level').value = '1';"
+          new_live = "    document.querySelectorAll('.live-field').forEach(el => { el.value = (data[el.id] !== undefined) ? data[el.id] : \"\"; });\n    maRepairAbilityScoreLoadV1(data);\n    if(!document.getElementById('character_level').value) document.getElementById('character_level').value = '1';"
+          if old_live in text:
+              text = text.replace(old_live, new_live, 1)
+          elif 'maRepairAbilityScoreLoadV1(data);' not in text:
+              raise SystemExit('live-field load block not found')
+
+          old_calc = "    if (typeof updateCalcs === 'function') updateCalcs();\n    refreshCombatUi();\n    setTimeout(refreshCombatUi, 40);\n    setTimeout(refreshCombatUi, 200);"
+          new_calc = "    maRepairAbilityScoreLoadV1(data);\n    if (typeof updateCalcs === 'function') updateCalcs();\n    maRepairAbilityScoreDisplaysV1();\n    refreshCombatUi();\n    setTimeout(() => { maRepairAbilityScoreLoadV1(getActiveData()); refreshCombatUi(); }, 40);\n    setTimeout(() => { maRepairAbilityScoreLoadV1(getActiveData()); refreshCombatUi(); }, 200);"
+          if old_calc in text:
+              text = text.replace(old_calc, new_calc, 1)
+          elif 'maRepairAbilityScoreDisplaysV1();' not in text:
+              raise SystemExit('final calc block not found')
+
+          if text == old:
+              print('No changes needed; ability load repair already present.')
+          else:
+              p.write_text(text, encoding='utf-8')
+      - name: Commit patched characters.html
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add characters.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Repair ability score hydration on refresh"
+          git push origin HEAD:test
