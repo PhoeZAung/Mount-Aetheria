@@ -262,7 +262,7 @@ body.embed-shop #shopStatus{display:none;}
 
 
 /* --- Gold Tabbed Shop Group + Grand Menu v22 --- */
-.shop-group-showcase{--shop-gold:#f2cf63;--shop-gold-hi:#fff0ad;--shop-gold-soft:rgba(242,207,99,.24);gap:14px;}
+.shop-group-showcase{--shop-gold:var(--accent);--shop-gold-hi:var(--accent);--shop-gold-soft:var(--accent-soft);gap:14px;}
 body.embed-shop #playerShopTop{border-color:rgba(242,207,99,.46);background:radial-gradient(circle at top right,rgba(242,207,99,.13),transparent 45%),linear-gradient(135deg,#171717,#0f0f0f);box-shadow:0 0 0 1px rgba(242,207,99,.06),0 15px 36px rgba(0,0,0,.3),0 0 26px rgba(242,207,99,.07);}
 body.embed-shop #playerShopTop:before{background:linear-gradient(90deg,transparent,var(--shop-gold-hi,#fff0ad),transparent);box-shadow:0 0 16px rgba(242,207,99,.52);}
 body.embed-shop .gil-line{color:var(--shop-gold-hi,#fff0ad);border-color:rgba(242,207,99,.46);background:rgba(242,207,99,.08);box-shadow:0 0 14px rgba(242,207,99,.1);}
@@ -314,6 +314,151 @@ body.embed-shop #shopSelect{border-color:rgba(242,207,99,.54);box-shadow:0 0 0 1
 }
 
 </style>
+
+
+<style>
+/* SHOP_THEME_SYNC_PATCH */
+:root{
+  --accent-rgb:255,204,102;
+  --accent-contrast:#090604;
+  --accent-soft:rgba(var(--accent-rgb),.12);
+  --accent-mid:rgba(var(--accent-rgb),.32);
+  --accent-glow:rgba(var(--accent-rgb),.42);
+  --accent-strong:rgba(var(--accent-rgb),.68);
+  --shop-gold:var(--accent);
+  --shop-gold-hi:var(--accent);
+  --shop-gold-soft:var(--accent-soft);
+}
+
+.shop-group-showcase,
+body.embed-shop .shop-group-showcase{
+  --shop-gold:var(--accent) !important;
+  --shop-gold-hi:var(--accent) !important;
+  --shop-gold-soft:var(--accent-soft) !important;
+}
+
+.nav-brand,
+h1,
+.shop-shell h2,
+.shop-side h3,
+.shop-main h3,
+.shop-title,
+.item-name,
+.item-name-link,
+.price-badge,
+.compact-price,
+body.embed-shop .gil-line,
+.shop-group-hero-title,
+.shop-tab-v22.active .shop-tab-name-v22,
+.shop-tab-count-v22,
+.shop-stage-v22 .item-name-link:hover,
+.shop-stage-v22 .compact-price,
+.restaurant-menu-title,
+.restaurant-menu-course-title,
+.restaurant-menu-name:hover,
+.restaurant-menu-price{
+  color:var(--accent) !important;
+  text-shadow:0 0 12px var(--accent-glow) !important;
+}
+
+body.embed-shop #playerShopTop,
+.shop-group-hero,
+.shop-stage-v22,
+.restaurant-menu-card,
+#shopSelect,
+body.embed-shop .gil-line,
+.shop-group-metric,
+.shop-stage-v22 .shop-category,
+.shop-stage-v22 .compact-item-row:hover,
+.custom-modal-content,
+.item-modal-card{
+  border-color:var(--accent-mid) !important;
+}
+
+.shop-tab-v22:hover,
+.shop-tab-v22.active,
+.shop-stage-v22 .compact-item-row:hover,
+.compact-item-row.selected,
+.shop-item-card.selected{
+  border-color:var(--accent) !important;
+  box-shadow:0 0 18px var(--accent-soft) !important;
+}
+
+body.embed-shop #playerShopTop,
+.shop-group-hero,
+.restaurant-menu-card{
+  background:
+    radial-gradient(circle at top right,var(--accent-soft),transparent 45%),
+    linear-gradient(135deg,#171717,#0f0f0f) !important;
+}
+
+body.embed-shop #playerShopTop:before,
+.restaurant-menu-rule{
+  background:linear-gradient(90deg,transparent,var(--accent),transparent) !important;
+  box-shadow:0 0 16px var(--accent-glow) !important;
+}
+
+.shop-btn,
+.modal-btn.confirm,
+.tab-buttons button.active,
+.category-btn.active,
+.filter-chip.active,
+.shop-stage-v22 .shop-buy-btn{
+  background:var(--accent) !important;
+  border-color:var(--accent) !important;
+  color:var(--accent-contrast) !important;
+}
+</style>
+
+<script>
+/* SHOP_THEME_SYNC_PATCH */
+(function(){
+  const KEY = 'mountAetheriaThemeAccentV25';
+
+  const THEMES = {
+    gold:    ['#ffcc66','255,204,102','#090604'],
+    ruby:    ['#ff5f6d','255,95,109','#100306'],
+    ember:   ['#ff8a3d','255,138,61','#120703'],
+    rose:    ['#ff7ab6','255,122,182','#12040b'],
+    violet:  ['#b48cff','180,140,255','#090512'],
+    blue:    ['#66a6ff','102,166,255','#030914'],
+    cyan:    ['#5ee7df','94,231,223','#021110'],
+    emerald: ['#4ee28a','78,226,138','#031006'],
+    lime:    ['#b8f56d','184,245,109','#071003'],
+    moon:    ['#d7dcff','215,220,255','#060711']
+  };
+
+  function getThemeId(){
+    try { return localStorage.getItem(KEY) || 'gold'; }
+    catch(e) { return 'gold'; }
+  }
+
+  function applyTheme(){
+    const t = THEMES[getThemeId()] || THEMES.gold;
+    const root = document.documentElement;
+
+    root.style.setProperty('--accent', t[0]);
+    root.style.setProperty('--accent-rgb', t[1]);
+    root.style.setProperty('--accent-contrast', t[2]);
+    root.style.setProperty('--accent-soft', 'rgba(' + t[1] + ',.12)');
+    root.style.setProperty('--accent-mid', 'rgba(' + t[1] + ',.32)');
+    root.style.setProperty('--accent-glow', 'rgba(' + t[1] + ',.42)');
+    root.style.setProperty('--accent-strong', 'rgba(' + t[1] + ',.68)');
+    root.style.setProperty('--shop-gold', t[0]);
+    root.style.setProperty('--shop-gold-hi', t[0]);
+    root.style.setProperty('--shop-gold-soft', 'rgba(' + t[1] + ',.12)');
+  }
+
+  applyTheme();
+  document.addEventListener('DOMContentLoaded', applyTheme);
+  window.addEventListener('storage', function(e){
+    if(e.key === KEY) applyTheme();
+  });
+
+  // Force it to win if older shop scripts repaint gold after load.
+  setInterval(applyTheme, 1000);
+})();
+</script>
 
 </head>
 <body>
