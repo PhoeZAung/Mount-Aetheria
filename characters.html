@@ -596,6 +596,23 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 
 
 
+/* --- Spell level side tabs: replaces spell-level dropdown/collapse groups --- */
+.spell-level-layout{display:grid;grid-template-columns:172px minmax(0,1fr);gap:12px;align-items:start;margin-top:12px;}
+.spell-level-tabs{position:sticky;top:154px;display:flex;flex-direction:column;gap:7px;background:#151515;border:1px solid #333;border-radius:14px;padding:9px;max-height:calc(100vh - 190px);overflow-y:auto;}
+.spell-level-tab{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name count" "dc count";align-items:center;gap:2px 8px;text-align:left;background:#202020;border:1px solid #3a3a3a;border-radius:10px;color:#ddd;padding:9px 10px;cursor:pointer;transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;}
+.spell-level-tab:hover,.spell-level-tab:focus-visible{border-color:rgba(var(--accent-rgb),.7);box-shadow:0 0 12px rgba(var(--accent-rgb),.12);outline:none;}
+.spell-level-tab.active{background:linear-gradient(135deg,rgba(var(--accent-rgb),.22),#202020);border-color:var(--accent);box-shadow:0 0 14px rgba(var(--accent-rgb),.18);}
+.spell-level-tab-name{grid-area:name;color:var(--accent);font-family:'Uncial Antiqua',serif;font-size:13px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.spell-level-tab-dc{grid-area:dc;color:#bdbdbd;font-size:11px;font-weight:800;letter-spacing:.02em;}
+.spell-level-tab-count{grid-area:count;min-width:28px;height:28px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:#111;border:1px solid #444;color:#eee;font-size:12px;font-weight:900;}
+.spell-level-tab.active .spell-level-tab-count{border-color:var(--accent);color:var(--accent);}
+.spell-level-content{min-width:0;}
+.spell-level-selected-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#141414;border:1px solid var(--accent);border-radius:12px;padding:10px 12px;margin-bottom:8px;}
+.spell-level-selected-head h4{margin:0;text-align:left;font-size:16px;}
+.spell-level-selected-head span{color:#e8e8e8;font-size:12px;font-weight:900;letter-spacing:.03em;}
+@media(max-width:700px){.spell-level-layout{grid-template-columns:1fr;}.spell-level-tabs{position:relative;top:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;overflow:visible;}.spell-level-tab{min-height:54px;}.spell-level-tab-name{font-size:12px;}}
+@media(max-width:390px){.spell-level-tabs{grid-template-columns:1fr;}}
+
 /* --- Spell preview cards --- */
 .spell-view-shell{display:flex;flex-direction:column;gap:14px;}
 .spell-view-top{display:flex;flex-direction:column;gap:10px;}
@@ -2551,16 +2568,37 @@ setTimeout(() => {
       </div>
   </div>
 
-  <div id="c-spells" class="sub-group" style="display:none">
-      <h3>Spells</h3>
-      <div class="stat-box" style="margin-bottom:10px;"><label>Spell DC Base</label><select id="spell_dc_base" class="live-field"><option value="str">STR</option><option value="dex">DEX</option><option value="con">CON</option><option value="int" selected>INT</option><option value="wis">WIS</option><option value="cha">CHA</option></select></div>
-      <section class="spell-mp-panel" aria-label="Available magic points">
-        <span class="spell-mp-label">💧 Available MP</span>
-        <strong id="spellMpAvailable">0</strong><span class="spell-mp-divider">/</span><span id="spellMpMaximum">0</span>
-        <small>Spell cost equals spell level. Cantrip = 0 MP.</small>
+  <div id="c-spells" class="sub-group spell-fancy-shell" style="display:none">
+      <section class="spell-command-panel" aria-label="Spell controls">
+        <div class="spell-command-title">
+          <span class="spell-command-icon">✦</span>
+          <div>
+            <h3>Spells</h3>
+            <small>Manage spell levels, DC, MP, and casting.</small>
+          </div>
+        </div>
+        <div class="spell-command-grid">
+          <label class="spell-command-card spell-dc-card">
+            <span class="spell-card-label">Spell DC Base</span>
+            <select id="spell_dc_base" class="live-field"><option value="str">STR</option><option value="dex">DEX</option><option value="con">CON</option><option value="int" selected>INT</option><option value="wis">WIS</option><option value="cha">CHA</option></select>
+          </label>
+          <section class="spell-command-card spell-mp-panel" aria-label="Available magic points">
+            <span class="spell-mp-label">Available MP</span>
+            <span class="spell-mp-value"><strong id="spellMpAvailable">0</strong><span class="spell-mp-divider">/</span><span id="spellMpMaximum">0</span></span>
+            <small>Current MP + Temp MP. Cantrip = 0 MP.</small>
+          </section>
+          <button class="spell-command-card spell-add-card" type="button" onclick="openSpellAddChoice()">
+            <span>＋</span>
+            <strong>Add Spell</strong>
+          </button>
+        </div>
       </section>
-      <button class="btn-add" onclick="openSpellAddChoice()">+ Add Spell</button>
-      <div id="spellList"></div>
+      <div class="spell-level-layout" aria-label="Spell levels">
+        <nav id="spellLevelTabs" class="spell-level-tabs" aria-label="Spell level tabs"></nav>
+        <div class="spell-level-content">
+          <div id="spellList"></div>
+        </div>
+      </div>
   </div>
 
   <div style="display:none;">
@@ -3989,11 +4027,30 @@ window.toggleSpellGroup = toggleSpellGroup;
 function spellMpCost(spell) {
     return Math.max(0, spellLevelToNumber(spell?.lvl));
 }
+function spellReadMpNumber(id) {
+    let raw = '';
+    const el = document.getElementById(id);
+    if (el && String(el.value ?? '').trim() !== '') raw = el.value;
+    else {
+        try {
+            const data = (typeof getActiveData === 'function') ? getActiveData() : {};
+            raw = data?.[id];
+        } catch (_err) {}
+    }
+    const parsed = Number(String(raw ?? '').replace(/[^0-9+\-.]/g, ''));
+    return Number.isFinite(parsed) ? Math.max(0, Math.trunc(parsed)) : 0;
+}
+function currentBaseSpellMp() {
+    return spellReadMpNumber('mp_curr');
+}
+function tempSpellMp() {
+    return spellReadMpNumber('mp_temp');
+}
 function currentSpellMp() {
-    return Math.max(0, Number(document.getElementById('mp_curr')?.value || 0) || 0);
+    return currentBaseSpellMp() + tempSpellMp();
 }
 function maxSpellMp() {
-    return Math.max(0, numVal('mp_max') + numVal('mp_max_temp'));
+    return Math.max(0, spellReadMpNumber('mp_max') + spellReadMpNumber('mp_max_temp'));
 }
 function spellCanBeUsed(spell) {
     return currentSpellMp() >= spellMpCost(spell);
@@ -4008,6 +4065,7 @@ function refreshSpellMpUi() {
     updateSpellMpPanel();
     syncSpellUseButtons();
 }
+window.refreshSpellMpUi = refreshSpellMpUi;
 function syncSpellUseButtons() {
     const spells = getActiveData().spells || [];
     document.querySelectorAll('.spell-use-btn[data-spell-index]').forEach(button => {
@@ -4027,17 +4085,34 @@ function useSpellAction(index) {
     const spell = list[index];
     if (!spell) return;
     const cost = spellMpCost(spell);
-    const before = currentSpellMp();
-    if (before < cost) {
+    const beforeAvailable = currentSpellMp();
+    if (beforeAvailable < cost) {
         syncSpellUseButtons();
         return;
     }
-    const remaining = before - cost;
-    const mpInput = document.getElementById('mp_curr');
-    if (mpInput) mpInput.value = String(remaining);
+
+    let remainingCost = cost;
+    const mpTempEl = document.getElementById('mp_temp');
+    const mpCurrEl = document.getElementById('mp_curr');
+    const tempBefore = tempSpellMp();
+    const currBefore = currentBaseSpellMp();
+    const tempSpent = Math.min(tempBefore, remainingCost);
+    remainingCost -= tempSpent;
+    const currSpent = Math.min(currBefore, remainingCost);
+    const newTemp = Math.max(0, tempBefore - tempSpent);
+    const newCurr = Math.max(0, currBefore - currSpent);
+    if (mpTempEl) mpTempEl.value = String(newTemp);
+    if (mpCurrEl) mpCurrEl.value = String(newCurr);
+    try {
+        const active = getActiveData();
+        active.mp_temp = String(newTemp);
+        active.mp_curr = String(newCurr);
+    } catch (_err) {}
+
     if (typeof updateCalcs === 'function') updateCalcs();
     if (typeof computeDerivedStats === 'function') computeDerivedStats();
 
+    const remaining = currentSpellMp();
     const cardLines = spellSendLines(spell).concat([`> MP Cost: ${cost} | Remaining MP: ${remaining}/${maxSpellMp()}`]);
     const results = [];
     const calcLines = [];
@@ -4068,79 +4143,117 @@ function useSpellAction(index) {
     } else {
         routeChatEntry({ kind:'info', title, subtitle:currentChatSheetLabel(), lines:cardLines, results:[] });
     }
-    updateSpellMpPanel();
-    syncSpellUseButtons();
+    refreshSpellMpUi();
     if (typeof save === 'function') save();
 }
 window.useSpellAction = useSpellAction;
 document.addEventListener('input', event => {
-    if (event.target && ['mp_curr','mp_max','mp_max_temp'].includes(event.target.id)) {
-        updateSpellMpPanel();
-        syncSpellUseButtons();
+    if (event.target && ['mp_curr','mp_temp','mp_max','mp_max_temp','mp_effective_max'].includes(event.target.id)) {
+        refreshSpellMpUi();
     }
 });
+document.addEventListener('change', event => {
+    if (event.target && ['mp_curr','mp_temp','mp_max','mp_max_temp','mp_effective_max'].includes(event.target.id)) {
+        refreshSpellMpUi();
+    }
+});
+
+const SPELL_LEVEL_TAB_KEY = 'mountAetheriaSelectedSpellLevel';
+function selectedSpellLevel() {
+    let saved = 0;
+    try { saved = Number(localStorage.getItem(SPELL_LEVEL_TAB_KEY)); } catch (_err) { saved = 0; }
+    if (!Number.isFinite(saved)) saved = 0;
+    return Math.max(0, Math.min(9, Math.trunc(saved)));
+}
+function setSelectedSpellLevel(levelNum) {
+    const next = Math.max(0, Math.min(9, Math.trunc(Number(levelNum) || 0)));
+    try { localStorage.setItem(SPELL_LEVEL_TAB_KEY, String(next)); } catch (_err) {}
+    renderSpells();
+}
+window.setSelectedSpellLevel = setSelectedSpellLevel;
+function renderSpellLevelTabs(data) {
+    const tabs = document.getElementById('spellLevelTabs');
+    if (!tabs) return;
+    const selected = selectedSpellLevel();
+    tabs.innerHTML = '';
+    for (let levelNum = 0; levelNum <= 9; levelNum++) {
+        const count = data.filter(spell => spellLevelToNumber(spell?.lvl) === levelNum).length;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `spell-level-tab${levelNum === selected ? ' active' : ''}`;
+        button.setAttribute('role', 'tab');
+        button.setAttribute('aria-selected', levelNum === selected ? 'true' : 'false');
+        button.onclick = () => setSelectedSpellLevel(levelNum);
+        button.innerHTML = `
+          <span class="spell-level-tab-name">${spellLevelLabel(levelNum)}</span>
+          <span class="spell-level-tab-dc">${spellHeaderFormula(levelNum)}</span>
+          <span class="spell-level-tab-count" aria-label="${count} spells">${count}</span>
+        `;
+        tabs.appendChild(button);
+    }
+}
 
 function renderSpells() {
     const data = getActiveData().spells || [];
     const container = document.getElementById('spellList');
     if(!container) return;
     container.innerHTML = '';
+    renderSpellLevelTabs(data);
 
-    for(let levelNum = 0; levelNum <= 9; levelNum++) {
-        const items = data
-            .filter(spell => spellLevelToNumber(spell?.lvl) === levelNum)
-            .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
+    const levelNum = selectedSpellLevel();
+    const items = data
+        .filter(spell => spellLevelToNumber(spell?.lvl) === levelNum)
+        .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
 
-        const wrap = document.createElement('div');
-        wrap.className = 'spell-level-group';
-        const open = isSpellGroupOpen(levelNum);
-        const levelName = spellLevelLabel(levelNum);
-        wrap.innerHTML = `
-          <button type="button" class="spell-level-head" data-spell-level="${levelNum}" aria-expanded="${open ? 'true' : 'false'}" onclick="toggleSpellGroup(${levelNum})">
-            <span class="spell-level-head-main">
-              <span class="spell-level-name">${levelName}:</span>
-              <span class="spell-level-dc">${spellHeaderFormula(levelNum)}</span>
-              <span class="spell-level-toggle" aria-hidden="true">${open ? '▾' : '▸'}</span>
-            </span>
-          </button>
-          <div class="spell-level-body" ${open ? '' : 'hidden'}></div>
-        `;
-        const bodyEl = wrap.querySelector('.spell-level-body');
+    const levelName = spellLevelLabel(levelNum);
+    const wrap = document.createElement('div');
+    wrap.className = 'spell-level-group spell-level-selected';
+    wrap.innerHTML = `
+      <div class="spell-level-selected-head">
+        <h4>${levelName} Spells</h4>
+        <span>${spellHeaderFormula(levelNum)}</span>
+      </div>
+      <div class="spell-level-body"></div>
+    `;
+    const bodyEl = wrap.querySelector('.spell-level-body');
 
-        if(!items.length) {
-            const empty = document.createElement('div');
-            empty.className = 'spell-level-empty';
-            empty.textContent = `No ${levelName} spells yet.`;
-            bodyEl.appendChild(empty);
-        }
-
-        items.forEach((s) => {
-            const idx = data.indexOf(s);
-            const div = document.createElement('div');
-            div.className = 'list-row spell-row';
-            const linkHtml = s.link ? `<a class="spell-link-btn" href="${s.link}" target="_blank" onclick="event.stopPropagation()">Link</a>` : '';
-            const spellCost = spellMpCost(s);
-            const spellReady = spellCanBeUsed(s);
-            const useHtml = `<button class="spell-use-btn ${spellReady ? 'available' : 'unavailable'}" data-spell-index="${idx}" type="button" ${spellReady ? '' : 'disabled'} onclick="event.stopPropagation(); useSpellAction(${idx})" title="${spellReady ? 'Cast spell' : 'Not enough MP'}">${spellCost > 0 ? `Use • ${spellCost} MP` : 'Use • Free'}</button>`;
-            const sendHtml = `<button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendSpellCard(${idx})" title="Send spell to chat without casting">💬</button>`;
-            const actionType = s.type || 'Standard';
-            div.innerHTML = `
-              <div class="row-content" onclick="openView('spell',${idx})">
-                  <div class="spell-row-primary">
-                    ${useHtml}
-                    <span class="list-row-title">${chatEscapeHtml(s.name||'New Spell')}</span>
-                    ${sendHtml}
-                  </div>
-              </div>
-              <div class="row-actions"><span class="spell-action-chip">${chatEscapeHtml(actionType)}</span>${linkHtml}<button type="button" class="btn-edit" onclick="event.stopPropagation(); openEditor('spell',${idx})">Edit</button></div>`;
-            bodyEl.appendChild(div);
-        });
-
-        container.appendChild(wrap);
+    if(!items.length) {
+        const empty = document.createElement('div');
+        empty.className = 'spell-level-empty';
+        empty.textContent = `No ${levelName} spells yet.`;
+        bodyEl.appendChild(empty);
     }
-    updateSpellMpPanel();
-    syncSpellUseButtons();
+
+    items.forEach((s) => {
+        const idx = data.indexOf(s);
+        const div = document.createElement('div');
+        div.className = 'list-row spell-row ability-fancy-row';
+        const linkHtml = s.link ? `<a class="spell-link-btn" href="${s.link}" target="_blank" onclick="event.stopPropagation()">Link</a>` : '';
+        const spellCost = spellMpCost(s);
+        const spellReady = spellCanBeUsed(s);
+        const useHtml = `<button class="ability-use-chip spell-use-btn ${spellReady ? 'available' : 'unavailable'}" data-spell-index="${idx}" type="button" ${spellReady ? '' : 'disabled'} onclick="event.stopPropagation(); useSpellAction(${idx})" title="${spellReady ? 'Cast spell' : 'Not enough MP'}">${spellCost > 0 ? `Use • ${spellCost} MP` : 'Use • Free'}</button>`;
+        const sendHtml = `<button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendSpellCard(${idx})" title="Send spell to chat without casting">💬</button>`;
+        const actionType = s.type || 'Standard';
+        div.innerHTML = `
+          <div class="row-content" onclick="openView('spell',${idx})">
+              <div class="ability-main-line spell-row-primary">
+                ${useHtml}
+                <span class="ability-name-line spell-name-line">${chatEscapeHtml(s.name||'New Spell')}</span>
+              </div>
+              <div class="ability-meta-line spell-meta-line">
+                <span class="ability-meta-pill">${spellLevelLabel(spellLevelToNumber(s?.lvl))}</span>
+                <span class="ability-meta-pill">DC ${chatEscapeHtml(String(spellDcDisplayValue(s)))}</span>
+                <span class="ability-meta-pill">${chatEscapeHtml(actionType)}</span>
+              </div>
+          </div>
+          <div class="row-actions">${sendHtml}${linkHtml}<button type="button" class="btn-edit" onclick="event.stopPropagation(); openEditor('spell',${idx})">Edit</button></div>`;
+        bodyEl.appendChild(div);
+    });
+
+    container.appendChild(wrap);
+    refreshSpellMpUi();
 }
+window.renderSpells = renderSpells;
 
 
 // DRAG AND DROP LOGIC
@@ -4488,7 +4601,7 @@ function populateViewModal(type, item, index = -1) {
                   <h3>${esc(asText(item.name, 'Unnamed Spell'))}</h3>
                 </div>
                 <div class="spell-view-actions">
-                  ${index > -1 ? `<button class="spell-use-btn ${spellCanBeUsed(item) ? 'available' : 'unavailable'}" data-spell-index="${index}" type="button" ${spellCanBeUsed(item) ? '' : 'disabled'} onclick="useSpellAction(${index})" title="${spellCanBeUsed(item) ? 'Cast spell' : 'Not enough MP'}">${spellMpCost(item) > 0 ? `Use • ${spellMpCost(item)} MP` : 'Use • Free'}</button>` : ''}
+                  ${index > -1 ? `<button class="ability-use-chip spell-use-btn ${spellCanBeUsed(item) ? 'available' : 'unavailable'}" data-spell-index="${index}" type="button" ${spellCanBeUsed(item) ? '' : 'disabled'} onclick="useSpellAction(${index})" title="${spellCanBeUsed(item) ? 'Cast spell' : 'Not enough MP'}">${spellMpCost(item) > 0 ? `Use • ${spellMpCost(item)} MP` : 'Use • Free'}</button>` : ''}
                   ${index > -1 ? `<button class="chat-icon-btn" type="button" onclick="sendSpellCard(${index})" title="Send spell to chat without casting">💬</button>` : ''}
                   ${item.link ? `<a class="spell-link-btn" href="${esc(item.link)}" target="_blank">Open Link</a>` : ''}
                 </div>
@@ -15019,6 +15132,398 @@ maStockQueueAddSpellHookInstall();
     flex-wrap: wrap !important;
     justify-content: center !important;
   }
+}
+</style>
+
+
+
+<style>
+/* --- v39 Spell UI polish: match the ability feature card system --- */
+#c-spells.spell-fancy-shell{
+  background:
+    radial-gradient(circle at top left, rgba(var(--accent-rgb),.10), transparent 42%),
+    linear-gradient(180deg, rgba(30,26,18,.98), rgba(15,15,15,.98));
+  border:1px solid rgba(var(--accent-rgb),.30);
+  border-radius:20px;
+  padding:14px;
+  box-shadow:0 14px 28px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.spell-command-panel{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(var(--accent-rgb),.22);
+  border-radius:18px;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(var(--accent-rgb),.14), transparent 38%),
+    linear-gradient(135deg,#242016 0%,#171717 46%,#101010 100%);
+  padding:13px;
+  margin:0 0 14px;
+  box-shadow:0 10px 22px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.035);
+}
+.spell-command-panel::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg, transparent, rgba(var(--accent-rgb),.06), transparent);
+  pointer-events:none;
+}
+.spell-command-title{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin:0 0 12px;
+  text-align:left;
+}
+.spell-command-icon{
+  width:34px;
+  height:34px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(var(--accent-rgb),.50);
+  background:rgba(0,0,0,.28);
+  color:var(--accent);
+  box-shadow:0 0 18px rgba(var(--accent-rgb),.12);
+  font-size:17px;
+  flex:0 0 34px;
+}
+.spell-command-title h3{
+  margin:0;
+  text-align:left;
+  line-height:1.05;
+}
+.spell-command-title small{
+  display:block;
+  margin-top:3px;
+  color:#a89f8c;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.02em;
+}
+.spell-command-grid{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(150px,.9fr) minmax(210px,1.25fr) minmax(150px,.9fr);
+  gap:10px;
+  align-items:stretch;
+}
+.spell-command-card{
+  min-height:78px;
+  border-radius:16px;
+  border:1px solid rgba(var(--accent-rgb),.18);
+  background:rgba(0,0,0,.24);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035), 0 6px 14px rgba(0,0,0,.16);
+  padding:10px;
+}
+.spell-card-label,
+.spell-mp-label{
+  display:block;
+  color:#d8d0bd;
+  font-family:'Uncial Antiqua',serif;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.035em;
+  margin:0 0 7px;
+  text-align:center;
+}
+.spell-dc-card select#spell_dc_base{
+  width:100%;
+  max-width:108px;
+  margin:0 auto;
+  display:block;
+  text-align:center;
+  text-align-last:center;
+  border-radius:999px;
+  border:1px solid rgba(var(--accent-rgb),.28);
+  background:#111;
+  color:var(--accent);
+  font-weight:900;
+}
+.spell-command-card.spell-mp-panel{
+  display:flex !important;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  margin:0 !important;
+  background:rgba(0,0,0,.24) !important;
+  border-color:rgba(var(--accent-rgb),.18) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035), 0 6px 14px rgba(0,0,0,.16) !important;
+}
+.spell-mp-value{
+  display:inline-flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:5px;
+  color:var(--accent);
+  font-weight:900;
+  line-height:1;
+}
+.spell-command-card.spell-mp-panel strong,
+.spell-command-card.spell-mp-panel #spellMpMaximum,
+.spell-command-card.spell-mp-panel .spell-mp-divider{
+  color:var(--accent) !important;
+  text-shadow:0 0 12px rgba(var(--accent-rgb),.20) !important;
+}
+.spell-command-card.spell-mp-panel strong{font-size:25px !important;}
+.spell-command-card.spell-mp-panel #spellMpMaximum,
+.spell-command-card.spell-mp-panel .spell-mp-divider{font-size:18px !important;}
+.spell-command-card.spell-mp-panel small{
+  flex-basis:auto !important;
+  margin-top:5px !important;
+  color:#a89f8c !important;
+  text-align:center !important;
+  font-size:10px !important;
+  font-weight:800;
+}
+.spell-add-card{
+  width:100%;
+  border:1px solid rgba(var(--accent-rgb),.45);
+  color:#120d04;
+  background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 58%,#000 42%));
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  font-weight:900;
+  font-family:inherit;
+  box-shadow:0 8px 18px rgba(0,0,0,.25), 0 0 18px rgba(var(--accent-rgb),.10);
+}
+.spell-add-card:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.spell-add-card span{font-size:20px;line-height:1;}
+.spell-add-card strong{font-size:13px;}
+#c-spells .spell-level-layout{
+  grid-template-columns:minmax(118px,152px) minmax(0,1fr) !important;
+  gap:16px !important;
+  align-items:start !important;
+  margin-top:0 !important;
+}
+#c-spells .spell-level-tabs{
+  position:sticky !important;
+  top:12px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:9px !important;
+  width:100% !important;
+  max-height:none !important;
+  overflow:visible !important;
+  margin:0 !important;
+  padding:10px !important;
+  border:1px solid rgba(var(--accent-rgb),.32) !important;
+  border-radius:18px !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(var(--accent-rgb), .16), transparent 55%),
+    linear-gradient(180deg, #191919 0%, #101010 100%) !important;
+  box-shadow:0 12px 24px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.035) !important;
+  z-index:8;
+}
+#c-spells .spell-level-tabs::before{
+  content:'Levels';
+  display:block;
+  color:var(--accent);
+  font-family:'Uncial Antiqua',serif;
+  font-size:13px;
+  font-weight:800;
+  text-align:center;
+  letter-spacing:.04em;
+  margin:2px 0 2px;
+  opacity:.95;
+}
+#c-spells .spell-level-tab{
+  width:100% !important;
+  min-height:46px !important;
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto !important;
+  grid-template-areas:"name count" "dc count" !important;
+  gap:2px 8px !important;
+  align-items:center !important;
+  text-align:left !important;
+  border-radius:14px !important;
+  border:1px solid rgba(var(--accent-rgb),.25) !important;
+  background:linear-gradient(180deg,#222 0%,#121212 100%) !important;
+  color:#d8d0bd !important;
+  padding:9px 10px !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 6px 14px rgba(0,0,0,.22) !important;
+  overflow:hidden;
+}
+#c-spells .spell-level-tab::after{
+  content:'✦';
+  grid-area:count;
+  color:currentColor;
+  opacity:.18;
+  font-size:18px;
+  line-height:1;
+  justify-self:end;
+}
+#c-spells .spell-level-tab .spell-level-tab-count{
+  grid-area:count;
+  position:relative;
+  z-index:1;
+  min-width:28px;
+  height:28px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.28);
+  border:1px solid rgba(var(--accent-rgb),.22);
+  color:#d8d0bd;
+  font-size:12px;
+  font-weight:900;
+}
+#c-spells .spell-level-tab:hover{
+  border-color:rgba(var(--accent-rgb),.55) !important;
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb),.12),0 0 18px rgba(var(--accent-rgb),.10),0 6px 14px rgba(0,0,0,.22) !important;
+}
+#c-spells .spell-level-tab.active{
+  background:linear-gradient(180deg,var(--accent) 0%,color-mix(in srgb,var(--accent) 58%,#000 42%) 100%) !important;
+  color:#120d04 !important;
+  border-color:var(--accent) !important;
+  text-shadow:0 1px 0 rgba(255,255,255,.22);
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb),.24),0 0 22px rgba(var(--accent-rgb),.18),0 8px 18px rgba(0,0,0,.30) !important;
+  transform:translateX(3px);
+}
+#c-spells .spell-level-tab.active .spell-level-tab-name,
+#c-spells .spell-level-tab.active .spell-level-tab-dc,
+#c-spells .spell-level-tab.active .spell-level-tab-count{
+  color:#120d04 !important;
+  border-color:rgba(0,0,0,.24);
+}
+#c-spells .spell-level-tab-name{
+  color:var(--accent);
+  font-family:'Uncial Antiqua',serif;
+  font-size:13px;
+  font-weight:900;
+}
+#c-spells .spell-level-tab-dc{
+  color:#a89f8c;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.02em;
+}
+#c-spells .spell-level-content{
+  min-width:0;
+  background:rgba(10,10,10,.42);
+  border:1px solid rgba(var(--accent-rgb),.12);
+  border-radius:16px;
+  padding:10px;
+  min-height:120px;
+}
+#c-spells .spell-level-selected-head{
+  border-radius:14px;
+  background:linear-gradient(135deg,rgba(var(--accent-rgb),.14),rgba(0,0,0,.26));
+  border-color:rgba(var(--accent-rgb),.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+}
+#c-spells .spell-level-selected-head h4{font-size:15px;}
+#c-spells .spell-level-empty{
+  border-radius:14px;
+  background:rgba(0,0,0,.24);
+  border-color:rgba(var(--accent-rgb),.14);
+  color:#a89f8c;
+}
+#c-spells .list-row.spell-row.ability-fancy-row{
+  align-items:stretch !important;
+  gap:10px;
+  border-radius:16px !important;
+  border:1px solid rgba(var(--accent-rgb),.18) !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(var(--accent-rgb),.08), transparent 40%),
+    linear-gradient(135deg,#26221a 0%,#1a1a1a 48%,#111 100%) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.035);
+  padding:10px !important;
+}
+#c-spells .spell-row.ability-fancy-row:hover{
+  border-color:rgba(var(--accent-rgb),.55) !important;
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb),.18),0 0 18px rgba(var(--accent-rgb),.11),0 8px 18px rgba(0,0,0,.25);
+  transform:translateY(-1px);
+}
+#c-spells .spell-row .row-content{
+  gap:4px;
+  justify-content:center;
+  padding-right:4px !important;
+}
+#c-spells .spell-row-primary{display:flex;align-items:center;gap:9px;min-width:0;}
+#c-spells .spell-name-line{min-width:0;}
+#c-spells .spell-meta-line{display:flex;flex-wrap:wrap;gap:6px;}
+#c-spells .spell-row .row-actions{
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:7px;
+}
+#c-spells .spell-use-btn.ability-use-chip,
+.spell-view-actions .spell-use-btn.ability-use-chip{
+  flex:0 0 auto;
+  min-width:44px;
+  min-height:30px;
+  border-radius:999px;
+  border:1px solid rgba(95,225,128,.8);
+  background:linear-gradient(180deg,#22864a,#11592b);
+  color:#effff2;
+  font-size:11px;
+  font-weight:900;
+  cursor:pointer;
+  padding:5px 10px;
+  box-shadow:0 0 12px rgba(66,208,111,.18);
+}
+#c-spells .spell-use-btn.ability-use-chip:hover:not(:disabled),
+.spell-view-actions .spell-use-btn.ability-use-chip:hover:not(:disabled){
+  filter:brightness(1.12);
+  box-shadow:0 0 17px rgba(66,208,111,.33);
+}
+#c-spells .spell-use-btn.ability-use-chip.unavailable,
+#c-spells .spell-use-btn.ability-use-chip:disabled,
+.spell-view-actions .spell-use-btn.ability-use-chip.unavailable,
+.spell-view-actions .spell-use-btn.ability-use-chip:disabled{
+  border-color:#934848;
+  background:linear-gradient(180deg,#733030,#421414);
+  color:#ffd0d0;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+#c-spells .spell-action-chip,
+#c-spells .spell-link-btn,
+#c-spells .btn-edit,
+.spell-view-actions .spell-action-chip,
+.spell-view-actions .spell-link-btn{
+  border-radius:999px;
+}
+@media (min-width:900px){
+  #combat.tab-content:has(#c-spells[style*="display: block"]){max-width:1180px !important;}
+  #c-spells.spell-fancy-shell[style*="display: block"]{
+    max-width:1180px !important;
+    margin:0 auto !important;
+  }
+}
+@media (max-width:899px){
+  #c-spells.spell-fancy-shell{
+    max-width:800px !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+  }
+  .spell-command-grid{grid-template-columns:1fr;}
+  #c-spells .spell-level-layout{grid-template-columns:1fr !important;gap:12px !important;}
+  #c-spells .spell-level-tabs{
+    position:static !important;
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+    overflow:visible !important;
+    max-height:none !important;
+  }
+  #c-spells .spell-level-tabs::before{grid-column:1 / -1;margin-bottom:0;}
+  #c-spells .spell-level-tab.active{transform:none;}
+  #c-spells .spell-row.ability-fancy-row{flex-direction:column;}
+  #c-spells .spell-row .row-actions{justify-content:flex-start;}
+}
+@media (max-width:390px){
+  #c-spells .spell-level-tabs{grid-template-columns:1fr !important;}
 }
 </style>
 
