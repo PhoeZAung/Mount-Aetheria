@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Admin — Master Editor</title>
+<!-- Synced admin build: admin chrome preserved; character sheet UI patches imported from characters.html. -->
 <meta name="theme-color" content="#1a1a1a">
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <style>
@@ -1410,6 +1411,2061 @@ body > .tab-content.active{
 }
 </style>
 
+
+
+<style>
+/* --- AUTO-SYNCED FROM characters.html: current player-sheet UI patches --- */
+/* --- v22 Ability UI polish: distinct ability tabs + fantasy cards --- */
+.ma-ability-score-input::-webkit-outer-spin-button,
+.ma-ability-score-input::-webkit-inner-spin-button,
+#maAbilityCardGrid input[type="number"]::-webkit-outer-spin-button,
+#maAbilityCardGrid input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  margin: 0 !important;
+  display: none !important;
+}
+.ma-ability-score-input[type="number"],
+#maAbilityCardGrid input[type="number"] {
+  -moz-appearance: textfield !important;
+  appearance: textfield !important;
+}
+#c-abilities-main{
+  background:
+    radial-gradient(circle at top left, rgba(var(--accent-rgb),.10), transparent 42%),
+    linear-gradient(180deg, rgba(30,26,18,.98), rgba(15,15,15,.98));
+  border:1px solid rgba(var(--accent-rgb),.30);
+  border-radius:20px;
+  padding:14px;
+  box-shadow:0 14px 28px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.04);
+}
+#c-abilities-main > .sub-nav-container,
+#c-abilities-main > .sub-nav-container #abilitiesSubSubNav{
+  max-width:100% !important;
+  margin:0 0 14px !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+#abilitiesSubSubNav{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:8px !important;
+}
+#abilitiesSubSubNav .sub-btn{
+  position:relative;
+  min-height:44px !important;
+  border-radius:14px !important;
+  border:1px solid rgba(var(--accent-rgb),.25) !important;
+  background:linear-gradient(180deg,#222 0%,#121212 100%) !important;
+  color:#d8d0bd !important;
+  font-family:'Uncial Antiqua',serif !important;
+  letter-spacing:.03em;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 6px 14px rgba(0,0,0,.22) !important;
+  overflow:hidden;
+}
+#abilitiesSubSubNav .sub-btn::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 50% -20%, rgba(var(--accent-rgb),.20), transparent 48%);
+  opacity:.55;
+  pointer-events:none;
+}
+#abilitiesSubSubNav .sub-btn.active{
+  background:linear-gradient(180deg,var(--accent) 0%,color-mix(in srgb,var(--accent) 58%,#000 42%) 100%) !important;
+  color:#120d04 !important;
+  border-color:var(--accent) !important;
+  text-shadow:0 1px 0 rgba(255,255,255,.22);
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb),.24),0 0 22px rgba(var(--accent-rgb),.18),0 8px 18px rgba(0,0,0,.30) !important;
+}
+#c-abilities-main .sub-sub-group{
+  background:rgba(10,10,10,.42);
+  border:1px solid rgba(var(--accent-rgb),.12);
+  border-radius:16px;
+  padding:10px;
+  min-height:120px;
+}
+#c-abilities-main .btn-add{
+  border-radius:14px;
+  background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 58%,#000 42%));
+  box-shadow:0 8px 18px rgba(0,0,0,.25);
+}
+.list-row.ability-fancy-row{
+  align-items:stretch !important;
+  gap:10px;
+  border-radius:16px !important;
+  border:1px solid rgba(var(--accent-rgb),.18) !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(var(--accent-rgb),.08), transparent 40%),
+    linear-gradient(135deg,#26221a 0%,#1a1a1a 48%,#111 100%) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.035);
+  padding:10px !important;
+}
+.list-row.ability-fancy-row:hover{
+  border-color:rgba(var(--accent-rgb),.55) !important;
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb),.18),0 0 18px rgba(var(--accent-rgb),.11),0 8px 18px rgba(0,0,0,.25);
+  transform:translateY(-1px);
+}
+.ability-fancy-row .row-content{
+  gap:4px;
+  justify-content:center;
+  padding-right:4px !important;
+}
+.ability-main-line{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+}
+.ability-use-chip{
+  flex:0 0 auto;
+  min-width:44px;
+  min-height:30px;
+  border-radius:999px;
+  border:1px solid rgba(95,225,128,.8);
+  background:linear-gradient(180deg,#22864a,#11592b);
+  color:#effff2;
+  font-size:11px;
+  font-weight:900;
+  cursor:pointer;
+  padding:5px 10px;
+  box-shadow:0 0 12px rgba(66,208,111,.18);
+}
+.ability-use-chip:hover:not(:disabled){
+  filter:brightness(1.12);
+  box-shadow:0 0 17px rgba(66,208,111,.33);
+}
+.ability-use-chip.is-locked,
+.ability-use-chip:disabled{
+  border-color:#934848;
+  background:linear-gradient(180deg,#733030,#421414);
+  color:#ffd0d0;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+.ability-name-line{
+  min-width:0;
+  color:var(--accent);
+  font-weight:900;
+  font-size:15px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.ability-meta-line{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  color:#a89f8c;
+  font-size:11px;
+  font-weight:800;
+}
+.ability-meta-pill{
+  display:inline-flex;
+  align-items:center;
+  min-height:22px;
+  padding:3px 8px;
+  border-radius:999px;
+  border:1px solid rgba(var(--accent-rgb),.18);
+  background:rgba(0,0,0,.22);
+  color:#d8d0bd;
+}
+.ability-meta-pill.roll{
+  border-color:rgba(97,255,150,.34);
+  color:#bfffd0;
+}
+.ability-fancy-row .row-actions{
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:7px;
+}
+.ability-fancy-row .inline-input-group{
+  border:1px solid rgba(var(--accent-rgb),.14);
+  background:rgba(0,0,0,.24);
+  border-radius:999px;
+  padding:3px 7px;
+}
+.ability-fancy-row .inline-input-group input,
+.ability-fancy-row .inline-input-group .max-use-static{
+  border-radius:999px;
+}
+@media(max-width:700px){
+  #abilitiesSubSubNav{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+  .list-row.ability-fancy-row{flex-direction:column;}
+  .ability-fancy-row .row-actions{justify-content:flex-start;}
+}
+
+/* --- v23 Skills + panel polish: pretty base view, edit mode untouched --- */
+#skills.active {
+  max-width: 1120px !important;
+}
+#skills.active .skills-view-toolbar {
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 20px !important;
+  padding: 14px 16px !important;
+  margin: 0 auto 16px !important;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(var(--accent-rgb),.18), transparent 28%),
+    linear-gradient(135deg, rgba(38,31,18,.94), rgba(18,18,18,.98)) !important;
+  border: 1px solid rgba(var(--accent-rgb),.46) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+#skills.active .skills-view-toolbar::before {
+  content: "✦";
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(var(--accent-rgb),.34);
+  font-size: 34px;
+  pointer-events: none;
+}
+#skills.active .skills-view-toolbar h2 {
+  padding-left: 40px !important;
+  color: #ffe2a3 !important;
+  text-shadow: 0 0 14px rgba(var(--accent-rgb),.18) !important;
+}
+#skills.active .skills-mode-btn {
+  background: linear-gradient(135deg, #3a2c16, #1d1d1d) !important;
+  border: 1px solid rgba(var(--accent-rgb),.56) !important;
+  color: var(--accent) !important;
+  box-shadow: 0 7px 18px rgba(0,0,0,.28) !important;
+}
+#skills.active .skills-mode-btn:hover {
+  background: var(--accent) !important;
+  color: #111 !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 18px rgba(var(--accent-rgb),.28) !important;
+}
+body:not(.skill-edit-mode) #skills.active .skills-container {
+  padding: 10px !important;
+  border-radius: 22px !important;
+  background:
+    linear-gradient(180deg, rgba(30,30,30,.82), rgba(14,14,14,.68)),
+    radial-gradient(circle at top right, rgba(var(--accent-rgb),.09), transparent 34%) !important;
+  border: 1px solid rgba(var(--accent-rgb),.20) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03), 0 12px 30px rgba(0,0,0,.22) !important;
+}
+body:not(.skill-edit-mode) #skillsTableBody {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(235px, 1fr)) !important;
+  gap: 10px !important;
+  justify-content: stretch !important;
+  align-items: stretch !important;
+  width: 100% !important;
+}
+body:not(.skill-edit-mode) #skillsTableBody tr {
+  position: relative !important;
+  min-height: 62px !important;
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 8px !important;
+  overflow: hidden !important;
+  padding: 9px 10px 9px 14px !important;
+  background:
+    linear-gradient(145deg, rgba(42,42,42,.98), rgba(23,23,23,.98)) !important;
+  border: 1px solid #3a3429 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 16px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.035) !important;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease !important;
+}
+body:not(.skill-edit-mode) #skillsTableBody tr::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, rgba(var(--accent-rgb),.92), rgba(var(--accent-rgb),.16));
+  opacity: .75;
+}
+body:not(.skill-edit-mode) #skillsTableBody tr::after {
+  content: "✦";
+  position: absolute;
+  right: 46px;
+  bottom: -10px;
+  color: rgba(var(--accent-rgb),.055);
+  font-size: 54px;
+  line-height: 1;
+  pointer-events: none;
+}
+body:not(.skill-edit-mode) #skillsTableBody tr:has(.skill-cs:checked) {
+  border-color: rgba(var(--accent-rgb),.68) !important;
+  box-shadow: 0 9px 18px rgba(0,0,0,.24), 0 0 0 1px rgba(var(--accent-rgb),.10), 0 0 18px rgba(var(--accent-rgb),.10) !important;
+}
+body:not(.skill-edit-mode) #skillsTableBody tr:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(var(--accent-rgb),.78) !important;
+  box-shadow: 0 12px 22px rgba(0,0,0,.28), 0 0 18px rgba(var(--accent-rgb),.13) !important;
+}
+body:not(.skill-edit-mode) #skillsTableBody td {
+  border: 0 !important;
+  background: transparent !important;
+}
+body:not(.skill-edit-mode) #skillsTableBody td:nth-child(2) {
+  display: flex !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+  line-height: 1.18 !important;
+  color: #f1f1f1 !important;
+  z-index: 1 !important;
+}
+body:not(.skill-edit-mode) #skillsTableBody td:nth-child(2)::before {
+  content: "🎲";
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 9px;
+  border-radius: 11px;
+  background: rgba(0,0,0,.34);
+  border: 1px solid rgba(var(--accent-rgb),.26);
+  font-size: 15px;
+  filter: saturate(.9);
+}
+body:not(.skill-edit-mode) #skillsTableBody tr:has(.skill-cs:checked) td:nth-child(2)::before {
+  content: "★";
+  color: var(--accent);
+  font-size: 18px;
+}
+body:not(.skill-edit-mode) #skillsTableBody .skill-name-cell {
+  min-width: 0 !important;
+  width: 100% !important;
+  color: #f4f4f4 !important;
+  font-weight: 900 !important;
+}
+body:not(.skill-edit-mode) #skillsTableBody .skill-name-cell.rollable:hover,
+body:not(.skill-edit-mode) #skillsTableBody .skill-name-cell.rollable:focus-within {
+  color: #ffe2a3 !important;
+  text-shadow: 0 0 10px rgba(var(--accent-rgb),.35) !important;
+}
+body:not(.skill-edit-mode) #skillsTableBody .skill-stat-tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-left: 6px !important;
+  padding: 2px 6px !important;
+  border-radius: 999px !important;
+  background: rgba(var(--accent-rgb),.10) !important;
+  border: 1px solid rgba(var(--accent-rgb),.22) !important;
+  color: #e9ca83 !important;
+  font-size: 10px !important;
+  letter-spacing: .04em !important;
+}
+body:not(.skill-edit-mode) #skillsTableBody .skill-custom-input {
+  max-width: 150px !important;
+  color: #f1f1f1 !important;
+}
+body:not(.skill-edit-mode) #skillsTableBody td:nth-child(6) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 48px !important;
+  height: 42px !important;
+  padding: 0 !important;
+  color: #111 !important;
+  background: linear-gradient(180deg, var(--accent), var(--accent)) !important;
+  border: 1px solid rgba(var(--accent-rgb),.50) !important;
+  border-radius: 14px !important;
+  font-size: 18px !important;
+  font-weight: 1000 !important;
+  line-height: 1 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.36), 0 6px 14px rgba(0,0,0,.25) !important;
+  z-index: 1 !important;
+}
+body:not(.skill-edit-mode) #skillsTableBody .trained-untrained {
+  color: #ff7070 !important;
+}
+body:not(.skill-edit-mode) #skillsTableBody tr:has(.trained-untrained) {
+  border-color: rgba(255,94,94,.30) !important;
+}
+body.skill-edit-mode #skills.active .skills-container,
+body.skill-edit-mode #skillsTableBody,
+body.skill-edit-mode #skillsTableBody tr,
+body.skill-edit-mode #skillsTableBody td {
+  box-shadow: none;
+  transform: none;
+}
+@media(max-width:700px){
+  #skills.active .skills-view-toolbar { border-radius: 16px !important; }
+  body:not(.skill-edit-mode) #skills.active .skills-container { padding: 8px !important; border-radius: 18px !important; }
+  body:not(.skill-edit-mode) #skillsTableBody { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 8px !important; }
+  body:not(.skill-edit-mode) #skillsTableBody tr { min-height: 58px !important; padding: 8px 8px 8px 11px !important; }
+  body:not(.skill-edit-mode) #skillsTableBody td:nth-child(2)::before { flex-basis: 28px; width: 28px; height: 28px; margin-right: 7px; font-size: 13px; }
+  body:not(.skill-edit-mode) #skillsTableBody td:nth-child(2) { font-size: 12px !important; }
+  body:not(.skill-edit-mode) #skillsTableBody td:nth-child(6) { min-width: 40px !important; height: 38px !important; font-size: 16px !important; }
+}
+@media(max-width:410px){
+  body:not(.skill-edit-mode) #skillsTableBody { grid-template-columns: 1fr !important; max-width: 330px; margin: 0 auto; }
+}
+
+/* --- v23 light polish for Items and Other tab controls --- */
+#items.active .item-section-tabs,
+#other.active .other-sub-tabs {
+  border-radius: 18px !important;
+  padding: 8px !important;
+  background: linear-gradient(135deg, rgba(32,32,32,.98), rgba(14,14,14,.98)) !important;
+  border: 1px solid rgba(var(--accent-rgb),.30) !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,.22) !important;
+}
+#items.active .item-section-tabs .sub-btn,
+#other.active .other-sub-btn {
+  border-radius: 999px !important;
+  border: 1px solid rgba(var(--accent-rgb),.22) !important;
+  background: rgba(0,0,0,.20) !important;
+  color: #ddd !important;
+  font-weight: 900 !important;
+}
+#items.active .item-section-tabs .sub-btn.active,
+#items.active .item-section-tabs .sub-btn:hover,
+#other.active .other-sub-btn.active,
+#other.active .other-sub-btn:hover {
+  background: linear-gradient(180deg, var(--accent), var(--accent)) !important;
+  border-color: var(--accent) !important;
+  color: #111 !important;
+  box-shadow: 0 0 16px rgba(var(--accent-rgb),.16) !important;
+}
+#items.active .items-panel-shell,
+#other.active .other-sub-panel.active {
+  border-radius: 20px !important;
+  border-color: rgba(var(--accent-rgb),.30) !important;
+  background:
+    radial-gradient(circle at top right, rgba(var(--accent-rgb),.08), transparent 32%),
+    linear-gradient(180deg, rgba(30,30,30,.96), rgba(20,20,20,.96)) !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,.22) !important;
+}
+#items.active #itemFilterTag,
+#items.active #itemSort,
+#other.active .fantasy-calendar-nav select,
+#other.active .fantasy-calendar-nav input {
+  border-radius: 999px !important;
+  border-color: rgba(var(--accent-rgb),.28) !important;
+  background: #141414 !important;
+}
+
+/* --- v24 Skills navigation pass: one-column readable base view --- */
+body:not(.skill-edit-mode) #skills.active {
+  max-width: 980px !important;
+}
+body:not(.skill-edit-mode) #skills.active .skills-container {
+  padding: 12px !important;
+}
+body:not(.skill-edit-mode) #skills.active #skillsTableBody {
+  display: grid !important;
+  grid-template-columns: minmax(0, 760px) !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  width: 100% !important;
+}
+body:not(.skill-edit-mode) #skills.active #skillsTableBody tr {
+  min-height: 46px !important;
+  width: 100% !important;
+  max-width: 760px !important;
+  grid-template-columns: minmax(0, 1fr) 58px !important;
+  padding: 6px 8px 6px 12px !important;
+  border-radius: 14px !important;
+  background:
+    linear-gradient(90deg, rgba(39,39,39,.98), rgba(23,23,23,.98)) !important;
+}
+body:not(.skill-edit-mode) #skills.active #skillsTableBody tr:hover {
+  transform: translateX(3px) !important;
+}
+body:not(.skill-edit-mode) #skills.active #skillsTableBody td:nth-child(2) {
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+}
+body:not(.skill-edit-mode) #skills.active #skillsTableBody td:nth-child(2)::before {
+  flex: 0 0 30px !important;
+  width: 30px !important;
+  height: 30px !important;
+  margin-right: 10px !important;
+  border-radius: 10px !important;
+}
+body:not(.skill-edit-mode) #skills.active #skillsTableBody td:nth-child(6) {
+  min-width: 48px !important;
+  height: 34px !important;
+  border-radius: 12px !important;
+  font-size: 16px !important;
+}
+body:not(.skill-edit-mode) #skills.active #skillsTableBody .skill-stat-tag {
+  margin-left: 8px !important;
+}
+
+/* Unrollable trained-only skills must stay visibly red, not gold on hover. */
+body:not(.skill-edit-mode) #skills.active #skillsTableBody .skill-name-cell.skill-roll-disabled,
+body:not(.skill-edit-mode) #skills.active #skillsTableBody .skill-name-cell.trained-untrained,
+body:not(.skill-edit-mode) #skills.active #skillsTableBody .skill-name-cell.skill-roll-disabled .skill-custom-input,
+body:not(.skill-edit-mode) #skills.active #skillsTableBody .skill-name-cell.trained-untrained .skill-custom-input {
+  color: #ff5f5f !important;
+  text-shadow: 0 0 10px rgba(255,80,80,.18) !important;
+}
+body:not(.skill-edit-mode) #skills.active #skillsTableBody .skill-name-cell.skill-roll-disabled:hover,
+body:not(.skill-edit-mode) #skills.active #skillsTableBody .skill-name-cell.trained-untrained:hover,
+body:not(.skill-edit-mode) #skills.active #skillsTableBody .skill-name-cell.skill-roll-disabled:focus-within,
+body:not(.skill-edit-mode) #skills.active #skillsTableBody .skill-name-cell.trained-untrained:focus-within {
+  color: #ff5f5f !important;
+  text-shadow: 0 0 10px rgba(255,80,80,.22) !important;
+}
+body:not(.skill-edit-mode) #skills.active #skillsTableBody tr:has(.skill-roll-disabled),
+body:not(.skill-edit-mode) #skills.active #skillsTableBody tr:has(.trained-untrained) {
+  border-color: rgba(255,91,91,.46) !important;
+  background:
+    linear-gradient(90deg, rgba(55,25,25,.94), rgba(24,20,20,.98)) !important;
+}
+body:not(.skill-edit-mode) #skills.active #skillsTableBody tr:has(.skill-roll-disabled)::before,
+body:not(.skill-edit-mode) #skills.active #skillsTableBody tr:has(.trained-untrained)::before {
+  background: linear-gradient(180deg, rgba(255,91,91,.95), rgba(255,91,91,.18)) !important;
+}
+body:not(.skill-edit-mode) #skills.active #skillsTableBody tr:has(.skill-roll-disabled) td:nth-child(2)::before,
+body:not(.skill-edit-mode) #skills.active #skillsTableBody tr:has(.trained-untrained) td:nth-child(2)::before {
+  content: "!" !important;
+  color: #ff7777 !important;
+  border-color: rgba(255,91,91,.42) !important;
+  background: rgba(60,12,12,.36) !important;
+  font-weight: 1000 !important;
+}
+@media(max-width:700px){
+  body:not(.skill-edit-mode) #skills.active #skillsTableBody {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 6px !important;
+  }
+  body:not(.skill-edit-mode) #skills.active #skillsTableBody tr {
+    min-height: 44px !important;
+    padding: 6px 7px 6px 10px !important;
+  }
+  body:not(.skill-edit-mode) #skills.active #skillsTableBody td:nth-child(2) {
+    font-size: 13px !important;
+  }
+}
+
+/* --- v37 level-up direct cleanup --- */
+.ma-levelup-grid.ma-v37-level-grid{
+  grid-template-columns:repeat(auto-fit,minmax(132px,1fr)) !important;
+  gap:10px !important;
+}
+.ma-levelup-card.ma-v37-level-card strong{
+  font-size:28px !important;
+  line-height:1 !important;
+}
+.ma-levelup-card.ma-v37-level-card span{
+  font-size:11px !important;
+  color:#aaa !important;
+  line-height:1.25 !important;
+}
+.ma-v37-bonus-row{
+  display:grid;
+  grid-template-columns:105px minmax(0,1fr);
+  gap:8px;
+  align-items:center;
+  margin:8px 0;
+  padding:9px;
+  border:1px solid rgba(var(--accent-rgb),.22);
+  border-radius:11px;
+  background:#171717;
+}
+.ma-v37-bonus-row strong{color:var(--accent);}
+.ma-v37-bonus-row select{width:100%;}
+.ma-v37-base-locked{
+  opacity:.88;
+}
+
+/* --- vPretty editor UI: themed glowing edit modals for abilities, feats, spells, and weapons --- */
+#editorModal.ma-editor-overlay {
+  background:
+    radial-gradient(circle at 18% 14%, rgba(var(--accent-rgb), .16), transparent 34%),
+    rgba(0,0,0,.88) !important;
+}
+#editorModal.ma-editor-overlay .modal-content {
+  max-width: 760px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(var(--accent-rgb), .86);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(var(--accent-rgb), .18), transparent 34%),
+    linear-gradient(145deg, #252019 0%, #191919 48%, #101010 100%);
+  box-shadow:
+    0 24px 70px rgba(0,0,0,.62),
+    0 0 0 1px rgba(var(--accent-rgb), .14),
+    0 0 36px rgba(var(--accent-rgb), .24),
+    inset 0 1px 0 rgba(255,255,255,.05);
+}
+#editorModal.ma-editor-overlay .modal-header {
+  position: relative;
+  overflow: hidden;
+  min-height: 64px;
+  padding: 15px 16px;
+  background:
+    linear-gradient(135deg, rgba(var(--accent-rgb), .18), rgba(0,0,0,.42)),
+    #0c0c0c;
+  border-bottom: 1px solid rgba(var(--accent-rgb), .34);
+}
+#editorModal.ma-editor-overlay .modal-header::before {
+  content: attr(data-editor-icon);
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  background: rgba(0,0,0,.38);
+  border: 1px solid rgba(var(--accent-rgb), .34);
+  box-shadow: 0 0 18px rgba(var(--accent-rgb), .18), inset 0 1px 0 rgba(255,255,255,.07);
+  font-size: 22px;
+}
+#editorModal.ma-editor-overlay #modalTitle {
+  margin-left: 52px;
+  text-align: left;
+  font-size: 21px;
+  letter-spacing: .035em;
+  color: var(--accent);
+  text-shadow: 0 0 14px rgba(var(--accent-rgb), .34);
+}
+#editorModal.ma-editor-overlay .modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1;
+}
+#editorModal.ma-editor-overlay .btn-save,
+#editorModal.ma-editor-overlay .btn-link {
+  border-radius: 999px;
+  border: 1px solid rgba(var(--accent-rgb), .48);
+  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 70%, #000 30%));
+  color: #111;
+  box-shadow: 0 0 14px rgba(var(--accent-rgb), .18);
+  font-weight: 900;
+}
+#editorModal.ma-editor-overlay .btn-close {
+  z-index: 1;
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(var(--accent-rgb), .5);
+}
+#editorModal.ma-editor-overlay #modalBody.ma-editor-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(var(--accent-rgb), .08), transparent 30%),
+    linear-gradient(180deg, rgba(32,32,32,.96), rgba(18,18,18,.98));
+}
+.ma-edit-field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px;
+  border-radius: 14px;
+  background:
+    linear-gradient(145deg, rgba(42,42,42,.94), rgba(20,20,20,.96));
+  border: 1px solid rgba(var(--accent-rgb), .18);
+  box-shadow: 0 8px 16px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.035);
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.ma-edit-field::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: 14px 0 0 14px;
+  background: linear-gradient(180deg, rgba(var(--accent-rgb), .86), rgba(var(--accent-rgb), .08));
+  opacity: .78;
+}
+.ma-edit-field:hover,
+.ma-edit-field:focus-within {
+  transform: translateY(-1px);
+  border-color: rgba(var(--accent-rgb), .62);
+  box-shadow: 0 12px 22px rgba(0,0,0,.30), 0 0 18px rgba(var(--accent-rgb), .15);
+}
+.ma-edit-field label,
+#editorModal.ma-editor-overlay .ma-edit-label {
+  color: #f3dfae;
+  font-size: 11px;
+  font-weight: 1000;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin: 0;
+}
+.ma-edit-field input,
+.ma-edit-field select,
+.ma-edit-field textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(var(--accent-rgb), .28);
+  background: rgba(5,5,5,.60);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+}
+.ma-edit-field input:focus,
+.ma-edit-field select:focus,
+.ma-edit-field textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb), .25), 0 0 14px rgba(var(--accent-rgb), .24);
+}
+.ma-edit-field select {
+  cursor: pointer;
+  font-weight: 800;
+}
+.ma-edit-field textarea {
+  min-height: 120px;
+}
+.ma-edit-field.ma-edit-long,
+.ma-edit-field.ma-edit-checkbox,
+.ma-edit-uses-field,
+#editorModal.ma-editor-overlay .editor-section-title {
+  grid-column: 1 / -1;
+}
+.ma-edit-field.ma-edit-long textarea {
+  min-height: 190px;
+}
+.ma-edit-uses-field {
+  padding: 12px;
+}
+.ma-edit-uses-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.ma-edit-check-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(var(--accent-rgb), .22);
+  border-radius: 12px;
+  background: rgba(0,0,0,.28);
+}
+.ma-edit-check-wrap input[type="checkbox"] {
+  width: 22px !important;
+  height: 22px !important;
+  accent-color: var(--accent);
+  flex: 0 0 22px;
+}
+#editorModal.ma-editor-overlay .editor-section-title {
+  position: relative;
+  margin: 8px 0 0;
+  padding: 12px 14px 12px 42px;
+  text-align: left;
+  border-radius: 16px;
+  border: 1px solid rgba(var(--accent-rgb), .34);
+  background:
+    radial-gradient(circle at 0% 50%, rgba(var(--accent-rgb), .20), transparent 42%),
+    linear-gradient(135deg, #211b12, #111);
+  color: var(--accent);
+  box-shadow: 0 8px 18px rgba(0,0,0,.24), 0 0 14px rgba(var(--accent-rgb), .10);
+  letter-spacing: .04em;
+}
+#editorModal.ma-editor-overlay .editor-section-title::before {
+  content: '✦';
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+  text-shadow: 0 0 12px rgba(var(--accent-rgb), .52);
+}
+#editorModal.ma-editor-overlay[data-edit-type="spell"] .editor-section-title::before { content: '✧'; }
+#editorModal.ma-editor-overlay[data-edit-type="weapon"] .editor-section-title::before { content: '⚔'; }
+#editorModal.ma-editor-overlay[data-edit-type="active"] .editor-section-title::before { content: '✹'; }
+#editorModal.ma-editor-overlay[data-edit-type="passive"] .editor-section-title::before { content: '◆'; }
+#editorModal.ma-editor-overlay[data-edit-type="racial"] .editor-section-title::before { content: '✥'; }
+#editorModal.ma-editor-overlay[data-edit-type="feat"] .editor-section-title::before { content: '★'; }
+#editorModal.ma-editor-overlay #modalDeleteBtn {
+  border-radius: 14px;
+  min-height: 42px;
+  border: 1px solid rgba(255,96,96,.60);
+  background: linear-gradient(180deg, #a92828, #661717);
+  box-shadow: 0 0 16px rgba(255,70,70,.16);
+  font-weight: 1000;
+}
+#editorModal.ma-editor-overlay .modal-content > div:last-child {
+  border-top: 1px solid rgba(var(--accent-rgb), .24) !important;
+  background: linear-gradient(180deg, #151515, #0d0d0d) !important;
+}
+
+/* Ability-score table polish so the core Ability UI matches the chosen theme too. */
+#character .ability-heading-row + div {
+  border-radius: 18px !important;
+  border: 1px solid rgba(var(--accent-rgb), .30) !important;
+  background:
+    radial-gradient(circle at top left, rgba(var(--accent-rgb), .10), transparent 35%),
+    linear-gradient(180deg, rgba(30,30,30,.98), rgba(16,16,16,.98)) !important;
+  box-shadow: 0 12px 26px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+#character .ability-heading-row + div table tr:not(:first-child):hover {
+  background: rgba(var(--accent-rgb), .07);
+}
+#character .ability-heading-row + div input.ma-ability-score-input,
+#character .ability-heading-row + div input[id="str"],
+#character .ability-heading-row + div input[id="dex"],
+#character .ability-heading-row + div input[id="con"],
+#character .ability-heading-row + div input[id="int"],
+#character .ability-heading-row + div input[id="wis"],
+#character .ability-heading-row + div input[id="cha"] {
+  border-radius: 999px !important;
+  border-color: rgba(var(--accent-rgb), .30) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03), 0 0 10px rgba(var(--accent-rgb), .08) !important;
+}
+#character .ability-heading-row + div input:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb), .22), 0 0 16px rgba(var(--accent-rgb), .20) !important;
+}
+@media(max-width:700px){
+  #editorModal.ma-editor-overlay .modal-content { max-width: 96vw; max-height: 90vh; }
+  #editorModal.ma-editor-overlay #modalBody.ma-editor-body { grid-template-columns: 1fr; padding: 12px; gap: 10px; }
+  .ma-edit-uses-grid { grid-template-columns: 1fr; }
+  #editorModal.ma-editor-overlay .modal-header::before { width: 36px; height: 36px; border-radius: 13px; font-size: 19px; }
+  #editorModal.ma-editor-overlay #modalTitle { margin-left: 46px; font-size: 18px; }
+}
+
+/* --- Stock Spell Picker: theme-aware class spell browser --- */
+.ma-stock-spell-overlay{position:fixed;inset:0;z-index:7300;display:none;align-items:center;justify-content:center;padding:18px;background:radial-gradient(circle at 18% 14%,rgba(var(--accent-rgb),.18),transparent 34%),rgba(0,0,0,.88);backdrop-filter:blur(4px);} 
+.ma-stock-spell-overlay.show{display:flex;}
+.ma-stock-spell-shell{width:min(980px,96vw);max-height:90vh;display:flex;flex-direction:column;overflow:hidden;border-radius:24px;border:1px solid rgba(var(--accent-rgb),.86);background:radial-gradient(circle at 12% 0%,rgba(var(--accent-rgb),.18),transparent 34%),linear-gradient(145deg,#252019 0%,#191919 48%,#101010 100%);box-shadow:0 24px 70px rgba(0,0,0,.62),0 0 0 1px rgba(var(--accent-rgb),.14),0 0 38px rgba(var(--accent-rgb),.25),inset 0 1px 0 rgba(255,255,255,.05);} 
+.ma-stock-spell-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:16px 18px;background:linear-gradient(135deg,rgba(var(--accent-rgb),.18),rgba(0,0,0,.42)),#0c0c0c;border-bottom:1px solid rgba(var(--accent-rgb),.34);} 
+.ma-stock-spell-head h3{margin:0;text-align:left;font-size:22px;text-shadow:0 0 14px rgba(var(--accent-rgb),.34);} 
+.ma-stock-spell-head p{margin:5px 0 0;color:#aaa;font-size:12px;line-height:1.4;} 
+.ma-stock-close{width:36px;height:36px;border-radius:999px;border:1px solid rgba(var(--accent-rgb),.36);background:#151515;color:var(--accent);font-size:24px;line-height:1;cursor:pointer;box-shadow:0 0 12px rgba(var(--accent-rgb),.12);} 
+.ma-stock-close:hover{background:var(--accent);color:#111;border-color:var(--accent);} 
+.ma-stock-spell-body{overflow:auto;padding:16px;background:radial-gradient(circle at 100% 0%,rgba(var(--accent-rgb),.08),transparent 30%),linear-gradient(180deg,rgba(32,32,32,.96),rgba(18,18,18,.98));} 
+.ma-stock-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;} 
+.ma-stock-choice-card{min-height:190px;text-align:left;border-radius:20px;border:1px solid rgba(var(--accent-rgb),.30);background:linear-gradient(145deg,rgba(42,42,42,.94),rgba(18,18,18,.98));color:#eee;padding:18px;cursor:pointer;box-shadow:0 10px 22px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.04);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;} 
+.ma-stock-choice-card:hover{transform:translateY(-2px);border-color:rgba(var(--accent-rgb),.78);box-shadow:0 14px 26px rgba(0,0,0,.32),0 0 22px rgba(var(--accent-rgb),.16);} 
+.ma-stock-choice-icon{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(var(--accent-rgb),.34);background:rgba(0,0,0,.34);color:var(--accent);font-size:25px;box-shadow:0 0 18px rgba(var(--accent-rgb),.16);margin-bottom:12px;} 
+.ma-stock-choice-card strong{display:block;color:var(--accent);font-family:'Uncial Antiqua',serif;font-size:19px;text-shadow:0 0 12px rgba(var(--accent-rgb),.25);margin-bottom:7px;} 
+.ma-stock-choice-card small{display:block;color:#b8b8b8;line-height:1.5;font-size:13px;} 
+.ma-stock-toolbar{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;} 
+.ma-stock-chip-row{display:flex;gap:7px;flex-wrap:wrap;align-items:center;} 
+.ma-stock-class-chip,.ma-stock-level-chip{border-radius:999px;border:1px solid rgba(var(--accent-rgb),.26);background:#181818;color:#ddd;padding:7px 11px;font-weight:900;cursor:pointer;} 
+.ma-stock-class-chip.active,.ma-stock-level-chip.active,.ma-stock-class-chip:hover,.ma-stock-level-chip:hover{background:var(--accent);border-color:var(--accent);color:#111;box-shadow:0 0 14px rgba(var(--accent-rgb),.22);} 
+.ma-stock-search{border-radius:999px!important;border:1px solid rgba(var(--accent-rgb),.34)!important;background:#0d0d0d!important;color:#fff!important;padding:11px 14px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 0 12px rgba(var(--accent-rgb),.08)!important;} 
+.ma-stock-search:focus{border-color:var(--accent)!important;box-shadow:0 0 0 1px rgba(var(--accent-rgb),.22),0 0 16px rgba(var(--accent-rgb),.20)!important;} 
+.ma-stock-result-list{display:flex;flex-direction:column;gap:9px;} 
+.ma-stock-spell-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border-radius:16px;border:1px solid rgba(var(--accent-rgb),.18);background:linear-gradient(145deg,rgba(40,40,40,.96),rgba(17,17,17,.98));padding:12px 13px;box-shadow:0 8px 16px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.035);} 
+.ma-stock-spell-row:hover{border-color:rgba(var(--accent-rgb),.62);box-shadow:0 12px 22px rgba(0,0,0,.30),0 0 18px rgba(var(--accent-rgb),.12);} 
+.ma-stock-spell-copy strong{display:block;color:var(--accent);font-size:15px;text-shadow:0 0 9px rgba(var(--accent-rgb),.18);} 
+.ma-stock-spell-copy small{display:block;color:#e8d5a6;font-size:11px;font-weight:900;margin-top:3px;} 
+.ma-stock-spell-copy p{margin:5px 0 0;color:#d3d3d3;font-size:12px;line-height:1.45;} 
+.ma-stock-add-btn{border-radius:999px;border:1px solid rgba(95,225,128,.8);background:linear-gradient(180deg,#22864a,#11592b);color:#effff2;font-size:12px;font-weight:1000;cursor:pointer;padding:8px 13px;box-shadow:0 0 12px rgba(66,208,111,.18);white-space:nowrap;} 
+.ma-stock-add-btn:hover:not(:disabled){filter:brightness(1.12);box-shadow:0 0 17px rgba(66,208,111,.33);} 
+.ma-stock-add-btn.added,.ma-stock-add-btn:disabled{border-color:rgba(var(--accent-rgb),.34);background:#252525;color:#aaa;cursor:not-allowed;box-shadow:none;} 
+.ma-stock-status{border-radius:16px;border:1px dashed rgba(var(--accent-rgb),.32);background:#161616;color:#bbb;padding:16px;text-align:center;line-height:1.55;} 
+.ma-stock-error{border-color:rgba(255,96,96,.50);color:#ffd0d0;} 
+.ma-stock-status code{background:#050505;border:1px solid #333;border-radius:6px;padding:2px 5px;color:var(--accent);} 
+.ma-stock-added-note{border-radius:999px;border:1px solid rgba(95,225,128,.42);background:rgba(20,80,38,.28);color:#bfffd0;padding:8px 12px;font-size:12px;font-weight:900;text-align:center;} 
+.ma-stock-muted{color:#999;font-size:12px;} 
+@media(max-width:700px){.ma-stock-choice-grid{grid-template-columns:1fr}.ma-stock-spell-shell{max-height:92vh}.ma-stock-spell-body{padding:12px}.ma-stock-spell-row{grid-template-columns:1fr}.ma-stock-add-btn{width:100%;}.ma-stock-spell-head h3{font-size:19px}}
+
+/* --- v20 UI polish: race card, identity panel, ability score cards --- */
+#ffd20ChoiceGrid.ffd20-v3-grid{
+  max-width:1080px !important;
+  grid-template-columns:minmax(300px,.95fr) minmax(330px,1.05fr) !important;
+  gap:16px !important;
+}
+#ffd20ChoiceGrid.ffd20-v3-grid .ffd20-bio-col{
+  position:relative !important;
+  overflow:hidden !important;
+  border-radius:18px !important;
+  padding:15px !important;
+  border:1px solid rgba(var(--accent-rgb),.28) !important;
+  background:radial-gradient(circle at top right,rgba(var(--accent-rgb),.11),transparent 36%),linear-gradient(145deg,#242424,#171717) !important;
+  box-shadow:0 14px 28px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+#ffd20ChoiceGrid.ffd20-v3-grid .ffd20-bio-col:first-child::before{
+  content:'✦';
+  position:absolute;
+  right:14px;
+  top:10px;
+  color:rgba(var(--accent-rgb),.32);
+  font-size:42px;
+  line-height:1;
+  pointer-events:none;
+  text-shadow:0 0 22px rgba(var(--accent-rgb),.26);
+}
+#ffd20ChoiceGrid.ffd20-v3-grid .ffd20-bio-col:first-child h3::before{content:'🪪 ';font-family:sans-serif;}
+#ffd20ChoiceGrid.ffd20-v3-grid .ffd20-bio-col:nth-child(2) h3::before{content:'⚔️ ';font-family:sans-serif;}
+#ffd20ChoiceGrid.ffd20-v3-grid .ffd20-bio-col h3{
+  text-align:left !important;
+  margin-bottom:6px !important;
+  letter-spacing:.03em !important;
+}
+#ffd20ChoiceGrid.ffd20-v3-grid .bio-item label{
+  color:#d7bd7b !important;
+  text-transform:uppercase !important;
+  letter-spacing:.07em !important;
+  font-size:10px !important;
+}
+#ffd20ChoiceGrid.ffd20-v3-grid .bio-item input,
+#ffd20ChoiceGrid.ffd20-v3-grid .bio-item select{
+  min-height:38px !important;
+  border-radius:11px !important;
+  border-color:#3d372b !important;
+  background:linear-gradient(180deg,#101010,#0b0b0b) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+#ffd20ChoiceGrid.ffd20-v3-grid .bio-item input:focus,
+#ffd20ChoiceGrid.ffd20-v3-grid .bio-item select:focus{
+  border-color:var(--accent) !important;
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb),.25),0 0 18px rgba(var(--accent-rgb),.13) !important;
+}
+#ffd20ChoiceGrid.ffd20-v3-grid #race.ma-race-card-hidden{
+  position:absolute !important;
+  left:-9999px !important;
+  width:1px !important;
+  height:1px !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+.ma-race-card-wrap{margin-top:0 !important;}
+#maRaceBuildCard.ma-build-card{
+  grid-template-columns:82px minmax(0,1fr) auto !important;
+  min-height:58px !important;
+}
+#maRaceBuildCard .ma-build-card-level{
+  background:rgba(var(--accent-rgb),.08) !important;
+}
+.ma-identity-row-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+#charName{
+  font-weight:900 !important;
+  color:#fff9e9 !important;
+  font-size:16px !important;
+}
+.ma-ability-table-legacy{display:none !important;}
+.ma-ability-card-grid{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(86px,1fr));
+  gap:10px;
+  margin:8px auto 14px;
+  max-width:960px;
+}
+.ma-ability-card{
+  position:relative;
+  min-height:128px;
+  border:1px solid rgba(var(--accent-rgb),.42);
+  border-radius:18px;
+  padding:10px 9px 9px;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(var(--accent-rgb),.16),transparent 42%),
+    linear-gradient(160deg,#2a2a2a 0%,#171717 58%,#101010 100%);
+  box-shadow:0 12px 24px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.05);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:space-between;
+  overflow:hidden;
+}
+.ma-ability-card::after{
+  content:'';
+  position:absolute;
+  inset:6px;
+  border:1px solid rgba(var(--accent-rgb),.10);
+  border-radius:14px;
+  pointer-events:none;
+}
+.ma-ability-card:hover{
+  border-color:var(--accent);
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb),.28),0 0 24px rgba(var(--accent-rgb),.18),0 12px 24px rgba(0,0,0,.3);
+  transform:translateY(-1px);
+}
+.ma-ability-name{
+  position:relative;
+  z-index:1;
+  background:transparent;
+  border:0;
+  color:var(--accent);
+  font-family:'Uncial Antiqua',serif;
+  font-size:15px;
+  font-weight:900;
+  letter-spacing:.08em;
+  cursor:pointer;
+  padding:0;
+  text-transform:uppercase;
+}
+.ma-ability-name:hover{color:#fff;text-shadow:0 0 12px rgba(var(--accent-rgb),.6);}
+.ma-ability-score-input{
+  position:relative;
+  z-index:1;
+  width:100% !important;
+  max-width:74px;
+  height:48px;
+  padding:0 !important;
+  text-align:center !important;
+  border-radius:14px !important;
+  border:1px solid rgba(var(--accent-rgb),.45) !important;
+  background:#070707 !important;
+  color:#fff !important;
+  font-size:24px !important;
+  font-weight:900 !important;
+  box-shadow:inset 0 0 14px rgba(0,0,0,.45) !important;
+}
+.ma-ability-score-input:focus{
+  border-color:var(--accent) !important;
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb),.28),0 0 18px rgba(var(--accent-rgb),.25),inset 0 0 14px rgba(0,0,0,.45) !important;
+}
+.ma-ability-mod-pill{
+  position:relative;
+  z-index:1;
+  min-width:46px;
+  padding:5px 10px;
+  border-radius:999px;
+  border:1px solid #3e3e3e;
+  background:#111;
+  color:#e9e9e9;
+  font-weight:900;
+  font-size:14px;
+}
+@media(max-width:850px){
+  #ffd20ChoiceGrid.ffd20-v3-grid{grid-template-columns:1fr !important;}
+  .ma-ability-card-grid{grid-template-columns:repeat(3,minmax(88px,1fr));}
+}
+@media(max-width:430px){
+  .ma-ability-card-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+  .ma-ability-card{min-height:116px;border-radius:16px;}
+  .ma-ability-score-input{height:43px;font-size:22px !important;}
+}
+
+/* --- v21 UI polish: clean ability inputs + prettier combat panels --- */
+.ma-ability-score-input::-webkit-outer-spin-button,
+.ma-ability-score-input::-webkit-inner-spin-button{
+  -webkit-appearance:none !important;
+  margin:0 !important;
+}
+.ma-ability-score-input[type="number"]{
+  -moz-appearance:textfield !important;
+  appearance:textfield !important;
+}
+
+#c-general .combat-card-grid{
+  grid-template-columns:repeat(4,minmax(170px,1fr)) !important;
+  gap:14px !important;
+  align-items:stretch !important;
+  margin-top:8px !important;
+}
+#c-general .combat-info-card{
+  position:relative !important;
+  overflow:hidden !important;
+  border-radius:18px !important;
+  border:1px solid rgba(var(--accent-rgb),.26) !important;
+  background:
+    radial-gradient(circle at 50% -18%,rgba(var(--accent-rgb),.16),transparent 42%),
+    linear-gradient(155deg,#242424 0%,#171717 58%,#101010 100%) !important;
+  box-shadow:0 14px 30px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+#c-general .combat-info-card::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(120deg,rgba(255,255,255,.06),transparent 32%,transparent 70%,rgba(var(--accent-rgb),.05));
+  opacity:.65;
+}
+#c-general .combat-info-card-head{
+  position:relative !important;
+  z-index:1 !important;
+  min-height:62px !important;
+  padding:12px 12px !important;
+  background:linear-gradient(180deg,rgba(0,0,0,.58),rgba(10,10,10,.34)) !important;
+  border-bottom:1px solid rgba(var(--accent-rgb),.17) !important;
+}
+#c-general .combat-info-card-head h3{
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  color:#fff3cf !important;
+  font-family:'Uncial Antiqua',serif !important;
+  font-size:15px !important;
+  letter-spacing:.04em !important;
+  text-shadow:0 0 14px rgba(var(--accent-rgb),.20) !important;
+}
+#c-general .combat-info-card:nth-child(1) .combat-info-card-head h3::before{content:'⚙️';font-family:sans-serif;}
+#c-general .combat-info-card:nth-child(2) .combat-info-card-head h3::before{content:'⚔️';font-family:sans-serif;}
+#c-general .combat-info-card:nth-child(3) .combat-info-card-head h3::before{content:'🛡️';font-family:sans-serif;}
+#c-general .combat-info-card:nth-child(4) .combat-info-card-head h3::before{content:'✨';font-family:sans-serif;}
+#c-general .combat-info-card .edit-stat-btn{
+  background:#111 !important;
+  border-color:rgba(var(--accent-rgb),.38) !important;
+  color:var(--accent) !important;
+  box-shadow:0 0 12px rgba(0,0,0,.25) !important;
+}
+#c-general .combat-info-card .edit-stat-btn:hover{
+  background:var(--accent) !important;
+  color:#000 !important;
+  box-shadow:0 0 16px rgba(var(--accent-rgb),.32) !important;
+}
+#c-general .combat-metric-grid{
+  position:relative !important;
+  z-index:1 !important;
+  padding:12px !important;
+  gap:9px !important;
+}
+#c-general .combat-metric{
+  position:relative !important;
+  min-height:58px !important;
+  border-radius:14px !important;
+  border:1px solid rgba(255,255,255,.07) !important;
+  background:linear-gradient(145deg,#272727,#181818) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 4px 10px rgba(0,0,0,.18) !important;
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease !important;
+}
+#c-general .combat-metric:hover{
+  transform:translateY(-1px) !important;
+  border-color:rgba(var(--accent-rgb),.36) !important;
+  box-shadow:0 0 16px rgba(var(--accent-rgb),.09),0 6px 14px rgba(0,0,0,.22) !important;
+}
+#c-general .metric-label,
+#c-general .combat-roll-name{
+  color:#d8c28b !important;
+  letter-spacing:.08em !important;
+  font-size:10px !important;
+}
+#c-general .combat-roll-name{
+  width:100% !important;
+  text-align:left !important;
+}
+#c-general .combat-roll-name:hover,
+#c-general .combat-roll-name:focus-visible{
+  color:#fff !important;
+  text-shadow:0 0 10px rgba(var(--accent-rgb),.72) !important;
+}
+#c-general .combat-metric strong{
+  align-self:flex-start !important;
+  min-width:48px !important;
+  padding:5px 9px !important;
+  border-radius:999px !important;
+  background:#080808 !important;
+  border:1px solid rgba(var(--accent-rgb),.25) !important;
+  color:var(--accent) !important;
+  font-size:19px !important;
+  text-shadow:0 0 12px rgba(var(--accent-rgb),.18) !important;
+}
+#c-general .base-long-rest{
+  border-radius:14px !important;
+  border:1px solid rgba(126,159,255,.42) !important;
+  background:linear-gradient(145deg,#1f2b4a,#111827) !important;
+  color:#e5edff !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 0 12px rgba(98,126,218,.10) !important;
+}
+#c-general .base-long-rest:hover{
+  transform:translateY(-1px) !important;
+  box-shadow:0 0 18px rgba(125,159,255,.28),0 8px 16px rgba(0,0,0,.22) !important;
+}
+
+#resistancesBox{
+  position:relative !important;
+  overflow:hidden !important;
+  margin-top:18px !important;
+  padding:14px !important;
+  border-radius:18px !important;
+  border:1px solid rgba(114,196,255,.28) !important;
+  background:
+    radial-gradient(circle at top left,rgba(91,171,255,.15),transparent 36%),
+    linear-gradient(145deg,#1d2328,#141414) !important;
+  box-shadow:0 12px 24px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+#resistancesBox::after{
+  content:'✦';
+  position:absolute;
+  right:14px;
+  top:10px;
+  color:rgba(114,196,255,.22);
+  font-size:36px;
+  line-height:1;
+  pointer-events:none;
+  text-shadow:0 0 20px rgba(114,196,255,.18);
+}
+#resistancesBox label{
+  color:#9ed1ff !important;
+  font-family:'Uncial Antiqua',serif !important;
+  font-size:16px !important;
+  letter-spacing:.04em !important;
+  text-transform:none !important;
+  margin-bottom:8px !important;
+}
+#resistancesBox label::before{content:'🔰 ';font-family:sans-serif;}
+#resistancesBox textarea{
+  min-height:96px !important;
+  border-radius:14px !important;
+  border:1px solid rgba(114,196,255,.24) !important;
+  background:rgba(7,7,7,.72) !important;
+  box-shadow:inset 0 0 18px rgba(0,0,0,.35) !important;
+  line-height:1.5 !important;
+}
+#resistancesBox textarea:focus{
+  border-color:#9ed1ff !important;
+  box-shadow:0 0 0 1px rgba(114,196,255,.22),0 0 18px rgba(114,196,255,.15),inset 0 0 18px rgba(0,0,0,.35) !important;
+}
+
+#c-general > h3{
+  margin:22px 0 10px !important;
+  padding:10px 12px !important;
+  border:1px solid rgba(var(--accent-rgb),.24) !important;
+  border-radius:16px !important;
+  background:linear-gradient(135deg,#221b0f,#151515) !important;
+  box-shadow:0 10px 22px rgba(0,0,0,.24) !important;
+  text-align:left !important;
+}
+#c-general > h3::before{content:'🗡️ ';font-family:sans-serif;}
+#weaponList{
+  display:grid !important;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr)) !important;
+  gap:10px !important;
+}
+#weaponList .list-row{
+  margin:0 !important;
+  min-height:82px !important;
+  align-items:stretch !important;
+  border-radius:16px !important;
+  border:1px solid rgba(var(--accent-rgb),.22) !important;
+  background:
+    radial-gradient(circle at top left,rgba(var(--accent-rgb),.11),transparent 38%),
+    linear-gradient(145deg,#242424,#151515) !important;
+  box-shadow:0 8px 18px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+#weaponList .list-row:hover{
+  border-color:rgba(var(--accent-rgb),.55) !important;
+  box-shadow:0 0 18px rgba(var(--accent-rgb),.12),0 10px 22px rgba(0,0,0,.28) !important;
+  transform:translateY(-1px) !important;
+}
+#weaponList .row-content{
+  justify-content:center !important;
+  gap:6px !important;
+}
+#weaponList .list-row-title{
+  color:#fff1c2 !important;
+  font-family:'Uncial Antiqua',serif !important;
+  font-size:15px !important;
+  letter-spacing:.02em !important;
+}
+#weaponList .weapon-meta-line{
+  gap:6px !important;
+}
+#weaponList .weapon-meta-chip{
+  border-color:rgba(var(--accent-rgb),.20) !important;
+  background:#111 !important;
+  color:#ddd !important;
+}
+#weaponList .row-actions{
+  align-content:center !important;
+  justify-content:flex-end !important;
+}
+#weaponList .roll-icon-btn,
+#weaponList .chat-icon-btn,
+#weaponList .btn-edit{
+  border-radius:999px !important;
+}
+#weaponList .roll-icon-btn{
+  border-color:rgba(var(--accent-rgb),.45) !important;
+  background:#191207 !important;
+}
+#weaponList .chat-icon-btn{
+  border-color:rgba(114,196,255,.40) !important;
+  color:#9ed1ff !important;
+}
+#weaponList .btn-edit{
+  background:#1a1a1a !important;
+  border-color:#4a4a4a !important;
+  color:#f1d18a !important;
+}
+#weaponList .btn-edit:hover{
+  background:var(--accent) !important;
+  color:#000 !important;
+  border-color:var(--accent) !important;
+}
+#weaponList + .btn-add{
+  margin-top:12px !important;
+  border-radius:16px !important;
+  background:linear-gradient(135deg,var(--accent),#d79b37) !important;
+  box-shadow:0 10px 22px rgba(0,0,0,.25),0 0 18px rgba(var(--accent-rgb),.10) !important;
+}
+@media(max-width:900px){
+  #c-general .combat-card-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+}
+@media(max-width:520px){
+  #c-general .combat-card-grid{grid-template-columns:1fr !important;}
+  #weaponList{grid-template-columns:1fr !important;}
+  #weaponList .list-row{min-height:96px !important;flex-direction:column !important;align-items:stretch !important;}
+  #weaponList .row-actions{justify-content:flex-start !important;}
+}
+
+/* --- v25 visibility + theme color picker --- */
+:root{
+  --accent-rgb:255,204,102;
+  --accent-soft:rgba(var(--accent-rgb),.12);
+  --accent-mid:rgba(var(--accent-rgb),.32);
+  --accent-glow:rgba(var(--accent-rgb),.42);
+  --accent-contrast:#080604;
+}
+
+/* Make the Combat General / Abilities / Spells controls larger and easier to see. */
+#combat > .sub-nav-container{
+  padding:10px 10px 9px !important;
+  background:linear-gradient(180deg,#171717,#0e0e0e) !important;
+  border-bottom:1px solid var(--accent-mid) !important;
+  box-shadow:0 10px 24px rgba(0,0,0,.38), 0 0 18px var(--accent-soft) !important;
+}
+#combat #combatSubNav{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:10px !important;
+  max-width:920px !important;
+  margin:0 auto !important;
+  padding:8px !important;
+  border:1px solid var(--accent-mid) !important;
+  border-radius:20px !important;
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.22)) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 8px 22px rgba(0,0,0,.28) !important;
+}
+#combatSubNav > .sub-btn,
+#spellsNavControl{
+  min-height:58px !important;
+  border-radius:16px !important;
+}
+#combatSubNav > .sub-btn,
+#spellsNavControl > #spellsSubBtn{
+  position:relative !important;
+  width:100% !important;
+  font-size:17px !important;
+  letter-spacing:.04em !important;
+  font-family:'Uncial Antiqua',serif !important;
+  font-weight:900 !important;
+  background:linear-gradient(180deg,#242424,#131313) !important;
+  border:1px solid rgba(255,255,255,.09) !important;
+  color:#f0eadc !important;
+  text-shadow:0 1px 0 rgba(0,0,0,.7) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 6px 14px rgba(0,0,0,.24) !important;
+}
+#combatSubNav > .sub-btn:hover,
+#spellsNavControl > #spellsSubBtn:hover{
+  border-color:var(--accent) !important;
+  box-shadow:0 0 0 1px var(--accent-mid),0 0 18px var(--accent-soft),0 8px 18px rgba(0,0,0,.30) !important;
+  color:#fff !important;
+}
+#combatSubNav > .sub-btn.active,
+#spellsNavControl > #spellsSubBtn.active{
+  background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 72%,#000 28%)) !important;
+  border-color:var(--accent) !important;
+  color:var(--accent-contrast) !important;
+  text-shadow:0 1px 0 rgba(255,255,255,.22) !important;
+  box-shadow:0 0 0 1px var(--accent-mid),0 0 24px var(--accent-glow),0 9px 22px rgba(0,0,0,.36) !important;
+}
+#spellsNavControl{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) 44px !important;
+  gap:7px !important;
+  align-items:stretch !important;
+}
+#spellsNavControl > #spellsSubBtn{ height:58px !important; margin:0 !important; }
+#spellsVisibilityToggle{
+  height:58px !important;
+  width:44px !important;
+  min-width:44px !important;
+  border-radius:15px !important;
+  border-color:var(--accent-mid) !important;
+  color:var(--accent) !important;
+  background:#171717 !important;
+  font-size:22px !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 6px 14px rgba(0,0,0,.22) !important;
+}
+#spellsVisibilityToggle:hover{ background:var(--accent) !important; color:var(--accent-contrast) !important; }
+
+/* Theme picker panel. */
+.ma-theme-modal{ z-index:7200 !important; }
+.ma-theme-shell{ max-width:560px !important; border-color:var(--accent) !important; box-shadow:0 0 32px var(--accent-soft),0 22px 60px rgba(0,0,0,.58) !important; }
+.ma-theme-help{ margin:0 0 4px; color:#cfcfcf; line-height:1.45; text-align:center; }
+.ma-theme-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.ma-theme-swatch{
+  display:flex; align-items:center; gap:10px; width:100%; min-height:54px; padding:9px 10px;
+  border-radius:16px; border:1px solid #3f3f3f; background:linear-gradient(180deg,#242424,#141414);
+  color:#f4f4f4; cursor:pointer; font-weight:900; text-align:left;
+  box-shadow:0 7px 18px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.ma-theme-swatch:hover{ transform:translateY(-1px); border-color:var(--swatch); box-shadow:0 0 18px rgba(var(--swatch-rgb),.24),0 9px 20px rgba(0,0,0,.34); }
+.ma-theme-swatch.active{ border-color:var(--swatch); box-shadow:0 0 0 1px rgba(var(--swatch-rgb),.42),0 0 22px rgba(var(--swatch-rgb),.38); }
+.ma-theme-dot{ width:28px; height:28px; border-radius:50%; flex:0 0 28px; background:var(--swatch); box-shadow:0 0 16px rgba(var(--swatch-rgb),.55); border:2px solid rgba(255,255,255,.34); }
+.ma-theme-name{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+.ma-theme-name strong{ color:#fff; font-size:14px; }
+.ma-theme-name small{ color:#aaa; font-size:11px; font-weight:700; }
+.ma-theme-footer{ padding:15px; border-top:1px solid #333; background:#1a1a1a; border-radius:0 0 8px 8px; text-align:right; }
+
+/* Make the chosen color affect the major fantasy accents, not only text. */
+.nav-brand,
+h2,h3,h4,
+.stat-title,
+.list-row-title,
+.active-name,
+.metric-label:hover,
+.combat-metric strong,
+.skill-score-badge,
+.skill-total-badge,
+.ma-skill-total-pill,
+.drawer-stat{ color:var(--accent) !important; }
+.btn-add,
+.btn-save,
+.mode-btn.active,
+.sub-btn.active,
+.item-section-tabs .sub-btn.active,
+.other-sub-btn.active,
+.panel-menu-fab:hover,
+.panel-menu-btn:hover,
+.chat-icon-btn:hover,
+.roll-icon-btn:hover{
+  background:var(--accent) !important;
+  border-color:var(--accent) !important;
+  color:var(--accent-contrast) !important;
+}
+.modal-content,
+.items-panel-shell,
+#c-abilities-main,
+.ma-build-card,
+.ma-race-card,
+.vital-card,
+.combat-info-card{
+  border-color:var(--accent-mid) !important;
+}
+.list-row:hover,
+.combat-info-card:hover,
+.ma-build-card:hover,
+.ma-race-card:hover{
+  border-color:var(--accent) !important;
+  box-shadow:0 0 18px var(--accent-soft),0 8px 20px rgba(0,0,0,.28) !important;
+}
+
+@media(max-width:700px){
+  #combat #combatSubNav{ grid-template-columns:1fr !important; gap:8px !important; }
+  #combatSubNav > .sub-btn,
+  #spellsNavControl,
+  #spellsNavControl > #spellsSubBtn,
+  #spellsVisibilityToggle{ min-height:52px !important; height:52px !important; }
+  #combatSubNav > .sub-btn,
+  #spellsNavControl > #spellsSubBtn{ font-size:16px !important; }
+  .ma-theme-grid{ grid-template-columns:1fr; }
+}
+
+/* --- v26 full accent repaint + hamburger character picker --- */
+:root{
+  --accent-rgb:255,204,102;
+  --accent-soft:rgba(var(--accent-rgb),.12);
+  --accent-mid:rgba(var(--accent-rgb),.32);
+  --accent-glow:rgba(var(--accent-rgb),.42);
+  --accent-strong:rgba(var(--accent-rgb),.68);
+}
+/* Force older hard-coded yellow-looking shadows to follow the chosen theme. */
+.nav-brand,
+.tab-btn.active,
+.sub-btn.active,
+.list-row-title,
+.active-name,
+.ma-build-card-title,
+.ma-race-title,
+.ma-stat-name,
+.ma-stat-mod,
+.combat-metric strong,
+.skill-total-badge,
+.drawer-stat,
+.spell-level-name,
+.spell-mp-label,
+#spellMpAvailable{ color:var(--accent) !important; }
+.top-nav,
+.main-tabs,
+.modal-content,
+.ma-build-card,
+.ma-race-card,
+.vital-card,
+.combat-info-card,
+.list-row,
+.items-panel-shell,
+.panel-menu-popover,
+.local-chat-panel,
+.ability-drawer,
+.spell-level-head,
+#combatSubNav,
+#abilitiesSubSubNav{
+  border-color:var(--accent-mid) !important;
+}
+.ma-build-card:hover,
+.ma-race-card:hover,
+.combat-info-card:hover,
+.list-row:hover,
+.skill-base-row:hover,
+.ma-stat-card:hover,
+.panel-menu-popover,
+.local-chat-panel.open,
+.ability-drawer.open{
+  box-shadow:0 0 18px var(--accent-soft),0 10px 26px rgba(0,0,0,.34) !important;
+}
+.btn-add,.btn-save,.mode-btn.active,.sub-btn.active,.spell-use-btn:not(.unavailable):not(:disabled),.active-use-btn.use-ready{
+  background:var(--accent) !important;
+  border-color:var(--accent) !important;
+  color:var(--accent-contrast) !important;
+  box-shadow:0 0 16px var(--accent-soft) !important;
+}
+.active-use-btn.use-ready,.spell-use-btn:not(.unavailable):not(:disabled){
+  background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 70%,#000 30%)) !important;
+}
+/* Repaint older gradients that were visually gold. */
+.ma-stat-score,
+.ma-theme-dot,
+.price-badge,
+.calendar-day.current{
+  border-color:var(--accent) !important;
+  color:var(--accent) !important;
+  box-shadow:0 0 16px var(--accent-soft) !important;
+}
+.calendar-day.current{
+  background:var(--accent) !important;
+  color:var(--accent-contrast) !important;
+}
+/* Hamburger character picker */
+.panel-menu-popover{ min-width:220px; max-width:min(310px,calc(100vw - 32px)); }
+.panel-character-list{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  max-height:min(48vh,360px);
+  overflow:auto;
+  padding:8px;
+  margin:-2px 0 2px 0;
+  border:1px solid var(--accent-mid);
+  border-radius:14px;
+  background:linear-gradient(180deg,#151515,#0f0f0f);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 0 14px var(--accent-soft);
+}
+.panel-character-list[hidden]{ display:none !important; }
+.panel-character-option{
+  width:100%;
+  display:flex !important;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:2px;
+  text-align:left;
+  border-radius:12px !important;
+  border:1px solid #3a3a3a !important;
+  background:linear-gradient(180deg,#202020,#141414) !important;
+  color:#eee !important;
+  padding:10px 11px !important;
+}
+.panel-character-option small{ color:#9f9f9f; font-size:11px; font-weight:800; }
+.panel-character-name{ font-weight:900; color:#f5f5f5; }
+.panel-character-option:hover{
+  border-color:var(--accent) !important;
+  box-shadow:0 0 14px var(--accent-soft) !important;
+}
+.panel-character-option.active,
+.panel-character-option.selected{
+  border-color:var(--accent) !important;
+  background:linear-gradient(135deg,rgba(var(--accent-rgb),.26),#191919 58%,rgba(var(--accent-rgb),.12)) !important;
+  box-shadow:0 0 0 1px var(--accent-mid),0 0 18px var(--accent-soft) !important;
+}
+.panel-character-option.active .panel-character-name,
+.panel-character-option.selected .panel-character-name{ color:var(--accent) !important; }
+.panel-character-option.active::before,
+.panel-character-option.selected::before{
+  content:'✓ Selected';
+  align-self:flex-end;
+  margin-bottom:-2px;
+  color:var(--accent);
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.panel-character-add .panel-character-name{ color:var(--accent) !important; }
+.panel-character-empty{ color:#999; font-size:12px; padding:8px; text-align:center; }
+/* Keep the old round character button available, but make it match theme when used. */
+#summonFab{
+  background:var(--accent) !important;
+  color:var(--accent-contrast) !important;
+  box-shadow:0 0 18px var(--accent-glow),0 8px 18px rgba(0,0,0,.42) !important;
+}
+#summonMenu .summon-opt.active{
+  background:linear-gradient(135deg,rgba(var(--accent-rgb),.34),#181818) !important;
+  color:var(--accent) !important;
+}
+
+/* --- v27 accent completion + character-circle menu toggle --- */
+:root{
+  --accent-shadow-small:0 0 10px rgba(var(--accent-rgb),.22);
+  --accent-shadow-mid:0 0 18px rgba(var(--accent-rgb),.28);
+}
+/* Identity + build remaining labels/field accents */
+#character .ffd20-bio-col h3,
+#character .ffd20-bio-col label,
+#character .bio-item label,
+#sheetTitle,
+#character .ability-heading-row h3,
+.ma-class-click-label,
+.ma-race-click-label,
+.ma-build-card-level,
+.ma-race-card-level,
+.ma-build-card-sub,
+.ma-race-sub,
+.ma-primary-race-sub,
+#maPrimaryClassTitle,
+#maPrimaryRaceTitle,
+#maPrimaryClassLevel{
+  color:var(--accent) !important;
+  text-shadow:0 0 10px rgba(var(--accent-rgb),.18) !important;
+}
+#character input:focus,
+#character select:focus,
+#character textarea:focus,
+#alignment:focus,
+#size_category:focus,
+#languages:focus,
+#senses:focus,
+#charName:focus{
+  border-color:var(--accent) !important;
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb),.22),0 0 14px rgba(var(--accent-rgb),.16) !important;
+}
+#character .ffd20-bio-col,
+.ma-identity-card,
+.ma-build-card,
+.ma-race-card{
+  border-color:rgba(var(--accent-rgb),.30) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 0 18px rgba(var(--accent-rgb),.08) !important;
+}
+/* Combat remaining words: Base, Attack, Defense, Saves, Initiative/Melee/AC/Fort/etc. */
+#combat .combat-info-card-head h3,
+#combat .combat-metric .metric-label,
+#combat .combat-roll-name,
+#combat .combat-metric strong,
+#combat #initDisplayMain,
+#combat #babDisplayMain,
+#combat #speedDisplayMain,
+#combat #arDisplayMain,
+#combat #arDisplayRanged,
+#combat #arDisplayTouch,
+#combat #arDisplayRangedTouch,
+#combat #arDisplayCmb,
+#combat #acDisplayMain,
+#combat #acDisplayTouch,
+#combat #acDisplayFlat,
+#combat #acDisplayCmd,
+#combat #fortDisplayMain,
+#combat #refDisplayMain,
+#combat #willDisplayMain,
+#c-general h3,
+#resistancesBox label{
+  color:var(--accent) !important;
+  text-shadow:0 0 10px rgba(var(--accent-rgb),.18) !important;
+}
+#combat .combat-info-card,
+#combat .combat-metric,
+#resistancesBox,
+#weaponList .list-row{
+  border-color:rgba(var(--accent-rgb),.24) !important;
+}
+#combat .combat-info-card:hover,
+#combat .combat-metric:hover,
+#resistancesBox:focus-within,
+#weaponList .list-row:hover{
+  border-color:rgba(var(--accent-rgb),.55) !important;
+  box-shadow:0 0 18px rgba(var(--accent-rgb),.16),0 10px 24px rgba(0,0,0,.28) !important;
+}
+#resistancesBox textarea:focus{
+  border-color:var(--accent) !important;
+  box-shadow:0 0 14px rgba(var(--accent-rgb),.16) !important;
+}
+/* Weapon names/theme and grey Edit word. */
+#weaponList .list-row-title,
+#weaponList .sheet-item-name,
+#weaponList .item-name-link{
+  color:var(--accent) !important;
+  text-shadow:0 0 10px rgba(var(--accent-rgb),.18) !important;
+}
+#weaponList .weapon-meta-chip{
+  border-color:rgba(var(--accent-rgb),.24) !important;
+}
+#weaponList .roll-icon-btn{
+  color:var(--accent) !important;
+  border-color:rgba(var(--accent-rgb),.45) !important;
+  background:rgba(var(--accent-rgb),.08) !important;
+}
+#weaponList .roll-icon-btn:hover{
+  background:var(--accent) !important;
+  color:var(--accent-contrast) !important;
+  box-shadow:0 0 14px rgba(var(--accent-rgb),.24) !important;
+}
+#weaponList .btn-edit,
+#weaponList .btn-edit:hover{
+  background:#242424 !important;
+  border-color:#555 !important;
+  color:#bdbdbd !important;
+  box-shadow:none !important;
+}
+#weaponList .btn-edit:hover{
+  background:#333 !important;
+  color:#e2e2e2 !important;
+  border-color:#777 !important;
+}
+#weaponList + .btn-add{
+  background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 60%,#000 40%)) !important;
+  color:var(--accent-contrast) !important;
+  box-shadow:0 0 18px rgba(var(--accent-rgb),.16),0 10px 22px rgba(0,0,0,.25) !important;
+}
+/* Skills title and remaining skill accents. */
+#skills .skills-view-toolbar h2,
+#skills .skills-editor-toolbar .skill-points-wrap,
+#skills .skill-total-badge,
+#skills .skill-stat-tag,
+#skillHeaderTotal{
+  color:var(--accent) !important;
+  text-shadow:0 0 10px rgba(var(--accent-rgb),.18) !important;
+}
+#skills .skills-mode-btn{
+  color:var(--accent) !important;
+  border-color:rgba(var(--accent-rgb),.36) !important;
+}
+#skills .skills-mode-btn:hover{
+  background:var(--accent) !important;
+  color:var(--accent-contrast) !important;
+  border-color:var(--accent) !important;
+}
+/* Bottom hamburger Characters button now means show/hide the old round character switcher. */
+#panelCharacterToggleBtn.is-off{
+  color:#aaa !important;
+  border-color:#4a4a4a !important;
+  background:#1b1b1b !important;
+}
+#panelCharacterToggleBtn.is-on{
+  color:var(--accent) !important;
+  border-color:rgba(var(--accent-rgb),.45) !important;
+  background:rgba(var(--accent-rgb),.08) !important;
+}
+#summonFab.ma-fab-hidden-by-player{
+  display:none !important;
+}
+#summonFab{
+  border-color:rgba(var(--accent-rgb),.75) !important;
+}
+#summonMenu .summon-opt.active,
+#summonMenu .summon-opt.selected,
+#summonMenu .summon-opt[aria-current="true"]{
+  border-color:var(--accent) !important;
+  background:linear-gradient(135deg,rgba(var(--accent-rgb),.30),#151515 62%,rgba(var(--accent-rgb),.12)) !important;
+  color:var(--accent) !important;
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb),.30),0 0 16px rgba(var(--accent-rgb),.16) !important;
+}
+
+/* --- v28 final theme label + character circle visibility repair --- */
+/* v20 had a more-specific gold label rule; override it with the selected theme color. */
+#ffd20ChoiceGrid.ffd20-v3-grid .ffd20-bio-col:first-child .bio-item > label,
+#ffd20ChoiceGrid.ffd20-v3-grid .ffd20-bio-col:first-child .bio-item label,
+#ffd20ChoiceGrid.ffd20-v3-grid .ffd20-bio-col:first-child label,
+#ffd20ChoiceGrid.ffd20-v3-grid .bio-item label[for="size_category"],
+#ffd20ChoiceGrid.ffd20-v3-grid label[for="size_category"],
+#character #charName.closest-label,
+#character label[for="charName"],
+#character label[for="alignment"],
+#character label[for="languages"],
+#character label[for="senses"]{
+  color:var(--accent) !important;
+  text-shadow:0 0 10px rgba(var(--accent-rgb),.22) !important;
+}
+#ffd20ChoiceGrid.ffd20-v3-grid .ffd20-bio-col:first-child .bio-item input,
+#ffd20ChoiceGrid.ffd20-v3-grid .ffd20-bio-col:first-child .bio-item select,
+#charName,
+#alignment,
+#size_category,
+#languages,
+#senses{
+  border-color:rgba(var(--accent-rgb),.32) !important;
+}
+#ffd20ChoiceGrid.ffd20-v3-grid .ffd20-bio-col:first-child .bio-item:focus-within label{
+  color:var(--accent) !important;
+  text-shadow:0 0 13px rgba(var(--accent-rgb),.32) !important;
+}
+
+/* Make the character-circle toggle control the old round character switcher directly. */
+#summonFab.ma-fab-hidden-by-player{
+  display:none !important;
+}
+#summonFab.ma-fab-visible-by-player{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+}
+#panelCharacterToggleBtn.is-on::after,
+#panelCharacterToggleBtn.is-off::after{
+  content:'';
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  margin-left:auto;
+  flex:0 0 9px;
+}
+#panelCharacterToggleBtn.is-on::after{
+  background:var(--accent);
+  box-shadow:0 0 12px rgba(var(--accent-rgb),.65);
+}
+#panelCharacterToggleBtn.is-off::after{
+  background:#777;
+  box-shadow:none;
+}
+
+/* --- v29 race picker repair: keep race card editable even outside the module scope --- */
+#maRaceBuildCard.ma-build-card,
+#maRaceBuildCard.ma-race-build-card{
+  cursor:pointer !important;
+  pointer-events:auto !important;
+  user-select:none !important;
+}
+#maRaceBuildCard.ma-build-card:hover{
+  border-color:var(--accent) !important;
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb),.24),0 0 18px rgba(var(--accent-rgb),.16) !important;
+}
+.ma-race-picker-v29-note{
+  color:#aaa;
+  font-size:12px;
+  line-height:1.45;
+  background:#171717;
+  border:1px dashed rgba(var(--accent-rgb),.35);
+  border-radius:10px;
+  padding:10px 12px;
+}
+.ma-race-picker-v29-note strong{color:var(--accent);}
+
+/* --- v31 race card hydrate + instant picker --- */
+#maRaceBuildCard.ma-race-build-card.ma-race-hydrated-v31{
+  cursor:pointer !important;
+}
+.ma-race-picker-v31-loading{
+  color:#aaa;
+  font-size:12px;
+  line-height:1.45;
+  background:#171717;
+  border:1px dashed rgba(var(--accent-rgb),.35);
+  border-radius:10px;
+  padding:10px 12px;
+}
+.ma-race-picker-v31-loading strong{color:var(--accent);}
+
+/* --- v34 phone ability tabs + weapon proficiency placement --- */
+
+/* Stop Active / Passive / Racial / Feats from sticking on phone scroll */
+@media(max-width: 700px){
+  #c-abilities-main .sub-nav-container,
+  #c-abilities-main .sub-nav,
+  #abilitiesSubSubNav{
+    position: static !important;
+    top: auto !important;
+    bottom: auto !important;
+    z-index: auto !important;
+    transform: none !important;
+  }
+
+  #c-abilities-main{
+    overflow: visible !important;
+  }
+
+  #c-abilities-main .sub-sub-group{
+    overflow: visible !important;
+  }
+}
+
+/* Weapon proficiency card under Add Weapon */
+#weaponProficiencyCardV34{
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+#weaponProficiencyCardV34 label{
+  color: var(--accent);
+  font-family: 'Uncial Antiqua', serif;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+#weaponProficiencyCardV34 textarea{
+  min-height: 90px;
+}
+
+
+/* --- Admin synced sheet wrapper: keep admin chrome, but use the current sheet visuals --- */
+body.ma-ffd20-admin #sheetContainer {
+  background:
+    radial-gradient(circle at top left, rgba(var(--accent-rgb),.08), transparent 38%),
+    #111 !important;
+}
+#sheetContainer > .main-tabs {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1250 !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  max-height: 46px !important;
+  background:#000 !important;
+  border-bottom:1px solid var(--accent) !important;
+}
+#sheetContainer > .tab-content.active {
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: visible !important;
+  padding-bottom: 160px !important;
+}
+#sheetContainer .tab-content { max-width: 800px; margin: 0 auto; }
+#sheetContainer #character.tab-content,
+#sheetContainer #combat.tab-content,
+#sheetContainer #skills.tab-content,
+#sheetContainer #items.tab-content,
+#sheetContainer #other.tab-content { width:100%; }
+#sheetContainer .sheet-toolbar { top:0 !important; }
+#editorArea #emptyState { background:#111; }
+@media(max-width:768px){
+  #sheetContainer > .main-tabs { top:0 !important; }
+  #sheetContainer > .tab-content.active { padding-bottom: 180px !important; }
+}
+
+</style>
+
+
+<style>
+/* --- Admin UI repair v35: scroll, unified selector tabs, themed groups/shop tags, hamburger menu --- */
+#layout{min-height:0!important;}
+#editorArea{min-width:0!important;min-height:0!important;height:100%!important;}
+#sheetContainer,
+#sheetContainer.active{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  height:100%!important;
+  max-height:none!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  padding-bottom:105px!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:auto!important;
+}
+#sheetContainer:not(.active){display:none!important;}
+#sheetContainer.active{display:block!important;}
+#sheetContainer::-webkit-scrollbar{width:10px!important;height:10px!important;display:block!important;}
+#sheetContainer::-webkit-scrollbar-thumb{background:rgba(var(--accent-rgb),.38)!important;border-radius:999px!important;}
+#sheetContainer > .main-tabs{position:sticky!important;top:0!important;z-index:2400!important;flex:0 0 auto!important;}
+#sheetContainer > .tab-content,
+#sheetContainer > .tab-content.active{
+  height:auto!important;
+  max-height:none!important;
+  min-height:auto!important;
+  overflow:visible!important;
+  padding-bottom:60px!important;
+}
+#sheetContainer #other.tab-content.active{max-width:1180px!important;}
+
+#sidebar.admin-side-panel{
+  width:292px!important;
+  flex:0 0 292px!important;
+  min-height:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  background:radial-gradient(circle at 10% 0%, var(--accent-soft), transparent 38%), linear-gradient(180deg,#191919,#111)!important;
+  border-right:1px solid var(--accent-mid)!important;
+  box-shadow:10px 0 28px rgba(0,0,0,.22)!important;
+  overflow:hidden!important;
+}
+.admin-side-top{padding:12px 12px 9px;border-bottom:1px solid var(--accent-mid);background:rgba(0,0,0,.28);}
+.admin-side-title{font-family:'Uncial Antiqua',serif;color:var(--accent);font-size:16px;text-align:center;margin-bottom:9px;text-shadow:0 0 12px var(--accent-soft);}
+.admin-side-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.admin-side-tab{border:1px solid #3c3c3c;background:#202020;color:#d8d8d8;border-radius:999px;padding:8px 10px;font-weight:900;cursor:pointer;}
+.admin-side-tab:hover,.admin-side-tab.active{background:var(--accent)!important;border-color:var(--accent)!important;color:var(--accent-contrast,#000)!important;box-shadow:0 0 16px var(--accent-soft);}
+.admin-side-view{display:none!important;min-height:0!important;flex:1 1 auto!important;overflow:hidden!important;}
+.admin-side-view.active{display:flex!important;flex-direction:column!important;}
+#adminUsersPanel #userSearch{border:0!important;border-bottom:1px solid var(--accent-mid)!important;background:#0d0d0d!important;color:#fff!important;padding:13px 14px!important;}
+#usersList,#adminGroupsList{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;scrollbar-width:thin;}
+#usersList::-webkit-scrollbar,#adminGroupsList::-webkit-scrollbar{width:8px;}
+#usersList::-webkit-scrollbar-thumb,#adminGroupsList::-webkit-scrollbar-thumb{background:rgba(var(--accent-rgb),.35);border-radius:999px;}
+#adminGroupsPanel{
+  width:auto!important;
+  flex:1 1 auto!important;
+  height:auto!important;
+  max-height:none!important;
+  border-right:0!important;
+  border-bottom:0!important;
+  padding:10px!important;
+  background:transparent!important;
+}
+.admin-groups-head{margin-bottom:8px!important;}
+.admin-groups-titlebar strong{font-size:16px!important;color:var(--accent)!important;text-shadow:0 0 12px var(--accent-soft);}
+.admin-group-add{background:var(--accent)!important;color:var(--accent-contrast,#000)!important;border:0!important;box-shadow:0 0 14px var(--accent-soft);}
+.admin-groups-note{border:1px dashed var(--accent-mid);background:rgba(var(--accent-rgb),.06);border-radius:10px;padding:8px 9px;color:#bbb!important;margin-bottom:10px!important;}
+.admin-group-card-themed,.admin-group-card{
+  background:linear-gradient(145deg,#242424,#171717)!important;
+  border:1px solid var(--accent-mid)!important;
+  border-radius:15px!important;
+  padding:10px!important;
+  box-shadow:0 8px 20px rgba(0,0,0,.24)!important;
+}
+.admin-group-card:hover{border-color:var(--accent)!important;box-shadow:0 0 18px var(--accent-soft),0 10px 24px rgba(0,0,0,.28)!important;}
+.admin-group-open{background:none;border:0;padding:0;text-align:left;cursor:pointer;}
+.admin-group-name{font-family:'Uncial Antiqua',serif!important;color:var(--accent)!important;font-size:14px!important;}
+.admin-group-actions button{border-color:var(--accent-mid)!important;background:#181818!important;color:#ddd!important;border-radius:999px!important;}
+.admin-group-actions button:hover{background:var(--accent)!important;color:var(--accent-contrast,#000)!important;border-color:var(--accent)!important;}
+.admin-group-members{border:1px dashed rgba(var(--accent-rgb),.24)!important;background:rgba(0,0,0,.16)!important;margin-bottom:9px;}
+.admin-group-member{background:#202020!important;border:1px solid #333!important;border-radius:10px!important;cursor:pointer;}
+.admin-group-member:hover{border-color:var(--accent-mid)!important;background:rgba(var(--accent-rgb),.08)!important;}
+.admin-group-member button{font-size:14px!important;}
+.admin-group-add-player{border-top:1px solid #333;padding-top:9px;margin-top:4px;}
+.admin-group-add-player label{color:var(--accent)!important;font-family:'Uncial Antiqua',serif;font-size:12px;margin-bottom:6px;}
+.admin-group-add-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:center;}
+.admin-group-player-select{height:36px;border-color:var(--accent-mid)!important;background:#111!important;color:#fff!important;border-radius:10px!important;}
+.admin-group-add-player-btn{height:36px;border-radius:999px;border:1px solid var(--accent)!important;background:var(--accent)!important;color:var(--accent-contrast,#000)!important;font-weight:900;cursor:pointer;padding:0 12px;}
+.admin-group-add-player-btn:disabled,.admin-group-player-select:disabled{opacity:.45;cursor:not-allowed;}
+.summonItem.admin-character-row{cursor:pointer!important;}
+.summonItem.admin-character-row:before{content:'•'!important;color:var(--accent)!important;}
+.character-group-pill{border-color:var(--accent-mid)!important;color:var(--accent)!important;background:rgba(var(--accent-rgb),.08)!important;}
+
+#shop_tags{
+  border-color:var(--accent-mid)!important;
+  background:linear-gradient(145deg,#171717,#101010)!important;
+  color:var(--accent)!important;
+  font-weight:800!important;
+  border-radius:12px!important;
+  min-height:42px!important;
+  box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.06),0 0 14px var(--accent-soft)!important;
+}
+#shop_tags::placeholder{color:rgba(var(--accent-rgb),.56)!important;}
+#shop_tags:focus{border-color:var(--accent)!important;box-shadow:0 0 18px var(--accent-soft)!important;}
+#shop_tags + .shop-tag-help{color:#aaa;font-size:11px;line-height:1.35;margin-top:5px;}
+
+.panel-menu-shell{position:fixed;left:16px;bottom:18px;z-index:5185;display:flex;flex-direction:column;align-items:flex-start;gap:10px;}
+.panel-menu-fab{width:56px;height:56px;border-radius:50%;border:1px solid var(--accent)!important;background:#111!important;color:var(--accent)!important;font-size:24px;box-shadow:0 14px 30px rgba(0,0,0,.38),0 0 18px var(--accent-soft);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.panel-menu-fab:hover{background:var(--accent)!important;color:var(--accent-contrast,#000)!important;}
+.panel-menu-popover{display:none;flex-direction:column;gap:8px;padding:10px;background:#111;border:1px solid var(--accent)!important;border-radius:16px;box-shadow:0 14px 30px rgba(0,0,0,.34),0 0 20px var(--accent-soft);}
+.panel-menu-popover.open{display:flex!important;}
+.panel-menu-btn{background:#1b1b1b;border:1px solid #3b3b3b;color:#f3f3f3;padding:9px 12px;border-radius:12px;cursor:pointer;font-weight:800;min-width:160px;text-align:left;}
+.panel-menu-btn:hover{background:var(--accent)!important;color:var(--accent-contrast,#000)!important;border-color:var(--accent)!important;}
+.local-chat-fab{display:none!important;}
+.ma-prestige-admin{display:none!important;}
+#prestige_class,#prestige_level,#ffd20PrestigeSelect,#ffd20PrestigeLevel{display:none!important;}
+@media(max-width:768px){
+  #sidebar.admin-side-panel{position:absolute!important;z-index:10!important;width:100%!important;flex-basis:auto!important;height:100%!important;}
+  body.show-editor #sidebar.admin-side-panel{transform:translateX(-20%);opacity:0;}
+  .panel-menu-shell{left:auto;right:16px;bottom:84px;}
+  #sheetContainer,#sheetContainer.active{padding-bottom:135px!important;}
+}
+</style>
+
 </head>
 <body>
 
@@ -1437,15 +3493,27 @@ body > .tab-content.active{
 </div>
 
 <div id="layout">
-  <div id="sidebar">
-    <input type="text" id="userSearch" placeholder="Search Users...">
-    <div id="usersList"><div style="padding:15px; color:#888;">Loading...</div></div>
-  </div>
-    <section id="adminGroupsPanel" class="admin-groups-panel" aria-label="Character Groups">
-      <div class="admin-groups-head"><div class="admin-groups-titlebar"><button id="adminGroupsFoldBtn" class="admin-group-fold" type="button" onclick="toggleAdminGroupsPanel()" title="Collapse groups" aria-label="Collapse groups" aria-expanded="true">▾</button><strong>Groups</strong></div><button class="admin-group-add" type="button" onclick="createAdminGroup()" title="Create group">+</button></div>
-      <div class="admin-groups-note">Drag a character here to add its group tag.</div>
+  <aside id="sidebar" class="admin-side-panel" aria-label="Admin selector">
+    <div class="admin-side-top">
+      <div class="admin-side-title">Admin Control</div>
+      <div class="admin-side-tabs" role="tablist" aria-label="Admin panel tabs">
+        <button id="adminSideUsersBtn" class="admin-side-tab active" type="button" role="tab" aria-selected="true" onclick="switchAdminSideTab('users')">Users</button>
+        <button id="adminSideGroupsBtn" class="admin-side-tab" type="button" role="tab" aria-selected="false" onclick="switchAdminSideTab('groups')">Groups</button>
+      </div>
+    </div>
+    <section id="adminUsersPanel" class="admin-side-view active" role="tabpanel" aria-label="Users and characters">
+      <input type="text" id="userSearch" placeholder="Search users or characters...">
+      <div id="usersList"><div style="padding:15px; color:#888;">Loading...</div></div>
+    </section>
+    <section id="adminGroupsPanel" class="admin-groups-panel admin-side-view" role="tabpanel" aria-label="Character Groups">
+      <div class="admin-groups-head">
+        <div class="admin-groups-titlebar"><strong>Groups</strong></div>
+        <button class="admin-group-add" type="button" onclick="createAdminGroup()" title="Create group">+</button>
+      </div>
+      <div class="admin-groups-note">Add players with the selector under each group. No dragging needed.</div>
       <div id="adminGroupsList"><div class="admin-group-empty">Loading groups...</div></div>
     </section>
+  </aside>
 
   <div id="editorArea">
     <div id="editorTabs"></div>
@@ -1908,7 +3976,32 @@ setTimeout(() => {
     </div>
   </div>
 </aside>
-<button id="localChatFab" class="local-chat-fab" type="button" onclick="toggleLocalChat()" title="Open chat &amp; rolls">💬</button>
+<div id="panelMenuShell" class="panel-menu-shell">
+  <div id="panelMenuPopover" class="panel-menu-popover" aria-hidden="true">
+    <button class="panel-menu-btn" type="button" onclick="toggleLocalChat(true); togglePanelMenu(false)">💬 Chat &amp; Rolls</button>
+    <button class="panel-menu-btn" type="button" onclick="switchAdminSideTab('users'); togglePanelMenu(false)">👥 Users</button>
+    <button class="panel-menu-btn" type="button" onclick="switchAdminSideTab('groups'); togglePanelMenu(false)">🏷️ Groups</button>
+    <button class="panel-menu-btn" type="button" onclick="toggleAbilityDrawer(); togglePanelMenu(false)">🎲 Ability Scores</button>
+    <button class="panel-menu-btn" type="button" onclick="openThemeColorPicker(); togglePanelMenu(false)">🎨 Theme Color</button>
+  </div>
+  <button id="panelMenuFab" class="panel-menu-fab" type="button" onclick="togglePanelMenu()" title="Open admin menu">☰</button>
+</div>
+
+<div id="themeColorModal" class="modal-overlay ma-theme-modal" style="display:none;">
+  <div class="modal-content ma-theme-shell">
+    <div class="modal-header">
+      <h3>Choose Theme Color</h3>
+      <button class="btn-close" type="button" onclick="closeThemeColorPicker()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="ma-theme-help">Pick a color for the admin sheet UI. It follows the same theme system as the character sheet.</p>
+      <div id="themeColorGrid" class="ma-theme-grid" aria-label="Theme color choices"></div>
+    </div>
+    <div class="ma-theme-footer">
+      <button class="btn-save" type="button" onclick="closeThemeColorPicker()">Done</button>
+    </div>
+  </div>
+</div>
 
 
 <script type="module">
@@ -2012,6 +4105,22 @@ function sanitizeCharacterDoc(raw = {}, fallbackName = 'New Character') {
     if (!Array.isArray(data.racialAbilities)) data.racialAbilities = [];
     if (!Array.isArray(data.feats)) data.feats = [];
     if (!data.charName) data.charName = fallbackName;
+    // Admin v35: prestige classes now use the same class picker/cards as normal classes.
+    // Migrate old separate prestige fields into the visible class/multiclass data so nothing is hidden.
+    if (data.prestige_class) {
+        if (!Array.isArray(data.multiclasses)) data.multiclasses = [];
+        const prestigeName = String(data.prestige_class || '').trim();
+        const prestigeLevel = String(data.prestige_level || '1');
+        const alreadyListed = data.multiclasses.some(mc => String(mc.className || mc.class || mc.name || '').trim().toLowerCase() === prestigeName.toLowerCase());
+        if (prestigeName && data.class && String(data.class).trim().toLowerCase() !== prestigeName.toLowerCase() && !alreadyListed) {
+            data.multiclasses.push({ className: prestigeName, archetype: '', level: prestigeLevel });
+        } else if (prestigeName && !data.class) {
+            data.class = prestigeName;
+            data.character_level = data.character_level || prestigeLevel;
+        }
+        data.prestige_class = '';
+        data.prestige_level = '';
+    }
     if (data.slot_cap === undefined || data.slot_cap === null || data.slot_cap === '') data.slot_cap = 20;
     return data;
 }
@@ -2207,15 +4316,8 @@ function renderUserList(users){
                 <span class="char-row-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeGroupHtml(char.charName || 'Unnamed Character')}${pills}</span>
                 <button class="user-btn-icon del" title="Delete Character" style="color:#999;">🗑️</button>
             `;
-            row.draggable = true;
-            row.classList.add('admin-character-drag');
-            row.addEventListener('dragstart', (e) => {
-                draggedCharacterPayload = { uid: u.uid, sid: char.id, name: char.charName || 'Unnamed Character' };
-                e.dataTransfer.effectAllowed = 'copy';
-                e.dataTransfer.setData('application/json', JSON.stringify(draggedCharacterPayload));
-                e.dataTransfer.setData('text/plain', char.charName || 'Unnamed Character');
-            });
-            row.addEventListener('dragend', () => { draggedCharacterPayload = null; document.querySelectorAll('.admin-group-card').forEach(card => card.classList.remove('drag-over')); });
+            row.draggable = false;
+            row.classList.add('admin-character-row');
             row.onclick = (e) => {
                 if (e.target.closest('.user-btn-icon')) return;
                 openTab(u.uid, char.id, char.charName || 'Character');
@@ -2443,22 +4545,77 @@ function renderAdminGroups() {
         list.innerHTML = '<div class="admin-group-empty">No groups yet. Use + to create one.</div>';
         return;
     }
+    const allCharacterOptions = [];
+    allUsers.forEach(user => {
+        sortCharacters(user.characters || []).forEach(char => {
+            allCharacterOptions.push({
+                uid: user.uid,
+                sid: char.id,
+                userName: user.name || user.email || user.uid,
+                charName: char.charName || 'Unnamed Character',
+                tags: groupTagsForCharacter(char)
+            });
+        });
+    });
     list.innerHTML = '';
     allAdminGroups.forEach(group => {
         const members = allAssignedGroupMembers(group.name);
+        const available = allCharacterOptions.filter(item => !item.tags.includes(group.name));
         const card = document.createElement('div');
-        card.className = 'admin-group-card';
+        card.className = 'admin-group-card admin-group-card-themed';
         card.dataset.groupId = group.id;
-        card.innerHTML = `<div class="admin-group-card-head"><span class="admin-group-name" title="${escapeGroupHtml(group.name)}">${escapeGroupHtml(group.name)}</span><div class="admin-group-actions"><button type="button" title="Open all characters in tabs">⇥</button><button type="button" title="Open group calendar">📅</button><button type="button" title="Rename group">✎</button><button type="button" title="Delete group">×</button></div></div><div class="admin-group-members">${members.length ? members.map(member => `<div class="admin-group-member"><span>${escapeGroupHtml(member.name)}</span><button type="button" data-uid="${escapeGroupHtml(member.uid)}" data-sid="${escapeGroupHtml(member.sid)}" title="Remove group tag">×</button></div>`).join('') : '<div class="admin-group-empty">Drop character here</div>'}</div>`;
+        const selectOptions = available.length
+            ? available.map(item => `<option value="${escapeGroupHtml(JSON.stringify({uid:item.uid,sid:item.sid,name:item.charName}))}">${escapeGroupHtml(item.userName)} / ${escapeGroupHtml(item.charName)}</option>`).join('')
+            : '<option value="">Everyone is already in this group</option>';
+        card.innerHTML = `
+          <div class="admin-group-card-head">
+            <button type="button" class="admin-group-name admin-group-open" title="Open all characters in ${escapeGroupHtml(group.name)}">${escapeGroupHtml(group.name)}</button>
+            <div class="admin-group-actions">
+              <button type="button" title="Open all characters in tabs">⇥</button>
+              <button type="button" title="Open group calendar">📅</button>
+              <button type="button" title="Rename group">✎</button>
+              <button type="button" title="Delete group">×</button>
+            </div>
+          </div>
+          <div class="admin-group-members">
+            ${members.length ? members.map(member => `
+              <div class="admin-group-member" data-uid="${escapeGroupHtml(member.uid)}" data-sid="${escapeGroupHtml(member.sid)}" title="Open character">
+                <span>${escapeGroupHtml(member.name)}</span>
+                <button type="button" data-uid="${escapeGroupHtml(member.uid)}" data-sid="${escapeGroupHtml(member.sid)}" title="Remove group tag">×</button>
+              </div>`).join('') : '<div class="admin-group-empty">No players in this group yet.</div>'}
+          </div>
+          <div class="admin-group-add-player">
+            <label>Add Player</label>
+            <div class="admin-group-add-row">
+              <select class="admin-group-player-select" ${available.length ? '' : 'disabled'}>${selectOptions}</select>
+              <button class="admin-group-add-player-btn" type="button" ${available.length ? '' : 'disabled'}>Add</button>
+            </div>
+          </div>`;
         const actionButtons = card.querySelectorAll('.admin-group-actions button');
-        actionButtons[0].addEventListener('click', () => openAllGroupCharacters(group.id));
-        actionButtons[1].addEventListener('click', () => openGroupCalendar(group.id));
-        actionButtons[2].addEventListener('click', () => renameAdminGroup(group.id));
-        actionButtons[3].addEventListener('click', () => deleteAdminGroup(group.id));
+        card.querySelector('.admin-group-open')?.addEventListener('click', () => openAllGroupCharacters(group.id));
+        actionButtons[0]?.addEventListener('click', () => openAllGroupCharacters(group.id));
+        actionButtons[1]?.addEventListener('click', () => openGroupCalendar(group.id));
+        actionButtons[2]?.addEventListener('click', () => renameAdminGroup(group.id));
+        actionButtons[3]?.addEventListener('click', () => deleteAdminGroup(group.id));
+        card.querySelectorAll('.admin-group-member').forEach(memberRow => {
+            memberRow.addEventListener('click', (event) => {
+                if(event.target.closest('button')) return;
+                openTab(memberRow.dataset.uid, memberRow.dataset.sid, memberRow.querySelector('span')?.textContent || 'Character');
+                switchAdminSideTab('users');
+            });
+        });
         card.querySelectorAll('.admin-group-member button').forEach(button => button.addEventListener('click', () => removeCharacterFromGroup(group.id, button.dataset.uid, button.dataset.sid)));
-        card.addEventListener('dragover', e => { if(!draggedCharacterPayload) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; card.classList.add('drag-over'); });
-        card.addEventListener('dragleave', e => { if(!card.contains(e.relatedTarget)) card.classList.remove('drag-over'); });
-        card.addEventListener('drop', async e => { e.preventDefault(); card.classList.remove('drag-over'); if(draggedCharacterPayload) await assignCharacterToGroup(group.id, draggedCharacterPayload); });
+        card.querySelector('.admin-group-add-player-btn')?.addEventListener('click', async () => {
+            const select = card.querySelector('.admin-group-player-select');
+            if(!select?.value) return;
+            try {
+                const payload = JSON.parse(select.value);
+                await assignCharacterToGroup(group.id, payload);
+            } catch(err) {
+                console.error('Could not add player to group', err);
+                alert('Could not add player to group.');
+            }
+        });
         list.appendChild(card);
     });
 }
@@ -2567,6 +4724,7 @@ window.closeTab = (uid, sid) => {
             unsubscribeSheet = null;
             currentParentUid = null;
             currentSummonId = null;
+            document.getElementById('sheetContainer').classList.remove('active');
             document.getElementById('sheetContainer').style.display = 'none';
             document.getElementById('emptyState').style.display = 'flex';
             document.getElementById('targetUserUID').textContent = "No User Selected";
@@ -5412,9 +7570,7 @@ function maFfd20BuildChoiceGrid(){
   if(!character || !oldGrid || document.getElementById('ffd20ChoiceGrid')) return;
   const values = maFfd20CaptureBioValues();
   const fieldClass = maFfd20FieldClass();
-  const prestigeBlock = MA_FFD20_IS_ADMIN ? `
-      <div class="bio-item"><label>Prestige Class</label><select id="prestige_class" class="${fieldClass} ma-ffd20-prestige"><option value="">No prestige</option></select></div>
-      <div class="bio-item"><label>Prestige Level</label><select id="prestige_level" class="${fieldClass}">${maFfd20LevelOptions(values.prestige_level || '1')}</select></div>` : '';
+  const prestigeBlock = '';
   const shopTags = MA_FFD20_IS_ADMIN ? `<div class="bio-item"><label>Shop Access Tags</label><input id="shop_tags" class="${fieldClass}" placeholder="starter, magic_shop, blacksmith, potion_shop" value="${maFfd20Esc(values.shop_tags || '')}"></div>` : '';
   const grid = document.createElement('section');
   grid.id = 'ffd20ChoiceGrid';
@@ -5774,7 +7930,7 @@ maFfd20BuildChoiceGrid = function(force=false){
   if(!values.character_level && d.level) values.character_level = d.level;
   if(!values.size_category && d.size) values.size_category = d.size;
   const fieldClass = maFfd20FieldClass();
-  const prestigeBlock = MA_FFD20_IS_ADMIN ? `<div class="ma-prestige-admin"><div class="bio-item"><label>Prestige Class</label><select id="prestige_class" class="${fieldClass} ma-ffd20-prestige"><option value="${maFfd20Esc(values.prestige_class || '')}">${maFfd20Esc(values.prestige_class || 'No prestige')}</option></select></div><div class="bio-item"><label>Prestige Level</label><select id="prestige_level" class="${fieldClass}">${maFfd20LevelOptions(values.prestige_level || '1')}</select></div></div>` : '';
+  const prestigeBlock = '';
   const shopTags = MA_FFD20_IS_ADMIN ? `<div class="bio-item"><label>Shop Access Tags</label><input id="shop_tags" class="${fieldClass}" placeholder="starter, magic_shop, blacksmith, potion_shop" value="${maFfd20Esc(values.shop_tags || '')}"></div>` : '';
   const grid = document.createElement('section');
   grid.id = 'ffd20ChoiceGrid';
@@ -6267,6 +8423,39 @@ maFfd20SyncAfterPopulate = function(...args){
 window.addEventListener('DOMContentLoaded', ()=>{ maV4RefreshVitalsDisplay(); setTimeout(()=>maV4RecalcAndSave(true), 250); });
 setTimeout(()=>{ maV4RefreshVitalsDisplay(); maV4RecalcAndSave(true); }, 900);
 
+
+
+/* --- Admin/character UI bridge: expose module-scoped admin sheet helpers to current character-side add-ons --- */
+try {
+  window.MA_FFD20_IS_ADMIN = true;
+  const exposeEval = (name, alias=name) => {
+    try {
+      const fn = eval(name);
+      if (typeof fn === 'function') window[alias] = (...args) => fn(...args);
+    } catch(e) {}
+  };
+  [
+    'getActiveData','triggerSave','saveData','renderSpells','renderItems','renderWeapons','renderAbilities',
+    'spellLevelLabel','updateCalculations','computeDerivedStats','renderSelectedCombatDisplays','renderAbilityDrawerScores',
+    'maFfd20Esc','maFfd20Norm','maFfd20Level','maFfd20FieldClass','maFfd20ActiveData','maFfd20SaveNow',
+    'maFfd20RenderAll','maFfd20LoadLibrary','maFfd20Find','maFfd20FillSelect','maFfd20FillSimple','maFfd20AddOption',
+    'maFfd20RefreshOptions','maFfd20RefreshArchetypes','maFfd20BuildChoiceGrid','maFfd20RenderMulticlasses',
+    'maFfd20ApplySheetChoices','maFfd20ReadSelection','maFfd20HitDie','maFfd20AvgHp','maFfd20SkillBase',
+    'maFfd20LevelOptions','maFfd20Dialog','maFfd20BuildImported','maFfd20Push','maFfd20ApplyHpSkillToData',
+    'maFfd20CaptureBioValues','maFfd20MoveRaceEffectsToRacial'
+  ].forEach(name => exposeEval(name));
+  window.saveDataOnly = () => { try { triggerSave(); } catch(e) {} };
+  window.save = () => { try { triggerSave(); } catch(e) {} };
+  window.refreshSpellMpUi = () => { try { updateSpellMpPanel(); syncSpellUseButtons(); } catch(e) {} };
+  try {
+    Object.defineProperty(window, 'maFfd20Library', {
+      configurable: true,
+      get(){ return maFfd20Library; },
+      set(value){ maFfd20Library = value; }
+    });
+  } catch(e) {}
+} catch(e) { console.warn('Admin character bridge failed', e); }
+
 </script>
 <style>
 /* --- FFD20 v3: Identity + Build layout, clickable class cards, compact level-up --- */
@@ -6703,7 +8892,7 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     });
     const fieldClass = maFfd20FieldClass ? maFfd20FieldClass() : (IS_ADMIN ? 'save-field' : 'live-field');
     const shopTags = IS_ADMIN ? `<div class="bio-item"><label>Shop Access Tags</label><input id="shop_tags" class="${fieldClass}" placeholder="starter, magic_shop, blacksmith, potion_shop" value="${maFfd20Esc(values.shop_tags || '')}"></div>` : '';
-    const prestigeBlock = IS_ADMIN ? `<div class="ma-prestige-admin"><div class="bio-item"><label>Prestige Class</label><select id="prestige_class" class="${fieldClass} ma-ffd20-prestige"><option value="${maFfd20Esc(values.prestige_class || '')}">${maFfd20Esc(values.prestige_class || 'No prestige')}</option></select></div><div class="bio-item"><label>Prestige Level</label><select id="prestige_level" class="${fieldClass}">${maFfd20LevelOptions(values.prestige_level || '1')}</select></div></div>` : '';
+  const prestigeBlock = '';
     const grid = document.createElement('section');
     grid.id = 'ffd20ChoiceGrid'; grid.dataset.version = 'v3'; grid.className = 'ffd20-bio-three-col ffd20-v3-grid';
     grid.innerHTML = `
@@ -7457,5 +9646,1798 @@ body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border
   setTimeout(refreshVitals,50); setTimeout(refreshVitals,300); setTimeout(refreshVitals,1000);
 })();
 </script>
+
+
+<script>
+/* --- v20 UI polish: race card + ability score cards --- */
+(function(){
+  const STATS = ['str','dex','con','int','wis','cha'];
+  const STAT_LABELS = {str:'STR',dex:'DEX',con:'CON',int:'INT',wis:'WIS',cha:'CHA'};
+  function esc(value){ return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+  function getData(){
+    try { if (typeof maFfd20ActiveData === 'function') return maFfd20ActiveData() || {}; } catch(e) {}
+    try { if (typeof getActiveData === 'function') return getActiveData() || {}; } catch(e) {}
+    try { return window.fullData || {}; } catch(e) { return {}; }
+  }
+  function dispatchField(el){
+    if(!el) return;
+    el.dispatchEvent(new Event('input',{bubbles:true}));
+    el.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  function saveNow(){
+    try { if (typeof maFfd20SaveNow === 'function') return maFfd20SaveNow(); } catch(e) {}
+    try { if (typeof save === 'function') return save(true); } catch(e) {}
+  }
+  function addOptionIfMissing(select, value, label){
+    if(!select || !value) return;
+    const str = String(value);
+    if(!Array.from(select.options || []).some(opt => opt.value === str)){
+      const opt = document.createElement('option');
+      opt.value = str;
+      opt.textContent = label || str;
+      select.appendChild(opt);
+    }
+  }
+  function raceValue(){
+    const sel = document.getElementById('race');
+    const d = getData();
+    return String(sel?.value || d.race || '').trim();
+  }
+  function ensureRaceCard(){
+    const race = document.getElementById('race');
+    if(!race) return;
+    race.classList.add('ma-race-card-hidden');
+    const parent = race.closest('.bio-item') || race.parentElement;
+    if(!parent) return;
+    parent.classList.add('ma-race-card-wrap');
+    const label = parent.querySelector('label');
+    if(label) label.style.display = 'none';
+    let card = document.getElementById('maRaceBuildCard');
+    if(!card){
+      card = document.createElement('button');
+      card.type = 'button';
+      card.id = 'maRaceBuildCard';
+      card.className = 'ma-build-card ma-race-build-card';
+      card.title = 'Edit race';
+      parent.appendChild(card);
+      card.addEventListener('click', openRaceDialog);
+    }
+    refreshRaceCard();
+  }
+  function refreshRaceCard(){
+    const card = document.getElementById('maRaceBuildCard');
+    if(!card) return;
+    const val = raceValue();
+    card.innerHTML = '<span class="ma-class-click-label">Race</span><span class="ma-class-slot-main"><strong id="maRaceBuildTitle" class="ma-build-card-title">'+esc(val || 'Choose Race')+'</strong><small id="maRaceBuildSub" class="ma-build-card-sub">'+esc(val ? 'Click to change ancestry' : 'Pick race traits and ancestry')+'</small></span><span class="ma-build-card-level">Edit</span>';
+  }
+  async function openRaceDialog(){
+    const current = raceValue();
+    let optionsHtml = '';
+    try {
+      if(typeof maFfd20LoadLibrary === 'function'){
+        const lib = await maFfd20LoadLibrary();
+        const races = Array.isArray(lib?.races) ? lib.races : [];
+        optionsHtml = '<option value="">Choose race</option>' + races.map(r => {
+          const name = typeof r === 'string' ? r : (r?.name || r?.title || '');
+          return name ? '<option value="'+esc(name)+'" '+(name===current?'selected':'')+'>'+esc(name)+'</option>' : '';
+        }).join('');
+      }
+    } catch(e) { console.warn('Race library load failed', e); }
+    if(!optionsHtml){
+      const race = document.getElementById('race');
+      optionsHtml = Array.from(race?.options || []).map(opt => '<option value="'+esc(opt.value)+'" '+(opt.value===current?'selected':'')+'>'+esc(opt.textContent || opt.value)+'</option>').join('');
+    }
+    const body = '<div class="ffd20-modal-grid"><label>Race<select id="maEditRace">'+optionsHtml+'</select></label></div><div class="ffd20-level-summary">Race traits will be generated under the <strong>Racial</strong> tab.</div>';
+    let overlay = null;
+    try { overlay = typeof maFfd20Dialog === 'function' ? await maFfd20Dialog('Edit Race', body, 'Save Race') : null; } catch(e) { console.warn(e); }
+    if(!overlay) return;
+    const newRace = overlay.querySelector('#maEditRace')?.value || '';
+    const race = document.getElementById('race');
+    if(race){
+      addOptionIfMissing(race, newRace, newRace);
+      race.value = newRace;
+      getData().race = newRace;
+      dispatchField(race);
+    }
+    try { if(typeof maFfd20ApplySheetChoices === 'function') await maFfd20ApplySheetChoices({silent:true}); } catch(e) { console.warn(e); }
+    try { if(typeof maFfd20MoveRaceEffectsToRacial === 'function') maFfd20MoveRaceEffectsToRacial(getData()); } catch(e) {}
+    try { if(typeof renderAbilities === 'function'){ renderAbilities('passive'); renderAbilities('racial'); } } catch(e) {}
+    refreshRaceCard();
+    saveNow();
+  }
+  function ensureAbilityCards(){
+    const heading = Array.from(document.querySelectorAll('.ability-heading-row')).find(el => /Ability Scores/i.test(el.textContent || ''));
+    if(!heading) return;
+    let legacy = heading.nextElementSibling;
+    if(legacy && legacy.querySelector && legacy.querySelector('#str')) legacy.classList.add('ma-ability-table-legacy');
+    let grid = document.getElementById('maAbilityCardGrid');
+    if(!grid){
+      grid = document.createElement('div');
+      grid.id = 'maAbilityCardGrid';
+      grid.className = 'ma-ability-card-grid';
+      heading.insertAdjacentElement('afterend', grid);
+    }
+    STATS.forEach(stat => {
+      if(grid.querySelector('[data-ma-stat-card="'+stat+'"]')) return;
+      const card = document.createElement('div');
+      card.className = 'ma-ability-card';
+      card.dataset.maStatCard = stat;
+      card.innerHTML = '<button type="button" class="ma-ability-name" data-ma-roll-stat="'+stat+'">'+STAT_LABELS[stat]+'</button><input class="ma-ability-score-input" data-ma-stat-input="'+stat+'" type="number" inputmode="numeric"><div class="ma-ability-mod-pill" data-ma-stat-mod="'+stat+'">+0</div>';
+      grid.appendChild(card);
+      card.querySelector('[data-ma-roll-stat]')?.addEventListener('click', () => { try { if(typeof sendAbilityCheck === 'function') sendAbilityCheck(stat); } catch(e) {} });
+      const mirror = card.querySelector('[data-ma-stat-input]');
+      mirror?.addEventListener('input', () => {
+        const original = document.getElementById(stat);
+        if(original){
+          original.value = mirror.value;
+          getData()[stat] = mirror.value;
+          dispatchField(original);
+        }
+        setTimeout(refreshAbilityCards,0);
+      });
+      mirror?.addEventListener('change', () => {
+        const original = document.getElementById(stat);
+        if(original){
+          original.value = mirror.value;
+          getData()[stat] = mirror.value;
+          dispatchField(original);
+        }
+        saveNow();
+        setTimeout(refreshAbilityCards,0);
+      });
+    });
+    refreshAbilityCards();
+  }
+  function refreshAbilityCards(){
+    STATS.forEach(stat => {
+      const original = document.getElementById(stat);
+      const mirror = document.querySelector('[data-ma-stat-input="'+stat+'"]');
+      const mod = document.querySelector('[data-ma-stat-mod="'+stat+'"]');
+      const modSource = document.getElementById('mod-' + stat);
+      if(mirror && document.activeElement !== mirror){
+        const d = getData();
+        mirror.value = original?.value ?? d[stat] ?? '0';
+      }
+      if(mod) mod.textContent = modSource?.textContent || '+0';
+    });
+  }
+  function polishIdentity(){
+    const grid = document.getElementById('ffd20ChoiceGrid');
+    const identity = grid?.querySelector('.ffd20-bio-col:first-child');
+    if(!identity || identity.dataset.v20Identity === '1') return;
+    identity.dataset.v20Identity = '1';
+    const alignment = identity.querySelector('#alignment')?.closest('.bio-item');
+    const size = identity.querySelector('#size_category')?.closest('.bio-item');
+    if(alignment && size && !identity.querySelector('.ma-identity-row-grid')){
+      const wrap = document.createElement('div');
+      wrap.className = 'ma-identity-row-grid';
+      alignment.insertAdjacentElement('beforebegin', wrap);
+      wrap.appendChild(alignment);
+      wrap.appendChild(size);
+    }
+  }
+  function refreshAllUi(){
+    ensureRaceCard();
+    ensureAbilityCards();
+    polishIdentity();
+    refreshRaceCard();
+    refreshAbilityCards();
+  }
+  const oldBuild = window.maFfd20BuildChoiceGrid;
+  if(typeof oldBuild === 'function' && oldBuild.dataset?.v20Wrapped !== '1'){
+    const wrapped = function(){ const out = oldBuild.apply(this, arguments); setTimeout(refreshAllUi,0); return out; };
+    wrapped.dataset = {v20Wrapped:'1'};
+    window.maFfd20BuildChoiceGrid = wrapped;
+  }
+  const oldRefreshOptions = window.maFfd20RefreshOptions;
+  if(typeof oldRefreshOptions === 'function' && oldRefreshOptions.dataset?.v20Wrapped !== '1'){
+    const wrapped = async function(){ const out = await oldRefreshOptions.apply(this, arguments); setTimeout(refreshAllUi,0); return out; };
+    wrapped.dataset = {v20Wrapped:'1'};
+    window.maFfd20RefreshOptions = wrapped;
+  }
+  const oldLoad = window.loadCurrentSheet;
+  if(typeof oldLoad === 'function' && oldLoad.dataset?.v20Wrapped !== '1'){
+    const wrapped = function(){ const out = oldLoad.apply(this, arguments); setTimeout(refreshAllUi,0); setTimeout(refreshAllUi,250); return out; };
+    wrapped.dataset = {v20Wrapped:'1'};
+    window.loadCurrentSheet = wrapped;
+  }
+  document.addEventListener('input', e => { if(e.target && STATS.includes(e.target.id)) setTimeout(refreshAbilityCards,0); }, true);
+  document.addEventListener('change', e => { if(e.target && (e.target.id === 'race' || STATS.includes(e.target.id))) setTimeout(refreshAllUi,0); }, true);
+  document.addEventListener('DOMContentLoaded', refreshAllUi);
+  setTimeout(refreshAllUi,0);
+  setTimeout(refreshAllUi,250);
+  setTimeout(refreshAllUi,1000);
+})();
+</script>
+
+<script>
+/* --- v25 theme color picker --- */
+(function(){
+  const STORAGE_KEY = 'mountAetheriaThemeAccentV25';
+  const THEMES = [
+    {id:'gold', name:'Aether Gold', note:'classic warm glow', hex:'#ffcc66', rgb:'255,204,102', contrast:'#090604'},
+    {id:'ruby', name:'Ruby Red', note:'heroic crimson', hex:'#ff5f6d', rgb:'255,95,109', contrast:'#100306'},
+    {id:'ember', name:'Ember Orange', note:'forge fire', hex:'#ff8a3d', rgb:'255,138,61', contrast:'#120703'},
+    {id:'rose', name:'Rose Magick', note:'soft arcane pink', hex:'#ff7ab6', rgb:'255,122,182', contrast:'#12040b'},
+    {id:'violet', name:'Astral Violet', note:'mystic purple', hex:'#b48cff', rgb:'180,140,255', contrast:'#090512'},
+    {id:'blue', name:'Crystal Blue', note:'clean spell glow', hex:'#66a6ff', rgb:'102,166,255', contrast:'#030914'},
+    {id:'cyan', name:'Aqua Mist', note:'bright water aura', hex:'#5ee7df', rgb:'94,231,223', contrast:'#021110'},
+    {id:'emerald', name:'Emerald', note:'forest life magic', hex:'#4ee28a', rgb:'78,226,138', contrast:'#031006'},
+    {id:'lime', name:'Tonberry Lime', note:'sharp green pop', hex:'#b8f56d', rgb:'184,245,109', contrast:'#071003'},
+    {id:'moon', name:'Moon Silver', note:'cool pale glow', hex:'#d7dcff', rgb:'215,220,255', contrast:'#060711'}
+  ];
+  function themeById(id){ return THEMES.find(t => t.id === id) || THEMES[0]; }
+  function setTheme(theme, persist){
+    const t = typeof theme === 'string' ? themeById(theme) : (theme || THEMES[0]);
+    const root = document.documentElement;
+    root.style.setProperty('--accent', t.hex);
+    root.style.setProperty('--accent-rgb', t.rgb);
+    root.style.setProperty('--accent-contrast', t.contrast || '#050505');
+    root.style.setProperty('--accent-soft', `rgba(${t.rgb},.12)`);
+    root.style.setProperty('--accent-mid', `rgba(${t.rgb},.32)`);
+    root.style.setProperty('--accent-glow', `rgba(${t.rgb},.42)`);
+    document.body?.setAttribute('data-theme-accent', t.id);
+    if(persist) {
+      try { localStorage.setItem(STORAGE_KEY, t.id); } catch(e) {}
+    }
+    renderThemeGrid(t.id);
+  }
+  function renderThemeGrid(activeId){
+    const grid = document.getElementById('themeColorGrid');
+    if(!grid) return;
+    grid.innerHTML = THEMES.map(t => `
+      <button type="button" class="ma-theme-swatch ${t.id === activeId ? 'active' : ''}" style="--swatch:${t.hex};--swatch-rgb:${t.rgb}" onclick="setSheetThemeColor('${t.id}')" aria-label="Use ${t.name} theme">
+        <span class="ma-theme-dot" aria-hidden="true"></span>
+        <span class="ma-theme-name"><strong>${t.name}</strong><small>${t.note}</small></span>
+      </button>`).join('');
+  }
+  window.setSheetThemeColor = (id) => setTheme(themeById(id), true);
+  window.openThemeColorPicker = () => {
+    const modal = document.getElementById('themeColorModal');
+    renderThemeGrid(document.body?.getAttribute('data-theme-accent') || (localStorage.getItem(STORAGE_KEY) || 'gold'));
+    if(modal) modal.style.display = 'flex';
+  };
+  window.closeThemeColorPicker = () => {
+    const modal = document.getElementById('themeColorModal');
+    if(modal) modal.style.display = 'none';
+  };
+  document.addEventListener('keydown', (event) => {
+    if(event.key === 'Escape') closeThemeColorPicker();
+  });
+  document.addEventListener('DOMContentLoaded', () => {
+    let saved = 'gold';
+    try { saved = localStorage.getItem(STORAGE_KEY) || 'gold'; } catch(e) {}
+    setTheme(themeById(saved), false);
+  });
+  // Apply immediately too, in case this script loads after DOMContentLoaded.
+  let saved = 'gold';
+  try { saved = localStorage.getItem(STORAGE_KEY) || 'gold'; } catch(e) {}
+  setTheme(themeById(saved), false);
+})();
+</script>
+
+<script>
+/* --- v29 race picker repair ---
+   v20 hid the real race select behind a pretty card, but the card's dialog used module-scoped helpers.
+   This patch gives the race card its own standalone picker and then changes the real #race select,
+   so the existing module listeners still regenerate racial traits and save normally. */
+(function(){
+  const DATA_URL = './data/ffd20_data.json';
+  function esc(value){
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+  function norm(value){ return String(value || '').trim(); }
+  function ensureOption(select, value, label){
+    if(!select || !value) return;
+    const v = String(value);
+    if(!Array.from(select.options || []).some(opt => opt.value === v)){
+      const opt = document.createElement('option');
+      opt.value = v;
+      opt.textContent = label || v;
+      select.appendChild(opt);
+    }
+  }
+  function currentRace(){
+    const select = document.getElementById('race');
+    return norm(select?.value || select?.getAttribute('value') || '');
+  }
+  function refreshRaceCardV29(){
+    const card = document.getElementById('maRaceBuildCard');
+    if(!card) return;
+    const val = currentRace();
+    card.innerHTML = '<span class="ma-class-click-label">Race</span><span class="ma-class-slot-main"><strong id="maRaceBuildTitle" class="ma-build-card-title">'+esc(val || 'Choose Race')+'</strong><small id="maRaceBuildSub" class="ma-build-card-sub">'+esc(val ? 'Click to change ancestry' : 'Pick race traits and ancestry')+'</small></span><span class="ma-build-card-level">Edit</span>';
+  }
+  function ensureRaceCardV29(){
+    const race = document.getElementById('race');
+    if(!race) return null;
+    race.classList.add('ma-race-card-hidden');
+    const parent = race.closest('.bio-item') || race.parentElement;
+    if(!parent) return null;
+    parent.classList.add('ma-race-card-wrap');
+    const label = parent.querySelector('label');
+    if(label) label.style.display = 'none';
+    let card = document.getElementById('maRaceBuildCard');
+    if(!card){
+      card = document.createElement('button');
+      card.type = 'button';
+      card.id = 'maRaceBuildCard';
+      card.className = 'ma-build-card ma-race-build-card';
+      card.title = 'Edit race';
+      parent.appendChild(card);
+    }
+    refreshRaceCardV29();
+    return card;
+  }
+  async function getRaceNames(){
+    const select = document.getElementById('race');
+    const fromSelect = Array.from(select?.options || [])
+      .map(opt => norm(opt.value || opt.textContent))
+      .filter(v => v && !/^loading races/i.test(v) && !/^choose race/i.test(v));
+    if(fromSelect.length > 1) return Array.from(new Set(fromSelect)).sort((a,b)=>a.localeCompare(b));
+    try{
+      const res = await fetch(DATA_URL, {cache:'no-store'});
+      if(res.ok){
+        const json = await res.json();
+        const names = (Array.isArray(json?.races) ? json.races : [])
+          .map(r => norm(typeof r === 'string' ? r : (r?.name || r?.title || '')))
+          .filter(Boolean);
+        if(names.length) return Array.from(new Set(names)).sort((a,b)=>a.localeCompare(b));
+      }
+    }catch(e){ console.warn('Race picker could not load JSON', e); }
+    return fromSelect;
+  }
+  function openSimpleDialog(title, bodyHtml, confirmText){
+    return new Promise(resolve => {
+      const overlay = document.createElement('div');
+      overlay.className = 'ffd20-modal-overlay show';
+      overlay.style.zIndex = '7300';
+      overlay.innerHTML = '<div class="ffd20-modal"><div class="ffd20-modal-head"><h3>'+esc(title)+'</h3><button class="btn-close" type="button" data-close>&times;</button></div><div class="ffd20-modal-body">'+bodyHtml+'</div><div class="ffd20-modal-actions"><button class="ffd20-mini-btn" type="button" data-close>Cancel</button><button class="btn-save" type="button" data-confirm>'+esc(confirmText || 'Save')+'</button></div></div>';
+      document.body.appendChild(overlay);
+      overlay.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => { overlay.remove(); resolve(null); }));
+      overlay.querySelector('[data-confirm]')?.addEventListener('click', () => { resolve(overlay); overlay.remove(); });
+    });
+  }
+  async function openRacePickerV29(){
+    const race = document.getElementById('race');
+    if(!race){ alert('Race field was not found on this sheet.'); return; }
+    const current = currentRace();
+    const names = await getRaceNames();
+    const options = ['<option value="">Choose race</option>'].concat(names.map(name => '<option value="'+esc(name)+'" '+(name===current?'selected':'')+'>'+esc(name)+'</option>')).join('');
+    const overlay = await openSimpleDialog('Edit Race', '<div class="ffd20-modal-grid"><label>Race<select id="maEditRaceV29">'+options+'</select></label></div><div class="ma-race-picker-v29-note">Race traits will generate under the <strong>Racial</strong> tab. Existing race traits in Passive are moved to Racial on load/render.</div>', 'Save Race');
+    if(!overlay) return;
+    const next = norm(overlay.querySelector('#maEditRaceV29')?.value || '');
+    ensureOption(race, next, next);
+    race.value = next;
+    // Store a plain attribute too, so rebuilt cards can read the value before the module refreshes.
+    if(next) race.setAttribute('value', next); else race.removeAttribute('value');
+    // Fire the existing module listeners: apply race effects, recalc, and save.
+    race.dispatchEvent(new Event('input', {bubbles:true}));
+    race.dispatchEvent(new Event('change', {bubbles:true}));
+    try { if(typeof window.maV30RaceAbilitySync === 'function') window.maV30RaceAbilitySync({immediate:true, delay:40, save:true}); } catch(e) {}
+    refreshRaceCardV29();
+    // Redraw abilities after the module has a chance to import/move race traits.
+    setTimeout(() => {
+      try { if(typeof renderAbilities === 'function'){ renderAbilities('passive'); renderAbilities('racial'); } } catch(e) {}
+      try { if(typeof window.maV30RaceAbilitySync === 'function') window.maV30RaceAbilitySync({immediate:true, delay:40, save:true}); } catch(e) {}
+      refreshRaceCardV29();
+    }, 80);
+    setTimeout(() => {
+      try { if(typeof window.maV30RaceAbilitySync === 'function') window.maV30RaceAbilitySync({immediate:true, delay:0, save:true}); } catch(e) {}
+      refreshRaceCardV29();
+    }, 350);
+  }
+  // Capture click before the older v20 listener, which could fail when module helpers are unavailable.
+  document.addEventListener('click', function(event){
+    const card = event.target?.closest?.('#maRaceBuildCard');
+    if(!card) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    openRacePickerV29();
+  }, true);
+  document.addEventListener('change', function(event){
+    if(event.target?.id === 'race') setTimeout(refreshRaceCardV29, 0);
+  }, true);
+  window.maRefreshRaceCardV29 = refreshRaceCardV29;
+  document.addEventListener('DOMContentLoaded', ensureRaceCardV29);
+  window.addEventListener('load', ensureRaceCardV29);
+  setTimeout(ensureRaceCardV29, 0);
+  setTimeout(ensureRaceCardV29, 250);
+  setTimeout(ensureRaceCardV29, 1000);
+})();
+</script>
+
+<script>
+/* --- v34 phone ability tabs + weapon proficiency autofill --- */
+(function(){
+  const FEATURE_NAME = 'Weapon and Armor Proficiency';
+
+  function norm(value){
+    return String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  function getData(){
+    try {
+      if(typeof maFfd20ActiveData === 'function') return maFfd20ActiveData() || {};
+      if(typeof getActiveData === 'function') return getActiveData() || {};
+    } catch(e) {}
+    return {};
+  }
+
+  function getFeatureText(feature){
+    return String(
+      feature?.desc ??
+      feature?.description ??
+      feature?.text ??
+      feature?.body ??
+      feature?.effect ??
+      feature?.summary ??
+      ''
+    ).trim();
+  }
+
+  function featureList(source){
+    if(!source || typeof source !== 'object') return [];
+    return []
+      .concat(Array.isArray(source.features) ? source.features : [])
+      .concat(Array.isArray(source.traits) ? source.traits : [])
+      .concat(Array.isArray(source.abilities) ? source.abilities : [])
+      .concat(Array.isArray(source.classFeatures) ? source.classFeatures : [])
+      .concat(Array.isArray(source.class_features) ? source.class_features : []);
+  }
+
+  function findProficiencyFeature(source){
+    const target = norm(FEATURE_NAME);
+    return featureList(source).find(feature => norm(feature?.name || feature?.title || '') === target);
+  }
+
+  function findClassInLibrary(lib, className){
+    const target = norm(className);
+    if(!target) return null;
+
+    const all = []
+      .concat(Array.isArray(lib?.classes) ? lib.classes : [])
+      .concat(Array.isArray(lib?.baseCoreClasses) ? lib.baseCoreClasses : [])
+      .concat(Array.isArray(lib?.prestigeClasses) ? lib.prestigeClasses : [])
+      .concat(Array.isArray(lib?.prestige_classes) ? lib.prestige_classes : []);
+
+    return all.find(item => norm(item?.name || item?.title || item?.className || item?.class || '') === target) || null;
+  }
+
+  function currentClassRows(){
+    const data = getData();
+    const rows = [];
+
+    const mainClass =
+      document.getElementById('class')?.value ||
+      data.class ||
+      data.className ||
+      '';
+
+    if(mainClass){
+      rows.push({
+        label: 'Class',
+        name: mainClass
+      });
+    }
+
+    const multiclasses = Array.isArray(data.multiclasses) ? data.multiclasses : [];
+    multiclasses.forEach((mc, index) => {
+      const name = mc?.className || mc?.class || mc?.name || '';
+      if(name){
+        rows.push({
+          label: 'Class ' + (index + 2),
+          name
+        });
+      }
+    });
+
+    const prestige =
+      document.getElementById('prestige_class')?.value ||
+      data.prestige_class ||
+      data.prestigeClass ||
+      '';
+
+    if(prestige){
+      rows.push({
+        label: 'Prestige',
+        name: prestige
+      });
+    }
+
+    return rows;
+  }
+
+  function ensureWeaponProficiencyCard(){
+    const textarea = document.getElementById('proficiencies');
+    const weaponList = document.getElementById('weaponList');
+    if(!textarea || !weaponList) return null;
+
+    const weaponPanel = weaponList.parentElement;
+    if(!weaponPanel) return textarea;
+
+    let card = document.getElementById('weaponProficiencyCardV34');
+
+    if(!card){
+      card = document.createElement('div');
+      card.id = 'weaponProficiencyCardV34';
+      card.innerHTML = '<label for="proficiencies">Weapon and Armor Proficiency</label>';
+      card.appendChild(textarea);
+    }
+
+    const addWeaponBtn = Array.from(weaponPanel.querySelectorAll('button'))
+      .find(btn => /add weapon/i.test(btn.textContent || ''));
+
+    if(addWeaponBtn && card.parentElement !== weaponPanel){
+      addWeaponBtn.insertAdjacentElement('afterend', card);
+    } else if(!card.parentElement) {
+      weaponPanel.appendChild(card);
+    }
+
+    // Remove the old empty wrapper left under Feats if it exists.
+    document.querySelectorAll('#a-feats > div').forEach(div => {
+      if(div !== card && div.textContent.trim() === 'Proficiencies' && !div.querySelector('#proficiencies')){
+        div.remove();
+      }
+    });
+
+    return textarea;
+  }
+
+  async function autofillWeaponProficiency(){
+    const textarea = ensureWeaponProficiencyCard();
+    if(!textarea) return;
+
+    let lib = null;
+    try {
+      if(typeof maFfd20LoadLibrary === 'function') lib = await maFfd20LoadLibrary();
+    } catch(e) {
+      console.warn('Could not load class library for proficiencies', e);
+      return;
+    }
+
+    const rows = currentClassRows();
+    const blocks = [];
+
+    rows.forEach(row => {
+      const cls = findClassInLibrary(lib, row.name);
+      const feature = findProficiencyFeature(cls);
+      if(!feature) return;
+
+      const desc = getFeatureText(feature);
+      blocks.push(desc ? `${row.name}: ${desc}` : `${row.name}: ${FEATURE_NAME}`);
+    });
+
+    const next = blocks.join('\n\n').trim();
+
+    // Forceful for test branch: class JSON owns this field.
+    if(next && textarea.value !== next){
+      textarea.value = next;
+
+      const data = getData();
+      data.proficiencies = next;
+
+      textarea.dispatchEvent(new Event('input', { bubbles:true }));
+      textarea.dispatchEvent(new Event('change', { bubbles:true }));
+
+      try {
+        if(typeof save === 'function') save(true);
+        else if(typeof triggerSave === 'function') triggerSave();
+      } catch(e) {}
+    }
+  }
+
+  function scheduleAutofill(){
+    ensureWeaponProficiencyCard();
+    setTimeout(autofillWeaponProficiency, 80);
+    setTimeout(autofillWeaponProficiency, 400);
+  }
+
+  document.addEventListener('DOMContentLoaded', scheduleAutofill);
+  window.addEventListener('load', scheduleAutofill);
+
+  document.addEventListener('change', event => {
+    if(['class','archetype','character_level','prestige_class','prestige_level'].includes(event.target?.id)){
+      scheduleAutofill();
+    }
+  }, true);
+
+  document.addEventListener('click', event => {
+    if(event.target?.closest?.('#maClassBuildCard, #maMulticlassList, #maAddMulticlassBtn')){
+      setTimeout(scheduleAutofill, 500);
+    }
+  }, true);
+
+  const oldRefreshOptions = window.maFfd20RefreshOptions;
+  if(typeof oldRefreshOptions === 'function'){
+    window.maFfd20RefreshOptions = async function(){
+      const result = await oldRefreshOptions.apply(this, arguments);
+      scheduleAutofill();
+      return result;
+    };
+  }
+
+  window.maV34RefreshWeaponProficiency = scheduleAutofill;
+
+  setTimeout(scheduleAutofill, 250);
+  setTimeout(scheduleAutofill, 1000);
+})();
+</script>
+
+
+
+<script>
+/* --- FINAL MP repair: active Build-card MP calculation + FFd20 special-table parser --- */
+(function(){
+  const FINAL_MP_PATCH_FLAG = 'maFinalMpPatchV2';
+  if(window[FINAL_MP_PATCH_FLAG]) return;
+  window[FINAL_MP_PATCH_FLAG] = true;
+
+  const BONUS_MP_TABLE_FINAL = [
+    {min:-999,max:9, vals:[0,0,0,0,0,0,0,0,0]},
+    {min:10,max:11, vals:[0,0,0,0,0,0,0,0,0]},
+    {min:12,max:13, vals:[1,1,1,1,1,1,1,1,1]},
+    {min:14,max:15, vals:[1,3,3,3,3,3,3,3,3]},
+    {min:16,max:17, vals:[1,3,6,6,6,6,6,6,6]},
+    {min:18,max:19, vals:[1,3,6,10,10,10,10,10,10]},
+    {min:20,max:21, vals:[2,4,7,11,16,16,16,16,16]},
+    {min:22,max:23, vals:[2,6,9,13,18,24,24,24,24]},
+    {min:24,max:25, vals:[2,6,12,16,21,27,34,34,34]},
+    {min:26,max:27, vals:[2,6,12,20,25,31,38,46,46]},
+    {min:28,max:29, vals:[3,7,13,21,31,37,44,52,61]},
+    {min:30,max:31, vals:[3,9,15,23,33,45,52,60,69]},
+    {min:32,max:33, vals:[3,9,18,26,36,48,62,70,79]},
+    {min:34,max:35, vals:[3,9,18,30,40,52,66,82,91]},
+    {min:36,max:37, vals:[4,10,19,31,46,58,72,88,106]},
+    {min:38,max:39, vals:[4,12,21,33,48,66,80,96,114]},
+    {min:40,max:41, vals:[4,12,24,36,51,69,90,106,124]},
+    {min:42,max:43, vals:[4,12,24,40,55,73,94,118,136]},
+    {min:44,max:999, vals:[5,13,25,41,61,79,100,124,151]}
+  ];
+
+  function d(){
+    try { return (typeof maFfd20ActiveData === 'function' && maFfd20ActiveData()) || (typeof getActiveData === 'function' && getActiveData()) || {}; }
+    catch(e){ return {}; }
+  }
+  function num(value, fallback=0){
+    const n = Number(value);
+    return Number.isFinite(n) ? Math.trunc(n) : fallback;
+  }
+  function readNum(id, fallback=0){
+    const data = d();
+    const el = document.getElementById(id);
+    return num(el?.value ?? data[id], fallback);
+  }
+  function writeField(id, value){
+    const out = String(num(value, 0));
+    const el = document.getElementById(id);
+    if(el) el.value = out;
+    const data = d();
+    if(data) data[id] = out;
+  }
+  function normName(value){
+    return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  }
+  function level(v){
+    const m = String(v ?? '').match(/\d+/);
+    return Math.max(0, num(m ? m[0] : v, 0));
+  }
+  function intFrom(v){
+    const m = String(v ?? '').match(/[+-]?\d+/);
+    return m ? num(m[0], 0) : 0;
+  }
+  function abilityScore(stat){
+    const score = readNum(stat, 10);
+    return Number.isFinite(score) ? score : 10;
+  }
+  function statMod(stat){
+    return Math.floor((abilityScore(stat) - 10) / 2);
+  }
+  function hitDie(cls){ return Math.max(1, intFrom(cls?.hitDie || '8') || 8); }
+  function avgDie(die){ return Math.floor(die / 2) + 1; }
+  function skillBase(cls){ return Math.max(0, intFrom(cls?.skillPoints || cls?.skill_points || '0') || 0); }
+
+  function parseSpellLevel(value){
+    if(value === undefined || value === null) return 0;
+    if(typeof value === 'number') return Math.max(0, Math.min(9, Math.trunc(value)));
+    const raw = String(value).trim().toLowerCase();
+    if(!raw || raw === '-' || raw === '—') return 0;
+    const ordinal = raw.match(/\b([1-9])(?:st|nd|rd|th)\b/);
+    if(ordinal) return Math.max(0, Math.min(9, num(ordinal[1], 0)));
+    const plain = raw.match(/\b(?:spell\s*level|max\s*spell|highest\s*spell|spells?)\D*([1-9])\b/);
+    if(plain) return Math.max(0, Math.min(9, num(plain[1], 0)));
+    if(/^[1-9]$/.test(raw)) return num(raw, 0);
+    return 0;
+  }
+
+  function parseSpecialMp(row){
+    const text = String(row?.special ?? row?.Special ?? row?.features ?? row?.ability ?? '').trim();
+    if(!text) return { found:false, mpValue:0, spellLevel:0, source:'' };
+    const matches = Array.from(text.matchAll(/(?:^|[\s,;:])([0-9]{1,4})\s+(1st|2nd|3rd|[4-9]th)\b/gi));
+    if(!matches.length) return { found:false, mpValue:0, spellLevel:0, source:text };
+    const last = matches[matches.length - 1];
+    const mpValue = num(last[1], 0);
+    const spellLevel = parseSpellLevel(last[2]);
+    return { found: mpValue > 0 && spellLevel > 0, mpValue, spellLevel, source:text };
+  }
+
+  function classClaimsMp(cls){
+    return !!(cls?.hasMp || cls?.hasMP || cls?.spellcaster || cls?.caster || cls?.mpCaster || cls?.magicUser);
+  }
+
+  function classCastingStat(cls, className=''){
+    const direct = String(cls?.castingStat || cls?.castingAbility || cls?.spellcastingAbility || cls?.spellAbility || cls?.mpAbility || '').toLowerCase().slice(0,3);
+    if(['str','dex','con','int','wis','cha'].includes(direct)) return direct;
+
+    const spellFeature = (Array.isArray(cls?.features) ? cls.features : []).find(f => /\bspells?\b/i.test(String(f?.name || '')) || /additional MP/i.test(String(f?.desc || '')));
+    const desc = String(spellFeature?.desc || '');
+    const abilityMatch = desc.match(/additional\s+MP[\s\S]{0,90}?\b(Strength|Dexterity|Constitution|Intelligence|Wisdom|Charisma)\b/i)
+      || desc.match(/\b(Strength|Dexterity|Constitution|Intelligence|Wisdom|Charisma)\b\s*[—-]\s*see\s*Table/i);
+    if(abilityMatch){
+      const map = {strength:'str', dexterity:'dex', constitution:'con', intelligence:'int', wisdom:'wis', charisma:'cha'};
+      const found = map[String(abilityMatch[1]).toLowerCase()];
+      if(found) return found;
+    }
+
+    const name = normName(className || cls?.name || '');
+    if(/\b(black mage|blue mage|time mage)\b/.test(name)) return 'int';
+    if(/\b(astrologian|druid|geomancer|ninja|white mage)\b/.test(name)) return 'wis';
+    if(/\b(bard|dark knight|holy knight|illusionist|red mage|necromancer|summoner)\b/.test(name)) return 'cha';
+
+    const manual = String(document.getElementById('spell_dc_base')?.value || d().spell_dc_base || '').toLowerCase();
+    return ['str','dex','con','int','wis','cha'].includes(manual) ? manual : 'int';
+  }
+
+  function bonusMp(score, highestSpellLevel){
+    const ability = num(score, 0);
+    const spellLevel = Math.max(0, Math.min(9, num(highestSpellLevel, 0)));
+    if(spellLevel <= 0 || ability <= 9) return 0;
+    const row = BONUS_MP_TABLE_FINAL.find(r => ability >= r.min && ability <= r.max) || BONUS_MP_TABLE_FINAL[BONUS_MP_TABLE_FINAL.length - 1];
+    return num(row.vals[spellLevel - 1], 0);
+  }
+
+  function findClass(lib, name){
+    if(typeof maFfd20Find === 'function') return maFfd20Find(lib?.classes || [], name);
+    const target = normName(name);
+    return (lib?.classes || []).find(cls => normName(cls?.name) === target) || null;
+  }
+
+  function classEntries(lib, sel){
+    if(typeof maV4ClassEntries === 'function') return maV4ClassEntries(lib, sel).filter(e => e && e.cls);
+    const data = d();
+    const out = [];
+    const mainName = sel?.className || sel?.class || document.getElementById('class')?.value || data.class || data.className || '';
+    const mainLevel = level(sel?.level || sel?.character_level || document.getElementById('character_level')?.value || data.character_level || 1) || 1;
+    if(mainName) out.push({label:'Class', name:mainName, className:mainName, level:mainLevel, cls:findClass(lib, mainName)});
+    const mcs = Array.isArray(sel?.multiclasses) ? sel.multiclasses : (Array.isArray(data.multiclasses) ? data.multiclasses : []);
+    mcs.forEach((mc, i) => {
+      const name = mc.className || mc.class || mc.name || '';
+      if(name) out.push({label:`Class ${i+2}`, name, className:name, level:level(mc.level || 1) || 1, cls:findClass(lib, name)});
+    });
+    return out.filter(e => e && e.cls);
+  }
+
+  window.maFinalParseClassMp = function(cls, lvl){
+    const rows = Array.isArray(cls?.progression) ? cls.progression : [];
+    let best = null;
+    for(const row of rows){ if(level(row.level) <= lvl) best = row; }
+    best = best || rows[0] || {};
+
+    const mpRaw = best.mpValue ?? best.mp ?? best.MP;
+    const hasCleanMp = Object.prototype.hasOwnProperty.call(best, 'mpValue') || Object.prototype.hasOwnProperty.call(best, 'mp') || Object.prototype.hasOwnProperty.call(best, 'MP');
+    const mpText = String(mpRaw ?? '').trim();
+    const cleanMpFound = hasCleanMp && mpText !== '' && mpText !== '-' && mpText !== '—';
+    const special = parseSpecialMp(best);
+    const hasMp = cleanMpFound || special.found || classClaimsMp(cls);
+    const mpValue = cleanMpFound ? num(mpRaw, 0) : (special.found ? special.mpValue : 0);
+    const spellLevel = special.spellLevel || parseSpellLevel(best.highestSpellLevel ?? best.highest_spell_level ?? best.spellLevel ?? best.spell_level) || (mpValue > 0 ? Math.max(1, Math.min(9, Math.ceil((level(lvl) || 1) / 2))) : 0);
+
+    return {
+      bab: num(best.babValue ?? intFrom(best.bab), 0),
+      fort: num(best.fortValue ?? intFrom(best.fort), 0),
+      ref: num(best.refValue ?? intFrom(best.ref), 0),
+      will: num(best.willValue ?? intFrom(best.will), 0),
+      mp: mpValue,
+      mpBase: mpValue,
+      spellLevel,
+      hasMp: hasMp && (mpValue > 0 || classClaimsMp(cls)),
+      hasExplicitMp: mpValue > 0,
+      raw: best,
+      specialSource: special.source || ''
+    };
+  };
+
+  try {
+    maV4ProgressionAt = function(cls, lvl){
+      return window.maFinalParseClassMp(cls, lvl);
+    };
+  } catch(e) {}
+
+  try {
+    progressionAt = function(cls, lvl){
+      const p = window.maFinalParseClassMp(cls, lvl);
+      return {
+        level:lvl,
+        babValue:p.bab,
+        fortValue:p.fort,
+        refValue:p.ref,
+        willValue:p.will,
+        mpValue:p.mpBase,
+        hasExplicitMp:p.hasExplicitMp,
+        spellLevel:p.spellLevel,
+        raw:p.raw,
+        cls
+      };
+    };
+  } catch(e) {}
+
+  window.maFinalCalcClassTotals = function(lib, sel){
+    const conMod = statMod('con');
+    const intMod = statMod('int');
+    const entries = classEntries(lib, sel);
+    const totalLevel = entries.reduce((sum, e) => sum + Math.max(0, level(e.level)), 0) || 1;
+    const totals = { hp:0, skill:0, bab:0, fort:0, ref:0, will:0, mpBase:0, mpBonus:0, mp:0, hasMp:false, totalLevel, rows:[] };
+    let overallLevel = 0;
+
+    entries.forEach(entry => {
+      const die = hitDie(entry.cls);
+      const avg = avgDie(die);
+      const skillEach = Math.max(1, skillBase(entry.cls) + intMod);
+      let hpGain = 0;
+      let skillGain = 0;
+      for(let i = 1; i <= level(entry.level); i++){
+        overallLevel++;
+        const firstOverall = overallLevel === 1;
+        hpGain += Math.max(1, (firstOverall ? die : avg) + conMod);
+        skillGain += firstOverall ? skillEach * 4 : skillEach;
+      }
+
+      const prog = window.maFinalParseClassMp(entry.cls, entry.level);
+      const castingStat = classCastingStat(entry.cls, entry.className || entry.name);
+      const castingScore = abilityScore(castingStat);
+      const extraMp = prog.hasMp ? bonusMp(castingScore, prog.spellLevel) : 0;
+
+      totals.hp += hpGain;
+      totals.skill += skillGain;
+      totals.bab += prog.bab;
+      totals.fort += prog.fort;
+      totals.ref += prog.ref;
+      totals.will += prog.will;
+      totals.mpBase += prog.hasMp ? prog.mpBase : 0;
+      totals.mpBonus += extraMp;
+      if(prog.hasMp) totals.hasMp = true;
+      totals.rows.push({...entry, die, avg, skillEach, hpGain, skillGain, prog, castingStat, castingScore, spellLevel:prog.spellLevel, bonusMp:extraMp});
+    });
+
+    try {
+      const choices = d().levelBonusChoicesV38 || d().levelBonusChoicesV37 || {};
+      Object.entries(choices || {}).forEach(([lvl, choice]) => {
+        const n = level(lvl);
+        if(n >= 2 && n <= totalLevel){
+          if(choice === 'hp') totals.hp += 1;
+          if(choice === 'skill') totals.skill += 1;
+        }
+      });
+    } catch(e) {}
+
+    totals.mp = totals.hasMp ? totals.mpBase + totals.mpBonus : 0;
+    return totals;
+  };
+
+  function writeMpTotals(totals){
+    const oldMax = readNum('mp_max', 0);
+    const current = readNum('mp_curr', 0);
+    const tempMax = readNum('mp_max_temp', 0);
+    const baseTotal = totals?.hasMp ? num(totals.mp, 0) : 0;
+    const totalMax = Math.max(0, baseTotal + tempMax);
+
+    writeField('mp_base', totals?.hasMp ? num(totals.mpBase, 0) : 0);
+    writeField('mp_bonus', totals?.hasMp ? num(totals.mpBonus, 0) : 0);
+    writeField('mp_max', baseTotal);
+    writeField('mp_effective_max', totalMax);
+
+    if(!totals?.hasMp){
+      writeField('mp_curr', 0);
+    } else if(oldMax <= 0 && totalMax > 0){
+      writeField('mp_curr', totalMax);
+    } else if(current > totalMax){
+      writeField('mp_curr', totalMax);
+    } else if(String(document.getElementById('mp_curr')?.value ?? d().mp_curr ?? '').trim() === ''){
+      writeField('mp_curr', totalMax);
+    }
+
+    if(String(document.getElementById('mp_temp')?.value ?? d().mp_temp ?? '').trim() === '') writeField('mp_temp', 0);
+    try { if(typeof updateSpellMpPanel === 'function') updateSpellMpPanel(); } catch(e) {}
+    try { if(typeof refreshEffectiveVitals === 'function') refreshEffectiveVitals(); } catch(e) {}
+    return totals;
+  }
+
+  try {
+    const oldV4Totals = typeof maV4Totals === 'function' ? maV4Totals : null;
+    maV4Totals = function(lib, sel){
+      try { return window.maFinalCalcClassTotals(lib, sel); }
+      catch(e){ console.warn('Final MP maV4Totals fallback', e); return oldV4Totals ? oldV4Totals(lib, sel) : {hp:0,skill:0,bab:0,fort:0,ref:0,will:0,mp:0,hasMp:false,rows:[]}; }
+    };
+  } catch(e) {}
+
+  try {
+    const oldCalc = typeof maCalcClassTotals === 'function' ? maCalcClassTotals : null;
+    maCalcClassTotals = function(lib, sel){
+      try { return window.maFinalCalcClassTotals(lib, sel); }
+      catch(e){ console.warn('Final MP maCalcClassTotals fallback', e); return oldCalc ? oldCalc(lib, sel) : {hp:0,skill:0,bab:0,fort:0,ref:0,will:0,mpBase:0,mpBonus:0,mp:0,hasMp:false,rows:[]}; }
+    };
+  } catch(e) {}
+
+  try {
+    const oldApply = typeof maV4ApplyTotals === 'function' ? maV4ApplyTotals : null;
+    maV4ApplyTotals = function(lib, oldSel, newSel, result){
+      const applied = oldApply ? oldApply(lib, oldSel, newSel, result) : null;
+      const totals = window.maFinalCalcClassTotals(lib, newSel || (typeof maV4ReadSelection === 'function' ? maV4ReadSelection() : {}));
+      writeMpTotals(totals);
+      return {...(applied || {}), ...totals};
+    };
+  } catch(e) {}
+
+  window.maFinalMpRecalc = async function(saveIt=false){
+    let lib = null;
+    try { lib = await maFfd20LoadLibrary(); }
+    catch(e){ console.warn('MP recalc could not load class library', e); lib = {classes:[]}; }
+    const sel = (typeof maV4ReadSelection === 'function') ? maV4ReadSelection() : ((typeof maCurrentSelectionClone === 'function') ? maCurrentSelectionClone() : {});
+    const totals = window.maFinalCalcClassTotals(lib, sel);
+    writeMpTotals(totals);
+    if(saveIt){ try { maFfd20SaveNow?.(); } catch(e) { try { save?.(true); } catch(_e) {} } }
+    return totals;
+  };
+
+  window.maDebugMpFinal = async function(){
+    const totals = await window.maFinalMpRecalc(false);
+    console.table((totals.rows || []).map(r => ({
+      class:r.className || r.name,
+      level:r.level,
+      class_mp:r.prog?.mpBase || 0,
+      highest_spell_level:r.spellLevel || 0,
+      casting_stat:String(r.castingStat || '').toUpperCase(),
+      casting_score:r.castingScore,
+      bonus_mp:r.bonusMp || 0,
+      base_mp:(r.prog?.mpBase || 0) + (r.bonusMp || 0),
+      special:r.prog?.specialSource || ''
+    })));
+    console.log('MP fields', {
+      mp_base:readNum('mp_base',0),
+      mp_bonus:readNum('mp_bonus',0),
+      mp_max:readNum('mp_max',0),
+      mp_max_temp:readNum('mp_max_temp',0),
+      total_max:readNum('mp_effective_max',0),
+      current:readNum('mp_curr',0)
+    });
+    return totals;
+  };
+
+  let timer = null;
+  function schedule(saveIt=false, delay=120){
+    clearTimeout(timer);
+    timer = setTimeout(() => window.maFinalMpRecalc(saveIt), delay);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => { schedule(false, 500); schedule(false, 1400); });
+  window.addEventListener('load', () => { schedule(false, 700); schedule(false, 1800); });
+  document.addEventListener('change', event => {
+    const id = event.target?.id || '';
+    if(['class','archetype','character_level','spell_dc_base','str','dex','con','int','wis','cha','mp_max_temp'].includes(id)) schedule(true, 160);
+  }, true);
+  document.addEventListener('input', event => {
+    const id = event.target?.id || '';
+    if(['str','dex','con','int','wis','cha','mp_max_temp'].includes(id)) schedule(false, 120);
+  }, true);
+  document.addEventListener('click', event => {
+    if(event.target?.closest?.('#maClassBuildCard,#maAddMulticlassBtn,#maMulticlassList,.ffd20-modal-actions .btn-save,.ffd20-modal-actions [data-confirm]')) schedule(true, 700);
+  }, true);
+
+  setTimeout(() => schedule(false, 50), 0);
+  setTimeout(() => schedule(false, 1500), 0);
+})();
+
+/* --- Stock Spell Picker: generated from stock_spells.json, theme-aware --- */
+const MA_STOCK_SPELL_JSON = 'data/stock_spell.json';
+const MA_STOCK_SPELL_JSON_FALLBACKS = [
+  'data/stock_spell.json',
+  'data/stock_spells.json',
+  './data/stock_spell.json',
+  './data/stock_spells.json',
+  'stock_spell.json',
+  'stock_spells.json'
+];
+let maStockSpellData = null;
+let maStockSpellLoadPromise = null;
+let maStockState = { classKey: '', level: 'all', query: '' };
+let maStockAddSpellBypass = false;
+let maStockOriginalAddNewItem = null;
+
+function maStockGetActiveDataSafe() {
+  try {
+    if (typeof window.getActiveData === 'function') return window.getActiveData() || {};
+    if (typeof window.maFfd20ActiveData === 'function') return window.maFfd20ActiveData() || {};
+    if (typeof getActiveData === 'function') return getActiveData() || {};
+  } catch (error) {
+    console.warn('Stock spell active data lookup failed', error);
+  }
+  return {};
+}
+function maStockSaveDataOnlySafe() {
+  try {
+    if (typeof window.saveDataOnly === 'function') return window.saveDataOnly();
+    if (typeof saveDataOnly === 'function') return saveDataOnly();
+  } catch (error) {
+    console.warn('Stock spell save failed', error);
+  }
+}
+function maStockRenderSpellsSafe() {
+  try {
+    if (typeof window.renderSpells === 'function') return window.renderSpells();
+    if (typeof renderSpells === 'function') return renderSpells();
+  } catch (error) {
+    console.warn('Stock spell render failed', error);
+  }
+}
+function maStockRefreshSpellMpUiSafe() {
+  try {
+    if (typeof window.refreshSpellMpUi === 'function') return window.refreshSpellMpUi();
+    if (typeof refreshSpellMpUi === 'function') return refreshSpellMpUi();
+  } catch (error) {}
+}
+function maStockSpellLevelLabelSafe(levelNum) {
+  try {
+    if (typeof window.spellLevelLabel === 'function') return window.spellLevelLabel(levelNum);
+    if (typeof spellLevelLabel === 'function') return spellLevelLabel(levelNum);
+  } catch (error) {}
+  const n = Math.max(0, Math.min(9, Math.trunc(Number(levelNum) || 0)));
+  if (n <= 0) return 'Cantrip';
+  const suffix = n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th';
+  return `${n}${suffix}`;
+}
+function maStockInstallAddSpellHook() {
+  const current = window.addNewItem;
+  if (current && current.__maStockSpellHook) return true;
+  if (typeof current !== 'function') return false;
+  maStockOriginalAddNewItem = current;
+  function maStockHookedAddNewItem(type) {
+    if (type === 'spell' && !maStockAddSpellBypass && typeof openSpellAddChoice === 'function') {
+      openSpellAddChoice();
+      return;
+    }
+    return maStockOriginalAddNewItem.apply(this, arguments);
+  }
+  maStockHookedAddNewItem.__maStockSpellHook = true;
+  maStockHookedAddNewItem.__maStockOriginal = maStockOriginalAddNewItem;
+  window.addNewItem = maStockHookedAddNewItem;
+  return true;
+}
+function maStockQueueAddSpellHookInstall() {
+  if (maStockInstallAddSpellHook()) return;
+  setTimeout(maStockQueueAddSpellHookInstall, 100);
+}
+maStockQueueAddSpellHookInstall();
+document.addEventListener('DOMContentLoaded', maStockQueueAddSpellHookInstall);
+window.addEventListener('load', maStockQueueAddSpellHookInstall);
+setTimeout(maStockQueueAddSpellHookInstall, 500);
+setTimeout(maStockQueueAddSpellHookInstall, 1500);
+
+function maStockEsc(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function maStockNorm(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/\b(spells?|songs?|ninjutsus?)\b/g, '')
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+function maStockSlug(value) {
+  return maStockNorm(value).replace(/\s+/g, '-');
+}
+function maStockLevelText(level) {
+  const n = Number(level);
+  if (!Number.isFinite(n) || n <= 0) return 'Cantrip';
+  return maStockSpellLevelLabelSafe(Math.max(0, Math.min(9, Math.trunc(n))));
+}
+function maStockClassList(data = maStockSpellData) {
+  const classes = data?.classes || {};
+  return Object.entries(classes).map(([key, value]) => ({ key, ...(value || {}) }))
+    .sort((a,b) => String(a.displayName || a.name || a.key).localeCompare(String(b.displayName || b.name || b.key)));
+}
+function maStockFindClassKey(name, data = maStockSpellData) {
+  const wanted = maStockNorm(name);
+  if (!wanted || !data?.classes) return '';
+  const entries = maStockClassList(data);
+  const direct = entries.find(c => maStockNorm(c.key) === wanted || maStockNorm(c.displayName || c.name) === wanted || maStockNorm(c.slug) === wanted);
+  if (direct) return direct.key;
+  const loose = entries.find(c => maStockNorm(c.displayName || c.name || c.key).includes(wanted) || wanted.includes(maStockNorm(c.displayName || c.name || c.key)));
+  return loose?.key || '';
+}
+function maStockCurrentClassNames() {
+  const data = maStockGetActiveDataSafe();
+  const names = [];
+  const push = value => {
+    const text = String(value || '').trim();
+    if (text && !names.some(n => maStockNorm(n) === maStockNorm(text))) names.push(text);
+  };
+  push(document.getElementById('class')?.value || data.class || data.className);
+  (Array.isArray(data.multiclasses) ? data.multiclasses : []).forEach(mc => push(mc.className || mc.class || mc.name));
+  return names;
+}
+function maStockCharacterClassKeys(data = maStockSpellData) {
+  const keys = maStockCurrentClassNames().map(name => maStockFindClassKey(name, data)).filter(Boolean);
+  return [...new Set(keys)];
+}
+function maStockEnsureModal() {
+  let modal = document.getElementById('stockSpellModal');
+  if (modal) return modal;
+  modal = document.createElement('div');
+  modal.id = 'stockSpellModal';
+  modal.className = 'ma-stock-spell-overlay';
+  modal.innerHTML = `
+    <div class="ma-stock-spell-shell" role="dialog" aria-modal="true" aria-labelledby="stockSpellTitle">
+      <div class="ma-stock-spell-head">
+        <div>
+          <h3 id="stockSpellTitle">Add Spell</h3>
+          <p id="stockSpellSubtitle">Choose a custom spell or add one from your class stock list.</p>
+        </div>
+        <button class="ma-stock-close" type="button" aria-label="Close">&times;</button>
+      </div>
+      <div id="stockSpellBody" class="ma-stock-spell-body"></div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.querySelector('.ma-stock-close')?.addEventListener('click', closeSpellAddChoice);
+  modal.addEventListener('click', event => { if (event.target === modal) closeSpellAddChoice(); });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape' && modal.classList.contains('show')) closeSpellAddChoice(); });
+  return modal;
+}
+function openSpellAddChoice() {
+  const modal = maStockEnsureModal();
+  const subtitle = modal.querySelector('#stockSpellSubtitle');
+  if (subtitle) subtitle.textContent = 'Choose a custom spell or add one from your class stock list.';
+  const body = modal.querySelector('#stockSpellBody');
+  body.innerHTML = `
+    <div class="ma-stock-choice-grid">
+      <button class="ma-stock-choice-card" type="button" id="maStockAddSpellBtn">
+        <span class="ma-stock-choice-icon">✧</span>
+        <strong>Add Stock Spell</strong>
+        <small>Pick from FFD20 stock spells filtered by your character class and spell level.</small>
+      </button>
+      <button class="ma-stock-choice-card" type="button" id="maCustomAddSpellBtn">
+        <span class="ma-stock-choice-icon">✎</span>
+        <strong>Add Custom Spell</strong>
+        <small>Use the regular spell editor you already had.</small>
+      </button>
+    </div>`;
+  body.querySelector('#maCustomAddSpellBtn')?.addEventListener('click', () => {
+    closeSpellAddChoice();
+    maStockAddSpellBypass = true;
+    try { maStockOriginalAddNewItem('spell'); }
+    finally { maStockAddSpellBypass = false; }
+  });
+  body.querySelector('#maStockAddSpellBtn')?.addEventListener('click', openStockSpellBrowser);
+  modal.classList.add('show');
+}
+function closeSpellAddChoice() {
+  document.getElementById('stockSpellModal')?.classList.remove('show');
+}
+async function maStockLoadSpellData() {
+  if (window.MA_STOCK_SPELLS?.classes) {
+    maStockSpellData = window.MA_STOCK_SPELLS;
+    return maStockSpellData;
+  }
+  if (maStockSpellData) return maStockSpellData;
+  if (!maStockSpellLoadPromise) {
+    maStockSpellLoadPromise = (async () => {
+      const paths = Array.isArray(MA_STOCK_SPELL_JSON_FALLBACKS) && MA_STOCK_SPELL_JSON_FALLBACKS.length
+        ? MA_STOCK_SPELL_JSON_FALLBACKS
+        : [MA_STOCK_SPELL_JSON];
+      const errors = [];
+      for (const path of paths) {
+        try {
+          const response = await fetch(path, { cache: 'no-cache' });
+          if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+          const json = await response.json();
+          maStockSpellData = json;
+          window.maStockSpellLoadedFrom = path;
+          return maStockSpellData;
+        } catch (error) {
+          errors.push(`${path}: ${error?.message || error}`);
+        }
+      }
+      throw new Error(`Could not load stock spells from: ${errors.join(' | ')}`);
+    })();
+  }
+  return maStockSpellLoadPromise;
+}
+
+function maStockIsFileProtocol() {
+  return String(window.location.protocol || '').toLowerCase() === 'file:';
+}
+function maStockInstallLocalJsonPicker(body, subtitle, errorText = '') {
+  if (subtitle) subtitle.textContent = 'Stock spell file could not be loaded automatically.';
+  const fileHint = maStockIsFileProtocol()
+    ? '<strong>Local file mode detected.</strong><br>Browsers often block <code>fetch()</code> from <code>file://</code> pages even when the JSON is in the correct folder. Either run a local server or choose the JSON below.'
+    : 'The automatic fetch failed. Check the path, filename, and browser console.';
+  body.innerHTML = `
+    <div class="ma-stock-status ma-stock-error">
+      ${fileHint}<br><br>
+      Tried: <code>${maStockEsc((MA_STOCK_SPELL_JSON_FALLBACKS || [MA_STOCK_SPELL_JSON]).join('</code>, <code>'))}</code><br>
+      Error: <code>${maStockEsc(errorText || 'unknown error')}</code><br><br>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:stretch;">
+        <button type="button" class="ma-stock-add-btn" id="maStockRetryFetchBtn">Retry Fetch</button>
+        <label style="display:block;text-align:left;color:#ddd;font-size:12px;">
+          Load local JSON manually:
+          <input id="maStockLocalJsonInput" type="file" accept=".json,application/json" style="margin-top:6px;">
+        </label>
+        <small style="color:#aaa;line-height:1.45;">Best local test: open a terminal in the site folder and run <code>python -m http.server 8000</code>, then open <code>http://localhost:8000/characters.html</code>.</small>
+      </div>
+    </div>`;
+  body.querySelector('#maStockRetryFetchBtn')?.addEventListener('click', () => {
+    maStockSpellLoadPromise = null;
+    maStockSpellData = null;
+    openStockSpellBrowser();
+  });
+  body.querySelector('#maStockLocalJsonInput')?.addEventListener('change', event => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const json = JSON.parse(String(reader.result || '{}'));
+        if (!json || !json.classes || !json.spells) throw new Error('JSON does not have expected classes/spells keys.');
+        maStockSpellData = json;
+        maStockSpellLoadPromise = Promise.resolve(json);
+        window.maStockSpellLoadedFrom = `local file: ${file.name}`;
+        const classKeys = maStockCharacterClassKeys(json);
+        maStockState.classKey = classKeys[0] || maStockClassList(json)[0]?.key || '';
+        maStockState.level = 'all';
+        maStockState.query = '';
+        renderStockSpellBrowser(`Loaded ${file.name}`);
+      } catch (err) {
+        console.error('Local stock spell JSON load failed', err);
+        maStockInstallLocalJsonPicker(body, subtitle, err?.message || String(err));
+      }
+    };
+    reader.onerror = () => maStockInstallLocalJsonPicker(body, subtitle, reader.error?.message || 'File read failed');
+    reader.readAsText(file);
+  });
+}
+
+async function openStockSpellBrowser() {
+  const modal = maStockEnsureModal();
+  const subtitle = modal.querySelector('#stockSpellSubtitle');
+  const body = modal.querySelector('#stockSpellBody');
+  if (subtitle) subtitle.textContent = 'Loading stock spell list...';
+  body.innerHTML = `<div class="ma-stock-status">Loading stock spell JSON...</div>`;
+  try {
+    const data = await maStockLoadSpellData();
+    const classKeys = maStockCharacterClassKeys(data);
+    maStockState.classKey = classKeys[0] || maStockClassList(data)[0]?.key || '';
+    maStockState.level = 'all';
+    maStockState.query = '';
+    renderStockSpellBrowser();
+  } catch (error) {
+    console.error('Stock spell load failed', error);
+    maStockInstallLocalJsonPicker(body, subtitle, error?.message || String(error));
+  }
+}
+function maStockSpellsForClassLevel(classKey, level) {
+  const cls = maStockSpellData?.classes?.[classKey];
+  if (!cls) return [];
+  const levels = cls.levels || {};
+  const rows = [];
+  const levelKeys = level === 'all' ? Object.keys(levels).sort((a,b) => Number(a) - Number(b)) : [String(level)];
+  levelKeys.forEach(lvl => (levels[lvl] || []).forEach(row => rows.push({ ...row, level: Number(row.level ?? lvl), classKey })));
+  return rows;
+}
+function maStockSpellDetails(row) {
+  const spells = maStockSpellData?.spells || {};
+  const candidates = [row.slug, maStockSlug(row.name), maStockNorm(row.name), String(row.url || '').replace(/\/$/, '').split('/').pop()].filter(Boolean);
+  for (const key of candidates) {
+    if (spells[key]) return spells[key];
+  }
+  const byName = Object.values(spells).find(spell => maStockNorm(spell.name) === maStockNorm(row.name));
+  return byName || {};
+}
+function renderStockSpellBrowser(message = '') {
+  const modal = maStockEnsureModal();
+  const subtitle = modal.querySelector('#stockSpellSubtitle');
+  const body = modal.querySelector('#stockSpellBody');
+  const classList = maStockClassList();
+  const characterKeys = maStockCharacterClassKeys();
+  const selectedClass = maStockSpellData?.classes?.[maStockState.classKey];
+  const className = selectedClass?.displayName || selectedClass?.name || maStockState.classKey || 'Class';
+  if (subtitle) subtitle.textContent = characterKeys.length ? `Showing spell lists for this character: ${maStockCurrentClassNames().join(', ') || className}` : 'No matching character spell class found; showing all stock classes.';
+  const levels = ['all','0','1','2','3','4','5','6','7','8','9'];
+  const classButtons = (characterKeys.length ? classList.filter(c => characterKeys.includes(c.key)) : classList).map(c => `
+    <button type="button" class="ma-stock-class-chip ${c.key === maStockState.classKey ? 'active' : ''}" data-stock-class="${maStockEsc(c.key)}">${maStockEsc(c.displayName || c.name || c.key)}</button>`).join('');
+  const levelButtons = levels.map(lvl => `
+    <button type="button" class="ma-stock-level-chip ${String(lvl) === String(maStockState.level) ? 'active' : ''}" data-stock-level="${maStockEsc(lvl)}">${lvl === 'all' ? 'All' : maStockLevelText(lvl)}</button>`).join('');
+  const rows = maStockSpellsForClassLevel(maStockState.classKey, maStockState.level)
+    .filter(row => !maStockState.query || maStockNorm(`${row.name} ${row.summary || ''}`).includes(maStockNorm(maStockState.query)))
+    .sort((a,b) => Number(a.level) - Number(b.level) || String(a.name).localeCompare(String(b.name)));
+  body.innerHTML = `
+    <div class="ma-stock-toolbar">
+      <div class="ma-stock-chip-row">${classButtons || '<span class="ma-stock-muted">No class spell lists in JSON.</span>'}</div>
+      <div class="ma-stock-chip-row">${levelButtons}</div>
+      <input id="maStockSpellSearch" class="ma-stock-search" type="search" placeholder="Search ${maStockEsc(className)} spells..." value="${maStockEsc(maStockState.query)}">
+      ${message ? `<div class="ma-stock-added-note">${maStockEsc(message)}</div>` : ''}
+    </div>
+    <div class="ma-stock-result-list">
+      ${rows.length ? rows.map(row => maStockSpellRowHtml(row)).join('') : `<div class="ma-stock-status">No spells found for this filter.</div>`}
+    </div>`;
+  body.querySelectorAll('[data-stock-class]').forEach(btn => btn.addEventListener('click', () => { maStockState.classKey = btn.dataset.stockClass || ''; maStockState.level = 'all'; renderStockSpellBrowser(); }));
+  body.querySelectorAll('[data-stock-level]').forEach(btn => btn.addEventListener('click', () => { maStockState.level = btn.dataset.stockLevel || 'all'; renderStockSpellBrowser(); }));
+  body.querySelector('#maStockSpellSearch')?.addEventListener('input', event => { maStockState.query = event.target.value || ''; renderStockSpellBrowser(); setTimeout(() => { const search = document.getElementById('maStockSpellSearch'); if(search){ search.focus(); const end = search.value.length; try { search.setSelectionRange(end, end); } catch(e) {} } }, 0); });
+  body.querySelectorAll('[data-add-stock-spell]').forEach(btn => btn.addEventListener('click', () => addStockSpellToCharacter(btn.dataset.addStockSpell, btn.dataset.addStockLevel, btn.dataset.addStockName)));
+}
+function maStockSpellRowHtml(row) {
+  const details = maStockSpellDetails(row);
+  const name = details.name || row.name || 'Unnamed Spell';
+  const level = Number(row.level || 0);
+  const already = maStockAlreadyHasSpell(name);
+  const summary = row.summary || details.summary || details.shortDesc || '';
+  const meta = [maStockLevelText(level), details.school || '', details.casting_time || details.castingTime || ''].filter(Boolean).join(' • ');
+  return `
+    <article class="ma-stock-spell-row">
+      <div class="ma-stock-spell-copy">
+        <strong>${maStockEsc(name)}</strong>
+        <small>${maStockEsc(meta)}</small>
+        <p>${maStockEsc(summary || details.desc || 'No short summary found.')}</p>
+      </div>
+      <button type="button" class="ma-stock-add-btn ${already ? 'added' : ''}" ${already ? 'disabled' : ''} data-add-stock-spell="${maStockEsc(row.slug || maStockSlug(name))}" data-add-stock-level="${level}" data-add-stock-name="${maStockEsc(name)}">${already ? 'Added ✓' : 'Add'}</button>
+    </article>`;
+}
+function maStockAlreadyHasSpell(name) {
+  return (maStockGetActiveDataSafe().spells || []).some(spell => maStockNorm(spell.name) === maStockNorm(name));
+}
+function maStockActionType(raw) {
+  const text = String(raw || '').toLowerCase();
+  if (text.includes('immediate')) return 'Immediate';
+  if (text.includes('swift')) return 'Swift';
+  if (text.includes('move')) return 'Move';
+  if (text.includes('full')) return 'Full';
+  if (text.includes('round')) return 'Round';
+  if (text.includes('minute')) return 'Minute';
+  if (text.includes('free')) return 'Free';
+  return 'Standard';
+}
+function maStockSpellResistance(raw) {
+  const text = String(raw || '').toLowerCase();
+  if (!text || text.includes('no')) return 'No';
+  if (text.includes('harmless')) return 'Yes Harmless';
+  if (text.includes('object')) return 'Yes Object';
+  return 'Yes';
+}
+function maStockAttackType(spell) {
+  const text = `${spell.attack_type || ''} ${spell.desc || ''} ${spell.summary || ''}`.toLowerCase();
+  if (text.includes('ranged touch')) return 'Ranged Touch';
+  if (text.includes('touch attack')) return 'Touch';
+  return 'None';
+}
+function maStockInferDamage(spell) {
+  const text = `${spell.damage || ''} ${spell.summary || ''} ${spell.desc || ''}`;
+  const explicit = String(spell.damage || '').trim();
+  if (explicit) return explicit;
+  const match = text.match(/\b\d+d\d+(?:\s*[+\-]\s*\d+)?(?:\s*(?:points? of)?\s*[a-z]+\s+damage)?/i);
+  return match ? match[0].trim() : '';
+}
+function maStockBestDescription(spell, row) {
+  const candidates = [spell?.description, spell?.full_description, spell?.fullText, spell?.desc]
+    .map(value => String(value || '').trim())
+    .filter(Boolean);
+  candidates.sort((a, b) => b.length - a.length);
+  return candidates[0] || String(row?.summary || '').trim();
+}
+function maStockBuildDescription(spell, row, cls) {
+  const full = maStockBestDescription(spell, row);
+  const parts = [];
+  if (full) parts.push(full);
+  parts.push(`Source: FFD20 ${cls?.displayName || cls?.name || ''} stock spell list.`.trim());
+  return parts.filter(Boolean).join('\n\n');
+}
+function addStockSpellToCharacter(slug, level, fallbackName) {
+  const cls = maStockSpellData?.classes?.[maStockState.classKey] || {};
+  const row = maStockSpellsForClassLevel(maStockState.classKey, String(level)).find(item => (item.slug || maStockSlug(item.name)) === slug || maStockNorm(item.name) === maStockNorm(fallbackName)) || { name: fallbackName, level };
+  const details = maStockSpellDetails(row);
+  const name = details.name || row.name || fallbackName || 'Stock Spell';
+  if (maStockAlreadyHasSpell(name)) {
+    renderStockSpellBrowser(`${name} is already on this character.`);
+    return;
+  }
+  const sheetSpell = {
+    name,
+    lvl: maStockLevelText(row.level ?? level),
+    type: maStockActionType(details.casting_time || details.castingTime || details.action || row.action),
+    attack_type: maStockAttackType(details),
+    spell_resist: maStockSpellResistance(details.spell_resist || details.spellResistance),
+    saving_throw: details.saving_throw || details.savingThrow || '',
+    school: details.school || '',
+    target: details.target || details.targets || details.effect || details.area || '',
+    range: details.range || '',
+    duration: details.duration || '',
+    damage: maStockInferDamage({ ...details, summary: row.summary }),
+    at_higher_lvls: details.at_higher_lvls || details.atHigherLevels || '',
+    desc: maStockBuildDescription(details, row, cls),
+    link: details.url || row.url || '',
+    sourceClass: cls.displayName || cls.name || maStockState.classKey || ''
+  };
+  const data = maStockGetActiveDataSafe();
+  if (!Array.isArray(data.spells)) data.spells = [];
+  data.spells.push(sheetSpell);
+  maStockSaveDataOnlySafe();
+  maStockRenderSpellsSafe();
+  maStockRefreshSpellMpUiSafe();
+  renderStockSpellBrowser(`${name} added to ${sheetSpell.lvl} spells.`);
+}
+window.openSpellAddChoice = openSpellAddChoice;
+window.openStockSpellBrowser = openStockSpellBrowser;
+
+
+/* --- Force Add Spell to use Stock/Custom choice menu after the main module is ready --- */
+maStockQueueAddSpellHookInstall();
+</script>
+
+<script>
+/* --- FINAL prestige/base class dropdown repair v4
+   Earlier non-module class-list patches could run after the real FFD20 module and replace the
+   class dropdown with empty optgroups. This final bridge fetches the JSON directly, normalizes
+   base + prestige classes once, and re-fills every class picker after any late render/dialog. */
+(function(){
+  if(window.maPrestigeClassDropdownFinalV4) return;
+  window.maPrestigeClassDropdownFinalV4 = true;
+
+  const DATA_URL = './data/ffd20_data.json';
+  const CLASS_SELECT_IDS = new Set(['class','maEditClass','maCreateClass','ffd20ClassSelect','maMultiClass']);
+  const PRESTIGE_ONLY_SELECT_IDS = new Set(['prestige_class','ffd20PrestigeSelect']);
+  let cachedLib = null;
+  let refreshTimer = null;
+
+  function nameOf(item){
+    if(typeof item === 'string') return item.trim();
+    return String(item?.name || item?.title || item?.className || item?.class || item?.label || '').trim();
+  }
+  function norm(value){
+    return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  }
+  function cloneObj(item, keyName){
+    if(typeof item === 'string') return { name:item };
+    if(item && typeof item === 'object'){
+      const out = Object.assign({}, item);
+      if(!nameOf(out) && keyName && !/^\d+$/.test(String(keyName))) out.name = String(keyName).trim();
+      return out;
+    }
+    return { name:String(item || keyName || '') };
+  }
+  function valuesAsItems(value){
+    if(Array.isArray(value)) return value.map((item, index) => cloneObj(item, index));
+    if(value && typeof value === 'object') return Object.entries(value).map(([key, item]) => cloneObj(item, key));
+    return [];
+  }
+  function looksPrestige(item, path=''){
+    const text = [
+      path, item?.type, item?.category, item?.group, item?.classType, item?.sourceType,
+      item?.tags, item?.section, item?.kind, item?.subtype, item?.source, item?.isPrestigeClass ? 'prestige' : ''
+    ].map(v => Array.isArray(v) ? v.join(' ') : String(v || '')).join(' ').toLowerCase();
+    return /\bprestige\b/.test(text);
+  }
+  function looksClassLike(item){
+    if(!item || typeof item !== 'object' || !nameOf(item)) return false;
+    return !!(
+      Array.isArray(item.features) || Array.isArray(item.traits) || Array.isArray(item.abilities) ||
+      Array.isArray(item.classFeatures) || Array.isArray(item.class_features) || Array.isArray(item.progression) ||
+      Array.isArray(item.levels) || Array.isArray(item.archetypes) || item.hitDie || item.hit_die ||
+      item.skillPoints || item.skill_points || item.skillRanks || item.skill_ranks || item.bab ||
+      item.fort || item.ref || item.will || item.saves || item.hp || item.mp || item.table
+    );
+  }
+  function pushUnique(out, item, isPrestige){
+    const obj = cloneObj(item);
+    const name = nameOf(obj);
+    if(!name) return;
+    if(isPrestige) obj.isPrestigeClass = true;
+    const key = norm(name);
+    if(out._seen.has(key)) return;
+    out._seen.add(key);
+    out.items.push(obj);
+  }
+  function uniqueSorted(list){
+    const box = { _seen:new Set(), items:[] };
+    (Array.isArray(list) ? list : []).forEach(item => pushUnique(box, item, !!item?.isPrestigeClass));
+    return box.items.sort((a,b) => nameOf(a).localeCompare(nameOf(b), undefined, { sensitivity:'base' }));
+  }
+  function addItemsTo(baseBox, prestigeBox, value, isPrestige, path=''){
+    valuesAsItems(value).forEach(item => {
+      if(!nameOf(item)) return;
+      const prestige = isPrestige || looksPrestige(item, path);
+      if(prestige) pushUnique(prestigeBox, item, true);
+      else pushUnique(baseBox, item, false);
+    });
+  }
+  function walkForPrestige(node, path, prestigeBox){
+    if(!node || typeof node !== 'object') return;
+    if(Array.isArray(node)){
+      if(/\bprestige\b/i.test(path)) addItemsTo({ _seen:new Set(), items:[] }, prestigeBox, node, true, path);
+      else node.forEach((item, index) => walkForPrestige(item, path + '[' + index + ']', prestigeBox));
+      return;
+    }
+    Object.entries(node).forEach(([key, value]) => {
+      const nextPath = path ? path + '.' + key : key;
+      if(/\bprestige\b/i.test(nextPath)){
+        if(Array.isArray(value) || (value && typeof value === 'object' && !looksClassLike(value))) addItemsTo({ _seen:new Set(), items:[] }, prestigeBox, value, true, nextPath);
+        else if(looksClassLike(value)) pushUnique(prestigeBox, cloneObj(value, key), true);
+      }
+      if(value && typeof value === 'object') walkForPrestige(value, nextPath, prestigeBox);
+    });
+  }
+  function normalizeLibrary(raw){
+    const lib = raw && typeof raw === 'object' ? raw : {};
+    const baseBox = { _seen:new Set(), items:[] };
+    const prestigeBox = { _seen:new Set(), items:[] };
+
+    ['baseCoreClasses','baseClasses','base_classes','coreClasses','core_classes','standardClasses','standard_classes'].forEach(key => addItemsTo(baseBox, prestigeBox, lib[key], false, key));
+    ['classes','classList','class_list','jobs','jobClasses','job_classes'].forEach(key => addItemsTo(baseBox, prestigeBox, lib[key], false, key));
+    ['prestigeClasses','prestige_classes','prestige','prestigeClass','prestige_class','prestige_classes_list'].forEach(key => addItemsTo(baseBox, prestigeBox, lib[key], true, key));
+    walkForPrestige(lib, '', prestigeBox);
+
+    const baseCoreClasses = uniqueSorted(baseBox.items.filter(item => !looksPrestige(item, 'baseCoreClasses')));
+    const prestigeClasses = uniqueSorted(prestigeBox.items.map(item => Object.assign({}, item, { isPrestigeClass:true })));
+    const classes = uniqueSorted(baseCoreClasses.concat(prestigeClasses));
+    const races = uniqueSorted(valuesAsItems(lib.races || lib.raceList || lib.race_list || []));
+    return Object.assign({}, lib, { baseCoreClasses, prestigeClasses, classes, races });
+  }
+  async function loadNormalizedLibrary(){
+    if(cachedLib && cachedLib.classes && cachedLib.classes.length) return cachedLib;
+    let raw = null;
+    try {
+      if(typeof window.maFfd20LoadLibrary === 'function') raw = await window.maFfd20LoadLibrary();
+    } catch(e) { console.warn('[Mount Aetheria] module FFD20 load failed; trying JSON directly', e); }
+    if(!raw || !normalizeLibrary(raw).classes.length){
+      try {
+        const response = await fetch(DATA_URL, { cache:'no-store' });
+        if(response.ok) raw = await response.json();
+      } catch(e) { console.warn('[Mount Aetheria] direct FFD20 JSON load failed', e); }
+    }
+    if(!raw && window.maFfd20Library) raw = window.maFfd20Library;
+    cachedLib = normalizeLibrary(raw || {});
+    try { window.maFfd20Library = cachedLib; } catch(e) {}
+    return cachedLib;
+  }
+  function addOption(parent, value, text, disabled=false){
+    const opt = document.createElement('option');
+    opt.value = value || '';
+    opt.textContent = text || value || '';
+    if(disabled) opt.disabled = true;
+    parent.appendChild(opt);
+    return opt;
+  }
+  function currentValue(select, fallback=''){
+    const raw = String(select?.value || fallback || '').trim();
+    if(/^choose class$/i.test(raw) || /^loading classes/i.test(raw)) return '';
+    return raw;
+  }
+  function fillClassSelect(select, lib, placeholder='Choose class', selectedValue=''){
+    if(!select) return;
+    const current = currentValue(select, selectedValue);
+    const oldWidth = select.style.minWidth;
+    select.innerHTML = '';
+    addOption(select, '', placeholder || 'Choose class');
+    const addGroup = (label, list) => {
+      const group = document.createElement('optgroup');
+      group.label = label;
+      if(!Array.isArray(list) || !list.length){
+        addOption(group, '', label === 'Prestige Classes' ? 'No prestige classes found' : 'No classes found', true);
+      } else {
+        list.forEach(item => {
+          const n = nameOf(item);
+          if(!n) return;
+          const opt = addOption(group, n, n);
+          if(item?.isPrestigeClass || label === 'Prestige Classes') opt.dataset.prestigeClass = 'true';
+        });
+      }
+      select.appendChild(group);
+    };
+    addGroup('Base / Core Classes', lib.baseCoreClasses || []);
+    addGroup('Prestige Classes', lib.prestigeClasses || []);
+    if(current && !(lib.classes || []).some(item => norm(nameOf(item)) === norm(current))) addOption(select, current, current + ' (current)');
+    select.value = current;
+    if(!select.value && current){
+      addOption(select, current, current + ' (current)');
+      select.value = current;
+    }
+    select.dataset.maPrestigeFinalFilled = '1';
+    if(oldWidth) select.style.minWidth = oldWidth;
+  }
+  function fillPrestigeOnlySelect(select, lib, placeholder='No prestige', selectedValue=''){
+    if(!select) return;
+    const current = currentValue(select, selectedValue);
+    select.innerHTML = '';
+    addOption(select, '', placeholder || 'No prestige');
+    (lib.prestigeClasses || []).forEach(item => {
+      const n = nameOf(item);
+      if(n) addOption(select, n, n);
+    });
+    if(current && !(lib.prestigeClasses || []).some(item => norm(nameOf(item)) === norm(current))) addOption(select, current, current + ' (current)');
+    select.value = current;
+    select.dataset.maPrestigeFinalFilled = '1';
+  }
+  function isClassSelect(select){
+    if(!select || select.tagName !== 'SELECT') return false;
+    if(CLASS_SELECT_IDS.has(select.id)) return true;
+    return /class/i.test(select.id || '') && !PRESTIGE_ONLY_SELECT_IDS.has(select.id) && !/archetype|subclass/i.test(select.id || '');
+  }
+  function fillAllClassSelects(lib){
+    const data = (typeof window.maFfd20ActiveData === 'function' ? window.maFfd20ActiveData() : null) || {};
+    document.querySelectorAll('select').forEach(select => {
+      if(isClassSelect(select)) fillClassSelect(select, lib, 'Choose class', select.value || data.class || data.className || '');
+      else if(PRESTIGE_ONLY_SELECT_IDS.has(select.id)) fillPrestigeOnlySelect(select, lib, 'No prestige', select.value || data.prestige_class || data.prestigeClass || '');
+    });
+  }
+  function scheduleRefresh(delay=0){
+    clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(async () => {
+      try { fillAllClassSelects(await loadNormalizedLibrary()); }
+      catch(e) { console.warn('[Mount Aetheria] final class dropdown refresh failed', e); }
+    }, delay);
+  }
+
+  const oldLoadLibrary = window.maFfd20LoadLibrary;
+  window.maFfd20LoadLibrary = async function(){
+    let raw = null;
+    try { if(typeof oldLoadLibrary === 'function') raw = await oldLoadLibrary.apply(this, arguments); } catch(e) { console.warn(e); }
+    const fixed = normalizeLibrary(raw || window.maFfd20Library || {});
+    if(fixed.classes.length) cachedLib = fixed;
+    return fixed;
+  };
+
+  const oldFind = window.maFfd20Find;
+  window.maFfd20Find = function(list, name){
+    const target = norm(name);
+    if(!target) return null;
+    const candidates = [];
+    if(Array.isArray(list)) candidates.push(...list);
+    if(cachedLib) candidates.push(...(cachedLib.classes || []), ...(cachedLib.prestigeClasses || []), ...(cachedLib.baseCoreClasses || []));
+    if(window.maFfd20Library){
+      const lib = normalizeLibrary(window.maFfd20Library);
+      candidates.push(...(lib.classes || []), ...(lib.prestigeClasses || []), ...(lib.baseCoreClasses || []));
+    }
+    const found = candidates.find(item => norm(nameOf(item)) === target);
+    return found || (typeof oldFind === 'function' ? oldFind.apply(this, arguments) : null);
+  };
+
+  const oldFillSelect = window.maFfd20FillSelect;
+  window.maFfd20FillSelect = function(select, list, placeholder, currentValue=''){
+    if(select && isClassSelect(select)){
+      const lib = cachedLib || normalizeLibrary(window.maFfd20Library || (Array.isArray(list) ? { classes:list } : {}));
+      if(lib.classes.length) fillClassSelect(select, lib, placeholder || 'Choose class', currentValue || select.value);
+      else scheduleRefresh(0);
+      return;
+    }
+    if(select && PRESTIGE_ONLY_SELECT_IDS.has(select.id)){
+      const lib = cachedLib || normalizeLibrary(window.maFfd20Library || (Array.isArray(list) ? { prestigeClasses:list } : {}));
+      if(lib.prestigeClasses.length) fillPrestigeOnlySelect(select, lib, placeholder || 'No prestige', currentValue || select.value);
+      else scheduleRefresh(0);
+      return;
+    }
+    return typeof oldFillSelect === 'function' ? oldFillSelect.apply(this, arguments) : undefined;
+  };
+
+  const oldRefreshOptions = window.maFfd20RefreshOptions;
+  window.maFfd20RefreshOptions = async function(){
+    let oldResult = null;
+    try { if(typeof oldRefreshOptions === 'function') oldResult = await oldRefreshOptions.apply(this, arguments); } catch(e) { console.warn(e); }
+    const lib = normalizeLibrary(oldResult || cachedLib || window.maFfd20Library || {});
+    if(lib.classes.length) cachedLib = lib;
+    const finalLib = cachedLib && cachedLib.classes.length ? cachedLib : await loadNormalizedLibrary();
+    fillAllClassSelects(finalLib);
+    return finalLib;
+  };
+
+  const observer = new MutationObserver(() => scheduleRefresh(30));
+  try { observer.observe(document.documentElement, { childList:true, subtree:true }); } catch(e) {}
+  document.addEventListener('DOMContentLoaded', () => scheduleRefresh(0));
+  window.addEventListener('load', () => scheduleRefresh(0));
+  document.addEventListener('click', event => {
+    if(event.target?.closest?.('#maClassBuildCard,#maAddMulticlassBtn,#maMulticlassList,.ffd20-modal,.ffd20-modal-actions')) scheduleRefresh(80);
+  }, true);
+  document.addEventListener('focusin', event => { if(isClassSelect(event.target) || PRESTIGE_ONLY_SELECT_IDS.has(event.target?.id)) scheduleRefresh(0); }, true);
+
+  [0, 80, 250, 700, 1200, 1800, 3000].forEach(ms => setTimeout(() => scheduleRefresh(0), ms));
+})();
+</script>
+
+<script>
+
+/* --- Admin synced startup: rerun sheet add-ons after Firebase/admin module becomes available --- */
+(function(){
+  function rerun(){
+    try { window.maFfd20RefreshOptions?.(); } catch(e) {}
+    try { window.maFinalMpRecalc?.(false); } catch(e) {}
+    try { window.maV34RefreshWeaponProficiency?.(); } catch(e) {}
+    try { window.refreshSpellMpUi?.(); } catch(e) {}
+  }
+  window.addEventListener('load', () => { setTimeout(rerun, 300); setTimeout(rerun, 1200); setTimeout(rerun, 2500); });
+})();
+
+</script>
+
+
+
+<style>
+/* --- Admin UI repair v35 final-order overrides --- */
+#editorArea{min-height:0!important;height:100%!important;}
+#sheetContainer,#sheetContainer.active{flex:1 1 auto!important;min-height:0!important;height:100%!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important;padding-bottom:105px!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:auto!important;}
+#sheetContainer:not(.active){display:none!important;}
+#sheetContainer.active{display:block!important;}
+#sheetContainer > .tab-content,#sheetContainer > .tab-content.active{height:auto!important;max-height:none!important;min-height:auto!important;overflow:visible!important;padding-bottom:60px!important;}
+#sheetContainer > .main-tabs{position:sticky!important;top:0!important;z-index:2400!important;}
+#adminGroupsPanel.admin-side-view{width:auto!important;flex:1 1 auto!important;height:auto!important;max-height:none!important;border-right:0!important;background:transparent!important;}
+#adminGroupsPanel.admin-side-view.active{display:flex!important;flex-direction:column!important;}
+#adminGroupsList,#usersList{overflow-y:auto!important;min-height:0!important;}
+.panel-menu-popover.open{display:flex!important;}
+.ma-prestige-admin,#prestige_class,#prestige_level,#ffd20PrestigeSelect,#ffd20PrestigeLevel{display:none!important;}
+@media(max-width:768px){#sheetContainer,#sheetContainer.active{padding-bottom:135px!important;}}
+</style>
+<script>
+/* --- Admin UI repair v35 runtime helpers --- */
+(function(){
+  function setActiveSideTab(name){
+    const valid = name === 'groups' ? 'groups' : 'users';
+    document.getElementById('adminUsersPanel')?.classList.toggle('active', valid === 'users');
+    document.getElementById('adminGroupsPanel')?.classList.toggle('active', valid === 'groups');
+    const usersBtn = document.getElementById('adminSideUsersBtn');
+    const groupsBtn = document.getElementById('adminSideGroupsBtn');
+    usersBtn?.classList.toggle('active', valid === 'users');
+    groupsBtn?.classList.toggle('active', valid === 'groups');
+    usersBtn?.setAttribute('aria-selected', valid === 'users' ? 'true' : 'false');
+    groupsBtn?.setAttribute('aria-selected', valid === 'groups' ? 'true' : 'false');
+    try { localStorage.setItem('mountAetheriaAdminSideTab', valid); } catch(_e) {}
+  }
+  window.switchAdminSideTab = setActiveSideTab;
+
+  function togglePanelMenu(force){
+    const pop = document.getElementById('panelMenuPopover');
+    if(!pop) return;
+    const next = (typeof force === 'boolean') ? force : !pop.classList.contains('open');
+    pop.classList.toggle('open', next);
+    pop.setAttribute('aria-hidden', next ? 'false' : 'true');
+  }
+  window.togglePanelMenu = togglePanelMenu;
+
+  function polishAdminSheet(){
+    document.body?.classList.add('ma-ffd20-admin');
+    const shop = document.getElementById('shop_tags');
+    if(shop && !shop.nextElementSibling?.classList?.contains('shop-tag-help')){
+      const help = document.createElement('div');
+      help.className = 'shop-tag-help';
+      help.textContent = 'Comma-separated shop access tags for this character.';
+      shop.insertAdjacentElement('afterend', help);
+    }
+    document.querySelectorAll('.ma-prestige-admin,#prestige_class,#prestige_level,#ffd20PrestigeSelect,#ffd20PrestigeLevel').forEach(el => {
+      if(el && el.closest('#editorModal')) return;
+      el.remove?.();
+    });
+  }
+  window.addEventListener('click', event => {
+    if(!event.target.closest('#panelMenuShell')) togglePanelMenu(false);
+  });
+  document.addEventListener('DOMContentLoaded', () => {
+    let saved = 'users';
+    try { saved = localStorage.getItem('mountAetheriaAdminSideTab') || 'users'; } catch(_e) {}
+    setActiveSideTab(saved);
+    polishAdminSheet();
+  });
+  const observer = new MutationObserver(() => polishAdminSheet());
+  try { observer.observe(document.documentElement, { childList:true, subtree:true }); } catch(_e) {}
+  window.addEventListener('load', () => { polishAdminSheet(); setTimeout(polishAdminSheet, 400); setTimeout(polishAdminSheet, 1400); });
+})();
+</script>
+
 </body>
 </html>
