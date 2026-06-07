@@ -8798,6 +8798,15 @@ setTimeout(maV37LockBaseFields, 900);
   setTimeout(() => scheduleMp(false, 1200), 0);
 })();
 
+// Bridge module-scoped sheet helpers for later non-module add-ons.
+Object.assign(window, {
+  getActiveData,
+  saveDataOnly,
+  renderSpells,
+  refreshSpellMpUi,
+  spellLevelLabel
+});
+
 </script>
 
 <script>
@@ -13596,21 +13605,89 @@ setTimeout(() => maFfd20RefreshOptions(), 1500);
 })();
 
 /* --- Stock Spell Picker: generated from stock_spells.json, theme-aware --- */
-const MA_STOCK_SPELL_JSON = 'data/stock_spells.json';
-const MA_STOCK_SPELL_JSON_FALLBACKS = ['data/stock_spells.json', 'stock_spells.json'];
+const MA_STOCK_SPELL_JSON = 'data/stock_spell.json';
+const MA_STOCK_SPELL_JSON_FALLBACKS = [
+  'data/stock_spell.json',
+  'data/stock_spells.json',
+  './data/stock_spell.json',
+  './data/stock_spells.json',
+  'stock_spell.json',
+  'stock_spells.json'
+];
 let maStockSpellData = null;
 let maStockSpellLoadPromise = null;
 let maStockState = { classKey: '', level: 'all', query: '' };
 let maStockAddSpellBypass = false;
-const maStockOriginalAddNewItem = window.addNewItem;
+let maStockOriginalAddNewItem = null;
 
-window.addNewItem = function(type) {
-  if (type === 'spell' && !maStockAddSpellBypass) {
-    openSpellAddChoice();
-    return;
+function maStockGetActiveDataSafe() {
+  try {
+    if (typeof window.getActiveData === 'function') return window.getActiveData() || {};
+    if (typeof window.maFfd20ActiveData === 'function') return window.maFfd20ActiveData() || {};
+    if (typeof getActiveData === 'function') return getActiveData() || {};
+  } catch (error) {
+    console.warn('Stock spell active data lookup failed', error);
   }
-  return maStockOriginalAddNewItem(type);
-};
+  return {};
+}
+function maStockSaveDataOnlySafe() {
+  try {
+    if (typeof window.saveDataOnly === 'function') return window.saveDataOnly();
+    if (typeof saveDataOnly === 'function') return saveDataOnly();
+  } catch (error) {
+    console.warn('Stock spell save failed', error);
+  }
+}
+function maStockRenderSpellsSafe() {
+  try {
+    if (typeof window.renderSpells === 'function') return window.renderSpells();
+    if (typeof renderSpells === 'function') return renderSpells();
+  } catch (error) {
+    console.warn('Stock spell render failed', error);
+  }
+}
+function maStockRefreshSpellMpUiSafe() {
+  try {
+    if (typeof window.refreshSpellMpUi === 'function') return window.refreshSpellMpUi();
+    if (typeof refreshSpellMpUi === 'function') return refreshSpellMpUi();
+  } catch (error) {}
+}
+function maStockSpellLevelLabelSafe(levelNum) {
+  try {
+    if (typeof window.spellLevelLabel === 'function') return window.spellLevelLabel(levelNum);
+    if (typeof spellLevelLabel === 'function') return spellLevelLabel(levelNum);
+  } catch (error) {}
+  const n = Math.max(0, Math.min(9, Math.trunc(Number(levelNum) || 0)));
+  if (n <= 0) return 'Cantrip';
+  const suffix = n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th';
+  return `${n}${suffix}`;
+}
+function maStockInstallAddSpellHook() {
+  const current = window.addNewItem;
+  if (current && current.__maStockSpellHook) return true;
+  if (typeof current !== 'function') return false;
+  maStockOriginalAddNewItem = current;
+  function maStockHookedAddNewItem(type) {
+    if (type === 'spell' && !maStockAddSpellBypass && typeof openSpellAddChoice === 'function') {
+      openSpellAddChoice();
+      return;
+    }
+    return maStockOriginalAddNewItem.apply(this, arguments);
+  }
+  maStockHookedAddNewItem.__maStockSpellHook = true;
+  maStockHookedAddNewItem.__maStockOriginal = maStockOriginalAddNewItem;
+  window.addNewItem = maStockHookedAddNewItem;
+  return true;
+}
+function maStockQueueAddSpellHookInstall() {
+  if (maStockInstallAddSpellHook()) return;
+  setTimeout(maStockQueueAddSpellHookInstall, 100);
+}
+maStockQueueAddSpellHookInstall();
+document.addEventListener('DOMContentLoaded', maStockQueueAddSpellHookInstall);
+window.addEventListener('load', maStockQueueAddSpellHookInstall);
+setTimeout(maStockQueueAddSpellHookInstall, 500);
+setTimeout(maStockQueueAddSpellHookInstall, 1500);
 
 function maStockEsc(value) {
   return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -13629,7 +13706,7 @@ function maStockSlug(value) {
 function maStockLevelText(level) {
   const n = Number(level);
   if (!Number.isFinite(n) || n <= 0) return 'Cantrip';
-  return spellLevelLabel(Math.max(0, Math.min(9, Math.trunc(n))));
+  return maStockSpellLevelLabelSafe(Math.max(0, Math.min(9, Math.trunc(n))));
 }
 function maStockClassList(data = maStockSpellData) {
   const classes = data?.classes || {};
@@ -13646,7 +13723,7 @@ function maStockFindClassKey(name, data = maStockSpellData) {
   return loose?.key || '';
 }
 function maStockCurrentClassNames() {
-  const data = getActiveData() || {};
+  const data = maStockGetActiveDataSafe();
   const names = [];
   const push = value => {
     const text = String(value || '').trim();
@@ -13801,7 +13878,7 @@ async function openStockSpellBrowser() {
   const subtitle = modal.querySelector('#stockSpellSubtitle');
   const body = modal.querySelector('#stockSpellBody');
   if (subtitle) subtitle.textContent = 'Loading stock spell list...';
-  body.innerHTML = `<div class="ma-stock-status">Loading data/stock_spells.json...</div>`;
+  body.innerHTML = `<div class="ma-stock-status">Loading stock spell JSON...</div>`;
   try {
     const data = await maStockLoadSpellData();
     const classKeys = maStockCharacterClassKeys(data);
@@ -13882,7 +13959,7 @@ function maStockSpellRowHtml(row) {
     </article>`;
 }
 function maStockAlreadyHasSpell(name) {
-  return (getActiveData()?.spells || []).some(spell => maStockNorm(spell.name) === maStockNorm(name));
+  return (maStockGetActiveDataSafe().spells || []).some(spell => maStockNorm(spell.name) === maStockNorm(name));
 }
 function maStockActionType(raw) {
   const text = String(raw || '').toLowerCase();
@@ -13955,34 +14032,20 @@ function addStockSpellToCharacter(slug, level, fallbackName) {
     link: details.url || row.url || '',
     sourceClass: cls.displayName || cls.name || maStockState.classKey || ''
   };
-  const data = getActiveData();
+  const data = maStockGetActiveDataSafe();
   if (!Array.isArray(data.spells)) data.spells = [];
   data.spells.push(sheetSpell);
-  saveDataOnly();
-  renderSpells();
-  try { refreshSpellMpUi(); } catch(e) {}
+  maStockSaveDataOnlySafe();
+  maStockRenderSpellsSafe();
+  maStockRefreshSpellMpUiSafe();
   renderStockSpellBrowser(`${name} added to ${sheetSpell.lvl} spells.`);
 }
 window.openSpellAddChoice = openSpellAddChoice;
 window.openStockSpellBrowser = openStockSpellBrowser;
 
 
-/* --- Force Add Spell to use Stock/Custom choice menu --- */
-(function installStockSpellAddHook() {
-  const originalAddNewItem = window.addNewItem;
-  function hookedAddNewItem(type) {
-    if (type === 'spell' && !maStockAddSpellBypass && typeof openSpellAddChoice === 'function') {
-      openSpellAddChoice();
-      return;
-    }
-    if (typeof originalAddNewItem === 'function') {
-      return originalAddNewItem.apply(this, arguments);
-    }
-  }
-  hookedAddNewItem.__maStockSpellHook = true;
-  hookedAddNewItem.__maStockOriginal = originalAddNewItem;
-  window.addNewItem = hookedAddNewItem;
-})();
+/* --- Force Add Spell to use Stock/Custom choice menu after the main module is ready --- */
+maStockQueueAddSpellHookInstall();
 
 </script>
 
