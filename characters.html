@@ -917,6 +917,12 @@ body.skill-edit-mode #skillsTable .skill-stat-tag{color:#888;font-weight:normal;
 #shops.shops-tab-panel{max-width:1180px;padding:10px 8px 16px;overflow:hidden;}
 .shop-embed-frame{display:block;width:100%;height:calc(100vh - 154px);min-height:620px;border:1px solid rgba(var(--accent-rgb),.62);border-radius:14px;background:#1a1a1a;}
 @media(max-width:700px){#shops.shops-tab-panel{padding:6px 0 10px;}.shop-embed-frame{height:calc(100vh - 148px);min-height:540px;border-radius:10px;}}
+/* --- Fast shop preload: keep iframe warm without blocking the sheet --- */
+#other-shop.shops-tab-panel{position:relative;}
+.shop-warmup{position:absolute;inset:10px 8px 16px;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(var(--accent-rgb),.45);border-radius:14px;background:#151515;color:var(--accent);font-family:'Uncial Antiqua',serif;font-weight:800;letter-spacing:.02em;pointer-events:none;z-index:1;}
+.shop-warmup.hidden{display:none;}
+#playerShopFrame{position:relative;z-index:2;opacity:.01;transition:opacity .18s ease;}
+#playerShopFrame.shop-ready{opacity:1;}
 </style>
 <style>
 
@@ -2255,6 +2261,44 @@ body:not(.skill-edit-mode) #skills.active #skillsTableBody tr:has(.trained-untra
 @media(max-width:700px){.ma-stock-choice-grid{grid-template-columns:1fr}.ma-stock-spell-shell{max-height:92vh}.ma-stock-spell-body{padding:12px}.ma-stock-spell-row{grid-template-columns:1fr}.ma-stock-add-btn{width:100%;}.ma-stock-spell-head h3{font-size:19px}}
 </style>
 
+
+
+<style>
+/* --- v36 active ability use repair: typed numeric fields, no spinner arrows --- */
+.ability-use-current-input,
+.ma-edit-uses-field input,
+.inline-input-group input[type="number"]{
+  -moz-appearance:textfield !important;
+  appearance:textfield !important;
+}
+.ability-use-current-input::-webkit-outer-spin-button,
+.ability-use-current-input::-webkit-inner-spin-button,
+.ma-edit-uses-field input::-webkit-outer-spin-button,
+.ma-edit-uses-field input::-webkit-inner-spin-button,
+.inline-input-group input[type="number"]::-webkit-outer-spin-button,
+.inline-input-group input[type="number"]::-webkit-inner-spin-button{
+  -webkit-appearance:none !important;
+  margin:0 !important;
+  display:none !important;
+}
+.ability-use-current-input{
+  width:35px;
+  padding:4px 0;
+  text-align:center;
+  background:#111;
+  border:1px solid #444;
+  border-radius:4px;
+  font-size:13px;
+  color:var(--accent);
+  height:28px;
+  font-weight:800;
+}
+.ffd20-modal-overlay .maEditClassHydrating select,
+.ffd20-modal-overlay select#maEditClass{
+  min-height:38px;
+}
+</style>
+
 </head>
 <body>
 
@@ -2602,7 +2646,8 @@ setTimeout(() => {
     <textarea id="notesArea" class="live-field scrollable-textarea" style="min-height:320px; width:100%; resize:vertical; display:block;"></textarea>
   </section>
   <section id="other-shop" class="other-sub-panel shops-tab-panel" aria-label="Shop">
-    <iframe id="playerShopFrame" class="shop-embed-frame" title="Character Shops" src="tools.html?embed=shop" loading="lazy"></iframe>
+    <div id="playerShopWarmup" class="shop-warmup">Preparing shop…</div>
+    <iframe id="playerShopFrame" class="shop-embed-frame" title="Character Shops" src="about:blank" data-shop-base-src="tools.html?embed=shop" loading="eager" fetchpriority="low"></iframe>
   </section>
 </div>
 
@@ -4188,7 +4233,7 @@ function renderAbilities(subType) {
 
         let inputsHtml = '';
         if(hasTrackedUses) {
-            inputsHtml = `<div class="inline-input-group" title="Edit maximum uses from the Edit window"><span class="uses-caption">Uses</span><input type="number" min="0" value="${esc(a.u_curr||0)}" onchange="updateAbilityUse(${i},'u_curr',this.value)" onclick="event.stopPropagation()"><span>/</span><span class="max-use-static">${esc(a.u_max||0)}</span></div>`;
+            inputsHtml = `<div class="inline-input-group" title="Type current uses. Max uses are edited from the Edit window."><span class="uses-caption">Uses</span><input class="ability-use-current-input" type="text" inputmode="numeric" pattern="[0-9]*" value="${esc(a.u_curr||0)}" onchange="updateAbilityUse(${i},'u_curr',this.value)" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()"><span>/</span><span class="max-use-static">${esc(a.u_max||0)}</span></div>`;
         }
 
         let linkHtml = '';
@@ -4834,7 +4879,7 @@ function refreshList(t) { if(t==='weapon') renderWeapons(); else if(t==='spell')
 window.addNewItem = (t) => {
     const d = getActiveData();
     let n={name:''}, c='';
-    if(t==='weapon'){c='weapons';n.mod='STR';n.ability_mod='STR';n.attack_misc='';n.damage='';n.type='';n.crit_range='20';n.crit_mult='x2';n.range='';n.ammo='';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';n.attack_type='None';n.spell_resist='No';n.saving_throw='';n.school='';n.target='';n.range='';n.duration='';n.damage='';n.at_higher_lvls='';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;n.attack_type='None';n.damage='';n.at_higher_lvls='';n.restoreOnLongRest=false;} else if(t==='passive'){c='passiveAbilities';n.damage='';n.at_higher_lvls='';} else if(t==='racial'){c='racialAbilities';n.type='Racial';n.damage='';n.at_higher_lvls='';} else if(t==='feat'){c='feats';n.damage='';n.at_higher_lvls='';} else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
+    if(t==='weapon'){c='weapons';n.mod='STR';n.ability_mod='STR';n.attack_misc='';n.damage='';n.type='';n.crit_range='20';n.crit_mult='x2';n.range='';n.ammo='';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';n.attack_type='None';n.spell_resist='No';n.saving_throw='';n.school='';n.target='';n.range='';n.duration='';n.damage='';n.at_higher_lvls='';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;n.attack_type='None';n.damage='';n.at_higher_lvls='';n.restoreOnLongRest=true;} else if(t==='passive'){c='passiveAbilities';n.damage='';n.at_higher_lvls='';} else if(t==='racial'){c='racialAbilities';n.type='Racial';n.damage='';n.at_higher_lvls='';} else if(t==='feat'){c='feats';n.damage='';n.at_higher_lvls='';} else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
     if(!d[c]) d[c]=[]; d[c].push(n);
     saveDataOnly(); refreshList(t); openEditor(t, d[c].length-1);
 };
@@ -5235,8 +5280,10 @@ function performLongRest() {
   setVal('mp_curr', mpAfter);
   let restoredAbilities = 0;
   (getActiveData().activeAbilities || []).forEach(ability => {
-    if(ability && ability.restoreOnLongRest) {
-      ability.u_curr = Math.max(0, Number(ability.u_max) || 0);
+    const maxUses = Math.max(0, Number(ability?.u_max) || 0);
+    if(ability && maxUses > 0) {
+      ability.u_curr = maxUses;
+      ability.restoreOnLongRest = true;
       restoredAbilities += 1;
     }
   });
@@ -6774,16 +6821,64 @@ renderPlayerCalendar = function() {
         months.innerHTML=names.map((name,index)=>`<section class="calendar-month"><h3>${calendarEscape(name)} — Year ${playerCalendarBrowseYearV16}</h3><div class="calendar-days">${Array.from({length:31},(_,i)=>playerCalendarDayHtmlV16(group,playerCalendarBrowseYearV16,index+1,i+1,false)).join('')}</div></section>`).join('');
     }
 };
-function syncEmbeddedShopCharacterV16() {
-    const frame=document.getElementById('playerShopFrame');
-    if(!frame || !currentSummonId) return;
-    const wanted=`tools.html?embed=shop&character=${encodeURIComponent(currentSummonId)}`;
-    if(frame.getAttribute('src') !== wanted) frame.setAttribute('src', wanted);
+// Fast shop preload: the old lazy iframe loaded only when the hidden Shop panel became visible.
+// This keeps the shop iframe warm in the background after the character sheet settles.
+let lastShopCharacterV16 = '';
+let shopPreloadTimerV39 = null;
+let shopOpenedOnceV39 = false;
+function shopWantedSrcV39() {
+    const base = document.getElementById('playerShopFrame')?.dataset?.shopBaseSrc || 'tools.html?embed=shop';
+    return currentSummonId ? `${base}&character=${encodeURIComponent(currentSummonId)}` : base;
+}
+function markShopFrameLoadingV39() {
+    const frame = document.getElementById('playerShopFrame');
+    const warmup = document.getElementById('playerShopWarmup');
+    if(frame) frame.classList.remove('shop-ready');
+    if(warmup) warmup.classList.remove('hidden');
+}
+function markShopFrameReadyV39() {
+    const frame = document.getElementById('playerShopFrame');
+    const warmup = document.getElementById('playerShopWarmup');
+    if(frame && frame.getAttribute('src') !== 'about:blank') frame.classList.add('shop-ready');
+    if(warmup) warmup.classList.add('hidden');
+}
+function syncEmbeddedShopCharacterV16(force = false) {
+    const frame = document.getElementById('playerShopFrame');
+    if(!frame) return;
+    const wanted = shopWantedSrcV39();
+    const current = frame.getAttribute('src') || '';
+    if(!force && current === wanted && frame.dataset.loadedFor === String(currentSummonId || 'default')) return;
+    frame.dataset.loadedFor = String(currentSummonId || 'default');
+    markShopFrameLoadingV39();
+    frame.setAttribute('src', wanted);
+}
+function scheduleShopPreloadV39(delay = 900) {
+    window.clearTimeout(shopPreloadTimerV39);
+    shopPreloadTimerV39 = window.setTimeout(() => {
+        // Wait briefly for the selected character id so we avoid loading generic shop then reloading it.
+        if(!currentSummonId && !shopOpenedOnceV39) { scheduleShopPreloadV39(700); return; }
+        syncEmbeddedShopCharacterV16(false);
+    }, delay);
 }
 const switchOtherTabV15 = window.switchOtherTab;
-window.switchOtherTab = name => { switchOtherTabV15(name); if(name === 'shop') syncEmbeddedShopCharacterV16(); };
-let lastShopCharacterV16 = '';
-window.setInterval(() => { if(currentSummonId && currentSummonId !== lastShopCharacterV16) { lastShopCharacterV16=currentSummonId; syncEmbeddedShopCharacterV16(); } }, 400);
+window.switchOtherTab = name => {
+    switchOtherTabV15(name);
+    if(name === 'shop') { shopOpenedOnceV39 = true; syncEmbeddedShopCharacterV16(true); }
+    else scheduleShopPreloadV39(1100);
+};
+document.addEventListener('DOMContentLoaded', () => {
+    const frame = document.getElementById('playerShopFrame');
+    if(frame) frame.addEventListener('load', markShopFrameReadyV39);
+    scheduleShopPreloadV39(1400);
+});
+window.addEventListener('load', () => scheduleShopPreloadV39(500));
+window.setInterval(() => {
+    const id = String(currentSummonId || '');
+    if(id && id !== lastShopCharacterV16) {
+        lastShopCharacterV16 = id;
+        scheduleShopPreloadV39(shopOpenedOnceV39 ? 0 : 600);
+    }
+}, 1000);
 
 
 
@@ -14563,14 +14658,369 @@ maStockQueueAddSpellHookInstall();
   try { observer.observe(document.documentElement, { childList:true, subtree:true }); } catch(e) {}
   document.addEventListener('DOMContentLoaded', () => scheduleRefresh(0));
   window.addEventListener('load', () => scheduleRefresh(0));
+  // v36: do not refill class selects on every click/focus; doing so can close or flicker native dropdowns.
   document.addEventListener('click', event => {
-    if(event.target?.closest?.('#maClassBuildCard,#maAddMulticlassBtn,#maMulticlassList,.ffd20-modal,.ffd20-modal-actions')) scheduleRefresh(80);
+    if(event.target?.closest?.('#maClassBuildCard,#maAddMulticlassBtn,#maMulticlassList') && !event.target?.closest?.('.ffd20-modal')) scheduleRefresh(0);
   }, true);
-  document.addEventListener('focusin', event => { if(isClassSelect(event.target) || PRESTIGE_ONLY_SELECT_IDS.has(event.target?.id)) scheduleRefresh(0); }, true);
 
   [0, 80, 250, 700, 1200, 1800, 3000].forEach(ms => setTimeout(() => scheduleRefresh(0), ms));
 })();
 </script>
+
+
+
+<script>
+/* --- v36 Active uses + long-rest + class picker stability patch --- */
+(function(){
+  if(window.maV36ActiveUseClassPatch) return;
+  window.maV36ActiveUseClassPatch = true;
+
+  const norm = value => String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const liveUseStore = window.maV36ActiveUseStore = window.maV36ActiveUseStore || new Map();
+  const abilityKey = ability => {
+    if(!ability) return '';
+    const autoKey = String(ability.autoKey || '').trim();
+    if(autoKey) return 'auto:' + autoKey;
+    return ['manual', ability.name || '', ability.sourceKind || ability.originType || '', ability.sourceName || ability.originName || '', ability.sourceLevel || ''].map(norm).filter(Boolean).join(':');
+  };
+  function stateForAbility(ability){
+    return {
+      u_curr: Math.max(0, Number(ability?.u_curr) || 0),
+      u_max: Math.max(0, Number(ability?.u_max) || 0),
+      restoreOnLongRest: ability?.restoreOnLongRest !== false,
+      ts: Date.now()
+    };
+  }
+  function rememberAbility(ability){
+    const key = abilityKey(ability);
+    if(!key) return null;
+    const state = stateForAbility(ability);
+    liveUseStore.set(key, state);
+    const nameKey = 'name:' + norm(ability.name || '');
+    if(nameKey !== 'name:') liveUseStore.set(nameKey, state);
+    return state;
+  }
+  function snapshotActiveUses(){
+    const map = new Map();
+    try {
+      const list = (typeof getActiveData === 'function' && getActiveData()?.activeAbilities) || [];
+      list.forEach(ability => {
+        const key = abilityKey(ability);
+        if(!key) return;
+        const state = rememberAbility(ability);
+        map.set(key, state);
+        const nameKey = 'name:' + norm(ability.name || '');
+        if(nameKey !== 'name:') map.set(nameKey, state);
+      });
+    } catch(e) {}
+    return map;
+  }
+  function restoreActiveUses(map){
+    try {
+      const list = (typeof getActiveData === 'function' && getActiveData()?.activeAbilities) || [];
+      list.forEach(ability => {
+        const key = abilityKey(ability);
+        const nameKey = 'name:' + norm(ability.name || '');
+        const stored = liveUseStore.get(key) || liveUseStore.get(nameKey);
+        const snapped = map.get(key) || map.get(nameKey);
+        const saved = stored && (!snapped || (stored.ts || 0) >= (snapped.ts || 0)) ? stored : snapped;
+        if(!saved) return;
+        const importedMax = Math.max(0, Number(ability.u_max) || 0);
+        const savedMax = Math.max(0, Number(saved.u_max) || 0);
+        const max = Math.max(importedMax, savedMax);
+        if(max > 0) {
+          ability.u_max = max;
+          ability.u_curr = Math.min(Math.max(0, Number(saved.u_curr) || 0), max);
+          ability.restoreOnLongRest = saved.restoreOnLongRest !== false;
+        }
+      });
+    } catch(e) {}
+  }
+
+  const oldApply = (typeof maFfd20ApplySheetChoices === 'function') ? maFfd20ApplySheetChoices : null;
+  if(oldApply && !oldApply.maV36Wrapped){
+    const wrapped = async function(...args){
+      const before = snapshotActiveUses();
+      const out = await oldApply.apply(this, args);
+      restoreActiveUses(before);
+      try { if(typeof renderAbilities === 'function') renderAbilities('active'); } catch(e) {}
+      try { if(typeof maFfd20SaveNow === 'function') maFfd20SaveNow(); else if(typeof saveDataOnly === 'function') saveDataOnly(); } catch(e) {}
+      return out;
+    };
+    wrapped.maV36Wrapped = true;
+    maFfd20ApplySheetChoices = wrapped;
+    window.maFfd20ApplySheetChoices = (...args) => maFfd20ApplySheetChoices(...args);
+  }
+
+  const oldUpdateUse = window.updateAbilityUse;
+  window.updateAbilityUse = function(idx, key, val){
+    try {
+      const list = (typeof getActiveData === 'function' && getActiveData()?.activeAbilities) || [];
+      const ability = list[idx];
+      if(!ability) return;
+      const parsed = Math.max(0, parseInt(String(val || '0').replace(/[^0-9]/g, ''), 10) || 0);
+      if(key === 'u_curr') ability.u_curr = Math.min(parsed, Math.max(0, Number(ability.u_max) || 0));
+      else ability[key] = parsed;
+      if(key === 'u_max' && Number(ability.u_curr || 0) > Number(ability.u_max || 0)) ability.u_curr = Math.max(0, Number(ability.u_max) || 0);
+      if(Number(ability.u_max || 0) > 0 && ability.restoreOnLongRest === undefined) ability.restoreOnLongRest = true;
+      rememberAbility(ability);
+      if(typeof saveDataOnly === 'function') saveDataOnly();
+      if(typeof renderAbilities === 'function') renderAbilities('active');
+    } catch(e) {
+      if(typeof oldUpdateUse === 'function') return oldUpdateUse.apply(this, arguments);
+    }
+  };
+
+  const oldUseActive = window.useActiveAbility;
+  const locks = new Map();
+  window.useActiveAbility = function(idx){
+    const now = Date.now();
+    const key = String(idx);
+    if(locks.has(key) && now - locks.get(key) < 450) return;
+    locks.set(key, now);
+    try {
+      const list = (typeof getActiveData === 'function' && getActiveData()?.activeAbilities) || [];
+      const ability = list[idx];
+      if(!ability) return;
+      const state = (typeof getActiveAbilityUseState === 'function') ? getActiveAbilityUseState(ability) : null;
+      if(state && !state.isReady){ if(typeof renderAbilities === 'function') renderAbilities('active'); return; }
+      const hasTracked = Math.max(0, Number(ability.u_max) || 0) > 0;
+      if(hasTracked){
+        const remaining = Math.max(0, Number(ability.u_curr) || 0);
+        if(remaining <= 0){ if(typeof renderAbilities === 'function') renderAbilities('active'); return; }
+        ability.u_curr = Math.max(0, remaining - 1);
+        ability.restoreOnLongRest = ability.restoreOnLongRest !== false;
+        rememberAbility(ability);
+        if(typeof saveDataOnly === 'function') saveDataOnly();
+        if(typeof renderAbilities === 'function') renderAbilities('active');
+      }
+      if(typeof abilityIsRollable === 'function' && abilityIsRollable(ability)) rollAbilityAction(idx, { includeCard: true });
+      else if(typeof sendAbilityCard === 'function') sendAbilityCard('active', idx);
+    } catch(e) {
+      if(typeof oldUseActive === 'function') return oldUseActive.apply(this, arguments);
+      console.warn('Active ability use failed', e);
+    }
+  };
+  window.useAbilityByType = function(subType, index){
+    if(subType === 'active') return window.useActiveAbility(index);
+    try {
+      const bundle = getAbilityChatBundle(subType);
+      const list = getActiveData()[bundle.key] || [];
+      const item = list[index];
+      if(!item) return;
+      const diceExpr = String(item.damage || '').trim();
+      if(!diceExpr) return;
+      const result = rollDamageExpression(diceExpr);
+      const calcLine = damageCalcLine(result, 'Dice Roll Calc');
+      const lines = [`> Category: ${bundle.label}`, `> Dice Roll: ${diceExpr}`];
+      if(String(item.desc || '').trim()) lines.push(`> Description: ${String(item.desc).trim()}`);
+      if(calcLine) lines.push(calcLine);
+      routeChatEntry({
+        kind: 'roll',
+        title: `${item.name || bundle.label} Dice Roll`,
+        subtitle: currentChatSheetLabel(),
+        lines,
+        discordLines: lines,
+        results: [`<strong>Dice Roll:</strong> ${chatEscapeHtml(formatDamageTotalText(result))}`]
+      });
+    } catch(e) { console.warn('Ability roll failed', e); }
+  };
+
+  const oldLongRest = window.performLongRest;
+  window.performLongRest = function(){
+    const out = typeof oldLongRest === 'function' ? oldLongRest.apply(this, arguments) : undefined;
+    try {
+      let changed = 0;
+      ((typeof getActiveData === 'function' && getActiveData()?.activeAbilities) || []).forEach(ability => {
+        const max = Math.max(0, Number(ability?.u_max) || 0);
+        if(max > 0 && Number(ability.u_curr || 0) !== max){ ability.u_curr = max; ability.restoreOnLongRest = true; rememberAbility(ability); changed++; }
+      });
+      if(changed){
+        if(typeof renderAbilities === 'function') renderAbilities('active');
+        if(typeof saveDataOnly === 'function') saveDataOnly();
+      }
+    } catch(e) {}
+    return out;
+  };
+
+  document.addEventListener('wheel', event => {
+    if(event.target?.matches?.('.ability-use-current-input,.ma-edit-uses-field input,input[type="number"]')) event.target.blur();
+  }, { passive:true, capture:true });
+
+  function hydrateClassDialog(){
+    try {
+      const c = document.getElementById('maEditClass');
+      if(!c || c.dataset.maV36Hydrated === '1') return;
+      c.dataset.maV36Hydrated = '1';
+      const modal = c.closest('.ffd20-modal');
+      modal?.classList.add('maEditClassHydrating');
+      Promise.resolve(typeof window.maFfd20LoadLibrary === 'function' ? window.maFfd20LoadLibrary() : (window.maFfd20Library || {})).then(lib => {
+        const d = (typeof getActiveData === 'function' ? getActiveData() : {}) || {};
+        const current = c.value || d.class || d.className || '';
+        if(typeof window.maFfd20FillSelect === 'function') window.maFfd20FillSelect(c, lib.classes || [], 'Choose class', current);
+        const a = document.getElementById('maEditArch');
+        const fillArch = () => {
+          const cls = typeof window.maFfd20Find === 'function' ? window.maFfd20Find(lib.classes || [], c.value || '') : null;
+          if(typeof window.maFfd20FillSelect === 'function') window.maFfd20FillSelect(a, cls?.archetypes || [], 'No archetype', a?.value || d.archetype || '');
+        };
+        fillArch();
+        c.addEventListener('change', fillArch, { passive:true });
+      }).finally(() => modal?.classList.remove('maEditClassHydrating'));
+    } catch(e) {}
+  }
+  const mo = new MutationObserver(() => hydrateClassDialog());
+  try { mo.observe(document.documentElement, { childList:true, subtree:true }); } catch(e) {}
+  document.addEventListener('click', event => {
+    if(event.target?.closest?.('#maClassBuildCard,#maAddMulticlassBtn,#maMulticlassList .ma-build-card')) setTimeout(hydrateClassDialog, 0);
+  }, true);
+})();
+</script>
+
+
+<style>
+/* --- v37 Ability side rail: move Active/Passive/Racial/Feats out of the feature header --- */
+@media (min-width: 900px) {
+  #combat.tab-content {
+    max-width: 1180px !important;
+  }
+
+  #combat > .sub-nav-container,
+  #c-general,
+  #c-spells {
+    max-width: 800px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  #c-abilities-main[style*="display: block"] {
+    display: grid !important;
+    grid-template-columns: minmax(118px, 152px) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+    max-width: 1180px !important;
+    margin: 0 auto !important;
+    padding: 16px !important;
+  }
+
+  #c-abilities-main > .sub-nav-container {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+    position: sticky !important;
+    top: 12px !important;
+    align-self: start !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    max-width: none !important;
+    width: 100% !important;
+    border: 1px solid rgba(var(--accent-rgb), .32) !important;
+    border-radius: 18px !important;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(var(--accent-rgb), .16), transparent 55%),
+      linear-gradient(180deg, #191919 0%, #101010 100%) !important;
+    box-shadow: 0 12px 24px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.035) !important;
+    z-index: 8;
+  }
+
+  #c-abilities-main > .sub-nav-container::before {
+    content: 'Features';
+    display: block;
+    color: var(--accent);
+    font-family: 'Uncial Antiqua', serif;
+    font-size: 13px;
+    font-weight: 800;
+    text-align: center;
+    letter-spacing: .04em;
+    margin: 2px 0 10px;
+    opacity: .95;
+  }
+
+  #c-abilities-main > .sub-sub-group {
+    grid-column: 2;
+    min-width: 0;
+  }
+
+  #abilitiesSubSubNav {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 9px !important;
+    width: 100% !important;
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  #abilitiesSubSubNav .sub-btn {
+    width: 100% !important;
+    min-height: 46px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+    text-align: left !important;
+    border-radius: 14px !important;
+  }
+
+  #abilitiesSubSubNav .sub-btn::after {
+    margin-left: auto;
+    color: currentColor;
+    opacity: .55;
+    font-family: sans-serif;
+    font-size: 14px;
+    line-height: 1;
+  }
+  #abilitiesSubSubNav .sub-btn:nth-child(1)::after { content: '✹'; }
+  #abilitiesSubSubNav .sub-btn:nth-child(2)::after { content: '◆'; }
+  #abilitiesSubSubNav .sub-btn:nth-child(3)::after { content: '✥'; }
+  #abilitiesSubSubNav .sub-btn:nth-child(4)::after { content: '★'; }
+
+  #abilitiesSubSubNav .sub-btn.active {
+    transform: translateX(3px);
+  }
+}
+
+@media (max-width: 899px) {
+  #c-abilities-main {
+    max-width: 800px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+</style>
+
+
+<style>
+/* --- v38 Mobile feature tabs: keep Active / Passive / Racial / Feats at the top, not sticky --- */
+@media (max-width: 899px) {
+  #c-abilities-main > .sub-nav-container,
+  #c-abilities-main .sub-nav-container,
+  #c-abilities-main > .sub-nav-container #abilitiesSubSubNav,
+  #abilitiesSubSubNav {
+    position: static !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    inset: auto !important;
+    z-index: auto !important;
+    transform: none !important;
+  }
+
+  #c-abilities-main > .sub-nav-container {
+    margin: 0 auto 14px !important;
+    width: 100% !important;
+  }
+
+  #abilitiesSubSubNav {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+  }
+}
+</style>
 
 </body>
 </html>
