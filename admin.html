@@ -976,6 +976,24 @@ body:not(.skill-edit-mode) #skillsTableBody td:nth-child(2){display:block !impor
 body:not(.skill-edit-mode) #skillsTableBody td:nth-child(6){display:flex !important;align-items:center;justify-content:center !important;padding:8px 10px 8px 5px !important;min-width:40px !important;color:var(--accent);font-size:15px;font-weight:900;}
 body:not(.skill-edit-mode) .skill-stat-tag{display:inline;font-size:10px;color:#9a9a9a;font-weight:800;margin-left:4px;text-transform:uppercase;}
 .spell-row .spell-row-primary{display:flex;align-items:center;gap:9px;min-width:0;}
+
+/* --- Spell level side tabs + live MP refresh --- */
+.spell-level-layout{display:grid;grid-template-columns:172px minmax(0,1fr);gap:12px;align-items:start;margin-top:12px;}
+.spell-level-tabs{position:sticky;top:154px;display:flex;flex-direction:column;gap:7px;background:#151515;border:1px solid #333;border-radius:14px;padding:9px;max-height:calc(100vh - 190px);overflow-y:auto;}
+.spell-level-tab{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name count" "dc count";align-items:center;gap:2px 8px;text-align:left;background:#202020;border:1px solid #3a3a3a;border-radius:10px;color:#ddd;padding:9px 10px;cursor:pointer;transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;}
+.spell-level-tab:hover,.spell-level-tab:focus-visible{border-color:rgba(255,204,102,.7);box-shadow:0 0 12px rgba(255,204,102,.12);outline:none;}
+.spell-level-tab.active{background:linear-gradient(135deg,#3b2b0d,#202020);border-color:var(--accent);box-shadow:0 0 14px rgba(255,204,102,.18);}
+.spell-level-tab-name{grid-area:name;color:var(--accent);font-family:'Uncial Antiqua',serif;font-size:13px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.spell-level-tab-dc{grid-area:dc;color:#bdbdbd;font-size:11px;font-weight:800;letter-spacing:.02em;}
+.spell-level-tab-count{grid-area:count;min-width:28px;height:28px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:#111;border:1px solid #444;color:#eee;font-size:12px;font-weight:900;}
+.spell-level-tab.active .spell-level-tab-count{border-color:var(--accent);color:var(--accent);}
+.spell-level-content{min-width:0;}
+.spell-level-selected-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#141414;border:1px solid var(--accent);border-radius:12px;padding:10px 12px;margin-bottom:8px;}
+.spell-level-selected-head h4{margin:0;text-align:left;font-size:16px;}
+.spell-level-selected-head span{color:#e8e8e8;font-size:12px;font-weight:900;letter-spacing:.03em;}
+@media(max-width:700px){.spell-level-layout{grid-template-columns:1fr;}.spell-level-tabs{position:relative;top:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;overflow:visible;}.spell-level-tab{min-height:54px;}.spell-level-tab-name{font-size:12px;}}
+@media(max-width:390px){.spell-level-tabs{grid-template-columns:1fr;}}
+
 @media(max-width:540px){body:not(.skill-edit-mode) #skillsTableBody{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:6px !important;}body:not(.skill-edit-mode) #skillsTableBody tr{min-height:40px !important;}body:not(.skill-edit-mode) #skillsTableBody td:nth-child(2){font-size:12px !important;padding:7px 4px 7px 8px !important;}body:not(.skill-edit-mode) #skillsTableBody td:nth-child(6){font-size:14px !important;padding:7px 8px 7px 2px !important;}}
 @media(max-width:390px){body:not(.skill-edit-mode) #skillsTableBody{grid-template-columns:1fr !important;max-width:285px;margin:0 auto;}}
 </style>
@@ -3466,6 +3484,67 @@ body.ma-ffd20-admin #sheetContainer {
 }
 </style>
 
+
+<style>
+/* --- v40 Admin sync with final character UI --- */
+:root{--accent-rgb:255,204,102;--accent-contrast:#050505;--accent-soft:rgba(255,204,102,.12);--accent-mid:rgba(255,204,102,.32);--accent-glow:rgba(255,204,102,.42);}
+.bio-item:has(#shop_tags){
+  background:linear-gradient(145deg,rgba(var(--accent-rgb),.09),#171717 48%,#101010)!important;
+  border:1px solid rgba(var(--accent-rgb),.30)!important;
+  border-radius:14px!important;
+  padding:10px!important;
+  box-shadow:0 8px 18px rgba(0,0,0,.22),0 0 16px rgba(var(--accent-rgb),.08)!important;
+}
+.bio-item:has(#shop_tags) > label{
+  color:var(--accent)!important;
+  font-family:'Uncial Antiqua',serif!important;
+  letter-spacing:.04em!important;
+  text-shadow:0 0 10px rgba(var(--accent-rgb),.20)!important;
+}
+#shop_tags{border-color:rgba(var(--accent-rgb),.42)!important;color:var(--accent)!important;}
+.admin-player-shop-preview-head{
+  border-color:rgba(var(--accent-rgb),.32)!important;
+  background:linear-gradient(145deg,rgba(var(--accent-rgb),.09),#171717 52%,#101010)!important;
+}
+.admin-player-shop-preview-head strong{color:var(--accent)!important;text-shadow:0 0 10px rgba(var(--accent-rgb),.22)!important;}
+.admin-player-shop-warmup{
+  display:flex;align-items:center;justify-content:center;min-height:46px;margin:0 0 8px;
+  border:1px dashed rgba(var(--accent-rgb),.38);border-radius:12px;background:rgba(var(--accent-rgb),.06);
+  color:var(--accent);font-family:'Uncial Antiqua',serif;font-weight:800;letter-spacing:.03em;
+}
+.admin-player-shop-warmup.hidden{display:none!important;}
+.admin-player-shop-frame{border-color:rgba(var(--accent-rgb),.72)!important;box-shadow:0 10px 24px rgba(0,0,0,.25),0 0 18px rgba(var(--accent-rgb),.08);opacity:.72;transition:opacity .2s ease,box-shadow .2s ease;}
+.admin-player-shop-frame.shop-ready{opacity:1;box-shadow:0 10px 24px rgba(0,0,0,.25),0 0 22px rgba(var(--accent-rgb),.13);}
+@media (min-width: 1100px){
+  #combat.tab-content{max-width:1180px!important;}
+  #combat > .sub-nav-container,#c-general,#c-spells{max-width:800px!important;margin-left:auto!important;margin-right:auto!important;}
+  #c-abilities-main[style*="display: block"],#c-abilities-main.active{
+    display:grid!important;grid-template-columns:minmax(0,1fr) minmax(118px,152px);gap:16px;align-items:start;
+    max-width:1180px!important;margin:0 auto!important;padding:16px!important;
+  }
+  #c-abilities-main > .sub-nav-container{
+    grid-column:2;grid-row:1 / span 4;position:sticky!important;top:12px!important;align-self:start!important;
+    margin:0!important;padding:10px!important;max-width:none!important;width:100%!important;
+    border:1px solid rgba(var(--accent-rgb),.32)!important;border-radius:18px!important;
+    background:radial-gradient(circle at 50% 0%,rgba(var(--accent-rgb),.16),transparent 55%),linear-gradient(180deg,#191919 0%,#101010 100%)!important;
+    box-shadow:0 12px 24px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.035)!important;z-index:8;
+  }
+  #c-abilities-main > .sub-nav-container::before{
+    content:'Features';display:block;color:var(--accent);font-family:'Uncial Antiqua',serif;font-size:13px;font-weight:800;text-align:center;letter-spacing:.04em;margin:2px 0 10px;opacity:.95;
+  }
+  #c-abilities-main > .sub-sub-group{grid-column:1;min-width:0;}
+  #abilitiesSubSubNav{display:flex!important;flex-direction:column!important;gap:9px!important;width:100%!important;border:0!important;padding:0!important;margin:0!important;background:transparent!important;box-shadow:none!important;}
+  #abilitiesSubSubNav .sub-btn{width:100%!important;min-height:46px!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:8px!important;padding:10px 12px!important;text-align:left!important;border-radius:14px!important;}
+  #abilitiesSubSubNav .sub-btn::after{margin-left:auto;color:currentColor;opacity:.55;font-family:sans-serif;font-size:14px;line-height:1;}
+  #abilitiesSubSubNav .sub-btn:nth-child(1)::after{content:'✹';}#abilitiesSubSubNav .sub-btn:nth-child(2)::after{content:'◆';}#abilitiesSubSubNav .sub-btn:nth-child(3)::after{content:'✥';}#abilitiesSubSubNav .sub-btn:nth-child(4)::after{content:'★';}
+  #abilitiesSubSubNav .sub-btn.active{transform:translateX(-3px);}
+}
+@media (max-width:1099px){
+  #c-abilities-main{max-width:800px!important;margin-left:auto!important;margin-right:auto!important;}
+  #c-abilities-main > .sub-nav-container,#c-abilities-main .sub-nav-container,#c-abilities-main > .sub-nav-container #abilitiesSubSubNav,#abilitiesSubSubNav{position:static!important;top:auto!important;bottom:auto!important;left:auto!important;right:auto!important;inset:auto!important;z-index:auto!important;transform:none!important;}
+}
+</style>
+
 </head>
 <body>
 
@@ -3514,6 +3593,10 @@ body.ma-ffd20-admin #sheetContainer {
       <div id="adminGroupsList"><div class="admin-group-empty">Loading groups...</div></div>
     </section>
   </aside>
+
+  <button id="adminSidebarToggle" class="admin-sidebar-toggle" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="Collapse Admin Control" title="Collapse Admin Control" onclick="toggleAdminSidebar()">
+    <span id="adminSidebarToggleArrow" aria-hidden="true">‹</span>
+  </button>
 
   <div id="editorArea">
     <div id="editorTabs"></div>
@@ -3734,10 +3817,15 @@ setTimeout(() => {
       <section class="spell-mp-panel" aria-label="Available magic points">
         <span class="spell-mp-label">💧 Available MP</span>
         <strong id="spellMpAvailable">0</strong><span class="spell-mp-divider">/</span><span id="spellMpMaximum">0</span>
-        <small>Spell cost equals spell level. Cantrip = 0 MP.</small>
+        <small>Available MP uses Current MP + Temp MP. Spell cost equals spell level. Cantrip = 0 MP.</small>
       </section>
       <button class="btn-add" onclick="addNewItem('spell')">+ Add Spell</button>
-      <div id="spellList"></div>
+      <div class="spell-level-layout" aria-label="Spell levels">
+        <nav id="spellLevelTabs" class="spell-level-tabs" aria-label="Spell level tabs"></nav>
+        <div class="spell-level-content">
+          <div id="spellList"></div>
+        </div>
+      </div>
   </div>
 
   <div style="display:none;">
@@ -3832,7 +3920,8 @@ setTimeout(() => {
   </section>
   <section id="admin-other-shop" class="other-sub-panel" aria-label="Shop">
     <div class="admin-player-shop-preview-head"><strong>Player Shop View</strong><span>This shows exactly what the selected character can access.</span></div>
-    <iframe id="adminPlayerShopPreviewFrame" class="admin-player-shop-frame" title="Selected Character Shops" loading="lazy"></iframe>
+    <div id="adminPlayerShopWarmup" class="admin-player-shop-warmup">Preparing selected character shop…</div>
+    <iframe id="adminPlayerShopPreviewFrame" class="admin-player-shop-frame" title="Selected Character Shops" src="about:blank" data-shop-base-src="tools.html?embed=shop" loading="eager" fetchpriority="low"></iframe>
   </section>
 </div>
 
@@ -4024,6 +4113,10 @@ let fullSheetData = { items: [], weapons: [], spells: [], activeAbilities: [], p
 let unsubscribeSheet = null;
 let saveTimeout = null;
 let isInternalUpdate = false;
+let activeLoadedDocKey = '';
+let adminSheetSwitchSerial = 0;
+let adminSuppressSavesUntil = 0;
+let adminHydratingSheet = false;
 
 // Character group tags are admin-managed labels saved directly on character records.
 const ADMIN_GROUP_COLLECTION = 'adminCharacterGroups';
@@ -4181,6 +4274,12 @@ window.switchSub = (id) => {
     parentTab.querySelectorAll('.sub-group').forEach(c => c.style.display = 'none');
     document.getElementById(id).style.display = 'block';
     localStorage.setItem('adminCombatSub', id);
+    if(id === 'c-spells') {
+        try { if(typeof updateCalculations === 'function') updateCalculations(); } catch(e) {}
+        try { if(typeof computeDerivedStats === 'function') computeDerivedStats(); } catch(e) {}
+        try { if(typeof maFinalMpRecalc === 'function') Promise.resolve(maFinalMpRecalc(false)).finally(() => { try { renderSpells(); refreshSpellMpUi(); } catch(_e) {} }); } catch(e) {}
+        try { renderSpells(); refreshSpellMpUi(); } catch(e) {}
+    }
 };
 window.switchSubSub = (id) => {
     const container = document.getElementById('abilitiesSubSubNav');
@@ -4506,7 +4605,10 @@ window.switchAdminOtherTab = (name) => {
     document.querySelectorAll('#other .other-sub-btn').forEach(btn=>btn.classList.remove('active'));
     document.querySelectorAll('#other .other-sub-panel').forEach(panel=>panel.classList.remove('active'));
     document.getElementById('admin-other-tab-'+valid)?.classList.add('active'); document.getElementById('admin-other-'+valid)?.classList.add('active');
-    localStorage.setItem('adminActiveOtherSub',valid); if(valid==='calendar') renderAdminSheetCalendar(); if(valid==='shop') refreshAdminPlayerShopPreviewV18();
+    localStorage.setItem('adminActiveOtherSub',valid);
+    if(valid==='calendar') renderAdminSheetCalendar();
+    if(valid==='shop') { adminShopOpenedOnceV40 = true; refreshAdminPlayerShopPreviewV18(true); }
+    else scheduleAdminPlayerShopPreviewV40?.(1100);
 };
 window.selectAdminSheetCalendar = (groupId) => { selectedAdminSheetCalendarId=groupId; renderAdminSheetCalendar(); };
 window.openAdminSheetCalendarDay = (month,day) => {
@@ -4722,8 +4824,13 @@ window.closeTab = (uid, sid) => {
             // No tabs left
             if(unsubscribeSheet) unsubscribeSheet();
             unsubscribeSheet = null;
+            if(saveTimeout) { clearTimeout(saveTimeout); saveTimeout = null; }
+            adminSheetSwitchSerial++;
+            adminHydratingSheet = false;
+            activeLoadedDocKey = '';
             currentParentUid = null;
             currentSummonId = null;
+            try { window.__adminActiveDocKey = ''; window.__adminSheetHydrated = false; } catch(e) {}
             document.getElementById('sheetContainer').classList.remove('active');
             document.getElementById('sheetContainer').style.display = 'none';
             document.getElementById('emptyState').style.display = 'flex';
@@ -4756,8 +4863,15 @@ function renderTabs() {
 function activateTab(uid, sid) {
     if(currentParentUid === uid && currentSummonId === sid) return;
 
+    try { document.activeElement?.blur?.(); } catch (_err) {}
+    if(saveTimeout) { clearTimeout(saveTimeout); saveTimeout = null; }
+    adminSheetSwitchSerial++;
+    adminHydratingSheet = true;
+    adminSuppressSavesUntil = Date.now() + 1400;
     if(unsubscribeSheet) unsubscribeSheet();
     unsubscribeSheet = null;
+    activeLoadedDocKey = '';
+    try { window.__adminActiveDocKey = ''; window.__adminSheetHydrated = false; window.__adminSheetSwitchSerial = adminSheetSwitchSerial; } catch(e) {}
 
     fullSheetData = { items: [], weapons: [], spells: [], activeAbilities: [], passiveAbilities: [], racialAbilities: [], feats: [], slot_cap: 20 };
 
@@ -4773,7 +4887,7 @@ function activateTab(uid, sid) {
 
     currentParentUid = uid;
     currentSummonId = sid;
-    refreshAdminPlayerShopPreviewV18();
+    scheduleAdminPlayerShopPreviewV40?.(180);
 
     renderTabs();
     document.getElementById('emptyState').style.display = 'none';
@@ -4783,6 +4897,17 @@ function activateTab(uid, sid) {
     const owner = allUsers.find(u => u.uid === uid);
     const charData = owner?.characters?.find(c => c.id === sid);
     document.getElementById('targetUserUID').textContent = `Editing: ${owner?.name || uid} / ${charData?.charName || 'Character'}`;
+
+    // Hydrate immediately from the cached character row so UI mirrors the selected sheet
+    // before Firestore's listener returns. This also clears the previous player's
+    // mirrored ability-card values instead of leaving them visually stuck.
+    if(charData) {
+        fullSheetData = sanitizeCharacterDoc({ ...charData }, charData.charName || 'Character');
+        isInternalUpdate = true;
+        try { populateSheet(); } catch(e) { console.warn('[admin] cached character hydrate failed', e); }
+        isInternalUpdate = false;
+        try { window.__adminActiveDocKey = ''; window.__adminSheetHydrated = false; } catch(e) {}
+    }
 
     document.querySelectorAll('.userItem, .summonItem').forEach(d => d.classList.remove('selected'));
     const header = document.querySelector(`.userItem[data-uid="${uid}"]`);
@@ -4823,26 +4948,49 @@ document.getElementById('userSearch').addEventListener('input', (e)=>{
 
 function startListening(uid, sid){
     const docRef = doc(db, 'users', uid, 'characters', sid);
+    const listenKey = `${uid}:${sid}`;
+    const listenSerial = adminSheetSwitchSerial;
     document.getElementById('statusText').textContent = 'Syncing.';
 
     unsubscribeSheet = onSnapshot(docRef, (docSnap) => {
+        if(currentParentUid !== uid || currentSummonId !== sid || listenSerial !== adminSheetSwitchSerial) return;
         if(docSnap.metadata.hasPendingWrites) return;
         const focusedEditorField = document.querySelector('#sheetContainer .save-field:focus, #sheetContainer textarea:focus, #sheetContainer select:focus, #sheetContainer input.save-field:focus, #sheetContainer input.live-field:focus');
-        if (focusedEditorField) { return; }
+        if (focusedEditorField && activeLoadedDocKey === listenKey) { return; }
 
         if(docSnap.exists()){
             fullSheetData = sanitizeCharacterDoc(docSnap.data(), docSnap.data()?.charName || 'Character');
+            activeLoadedDocKey = listenKey;
+            adminHydratingSheet = true;
+            try { window.__adminActiveDocKey = listenKey; window.__adminSheetHydrated = false; window.__adminSheetSwitchSerial = adminSheetSwitchSerial; } catch(e) {}
             isInternalUpdate = true;
             populateSheet();
             isInternalUpdate = false;
+            adminHydratingSheet = false;
+            adminSuppressSavesUntil = Date.now() + 250;
+            try { window.__adminActiveDocKey = listenKey; window.__adminSheetHydrated = true; } catch(e) {}
+            try { window.maAdminHydrateAbilityMp?.('snapshot-ready'); } catch(e) {}
+            setTimeout(() => { try { window.maAdminHydrateAbilityMp?.('snapshot-ready-0'); } catch(e) {} }, 0);
+            setTimeout(() => { try { window.maAdminHydrateAbilityMp?.('snapshot-ready-200'); } catch(e) {} }, 200);
+            setTimeout(() => { try { window.maAdminHydrateAbilityMp?.('snapshot-ready-700'); } catch(e) {} }, 700);
             document.getElementById('statusText').textContent = 'Synced';
             document.getElementById('statusText').style.color = '#4caf50';
         } else {
             document.getElementById('statusText').textContent = 'No Character Data';
             fullSheetData = createBlankCharacterData();
+            activeLoadedDocKey = listenKey;
+            adminHydratingSheet = true;
+            try { window.__adminActiveDocKey = listenKey; window.__adminSheetHydrated = false; window.__adminSheetSwitchSerial = adminSheetSwitchSerial; } catch(e) {}
             isInternalUpdate = true;
             populateSheet();
             isInternalUpdate = false;
+            adminHydratingSheet = false;
+            adminSuppressSavesUntil = Date.now() + 250;
+            try { window.__adminActiveDocKey = listenKey; window.__adminSheetHydrated = true; } catch(e) {}
+            try { window.maAdminHydrateAbilityMp?.('blank-snapshot-ready'); } catch(e) {}
+            setTimeout(() => { try { window.maAdminHydrateAbilityMp?.('blank-snapshot-ready-0'); } catch(e) {} }, 0);
+            setTimeout(() => { try { window.maAdminHydrateAbilityMp?.('blank-snapshot-ready-200'); } catch(e) {} }, 200);
+            setTimeout(() => { try { window.maAdminHydrateAbilityMp?.('blank-snapshot-ready-700'); } catch(e) {} }, 700);
         }
     });
 }
@@ -5038,8 +5186,14 @@ function populateSheet(){
     document.getElementById('spellsSubBtn').style.display = 'block';
     document.getElementById('btn-sub-passive').style.display = 'block';
 
-    // Force clear then fill
-    document.querySelectorAll('.save-field').forEach(el => { el.value = ""; if(data[el.id] !== undefined) el.value = data[el.id]; });
+    // Force clear then fill. Also clear the polished mirror controls; they are not save-field
+    // inputs, so they otherwise can visually keep the previous player's values until refreshed.
+    document.querySelectorAll('[data-ma-stat-input]').forEach(el => { el.value = ''; });
+    document.querySelectorAll('.save-field').forEach(el => {
+        el.value = "";
+        if(data[el.id] !== undefined && data[el.id] !== null) el.value = data[el.id];
+    });
+    try { window.maAdminRefreshAbilityScoreMirrors?.('populate-fields'); } catch(e) {}
     const slotCapEl = document.getElementById('slot_cap'); if(slotCapEl && !slotCapEl.value) slotCapEl.value = String(data.slot_cap || fullSheetData.slot_cap || 20);
     if(!document.getElementById('ar_melee_ability').value) document.getElementById('ar_melee_ability').value = 'str';
     if(!document.getElementById('ar_ranged_ability').value) document.getElementById('ar_ranged_ability').value = 'dex';
@@ -5052,6 +5206,12 @@ function populateSheet(){
     
     renderWeapons(); renderSpells(); renderAbilities('active'); renderAbilities('passive'); renderAbilities('racial'); renderAbilities('feat'); renderItems();
     updateCalculations(); renderSelectedCombatDisplays();
+    try { window.maAdminRefreshAbilityScoreMirrors?.('populate-first-calc'); } catch(e) {}
+    try { renderAbilityDrawerScores(); } catch (e) {}
+    try { Promise.resolve(window.maFinalMpRecalc?.(false)).finally(() => { try { renderSpells(); refreshSpellMpUi(); } catch(_e) {} }); } catch (e) {}
+    try { setTimeout(() => { try { renderSpells(); refreshSpellMpUi(); } catch(_e) {} }, 350); } catch(e) {}
+    try { applySpellTabVisibility?.(); } catch (e) {}
+    try { scheduleAdminPlayerShopPreviewV40?.(350); } catch (e) {}
 
     // Skills
     {
@@ -5079,10 +5239,15 @@ function populateSheet(){
     if(!document.getElementById('ar_view_mode')?.value) document.getElementById('ar_view_mode').value = 'melee';
     syncSkillStateAfterLoad();
     updateCalculations();
+    try { window.maAdminRefreshAbilityScoreMirrors?.('populate-final-calc'); } catch(e) {}
     bindCriticalFieldPersistence();
     initAbilityDrawerDrag();
+    try { renderAbilityDrawerScores(); } catch (e) {}
+    try { window.maAdminHydrateAbilityMp?.('populate-end'); } catch(e) {}
+    try { window.maFinalMpRecalc?.(false); } catch (e) {}
     updateSlotUsageDisplay();
     if(document.getElementById('other')?.classList.contains('active')) renderAdminSheetCalendar();
+    try { scheduleAdminPlayerShopPreviewV40?.(650); } catch (e) {}
 }
 
 function autoExpand(el) { 
@@ -5434,11 +5599,30 @@ function toggleSpellGroup(levelNum){
 function spellMpCost(spell) {
     return Math.max(0, spellLevelToNumber(spell?.lvl));
 }
+function spellReadMpNumber(id) {
+    let raw = '';
+    const el = document.getElementById(id);
+    if (el && String(el.value ?? '').trim() !== '') raw = el.value;
+    else {
+        try {
+            const data = (typeof getActiveData === 'function') ? getActiveData() : {};
+            raw = data?.[id];
+        } catch (_err) {}
+    }
+    const parsed = Number(String(raw ?? '').replace(/[^0-9+\-.]/g, ''));
+    return Number.isFinite(parsed) ? Math.max(0, Math.trunc(parsed)) : 0;
+}
+function currentBaseSpellMp() {
+    return spellReadMpNumber('mp_curr');
+}
+function tempSpellMp() {
+    return spellReadMpNumber('mp_temp');
+}
 function currentSpellMp() {
-    return Math.max(0, Number(document.getElementById('mp_curr')?.value || 0) || 0);
+    return currentBaseSpellMp() + tempSpellMp();
 }
 function maxSpellMp() {
-    return Math.max(0, numVal('mp_max') + numVal('mp_max_temp'));
+    return Math.max(0, spellReadMpNumber('mp_max') + spellReadMpNumber('mp_max_temp'));
 }
 function spellCanBeUsed(spell) {
     return currentSpellMp() >= spellMpCost(spell);
@@ -5449,6 +5633,11 @@ function updateSpellMpPanel() {
     if (available) available.textContent = String(currentSpellMp());
     if (maximum) maximum.textContent = String(maxSpellMp());
 }
+function refreshSpellMpUi() {
+    updateSpellMpPanel();
+    syncSpellUseButtons();
+}
+window.refreshSpellMpUi = refreshSpellMpUi;
 function syncSpellUseButtons() {
     const spells = getActiveData().spells || [];
     document.querySelectorAll('.spell-use-btn[data-spell-index]').forEach(button => {
@@ -5468,88 +5657,140 @@ function useSpellAction(index) {
     const spell = spells[index];
     if (!spell) return;
     const cost = spellMpCost(spell);
-    const before = currentSpellMp();
-    if (before < cost) { syncSpellUseButtons(); return; }
-    const remaining = before - cost;
-    const mp = document.getElementById('mp_curr');
-    if (mp) mp.value = String(remaining);
+    const beforeAvailable = currentSpellMp();
+    if (beforeAvailable < cost) { syncSpellUseButtons(); return; }
+
+    let remainingCost = cost;
+    const mpTempEl = document.getElementById('mp_temp');
+    const mpCurrEl = document.getElementById('mp_curr');
+    const tempBefore = tempSpellMp();
+    const currBefore = currentBaseSpellMp();
+
+    const tempSpent = Math.min(tempBefore, remainingCost);
+    remainingCost -= tempSpent;
+    const currSpent = Math.min(currBefore, remainingCost);
+
+    const newTemp = Math.max(0, tempBefore - tempSpent);
+    const newCurr = Math.max(0, currBefore - currSpent);
+    if (mpTempEl) mpTempEl.value = String(newTemp);
+    if (mpCurrEl) mpCurrEl.value = String(newCurr);
+    try {
+        const active = getActiveData();
+        active.mp_temp = String(newTemp);
+        active.mp_curr = String(newCurr);
+    } catch (_err) {}
+
     if (typeof updateCalculations === 'function') updateCalculations();
     if (typeof computeDerivedStats === 'function') computeDerivedStats();
     if (typeof triggerSave === 'function') triggerSave();
-    updateSpellMpPanel();
-    syncSpellUseButtons();
+    refreshSpellMpUi();
     if (typeof spellIsRollable === 'function' && spellIsRollable(spell)) rollSpellAction(index);
     else sendSpellCard(index);
 }
 window.useSpellAction = useSpellAction;
 document.addEventListener('input', event => {
-    if (event.target && ['mp_curr','mp_max','mp_max_temp'].includes(event.target.id)) {
-        updateSpellMpPanel();
-        syncSpellUseButtons();
+    if (event.target && ['mp_curr','mp_temp','mp_max','mp_max_temp','mp_effective_max'].includes(event.target.id)) {
+        refreshSpellMpUi();
     }
 });
+document.addEventListener('change', event => {
+    if (event.target && ['mp_curr','mp_temp','mp_max','mp_max_temp','mp_effective_max'].includes(event.target.id)) {
+        refreshSpellMpUi();
+    }
+});
+
+const SPELL_LEVEL_TAB_KEY = 'mountAetheriaAdminSelectedSpellLevel';
+function selectedSpellLevel() {
+    let saved = 0;
+    try { saved = Number(localStorage.getItem(SPELL_LEVEL_TAB_KEY)); } catch (_err) { saved = 0; }
+    if (!Number.isFinite(saved)) saved = 0;
+    return Math.max(0, Math.min(9, Math.trunc(saved)));
+}
+function setSelectedSpellLevel(levelNum) {
+    const next = Math.max(0, Math.min(9, Math.trunc(Number(levelNum) || 0)));
+    try { localStorage.setItem(SPELL_LEVEL_TAB_KEY, String(next)); } catch (_err) {}
+    renderSpells();
+}
+window.setSelectedSpellLevel = setSelectedSpellLevel;
+function renderSpellLevelTabs(data) {
+    const tabs = document.getElementById('spellLevelTabs');
+    if (!tabs) return;
+    const selected = selectedSpellLevel();
+    tabs.innerHTML = '';
+    for (let levelNum = 0; levelNum <= 9; levelNum++) {
+        const count = data.filter(spell => spellLevelToNumber(spell?.lvl) === levelNum).length;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `spell-level-tab${levelNum === selected ? ' active' : ''}`;
+        button.setAttribute('role', 'tab');
+        button.setAttribute('aria-selected', levelNum === selected ? 'true' : 'false');
+        button.onclick = () => setSelectedSpellLevel(levelNum);
+        button.innerHTML = `
+          <span class="spell-level-tab-name">${spellLevelLabel(levelNum)}</span>
+          <span class="spell-level-tab-dc">${spellHeaderFormula(levelNum)}</span>
+          <span class="spell-level-tab-count" aria-label="${count} spells">${count}</span>
+        `;
+        tabs.appendChild(button);
+    }
+}
 
 function renderSpells() {
     const data = getActiveData().spells || [];
     const container = document.getElementById('spellList');
     if(!container) return;
     container.innerHTML = '';
+    renderSpellLevelTabs(data);
 
-    for(let levelNum = 0; levelNum <= 9; levelNum++) {
-        const items = data
-            .filter(spell => spellLevelToNumber(spell?.lvl) === levelNum)
-            .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
+    const levelNum = selectedSpellLevel();
+    const items = data
+        .filter(spell => spellLevelToNumber(spell?.lvl) === levelNum)
+        .sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
 
-        const wrap = document.createElement('div');
-        wrap.className = 'spell-level-group';
-        const open = isSpellGroupOpen(levelNum);
-        const levelName = spellLevelLabel(levelNum);
-        wrap.innerHTML = `
-          <button type="button" class="spell-level-head" data-spell-level="${levelNum}" aria-expanded="${open ? 'true' : 'false'}" onclick="toggleSpellGroup(${levelNum})">
-            <span class="spell-level-head-main">
-              <span class="spell-level-name">${levelName}:</span>
-              <span class="spell-level-dc">${spellHeaderFormula(levelNum)}</span>
-              <span class="spell-level-toggle" aria-hidden="true">${open ? '▾' : '▸'}</span>
-            </span>
-          </button>
-          <div class="spell-level-body" ${open ? '' : 'hidden'}></div>
-        `;
-        const bodyEl = wrap.querySelector('.spell-level-body');
+    const levelName = spellLevelLabel(levelNum);
+    const wrap = document.createElement('div');
+    wrap.className = 'spell-level-group spell-level-selected';
+    wrap.innerHTML = `
+      <div class="spell-level-selected-head">
+        <h4>${levelName} Spells</h4>
+        <span>${spellHeaderFormula(levelNum)}</span>
+      </div>
+      <div class="spell-level-body"></div>
+    `;
+    const bodyEl = wrap.querySelector('.spell-level-body');
 
-        if(!items.length) {
-            const empty = document.createElement('div');
-            empty.className = 'spell-level-empty';
-            empty.textContent = `No ${levelName} spells yet.`;
-            bodyEl.appendChild(empty);
-        }
-
-        items.forEach((s) => {
-            const idx = data.indexOf(s);
-            const div = document.createElement('div');
-            div.className = 'list-row spell-row';
-            const linkHtml = s.link ? `<a class="spell-link-btn" href="${s.link}" target="_blank" onclick="event.stopPropagation()">Link</a>` : '';
-            const spellCost = spellMpCost(s);
-            const spellReady = spellCanBeUsed(s);
-            const useHtml = `<button class="spell-use-btn ${spellReady ? 'available' : 'unavailable'}" data-spell-index="${idx}" type="button" ${spellReady ? '' : 'disabled'} onclick="event.stopPropagation(); useSpellAction(${idx})" title="${spellReady ? 'Cast spell' : 'Not enough MP'}">${spellCost > 0 ? `Use • ${spellCost} MP` : 'Use • Free'}</button>`;
-            const sendHtml = `<button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendSpellCard(${idx})" title="Send spell to chat without casting">💬</button>`;
-            const actionType = s.type || 'Standard';
-            div.innerHTML = `
-              <div class="row-content" onclick="openView('spell',${idx})">
-                  <div class="spell-row-primary">
-                    ${useHtml}
-                    <span class="list-row-title">${chatEscapeHtml(s.name||'New Spell')}</span>
-                    ${sendHtml}
-                  </div>
-              </div>
-              <div class="row-actions"><span class="spell-action-chip">${chatEscapeHtml(actionType)}</span>${linkHtml}<button type="button" class="btn-edit" onclick="event.stopPropagation(); openEditor('spell',${idx})">Edit</button></div>`;
-            bodyEl.appendChild(div);
-        });
-
-        container.appendChild(wrap);
+    if(!items.length) {
+        const empty = document.createElement('div');
+        empty.className = 'spell-level-empty';
+        empty.textContent = `No ${levelName} spells yet.`;
+        bodyEl.appendChild(empty);
     }
-    updateSpellMpPanel();
-    syncSpellUseButtons();
+
+    items.forEach((s) => {
+        const idx = data.indexOf(s);
+        const div = document.createElement('div');
+        div.className = 'list-row spell-row';
+        const linkHtml = s.link ? `<a class="spell-link-btn" href="${s.link}" target="_blank" onclick="event.stopPropagation()">Link</a>` : '';
+        const spellCost = spellMpCost(s);
+        const spellReady = spellCanBeUsed(s);
+        const useHtml = `<button class="spell-use-btn ${spellReady ? 'available' : 'unavailable'}" data-spell-index="${idx}" type="button" ${spellReady ? '' : 'disabled'} onclick="event.stopPropagation(); useSpellAction(${idx})" title="${spellReady ? 'Cast spell' : 'Not enough MP'}">${spellCost > 0 ? `Use • ${spellCost} MP` : 'Use • Free'}</button>`;
+        const sendHtml = `<button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendSpellCard(${idx})" title="Send spell to chat without casting">💬</button>`;
+        const actionType = s.type || 'Standard';
+        div.innerHTML = `
+          <div class="row-content" onclick="openView('spell',${idx})">
+              <div class="spell-row-primary">
+                ${useHtml}
+                <span class="list-row-title">${chatEscapeHtml(s.name||'New Spell')}</span>
+                ${sendHtml}
+              </div>
+          </div>
+          <div class="row-actions"><span class="spell-action-chip">${chatEscapeHtml(actionType)}</span>${linkHtml}<button type="button" class="btn-edit" onclick="event.stopPropagation(); openEditor('spell',${idx})">Edit</button></div>`;
+        bodyEl.appendChild(div);
+    });
+
+    container.appendChild(wrap);
+    refreshSpellMpUi();
 }
+window.renderSpells = renderSpells;
 
 
 // DRAG AND DROP LOGIC
@@ -6195,7 +6436,9 @@ function updateCalculations(){
 }
 
 function triggerSave(){
-    if(isInternalUpdate || !currentParentUid) return;
+    const activeKey = `${currentParentUid || ''}:${currentSummonId || ''}`;
+    if(isInternalUpdate || adminHydratingSheet || !currentParentUid || !currentSummonId) return;
+    if(!activeLoadedDocKey || activeLoadedDocKey !== activeKey || Date.now() < adminSuppressSavesUntil) return;
     document.getElementById('statusText').textContent = "Saving...";
     document.getElementById('statusText').style.color = "yellow";
     clearTimeout(saveTimeout);
@@ -6203,12 +6446,15 @@ function triggerSave(){
 }
 
 async function saveData(){
-    if(!currentParentUid || !currentSummonId) return;
+    const saveUid = currentParentUid;
+    const saveSid = currentSummonId;
+    const saveKey = `${saveUid || ''}:${saveSid || ''}`;
+    if(!saveUid || !saveSid || adminHydratingSheet || !activeLoadedDocKey || activeLoadedDocKey !== saveKey || Date.now() < adminSuppressSavesUntil) return;
     const cur = sanitizeCharacterDoc({ ...fullSheetData, ...scrapeCurrentSheet(), updatedAt: new Date() }, fullSheetData.charName || 'Character');
     fullSheetData = cur;
 
     try {
-        await setDoc(doc(db, 'users', currentParentUid, 'characters', currentSummonId), fullSheetData);
+        await setDoc(doc(db, 'users', saveUid, 'characters', saveSid), fullSheetData);
         document.getElementById('statusText').textContent = 'Saved';
         document.getElementById('statusText').style.color = '#4caf50';
     } catch(e) {
@@ -6404,6 +6650,7 @@ function computeDerivedStats() {
   renderSelectedCombatDisplays();
   setText('fortDisplayMain', fort); setText('refDisplayMain', ref); setText('willDisplayMain', will);
   updateLimitBreakState();
+  try { if(typeof refreshSpellMpUi === 'function') refreshSpellMpUi(); } catch(e) {}
 }
 function statField(label,id, opts={}) {
   const value = document.getElementById(id)?.value || opts.defaultValue || '';
@@ -7194,21 +7441,73 @@ renderAdminGroupCalendar=function(){
 
 
 
-// --- v18 player-style shop preview for the selected admin character ---
-function refreshAdminPlayerShopPreviewV18() {
+// --- v40 reactive player-style shop preview for the selected admin character ---
+let adminShopPreviewTimerV40 = null;
+let adminShopOpenedOnceV40 = false;
+let adminShopLastKeyV40 = '';
+function adminShopPreviewKeyV40(){ return `${currentParentUid || ''}|${currentSummonId || ''}`; }
+function adminShopWantedSrcV40(){
+  const frame=document.getElementById('adminPlayerShopPreviewFrame');
+  const base=frame?.dataset?.shopBaseSrc || 'tools.html?embed=shop';
+  if(!currentParentUid || !currentSummonId) return 'about:blank';
+  return `${base}&owner=${encodeURIComponent(currentParentUid)}&character=${encodeURIComponent(currentSummonId)}&adminPreview=1`;
+}
+function markAdminShopLoadingV40(){
+  const frame=document.getElementById('adminPlayerShopPreviewFrame');
+  const warmup=document.getElementById('adminPlayerShopWarmup');
+  frame?.classList.remove('shop-ready');
+  warmup?.classList.remove('hidden');
+}
+function markAdminShopReadyV40(){
+  const frame=document.getElementById('adminPlayerShopPreviewFrame');
+  const warmup=document.getElementById('adminPlayerShopWarmup');
+  if(frame && frame.getAttribute('src') && frame.getAttribute('src') !== 'about:blank') frame.classList.add('shop-ready');
+  warmup?.classList.add('hidden');
+}
+function refreshAdminPlayerShopPreviewV18(force=false) {
   const frame=document.getElementById('adminPlayerShopPreviewFrame');
   if(!frame) return;
-  if(!currentParentUid || !currentSummonId) {
-    frame.removeAttribute('src');
+  const wanted=adminShopWantedSrcV40();
+  const key=adminShopPreviewKeyV40();
+  if(wanted === 'about:blank') {
+    frame.setAttribute('src','about:blank');
     frame.dataset.previewSrc='';
+    frame.dataset.loadedFor='';
+    markAdminShopReadyV40();
     return;
   }
-  const src=`tools.html?embed=shop&owner=${encodeURIComponent(currentParentUid)}&character=${encodeURIComponent(currentSummonId)}&adminPreview=1`;
-  if(frame.dataset.previewSrc !== src) {
-    frame.dataset.previewSrc=src;
-    frame.src=src;
-  }
+  if(!force && frame.dataset.previewSrc === wanted && frame.dataset.loadedFor === key) return;
+  frame.dataset.previewSrc=wanted;
+  frame.dataset.loadedFor=key;
+  markAdminShopLoadingV40();
+  frame.setAttribute('src', wanted);
 }
+function scheduleAdminPlayerShopPreviewV40(delay=850, force=false){
+  window.clearTimeout(adminShopPreviewTimerV40);
+  adminShopPreviewTimerV40 = window.setTimeout(() => {
+    if(!currentParentUid || !currentSummonId) return;
+    refreshAdminPlayerShopPreviewV18(force);
+  }, delay);
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const frame=document.getElementById('adminPlayerShopPreviewFrame');
+  if(frame) frame.addEventListener('load', markAdminShopReadyV40);
+  scheduleAdminPlayerShopPreviewV40(1200);
+});
+window.addEventListener('load', () => scheduleAdminPlayerShopPreviewV40(500));
+window.setInterval(() => {
+  const key=adminShopPreviewKeyV40();
+  if(key !== '|' && key !== adminShopLastKeyV40){
+    adminShopLastKeyV40=key;
+    scheduleAdminPlayerShopPreviewV40(adminShopOpenedOnceV40 ? 0 : 650, adminShopOpenedOnceV40);
+  }
+}, 1000);
+document.addEventListener('input', event => {
+  if(event.target?.id === 'shop_tags') scheduleAdminPlayerShopPreviewV40(1200, true);
+}, true);
+document.addEventListener('change', event => {
+  if(event.target?.id === 'shop_tags') scheduleAdminPlayerShopPreviewV40(800, true);
+}, true);
 
 
 
@@ -8446,6 +8745,16 @@ try {
   ].forEach(name => exposeEval(name));
   window.saveDataOnly = () => { try { triggerSave(); } catch(e) {} };
   window.save = () => { try { triggerSave(); } catch(e) {} };
+  try {
+    Object.defineProperty(window, 'currentParentUid', { configurable:true, get(){ return currentParentUid; } });
+    Object.defineProperty(window, 'currentSummonId', { configurable:true, get(){ return currentSummonId; } });
+    Object.defineProperty(window, 'activeLoadedDocKey', { configurable:true, get(){ return activeLoadedDocKey; } });
+    Object.defineProperty(window, 'adminSheetSwitchSerial', { configurable:true, get(){ return adminSheetSwitchSerial; } });
+    Object.defineProperty(window, 'adminHydratingSheet', { configurable:true, get(){ return adminHydratingSheet; } });
+    window.__adminActiveDocKey = activeLoadedDocKey || '';
+    window.__adminSheetHydrated = !!activeLoadedDocKey && !adminHydratingSheet;
+    window.__adminSheetSwitchSerial = adminSheetSwitchSerial;
+  } catch(e) {}
   window.refreshSpellMpUi = () => { try { updateSpellMpPanel(); syncSpellUseButtons(); } catch(e) {} };
   try {
     Object.defineProperty(window, 'maFfd20Library', {
@@ -10309,7 +10618,8 @@ body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border
   function readNum(id, fallback=0){
     const data = d();
     const el = document.getElementById(id);
-    return num(el?.value ?? data[id], fallback);
+    const raw = (el && String(el.value ?? '').trim() !== '') ? el.value : data[id];
+    return num(raw, fallback);
   }
   function writeField(id, value){
     const out = String(num(value, 0));
@@ -10550,7 +10860,7 @@ body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border
     }
 
     if(String(document.getElementById('mp_temp')?.value ?? d().mp_temp ?? '').trim() === '') writeField('mp_temp', 0);
-    try { if(typeof updateSpellMpPanel === 'function') updateSpellMpPanel(); } catch(e) {}
+    try { if(typeof refreshSpellMpUi === 'function') refreshSpellMpUi(); else if(typeof updateSpellMpPanel === 'function') updateSpellMpPanel(); } catch(e) {}
     try { if(typeof refreshEffectiveVitals === 'function') refreshEffectiveVitals(); } catch(e) {}
     return totals;
   }
@@ -10582,6 +10892,8 @@ body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border
   } catch(e) {}
 
   window.maFinalMpRecalc = async function(saveIt=false){
+    // In admin, do not calculate from the temporary blank DOM while switching sheets.
+    if(window.MA_FFD20_IS_ADMIN && (!window.__adminActiveDocKey || window.__adminSheetHydrated === false || window.adminHydratingSheet)) return null;
     let lib = null;
     try { lib = await maFfd20LoadLibrary(); }
     catch(e){ console.warn('MP recalc could not load class library', e); lib = {classes:[]}; }
@@ -11436,6 +11748,274 @@ maStockQueueAddSpellHookInstall();
   const observer = new MutationObserver(() => polishAdminSheet());
   try { observer.observe(document.documentElement, { childList:true, subtree:true }); } catch(_e) {}
   window.addEventListener('load', () => { polishAdminSheet(); setTimeout(polishAdminSheet, 400); setTimeout(polishAdminSheet, 1400); });
+})();
+</script>
+
+
+
+<script>
+/* --- Admin v42: character-page ability/MP hydrate repair ---
+   Mirrors characters.html behavior for ability score cards, then reruns MP after the
+   admin sheet has finished switching/hydrating so values do not blank out between tabs. */
+(function(){
+  if(window.maAdminHydrateAbilityMpV42) return;
+  window.maAdminHydrateAbilityMpV42 = true;
+
+  const STATS = ['str','dex','con','int','wis','cha'];
+
+  function activeData(){
+    try { if(typeof window.maFfd20ActiveData === 'function') return window.maFfd20ActiveData() || {}; } catch(e) {}
+    try { if(typeof window.getActiveData === 'function') return window.getActiveData() || {}; } catch(e) {}
+    return {};
+  }
+
+  function cleanScore(value, fallback='10'){
+    const text = String(value ?? '').trim();
+    if(text === '') return fallback;
+    return text;
+  }
+
+  function signedModFromScore(score){
+    const n = Number(score);
+    if(!Number.isFinite(n)) return '+0';
+    const mod = Math.floor((n - 10) / 2);
+    return (mod >= 0 ? '+' : '') + mod;
+  }
+
+  function dispatchQuiet(el){
+    if(!el) return;
+    try { el.dispatchEvent(new Event('input', {bubbles:true})); } catch(e) {}
+  }
+
+  function ensureOriginalScore(stat, score){
+    const original = document.getElementById(stat);
+    if(!original) return null;
+    const current = String(original.value ?? '').trim();
+    if(current === '' && score !== '') original.value = score;
+    return original;
+  }
+
+  function refreshAbilityScoreMirrors(reason){
+    const data = activeData();
+    STATS.forEach(stat => {
+      const original = document.getElementById(stat);
+      const fromOriginal = String(original?.value ?? '').trim();
+      const fromData = String(data?.[stat] ?? '').trim();
+      const score = cleanScore(fromOriginal || fromData, '10');
+      ensureOriginalScore(stat, score);
+      if(data && String(data[stat] ?? '').trim() === '' && score !== '') data[stat] = score;
+
+      const signed = signedModFromScore(score);
+      const legacyMod = document.getElementById('mod-' + stat);
+      if(legacyMod) legacyMod.textContent = signed;
+
+      document.querySelectorAll('[data-ma-stat-input="' + stat + '"]').forEach(mirror => {
+        if(document.activeElement !== mirror) mirror.value = score;
+      });
+      document.querySelectorAll('[data-ma-stat-mod="' + stat + '"]').forEach(pill => {
+        pill.textContent = signed;
+      });
+    });
+    try { if(typeof window.renderAbilityDrawerScores === 'function') window.renderAbilityDrawerScores(); } catch(e) {}
+  }
+
+  function refreshCombatAndVitals(){
+    try { if(typeof window.updateCalculations === 'function') window.updateCalculations(); } catch(e) {}
+    refreshAbilityScoreMirrors('after-update-calculations');
+    try { if(typeof window.computeDerivedStats === 'function') window.computeDerivedStats(); } catch(e) {}
+    try { if(typeof window.renderSelectedCombatDisplays === 'function') window.renderSelectedCombatDisplays(); } catch(e) {}
+    try { if(typeof window.refreshEffectiveVitals === 'function') window.refreshEffectiveVitals(); } catch(e) {}
+    try { if(typeof window.updateSpellMpPanel === 'function') window.updateSpellMpPanel(); } catch(e) {}
+  }
+
+  function recalcMpSoon(delay){
+    setTimeout(() => {
+      try {
+        if(window.MA_FFD20_IS_ADMIN && window.__adminSheetHydrated === false) return;
+        const result = window.maFinalMpRecalc?.(false);
+        if(result && typeof result.then === 'function') result.finally(() => refreshCombatAndVitals());
+        else refreshCombatAndVitals();
+      } catch(e) {
+        refreshCombatAndVitals();
+      }
+    }, delay);
+  }
+
+  function hydrateAbilityMp(reason){
+    refreshAbilityScoreMirrors(reason || 'hydrate');
+    refreshCombatAndVitals();
+    if(!(window.MA_FFD20_IS_ADMIN && window.__adminSheetHydrated === false)){
+      recalcMpSoon(0);
+      recalcMpSoon(180);
+      recalcMpSoon(650);
+    }
+  }
+
+  window.maAdminRefreshAbilityScoreMirrors = refreshAbilityScoreMirrors;
+  window.maAdminHydrateAbilityMp = hydrateAbilityMp;
+
+  document.addEventListener('input', event => {
+    const target = event.target;
+    const id = target?.id || '';
+    const mirrorStat = target?.getAttribute?.('data-ma-stat-input');
+    if(mirrorStat && STATS.includes(mirrorStat)){
+      const data = activeData();
+      const original = document.getElementById(mirrorStat);
+      if(original && original.value !== target.value){
+        original.value = target.value;
+        data[mirrorStat] = target.value;
+        dispatchQuiet(original);
+      }
+      hydrateAbilityMp('mirror-input');
+      return;
+    }
+    if(STATS.includes(id) || ['class','archetype','character_level','mp_max_temp','mp_curr','mp_temp','mp_max','mp_base','mp_bonus'].includes(id)){
+      const data = activeData();
+      if(STATS.includes(id)) data[id] = target.value;
+      hydrateAbilityMp('field-input');
+    }
+  }, true);
+
+  document.addEventListener('change', event => {
+    const target = event.target;
+    const id = target?.id || '';
+    const mirrorStat = target?.getAttribute?.('data-ma-stat-input');
+    if((mirrorStat && STATS.includes(mirrorStat)) || STATS.includes(id) || ['race','class','archetype','character_level','mp_max_temp','mp_curr','mp_temp','mp_max','mp_base','mp_bonus'].includes(id)){
+      hydrateAbilityMp('field-change');
+    }
+  }, true);
+
+  const previousSwitchTab = window.switchTab;
+  if(typeof previousSwitchTab === 'function' && previousSwitchTab.__adminHydrateAbilityMpV42 !== true){
+    const wrapped = function(id){
+      const out = previousSwitchTab.apply(this, arguments);
+      setTimeout(() => hydrateAbilityMp('switch-tab-0'), 0);
+      setTimeout(() => hydrateAbilityMp('switch-tab-200'), 200);
+      return out;
+    };
+    wrapped.__adminHydrateAbilityMpV42 = true;
+    window.switchTab = wrapped;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => hydrateAbilityMp('dom-ready'));
+  window.addEventListener('load', () => hydrateAbilityMp('window-load'));
+  setTimeout(() => hydrateAbilityMp('initial-0'), 0);
+  setTimeout(() => hydrateAbilityMp('initial-350'), 350);
+  setTimeout(() => hydrateAbilityMp('initial-1200'), 1200);
+})();
+</script>
+
+
+
+<style>
+/* --- v43: Collapsible Admin Control sidebar --- */
+#layout{position:relative!important;}
+#sidebar.admin-side-panel{
+  transition:width .22s ease, flex-basis .22s ease, transform .22s ease, opacity .18s ease, border-color .18s ease, box-shadow .18s ease!important;
+  will-change:width,flex-basis,transform;
+}
+.admin-sidebar-toggle{
+  position:absolute;
+  left:292px;
+  top:50%;
+  transform:translate(-1px,-50%);
+  z-index:3300;
+  width:28px;
+  height:76px;
+  border:1px solid var(--accent-mid)!important;
+  border-left:0!important;
+  border-radius:0 14px 14px 0;
+  background:linear-gradient(180deg,#202020,#111)!important;
+  color:var(--accent)!important;
+  box-shadow:7px 0 18px rgba(0,0,0,.28),0 0 14px var(--accent-soft);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  font-weight:900;
+  line-height:1;
+  padding:0;
+  transition:left .22s ease, background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.admin-sidebar-toggle:hover,.admin-sidebar-toggle:focus-visible{
+  background:var(--accent)!important;
+  color:var(--accent-contrast,#000)!important;
+  border-color:var(--accent)!important;
+  box-shadow:8px 0 22px rgba(0,0,0,.34),0 0 20px var(--accent-soft);
+  outline:none;
+}
+.admin-sidebar-toggle span{display:block;transform:translateX(-1px);}
+body.admin-sidebar-collapsed #sidebar.admin-side-panel{
+  width:0!important;
+  flex:0 0 0!important;
+  min-width:0!important;
+  padding-left:0!important;
+  padding-right:0!important;
+  border-right:0!important;
+  box-shadow:none!important;
+  opacity:0!important;
+  transform:translateX(-18px)!important;
+  pointer-events:none!important;
+}
+body.admin-sidebar-collapsed .admin-sidebar-toggle{
+  left:0;
+  border-left:0!important;
+  border-color:var(--accent-mid)!important;
+}
+body.admin-sidebar-collapsed .admin-sidebar-toggle span{transform:translateX(1px);}
+body.admin-sidebar-collapsed #editorArea{flex:1 1 auto!important;}
+@media(max-width:768px){
+  .admin-sidebar-toggle{display:none!important;}
+  body.admin-sidebar-collapsed #sidebar.admin-side-panel{
+    width:100%!important;
+    flex-basis:auto!important;
+    height:100%!important;
+    opacity:1!important;
+    transform:none!important;
+    pointer-events:auto!important;
+    border-right:1px solid var(--accent-mid)!important;
+    box-shadow:10px 0 28px rgba(0,0,0,.22)!important;
+  }
+  body.admin-sidebar-collapsed.show-editor #sidebar.admin-side-panel{transform:translateX(-20%)!important;opacity:0!important;}
+}
+</style>
+
+<script>
+/* --- v43: Collapsible Admin Control sidebar --- */
+(function(){
+  const KEY = 'maAdminSidebarCollapsed';
+  function setAdminSidebarCollapsed(collapsed, persist = true){
+    document.body.classList.toggle('admin-sidebar-collapsed', !!collapsed);
+    const btn = document.getElementById('adminSidebarToggle');
+    const arrow = document.getElementById('adminSidebarToggleArrow');
+    if(arrow) arrow.textContent = collapsed ? '›' : '‹';
+    if(btn){
+      btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      btn.setAttribute('aria-label', collapsed ? 'Open Admin Control' : 'Collapse Admin Control');
+      btn.title = collapsed ? 'Open Admin Control' : 'Collapse Admin Control';
+    }
+    if(persist){
+      try{ localStorage.setItem(KEY, collapsed ? '1' : '0'); }catch(e){}
+    }
+  }
+  window.setAdminSidebarCollapsed = setAdminSidebarCollapsed;
+  window.toggleAdminSidebar = function(){
+    setAdminSidebarCollapsed(!document.body.classList.contains('admin-sidebar-collapsed'));
+  };
+  function initAdminSidebarToggle(){
+    let collapsed = false;
+    try{ collapsed = localStorage.getItem(KEY) === '1'; }catch(e){}
+    if(window.matchMedia && window.matchMedia('(max-width: 768px)').matches) collapsed = false;
+    setAdminSidebarCollapsed(collapsed, false);
+  }
+  document.addEventListener('DOMContentLoaded', initAdminSidebarToggle);
+  window.addEventListener('load', initAdminSidebarToggle);
+  window.addEventListener('resize', () => {
+    if(window.matchMedia && window.matchMedia('(max-width: 768px)').matches){
+      setAdminSidebarCollapsed(false, false);
+    }
+  });
 })();
 </script>
 
