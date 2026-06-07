@@ -1,0 +1,189 @@
+name: Patch Shop Theme Color on Test
+
+on:
+  push:
+    branches: [test]
+    paths:
+      - '.github/workflows/patch-shop-theme-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: test
+      - name: Patch tools.html shop theme color
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('tools.html')
+          text = p.read_text(encoding='utf-8')
+          old = text
+
+          theme_style = r'''
+
+/* --- SHOP_THEME_SYNC_V1: make shop gold UI follow selected character-sheet theme --- */
+:root{
+  --accent-rgb:255,204,102;
+  --accent-contrast:#090604;
+  --accent-soft:rgba(var(--accent-rgb),.12);
+  --accent-mid:rgba(var(--accent-rgb),.32);
+  --accent-glow:rgba(var(--accent-rgb),.42);
+  --accent-strong:rgba(var(--accent-rgb),.68);
+  --shop-gold:var(--accent);
+  --shop-gold-hi:var(--accent);
+  --shop-gold-soft:var(--accent-soft);
+}
+.shop-group-showcase,
+body.embed-shop .shop-group-showcase{
+  --shop-gold:var(--accent) !important;
+  --shop-gold-hi:var(--accent) !important;
+  --shop-gold-soft:var(--accent-soft) !important;
+}
+body.embed-shop #playerShopTop,
+.shop-group-hero,
+.shop-stage-v22,
+.restaurant-menu-card{
+  border-color:var(--accent-mid) !important;
+  box-shadow:0 0 0 1px var(--accent-soft),0 15px 36px rgba(0,0,0,.30),0 0 26px var(--accent-soft) !important;
+}
+body.embed-shop #playerShopTop{
+  background:radial-gradient(circle at top right,var(--accent-soft),transparent 45%),linear-gradient(135deg,#171717,#0f0f0f) !important;
+}
+body.embed-shop #playerShopTop:before,
+.restaurant-menu-rule{
+  background:linear-gradient(90deg,transparent,var(--accent),transparent) !important;
+  box-shadow:0 0 16px var(--accent-glow) !important;
+}
+body.embed-shop .gil-line,
+.shop-group-hero-title,
+.shop-tab-v22.active .shop-tab-name-v22,
+.shop-tab-count-v22,
+.shop-stage-v22 .item-name-link:hover,
+.shop-stage-v22 .compact-price,
+.restaurant-menu-title,
+.restaurant-menu-course-title,
+.restaurant-menu-name:hover,
+.restaurant-menu-price{
+  color:var(--accent) !important;
+  text-shadow:0 0 12px var(--accent-glow) !important;
+}
+body.embed-shop .gil-line,
+#shopSelect,
+.shop-group-metric,
+.shop-stage-v22 .shop-category,
+.shop-stage-v22 .shop-category-head:hover,
+.shop-stage-v22 .compact-item-row:hover{
+  border-color:var(--accent-mid) !important;
+}
+body.embed-shop .gil-line,
+.shop-stage-v22 .compact-price,
+.restaurant-menu-row:hover{
+  background:var(--accent-soft) !important;
+}
+.shop-tab-v22:hover,
+.shop-tab-v22.active,
+.shop-stage-v22 .compact-item-row:hover{
+  border-color:var(--accent-strong) !important;
+  box-shadow:0 0 18px var(--accent-soft) !important;
+}
+.shop-tab-v22.active{
+  box-shadow:inset 3px 0 0 var(--accent),0 0 20px var(--accent-soft) !important;
+}
+.shop-stage-v22 .shop-buy-btn,
+.shop-btn,
+.modal-btn.confirm,
+.tab-buttons button.active,
+.category-btn.active,
+.filter-chip.active{
+  background:var(--accent) !important;
+  border-color:var(--accent) !important;
+  color:var(--accent-contrast) !important;
+}
+.restaurant-menu-course-title:before,
+.restaurant-menu-course-title:after{
+  background:var(--accent-mid) !important;
+  box-shadow:0 0 9px var(--accent-soft) !important;
+}
+'''
+
+          theme_script = r'''
+<script>
+/* --- SHOP_THEME_SYNC_V1: share the character-sheet theme with tools/shop and embedded shop iframe --- */
+(function(){
+  const STORAGE_KEY = 'mountAetheriaThemeAccentV25';
+  const THEMES = [
+    {id:'gold', hex:'#ffcc66', rgb:'255,204,102', contrast:'#090604'},
+    {id:'ruby', hex:'#ff5f6d', rgb:'255,95,109', contrast:'#100306'},
+    {id:'ember', hex:'#ff8a3d', rgb:'255,138,61', contrast:'#120703'},
+    {id:'rose', hex:'#ff7ab6', rgb:'255,122,182', contrast:'#12040b'},
+    {id:'violet', hex:'#b48cff', rgb:'180,140,255', contrast:'#090512'},
+    {id:'blue', hex:'#66a6ff', rgb:'102,166,255', contrast:'#030914'},
+    {id:'cyan', hex:'#5ee7df', rgb:'94,231,223', contrast:'#021110'},
+    {id:'emerald', hex:'#4ee28a', rgb:'78,226,138', contrast:'#031006'},
+    {id:'lime', hex:'#b8f56d', rgb:'184,245,109', contrast:'#071003'},
+    {id:'moon', hex:'#d7dcff', rgb:'215,220,255', contrast:'#060711'}
+  ];
+  function themeById(id){ return THEMES.find(t => t.id === id) || THEMES[0]; }
+  function applyTheme(value){
+    const t = (value && typeof value === 'object' && value.hex) ? value : themeById(String(value || localStorage.getItem(STORAGE_KEY) || 'gold'));
+    const root = document.documentElement;
+    root.style.setProperty('--accent', t.hex);
+    root.style.setProperty('--accent-rgb', t.rgb);
+    root.style.setProperty('--accent-contrast', t.contrast || '#050505');
+    root.style.setProperty('--accent-soft', `rgba(${t.rgb},.12)`);
+    root.style.setProperty('--accent-mid', `rgba(${t.rgb},.32)`);
+    root.style.setProperty('--accent-glow', `rgba(${t.rgb},.42)`);
+    root.style.setProperty('--accent-strong', `rgba(${t.rgb},.68)`);
+    root.style.setProperty('--shop-gold', t.hex);
+    root.style.setProperty('--shop-gold-hi', t.hex);
+    root.style.setProperty('--shop-gold-soft', `rgba(${t.rgb},.12)`);
+    document.body?.setAttribute('data-theme-accent', t.id || 'custom');
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.setAttribute('content', t.hex);
+  }
+  window.applyMountAetheriaShopTheme = applyTheme;
+  try { applyTheme(localStorage.getItem(STORAGE_KEY) || 'gold'); } catch(e) { applyTheme('gold'); }
+  document.addEventListener('DOMContentLoaded', () => {
+    try { applyTheme(localStorage.getItem(STORAGE_KEY) || 'gold'); } catch(e) { applyTheme('gold'); }
+  });
+  window.addEventListener('storage', event => {
+    if(event.key === STORAGE_KEY) applyTheme(event.newValue || 'gold');
+  });
+  window.addEventListener('message', event => {
+    const data = event.data || {};
+    if(data && data.type === 'mountAetheriaThemeAccent') applyTheme(data.theme || data.id || data);
+  });
+})();
+</script>
+'''
+
+          if 'SHOP_THEME_SYNC_V1' not in text:
+              if '</style>' not in text:
+                  raise SystemExit('style closing tag not found')
+              text = text.replace('</style>', theme_style + '\n</style>', 1)
+              if '</head>' not in text:
+                  raise SystemExit('head closing tag not found')
+              text = text.replace('</head>', theme_script + '\n</head>', 1)
+
+          if text == old:
+              print('No changes needed; shop theme sync already present.')
+          else:
+              p.write_text(text, encoding='utf-8')
+      - name: Commit patched tools.html
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tools.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Sync shop colors with selected theme"
+          git push origin HEAD:test
