@@ -1923,6 +1923,40 @@ body:not(.skill-edit-mode) #skills.active #skillsTableBody tr:has(.trained-untra
 }
 </style>
 
+
+<style>
+/* --- v37 level-up direct cleanup --- */
+.ma-levelup-grid.ma-v37-level-grid{
+  grid-template-columns:repeat(auto-fit,minmax(132px,1fr)) !important;
+  gap:10px !important;
+}
+.ma-levelup-card.ma-v37-level-card strong{
+  font-size:28px !important;
+  line-height:1 !important;
+}
+.ma-levelup-card.ma-v37-level-card span{
+  font-size:11px !important;
+  color:#aaa !important;
+  line-height:1.25 !important;
+}
+.ma-v37-bonus-row{
+  display:grid;
+  grid-template-columns:105px minmax(0,1fr);
+  gap:8px;
+  align-items:center;
+  margin:8px 0;
+  padding:9px;
+  border:1px solid rgba(var(--accent-rgb),.22);
+  border-radius:11px;
+  background:#171717;
+}
+.ma-v37-bonus-row strong{color:var(--accent);}
+.ma-v37-bonus-row select{width:100%;}
+.ma-v37-base-locked{
+  opacity:.88;
+}
+</style>
+
 </head>
 <body>
 
@@ -4956,9 +4990,9 @@ window.openStatEdit = (section) => {
     <div class="formula-line"><strong>CMB</strong><div class="formula-parts"><div class="mini-field"><label>BAB</label><input value="${babShown}" readonly class="graybase"></div><div class="mini-field"><label>STR</label><input value="${modFor('str')}" readonly class="graybase"></div><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div><div class="mini-field"><label>Size</label><input value="${document.getElementById('size_special')?.value||0}" readonly class="graybase"></div>${statField('Temp','cmb_temp')}<div class="total-pill">${signedAttackTotal(cmbTotal)}</div></div></div>`; 
   }
   if(section === 'saves') { title.textContent = 'Edit Saves'; html = `
-    <div class="formula-line"><strong>Fortitude</strong><div class="formula-parts"><div class="mini-field"><label>CON</label><input value="${modFor('con')}" readonly class="graybase"></div>${statField('Base','fort_base')}${statField('Enhance','fort_enhance')}${statField('Temp','fort_temp')}<div class="total-pill">${document.getElementById('fort_bonus')?.value>=0?`+${document.getElementById('fort_bonus').value}`:`${document.getElementById('fort_bonus').value||0}`}</div></div></div>
-    <div class="formula-line"><strong>Reflex</strong><div class="formula-parts"><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div>${statField('Base','ref_base')}${statField('Enhance','ref_enhance')}${statField('Temp','ref_temp')}<div class="total-pill">${document.getElementById('ref_bonus')?.value>=0?`+${document.getElementById('ref_bonus').value}`:`${document.getElementById('ref_bonus').value||0}`}</div></div></div>
-    <div class="formula-line"><strong>Will</strong><div class="formula-parts"><div class="mini-field"><label>WIS</label><input value="${modFor('wis')}" readonly class="graybase"></div>${statField('Base','will_base')}${statField('Enhance','will_enhance')}${statField('Temp','will_temp')}<div class="total-pill">${document.getElementById('will_bonus')?.value>=0?`+${document.getElementById('will_bonus').value}`:`${document.getElementById('will_bonus').value||0}`}</div></div></div>`; }
+    <div class="formula-line"><strong>Fortitude</strong><div class="formula-parts"><div class="mini-field"><label>CON</label><input value="${modFor('con')}" readonly class="graybase"></div>${statField('Base','fort_base', {readonly:true})}${statField('Enhance','fort_enhance')}${statField('Temp','fort_temp')}<div class="total-pill">${document.getElementById('fort_bonus')?.value>=0?`+${document.getElementById('fort_bonus').value}`:`${document.getElementById('fort_bonus').value||0}`}</div></div></div>
+    <div class="formula-line"><strong>Reflex</strong><div class="formula-parts"><div class="mini-field"><label>DEX</label><input value="${modFor('dex')}" readonly class="graybase"></div>${statField('Base','ref_base', {readonly:true})}${statField('Enhance','ref_enhance')}${statField('Temp','ref_temp')}<div class="total-pill">${document.getElementById('ref_bonus')?.value>=0?`+${document.getElementById('ref_bonus').value}`:`${document.getElementById('ref_bonus').value||0}`}</div></div></div>
+    <div class="formula-line"><strong>Will</strong><div class="formula-parts"><div class="mini-field"><label>WIS</label><input value="${modFor('wis')}" readonly class="graybase"></div>${statField('Base','will_base', {readonly:true})}${statField('Enhance','will_enhance')}${statField('Temp','will_temp')}<div class="total-pill">${document.getElementById('will_bonus')?.value>=0?`+${document.getElementById('will_bonus').value}`:`${document.getElementById('will_bonus').value||0}`}</div></div></div>`; }
   body.innerHTML = html;
   body.querySelectorAll('[data-stat-field]').forEach(el => {
     const applyStatField = () => {
@@ -6533,7 +6567,7 @@ function maFfd20Find(list, name){ const target = maFfd20Norm(name); return (list
 function maFfd20AddOption(select, value, text){ const opt = document.createElement('option'); opt.value = value || ''; opt.textContent = text || value || ''; select.appendChild(opt); }
 function maFfd20FillSelect(select, list, placeholder, currentValue=''){
   if(!select) return;
-  const current = currentValue || select.value || '';
+  const current = (arguments.length >= 4) ? (currentValue || '') : (select.value || '');
   select.innerHTML = '';
   maFfd20AddOption(select, '', placeholder);
   (list || []).forEach(item => maFfd20AddOption(select, item.name || '', item.name || ''));
@@ -6542,7 +6576,7 @@ function maFfd20FillSelect(select, list, placeholder, currentValue=''){
 }
 function maFfd20FillSimple(select, values, placeholder, currentValue=''){
   if(!select) return;
-  const current = currentValue || select.value || '';
+  const current = (arguments.length >= 4) ? (currentValue || '') : (select.value || '');
   select.innerHTML = '';
   maFfd20AddOption(select, '', placeholder);
   values.forEach(v => maFfd20AddOption(select, v, v));
@@ -6768,10 +6802,28 @@ function maFfd20BuildImported(lib, selection){
   return imported;
 }
 function maFfd20RemoveOldAuto(data){
-  const sourceSet = new Set(['race','class','archetype','multiclass','prestige']);
+  // Rebuild every JSON-imported FFD20 entry from the current class/race/level.
+  // This is intentionally aggressive so level-down and class-swap do not leave
+  // old active/passive/racial/feat/spell entries behind.
+  const autoSources = new Set(['race','class','archetype','multiclass','prestige']);
+  const isImportedAuto = item => {
+    if(!item || typeof item !== 'object') return false;
+    const sourceKind = String(item.sourceKind || item.originType || item.sourceType || item.originCategory || '').trim().toLowerCase();
+    const bucket = String(item.bucket || item.sheetBucket || '').trim().toLowerCase();
+    const autoKey = String(item.autoKey || '').trim().toLowerCase();
+
+    if(item.autoGenerated) return true;
+    if(autoKey.startsWith('ffd20:')) return true;
+    if(autoKey.includes(':class:') || autoKey.includes(':archetype:') || autoKey.includes(':multiclass:') || autoKey.includes(':prestige:') || autoKey.includes(':race:')) return true;
+    if(autoSources.has(sourceKind)) return true;
+    if(['racial','race','class','archetype','multiclass','prestige'].includes(bucket) && (item.sourceName || item.originName)) return true;
+
+    return false;
+  };
+
   ['activeAbilities','passiveAbilities','racialAbilities','feats','spells'].forEach(key => {
     if(!Array.isArray(data[key])) data[key] = [];
-    data[key] = data[key].filter(item => !item?.autoGenerated || !sourceSet.has(String(item.sourceKind || '').toLowerCase()));
+    data[key] = data[key].filter(item => !isImportedAuto(item));
   });
 }
 function maFfd20Push(data, imported){
@@ -7089,7 +7141,9 @@ async function maClassRowsOpenDialog(kind='primary', index=null){
   const overlay = await overlayPromise; if(!overlay) return;
   const className = overlay.querySelector('#maEditClass')?.value || '';
   if(!className) return;
-  const archetype = overlay.querySelector('#maEditArch')?.value || '';
+  let archetype = overlay.querySelector('#maEditArch')?.value || '';
+  const chosenClassForArch = maFfd20Find(lib.classes, className);
+  if(maFfd20Norm(className) !== maFfd20Norm(curClass) && archetype && !maFfd20Find(chosenClassForArch?.archetypes || [], archetype)) archetype = '';
   const level = String(maFfd20Level(overlay.querySelector('#maEditLevel')?.value || 1) || 1);
   if(isMulti){
     const item = { className, archetype, level };
@@ -7162,7 +7216,7 @@ async function maFfd20OpenCreationWizard(){
     maFfd20FillSelect(document.getElementById('maCreateClass'), lib.classes, 'Choose class');
     maFfd20FillSimple(document.getElementById('maCreateAlignment'), MA_ALIGNMENTS, 'Choose alignment');
     maFfd20FillSimple(document.getElementById('maCreateSize'), MA_SIZES, 'Select Size', 'Medium');
-    document.getElementById('maCreateClass')?.addEventListener('change', () => { const cls=maFfd20Find(lib.classes, document.getElementById('maCreateClass').value); maFfd20FillSelect(document.getElementById('maCreateArch'), cls?.archetypes || [], 'No archetype'); });
+    document.getElementById('maCreateClass')?.addEventListener('change', () => { const cls=maFfd20Find(lib.classes, document.getElementById('maCreateClass').value); maFfd20FillSelect(document.getElementById('maCreateArch'), cls?.archetypes || [], 'No archetype', ''); });
     document.getElementById('maCreateLevel')?.addEventListener('change', e => { const target=document.getElementById('maCreateMilestones'); if(target) target.innerHTML = maFfd20CreateMilestoneFields(maFfd20Level(e.target.value)); });
   }, 0);
   const overlay = await overlayPromise; if(!overlay) return;
@@ -7316,6 +7370,9 @@ function maV4Totals(lib, sel){
     totals.rows.push({...entry, die, avg, skillEach, hpGain, skillGain, prog:p});
   });
   if(!totals.hasMp) totals.mp = 0;
+  const totalLevel = maV4TotalLevel(sel);
+  totals.totalLevel = totalLevel;
+  maV37ApplySavedLevelBonuses(totals, totalLevel);
   return totals;
 }
 function maV4FeatureNamesBetween(lib, oldSel, newSel){
@@ -7331,56 +7388,191 @@ function maV4FeatureNamesBetween(lib, oldSel, newSel){
   });
   return [...new Set(names)].slice(0,30);
 }
-function maV4Plus(n){ n=Number(n)||0; return n>0?`+${n}`:String(n); }
+function maV4Plus(n){ n=Number(n)||0; return String(Math.trunc(n)); }
 function maV4Formula(t){
   return t.rows.map(r=>`${r.label} ${r.level}: d${r.die}, HP ${r.hpGain}, skill ${r.skillGain}, BAB ${maV4Plus(r.prog.bab)}, saves ${maV4Plus(r.prog.fort)}/${maV4Plus(r.prog.ref)}/${maV4Plus(r.prog.will)}${r.prog.hasMp ? `, MP ${r.prog.mp}` : ''}`).join(' · ') || 'No class data found.';
 }
+
+/* --- v37 level-up direct helpers --- */
+const MA_V37_LEVEL_BONUS_KEY = 'levelBonusChoicesV37';
+function maV37Data(){
+  try { return maFfd20ActiveData?.() || getActiveData?.() || {}; }
+  catch(e){ return {}; }
+}
+function maV37Int(value, fallback=0){
+  const match = String(value ?? '').match(/[+-]?\d+/);
+  const n = match ? Number(match[0]) : Number(value);
+  return Number.isFinite(n) ? Math.trunc(n) : fallback;
+}
+function maV37Plain(value){ return String(Math.trunc(Number(value) || 0)); }
+function maV37Delta(oldValue, newValue, label='previous'){
+  oldValue = Number(oldValue) || 0;
+  newValue = Number(newValue) || 0;
+  const diff = Math.trunc(newValue - oldValue);
+  return `was ${Math.trunc(oldValue)} · ${diff} from ${label}`;
+}
+function maV37CleanLevelBonusChoices(maxLevel){
+  const d = maV37Data();
+  if(!d[MA_V37_LEVEL_BONUS_KEY] || typeof d[MA_V37_LEVEL_BONUS_KEY] !== 'object' || Array.isArray(d[MA_V37_LEVEL_BONUS_KEY])) d[MA_V37_LEVEL_BONUS_KEY] = {};
+  Object.keys(d[MA_V37_LEVEL_BONUS_KEY]).forEach(level => {
+    const n = maV37Int(level, 0);
+    if(n < 2 || n > maxLevel) delete d[MA_V37_LEVEL_BONUS_KEY][level];
+  });
+  return d[MA_V37_LEVEL_BONUS_KEY];
+}
+function maV37SaveLevelBonusChoices(result, maxLevel){
+  const choices = maV37CleanLevelBonusChoices(maxLevel);
+  if(result && result.favoredChoices){
+    Object.entries(result.favoredChoices).forEach(([level, choice]) => {
+      const n = maV37Int(level, 0);
+      if(n >= 2 && n <= maxLevel && (choice === 'hp' || choice === 'skill')) choices[String(n)] = choice;
+    });
+  }
+  return maV37CleanLevelBonusChoices(maxLevel);
+}
+function maV37LevelBonusTotals(maxLevel){
+  const choices = maV37CleanLevelBonusChoices(maxLevel);
+  let hp = 0, skill = 0;
+  Object.entries(choices).forEach(([level, choice]) => {
+    const n = maV37Int(level, 0);
+    if(n < 2 || n > maxLevel) return;
+    if(choice === 'hp') hp += 1;
+    if(choice === 'skill') skill += 1;
+  });
+  return {hp, skill};
+}
+function maV37ApplySavedLevelBonuses(totals, maxLevel){
+  const bonus = maV37LevelBonusTotals(maxLevel);
+  totals.hp += bonus.hp;
+  totals.skill += bonus.skill;
+  totals.levelHpBonus = bonus.hp;
+  totals.levelSkillBonus = bonus.skill;
+  return totals;
+}
+function maV37LevelBonusSection(oldTotal, newTotal){
+  const saved = maV37CleanLevelBonusChoices(newTotal);
+  const rows = [];
+  for(let level = oldTotal + 1; level <= newTotal; level++){
+    if(level <= 1) continue;
+    const selected = saved[String(level)] || '';
+    rows.push(`
+      <div class="ma-v37-bonus-row">
+        <strong>Level ${level}</strong>
+        <select data-level-bonus-level="${level}" data-required-pick="true">
+          <option value="" ${selected ? '' : 'selected'}>Choose one</option>
+          <option value="hp" ${selected === 'hp' ? 'selected' : ''}>1 HP</option>
+          <option value="skill" ${selected === 'skill' ? 'selected' : ''}>1 Skill Point</option>
+        </select>
+      </div>
+    `);
+  }
+  if(!rows.length) return '';
+  return `
+    <div class="ma-levelup-section ma-levelup-bonus-required">
+      <h4>Level Bonus</h4>
+      ${rows.join('')}
+      <div class="ma-levelup-note">Level 1 gets no extra HP or skill point. Each later character level chooses either 1 HP or 1 Skill Point.</div>
+    </div>
+  `;
+}
+function maV37RanksSpent(){
+  try { if(typeof maV19RanksSpent === 'function') return maV19RanksSpent(); } catch(e) {}
+  const inputs = Array.from(document.querySelectorAll('#skillsTableBody .skill-ranks'));
+  if(inputs.length) return inputs.reduce((sum, input) => sum + Math.max(0, maV37Int(input.value,0)), 0);
+  const d = maV37Data();
+  const skills = Array.isArray(d.skills) ? d.skills : [];
+  return skills.reduce((sum, skill) => sum + Math.max(0, maV37Int(skill?.lvl ?? skill?.ranks ?? skill?.rank ?? 0, 0)), 0);
+}
+function maV37LockBaseFields(){
+  ['bab','fort_base','ref_base','will_base'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){
+      el.readOnly = true;
+      el.setAttribute('readonly', 'readonly');
+      el.classList.add('ma-v37-base-locked');
+      el.title = 'Auto-filled from class progression in ffd20_data.json.';
+    }
+  });
+}
+
 function maV4LevelList(oldTotal,newTotal,pred){ const out=[]; for(let l=oldTotal+1;l<=newTotal;l++){ if(pred(l)) out.push(l); } return out; }
 async function maV4LevelUpOverlay(lib, oldSel, newSel, label){
   const oldTotal = maV4TotalLevel(oldSel), newTotal = maV4TotalLevel(newSel);
-  if(newTotal <= oldTotal) return {oldTotals:maV4Totals(lib, oldSel), newTotals:maV4Totals(lib, newSel), pickedStats:[]};
+  if(newTotal <= oldTotal){
+    maV37CleanLevelBonusChoices(newTotal);
+    return {oldTotals:maV4Totals(lib, oldSel), newTotals:maV4Totals(lib, newSel), pickedStats:[], favoredChoices:{}};
+  }
+
   const oldTotals = maV4Totals(lib, oldSel), newTotals = maV4Totals(lib, newSel);
   const feats = maV4LevelList(oldTotal, newTotal, l=>l%2===1 && l>1);
   const abilityLevels = maV4LevelList(oldTotal, newTotal, l=>[4,8,12,16,20].includes(l));
   const abilities = maV4FeatureNamesBetween(lib, oldSel, newSel);
+  const levelBonusSection = maV37LevelBonusSection(oldTotal, newTotal);
+
   const featSection = feats.length
     ? `<div class="ma-levelup-section"><h4>Feats</h4><div class="ma-levelup-pill-list">${feats.map(l=>`<span class="ma-levelup-pill ma-levelup-feat">Feat gained at level ${l}</span>`).join('')}</div></div>`
     : '';
   const abilitySection = abilityLevels.length
-    ? `<div class="ma-levelup-section ma-levelup-ability-required"><h4>Ability Score</h4><div class="ma-levelup-picks">${abilityLevels.map(l=>`<label>Level ${l} +1<select data-ability-level="${l}" data-required-pick="true"><option value="">Pick</option>${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div><div class="ma-levelup-note">Ability score pick is required before applying the level-up.</div></div>`
+    ? `<div class="ma-levelup-section ma-levelup-ability-required"><h4>Ability Score</h4><div class="ma-levelup-picks">${abilityLevels.map(l=>`<label>Level ${l} +1 score<select data-ability-level="${l}" data-required-pick="true"><option value="">Pick</option>${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div><div class="ma-levelup-note">This adds +1 to the actual ability score, not directly to the modifier.</div></div>`
     : '';
   const classAbilitySection = abilities.length
     ? `<div class="ma-levelup-section"><h4>New Class Abilities</h4><div class="ma-levelup-pill-list">${abilities.map(n=>`<span class="ma-levelup-pill">${maFfd20Esc(n)}</span>`).join('')}</div></div>`
     : '';
+
   const body = `
     <div class="ma-levelup-hero"><div class="ma-levelup-runes"><i></i><i></i><i></i><i></i><i></i></div><div class="ma-levelup-title">LEVEL UP</div><div class="ma-levelup-sub">${maFfd20Esc(label)} · Character Level ${oldTotal} → ${newTotal}</div></div>
-    <div class="ma-levelup-grid">
-      <div class="ma-levelup-card"><small>HP</small><strong>${maV4Plus(newTotals.hp-oldTotals.hp)}</strong><span>Auto base max: ${newTotals.hp}</span></div>
-      <div class="ma-levelup-card"><small>Skill</small><strong>${maV4Plus(newTotals.skill-oldTotals.skill)}</strong><span>Added to unused points</span></div>
-      <div class="ma-levelup-card"><small>BAB</small><strong>${maV4Plus(newTotals.bab)}</strong><span>${maV4Plus(newTotals.bab-oldTotals.bab)} from this change</span></div>
-      <div class="ma-levelup-card"><small>Saves</small><strong>${maV4Plus(newTotals.fort)}/${maV4Plus(newTotals.ref)}/${maV4Plus(newTotals.will)}</strong><span>Fort / Ref / Will</span></div>
-      <div class="ma-levelup-card"><small>MP</small><strong>${newTotals.hasMp ? newTotals.mp : '—'}</strong><span>${newTotals.hasMp ? `${maV4Plus(newTotals.mp-oldTotals.mp)} from MP table` : 'No MP table for this class'}</span></div>
+    <div class="ma-levelup-grid ma-v37-level-grid">
+      <div class="ma-levelup-card ma-v37-level-card"><small>HP Max</small><strong>${maV37Plain(newTotals.hp)}</strong><span>${maV37Delta(oldTotals.hp, newTotals.hp, 'previous HP')}</span></div>
+      <div class="ma-levelup-card ma-v37-level-card"><small>MP Max</small><strong>${newTotals.hasMp ? maV37Plain(newTotals.mp) : '0'}</strong><span>${newTotals.hasMp ? maV37Delta(oldTotals.mp, newTotals.mp, 'previous MP') : 'no MP table for this class'}</span></div>
+      <div class="ma-levelup-card ma-v37-level-card"><small>BAB Base</small><strong>${maV37Plain(newTotals.bab)}</strong><span>${maV37Delta(oldTotals.bab, newTotals.bab, 'previous BAB')}</span></div>
+      <div class="ma-levelup-card ma-v37-level-card"><small>Saves Base</small><strong>${maV37Plain(newTotals.fort)}/${maV37Plain(newTotals.ref)}/${maV37Plain(newTotals.will)}</strong><span>was ${maV37Plain(oldTotals.fort)}/${maV37Plain(oldTotals.ref)}/${maV37Plain(oldTotals.will)} · Fort / Ref / Will</span></div>
     </div>
+    ${levelBonusSection}
     ${featSection}
     ${abilitySection}
     ${classAbilitySection}
     <div class="ma-levelup-section"><h4>Class Math</h4><div class="ma-levelup-note">${maFfd20Esc(maV4Formula(newTotals))}</div></div>`;
   const overlay = await maFfd20Dialog('Level Up', body, 'Apply Level Up');
   if(!overlay) return null;
+
   const pickedStats = Array.from(overlay.querySelectorAll('[data-ability-level]')).map(s=>s.value).filter(Boolean);
   if(abilityLevels.length && pickedStats.length !== abilityLevels.length){
     alert('Please pick an ability score for every ability-score increase.');
     return null;
   }
-  return {oldTotals, newTotals, pickedStats};
+
+  const favoredChoices = {};
+  const favoredSelects = Array.from(overlay.querySelectorAll('[data-level-bonus-level]'));
+  for(const select of favoredSelects){
+    const level = select.dataset.levelBonusLevel;
+    const choice = select.value;
+    if(!choice){
+      alert('Please choose 1 HP or 1 Skill Point for every new level after level 1.');
+      return null;
+    }
+    favoredChoices[level] = choice;
+  }
+
+  return {oldTotals, newTotals, pickedStats, favoredChoices};
 }
-function maV4ApplyAbilityPicks(picks){
+
+function maV4ApplyAbilityPicks(picks, result=null){
+  if(result && result._maV37AbilityPicksApplied) return;
   (picks || []).forEach(stat=>{
-    const el = document.getElementById(stat);
+    stat = String(stat || '').toLowerCase();
+    if(!MA_STATS.includes(stat)) return;
     const cur = maV4Num(stat, 10);
     maV4Set(stat, cur+1);
+    const el = document.getElementById(stat);
+    if(el){
+      el.dispatchEvent(new Event('input', {bubbles:true}));
+      el.dispatchEvent(new Event('change', {bubbles:true}));
+    }
   });
+  if(result) result._maV37AbilityPicksApplied = true;
+  try{ updateCalcs?.(); updateCalculations?.(); computeDerivedStats?.(); renderAbilityDrawerScores?.(); }catch(e){}
 }
+
 
 function maV4RefreshVitalsDisplay(){
   try {
@@ -7399,31 +7591,41 @@ function maV4RefreshVitalsDisplay(){
 
 window.refreshEffectiveVitals = maV4RefreshVitalsDisplay;
 function maV4ApplyTotals(lib, oldSel, newSel, result=null){
-  maV4ApplyAbilityPicks(result?.pickedStats || []);
+  const newTotalLevel = maV4TotalLevel(newSel);
+  if(result) maV37SaveLevelBonusChoices(result, newTotalLevel);
+  else maV37CleanLevelBonusChoices(newTotalLevel);
+
+  maV4ApplyAbilityPicks(result?.pickedStats || [], result);
   const oldTotals = result?.oldTotals || maV4Totals(lib, oldSel);
   const totals = maV4Totals(lib, newSel);
+
   const oldHpBase = maV4Num('hp_max', oldTotals.hp);
   const oldHpCurr = maV4Num('hp_curr', 0);
-  const hpTemp = maV4Num('hp_temp', 0);
   const hpGain = totals.hp - oldHpBase;
   const hpMaxEff = Math.max(0, totals.hp + maV4Num('hp_max_temp', 0));
   maV4Set('hp_max', totals.hp);
   if(document.getElementById('hp_temp') && (document.getElementById('hp_temp').value === '' || maFfd20ActiveData().hp_temp === undefined)) maV4Set('hp_temp', 0);
   const newHpCurr = result ? Math.min(hpMaxEff, Math.max(0, oldHpCurr + Math.max(0,hpGain))) : (oldHpCurr ? Math.min(oldHpCurr, hpMaxEff) : hpMaxEff);
   maV4Set('hp_curr', newHpCurr);
+
   maV4Set('bab', totals.bab);
-  maV4Set('fort_base', totals.fort); maV4Set('ref_base', totals.ref); maV4Set('will_base', totals.will);
-  const mpBase = totals.hasMp ? totals.mp : 0;
-  const oldMpBase = maV4Num('mp_max', oldTotals.mp);
-  const oldMpCurr = maV4Num('mp_curr', 0);
-  const mpTemp = maV4Num('mp_temp', 0);
-  const mpEff = Math.max(0, mpBase + maV4Num('mp_max_temp', 0));
-  maV4Set('mp_max', mpBase);
-  if(document.getElementById('mp_temp') && (document.getElementById('mp_temp').value === '' || maFfd20ActiveData().mp_temp === undefined)) maV4Set('mp_temp', 0);
-  const mpGain = mpBase - oldMpBase;
-  maV4Set('mp_curr', totals.hasMp ? (result ? Math.min(mpEff, Math.max(0, oldMpCurr + Math.max(0,mpGain))) : (oldMpCurr ? Math.min(oldMpCurr, mpEff) : mpEff)) : 0);
+  maV4Set('fort_base', totals.fort);
+  maV4Set('ref_base', totals.ref);
+  maV4Set('will_base', totals.will);
+  maV37LockBaseFields();
+
+  const skillEl = document.getElementById('skill_points');
+  if(skillEl){
+    const unused = totals.skill - maV37RanksSpent();
+    skillEl.value = String(unused);
+    const d = maV37Data();
+    d.skill_points = String(unused);
+    d.skill_points_total = String(totals.skill);
+    d.total_skill_points = String(totals.skill);
+  }
+
   try{ maV4RefreshVitalsDisplay(); }catch(e){}
-  try{ updateCalcs?.(); updateCalculations?.(); computeDerivedStats?.(); renderSelectedCombatDisplays?.(); }catch(e){}
+  try{ updateCalcs?.(); updateCalculations?.(); computeDerivedStats?.(); renderSelectedCombatDisplays?.(); renderAbilityDrawerScores?.(); }catch(e){}
   return totals;
 }
 async function maV4RecalcAndSave(silent=true){
@@ -7458,7 +7660,9 @@ maClassRowsOpenDialog = async function(kind='primary', index=null){
   if(!overlay) return;
   const className = overlay.querySelector('#maEditClass')?.value || '';
   if(!className) return;
-  const archetype = overlay.querySelector('#maEditArch')?.value || '';
+  let archetype = overlay.querySelector('#maEditArch')?.value || '';
+  const chosenClassForArch = maFfd20Find(lib.classes, className);
+  if(maFfd20Norm(className) !== maFfd20Norm(curClass) && archetype && !maFfd20Find(chosenClassForArch?.archetypes || [], archetype)) archetype = '';
   const level = String(maV4Level(overlay.querySelector('#maEditLevel')?.value || 1) || 1);
   const newSel = JSON.parse(JSON.stringify(oldSel));
   if(isMulti){
@@ -7488,15 +7692,6 @@ maClassRowsOpenDialog = async function(kind='primary', index=null){
   maClassRowsRefreshCard(); await maFfd20ApplySheetChoices({silent:true}); maV4ApplyTotals(lib, oldSel, maV4ReadSelection(), levelResult);
   maFfd20RenderAll(); maFfd20SaveNow();
 };
-
-const maV4OldSyncAfterPopulate = maFfd20SyncAfterPopulate;
-maFfd20SyncAfterPopulate = function(...args){
-  const result = maV4OldSyncAfterPopulate.apply(this,args);
-  setTimeout(()=>{ maV4RefreshVitalsDisplay(); maV4RecalcAndSave(true); }, 80);
-  return result;
-};
-window.addEventListener('DOMContentLoaded', ()=>{ maV4RefreshVitalsDisplay(); setTimeout(()=>maV4RecalcAndSave(true), 250); });
-setTimeout(()=>{ maV4RefreshVitalsDisplay(); maV4RecalcAndSave(true); }, 900);
 
 /* --- v19 skill-point class calculation repair --- */
 const MA_V19_SKILL_PATCH = true;
@@ -7531,12 +7726,25 @@ function maV19RanksSpent(){
 }
 function maV19FavoredSkillCount(maxLevel = maV19TotalLevel()){
   const d = maV19Data();
-  const map = d.favored_bonuses || d.favoredBonuses || d.favoredClassBonuses || {};
-  if(!map || typeof map !== 'object' || Array.isArray(map)) return 0;
+  const maps = [
+    d.levelBonusChoicesV37,
+    d.levelBonusChoicesV36,
+    d.levelBonusChoicesV35,
+    d.favored_bonuses,
+    d.favoredBonuses,
+    d.favoredClassBonuses
+  ].filter(map => map && typeof map === 'object' && !Array.isArray(map));
+  const seen = new Set();
   let count = 0;
-  Object.entries(map).forEach(([level, choice]) => {
-    const lvl = maV19Int(level, 0);
-    if(lvl >= 1 && lvl <= maxLevel && String(choice || '').toLowerCase() === 'skill') count++;
+  maps.forEach(map => {
+    Object.entries(map).forEach(([level, choice]) => {
+      const lvl = maV19Int(level, 0);
+      if(lvl < 2 || lvl > maxLevel || seen.has(String(lvl))) return;
+      if(String(choice || '').toLowerCase() === 'skill'){
+        count++;
+        seen.add(String(lvl));
+      }
+    });
   });
   return count;
 }
@@ -7911,6 +8119,9 @@ document.addEventListener('input', event => { if(event.target?.id === 'race') ma
 document.addEventListener('change', event => { if(event.target?.id === 'race') maV31SchedulePublishRace(); }, true);
 setTimeout(maV31SchedulePublishRace, 0);
 setTimeout(maV31SchedulePublishRace, 900);
+
+window.addEventListener('DOMContentLoaded', () => setTimeout(maV37LockBaseFields, 120));
+setTimeout(maV37LockBaseFields, 900);
 </script>
 
 <script>
@@ -8987,16 +9198,12 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     const raw = Number(document.getElementById(stat)?.value || data()[stat] || 10);
     return Number.isFinite(raw) ? Math.trunc(raw) : 10;
   }
+
   function maV5BonusMp(score, spellLevel){
-    const maxSpellLevel = Math.max(0, Math.min(9, Math.trunc(Number(spellLevel)||0)));
-    const abilityScore = Math.trunc(Number(score)||0);
-    const mod = Math.floor((abilityScore - 10) / 2);
-    if(maxSpellLevel <= 0 || mod < 1) return 0;
-    let total = 0;
-    for(let lvl=1; lvl<=maxSpellLevel; lvl++){
-      if(mod >= lvl) total += (Math.floor((mod - lvl) / 4) + 1) * lvl;
+    if(typeof maV38BonusMpFromTable === 'function') {
+      return maV38BonusMpFromTable(score, spellLevel);
     }
-    return total;
+    return 0;
   }
   function maV5CastingStat(entry){
     const name = String(entry?.className || entry?.cls?.name || '').toLowerCase();
@@ -9287,6 +9494,435 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     if(typeof window.refreshEffectiveVitals === 'function') window.refreshEffectiveVitals();
     maFfd20RenderMulticlasses();
     maFfd20SaveNow();
+  };
+
+
+
+  /* --- v38 MP table + level-up totals repair --- */
+  const MA_V38_LEVEL_BONUS_KEY = 'levelBonusChoicesV38';
+  const MA_V38_BONUS_MP_TABLE = [
+    {min:-999,max:9, vals:[0,0,0,0,0,0,0,0,0]},
+    {min:10,max:11, vals:[0,0,0,0,0,0,0,0,0]},
+    {min:12,max:13, vals:[1,1,1,1,1,1,1,1,1]},
+    {min:14,max:15, vals:[1,3,3,3,3,3,3,3,3]},
+    {min:16,max:17, vals:[1,3,6,6,6,6,6,6,6]},
+    {min:18,max:19, vals:[1,3,6,10,10,10,10,10,10]},
+    {min:20,max:21, vals:[2,4,7,11,16,16,16,16,16]},
+    {min:22,max:23, vals:[2,6,9,13,18,24,24,24,24]},
+    {min:24,max:25, vals:[2,6,12,16,21,27,34,34,34]},
+    {min:26,max:27, vals:[2,6,12,20,25,31,38,46,46]},
+    {min:28,max:29, vals:[3,7,13,21,31,37,44,52,61]},
+    {min:30,max:31, vals:[3,9,15,23,33,45,52,60,69]},
+    {min:32,max:33, vals:[3,9,18,26,36,48,62,70,79]},
+    {min:34,max:35, vals:[3,9,18,30,40,52,66,82,91]},
+    {min:36,max:37, vals:[4,10,19,31,46,58,72,88,106]},
+    {min:38,max:39, vals:[4,12,21,33,48,66,80,96,114]},
+    {min:40,max:41, vals:[4,12,24,36,51,69,90,106,124]},
+    {min:42,max:43, vals:[4,12,24,40,55,73,94,118,136]},
+    {min:44,max:999, vals:[5,13,25,41,61,79,100,124,151]}
+  ];
+
+  function maV38Plain(n){
+    n = Number(n) || 0;
+    return String(Math.trunc(n));
+  }
+
+  function maV38Delta(oldValue, newValue, label='previous'){
+    oldValue = Number(oldValue) || 0;
+    newValue = Number(newValue) || 0;
+    const diff = Math.trunc(newValue - oldValue);
+    return `was ${maV38Plain(oldValue)} · ${maV38Plain(diff)} from ${label}`;
+  }
+
+  function maV38NormalizeName(value){
+    return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  }
+
+  function maV38Score(stat){
+    const raw = Number(document.getElementById(stat)?.value || data()[stat] || 10);
+    return Number.isFinite(raw) ? Math.trunc(raw) : 10;
+  }
+
+  function maV38BonusMpFromTable(score, highestSpellLevel){
+    const abilityScore = Math.trunc(Number(score) || 0);
+    const spellLevel = Math.max(0, Math.min(9, Math.trunc(Number(highestSpellLevel) || 0)));
+    if(spellLevel <= 0 || abilityScore <= 9) return 0;
+    const row = MA_V38_BONUS_MP_TABLE.find(item => abilityScore >= item.min && abilityScore <= item.max) || MA_V38_BONUS_MP_TABLE[MA_V38_BONUS_MP_TABLE.length - 1];
+    return Number(row.vals[spellLevel - 1] || 0) || 0;
+  }
+
+  maV5BonusMp = function(score, spellLevel){
+    return maV38BonusMpFromTable(score, spellLevel);
+  };
+
+  function maV38CastingStat(entry){
+    const name = maV38NormalizeName(entry?.className || entry?.cls?.name || entry?.name || '');
+    if(/\b(black mage|blue mage|time mage)\b/.test(name)) return 'int';
+    if(/\b(astrologian|druid|geomancer|ninja|white mage)\b/.test(name)) return 'wis';
+    if(/\b(bard|dark knight|holy knight|illusionist|red mage|necromancer|summoner)\b/.test(name)) return 'cha';
+    const manual = String(document.getElementById('spell_dc_base')?.value || '').toLowerCase();
+    return MA_STATS.includes(manual) ? manual : 'int';
+  }
+
+  maV5CastingStat = maV38CastingStat;
+
+  function maV38ParseSpellLevel(value){
+    if(value === undefined || value === null) return 0;
+    if(typeof value === 'number') return Math.max(0, Math.min(9, Math.trunc(value)));
+    if(Array.isArray(value)){
+      let best = 0;
+      value.forEach(item => { best = Math.max(best, maV38ParseSpellLevel(item)); });
+      return best;
+    }
+    if(typeof value === 'object'){
+      let best = 0;
+      Object.entries(value).forEach(([key, val]) => {
+        const keyLevel = maV38ParseSpellLevel(key);
+        const valText = String(val ?? '').trim().toLowerCase();
+        const available = val !== undefined && val !== null && valText !== '' && valText !== '—' && valText !== '-' && valText !== '0';
+        if(keyLevel && available) best = Math.max(best, keyLevel);
+        best = Math.max(best, maV38ParseSpellLevel(val));
+      });
+      return best;
+    }
+    const raw = String(value).trim().toLowerCase();
+    if(!raw || raw === '—' || raw === '-') return 0;
+    const ordinal = raw.match(/\b([1-9])(?:st|nd|rd|th)\b/);
+    if(ordinal) return Math.max(0, Math.min(9, Number(ordinal[1]) || 0));
+    const plain = raw.match(/\b(?:spell\s*level|max\s*spell|highest\s*spell|spells?)\D*([1-9])\b/);
+    if(plain) return Math.max(0, Math.min(9, Number(plain[1]) || 0));
+    if(/^[1-9]$/.test(raw)) return Number(raw);
+    return 0;
+  }
+
+  function maV38HighestSpellLevel(classLevel, prog){
+    if(!prog?.hasExplicitMp) return 0;
+    const raw = prog.raw || {};
+    const directKeys = [
+      'highestSpellLevel','highest_spell_level','maxSpellLevel','max_spell_level',
+      'spellLevel','spell_level','spellLvl','spell_lvl','maxSpell','max_spell',
+      'casterSpellLevel','caster_spell_level'
+    ];
+
+    for(const key of directKeys){
+      if(Object.prototype.hasOwnProperty.call(raw, key)){
+        const found = maV38ParseSpellLevel(raw[key]);
+        if(found) return found;
+      }
+    }
+
+    let found = 0;
+    Object.entries(raw).forEach(([key, value]) => {
+      const keyNorm = maV38NormalizeName(key);
+      if(keyNorm.includes('spell')){
+        found = Math.max(found, maV38ParseSpellLevel(value));
+        found = Math.max(found, maV38ParseSpellLevel(key));
+      }
+      // Some scraped tables use 1st/2nd/3rd column names.
+      const keyLevel = maV38ParseSpellLevel(key);
+      if(keyLevel){
+        const text = String(value ?? '').trim().toLowerCase();
+        if(text && text !== '0' && text !== '-' && text !== '—') found = Math.max(found, keyLevel);
+      }
+    });
+    if(found) return Math.max(1, Math.min(9, found));
+
+    // Fallback for FFd20 full-caster MP tables when the JSON has mpValue but no explicit highest-spell-level field.
+    return Math.max(1, Math.min(9, Math.ceil((Number(classLevel) || 1) / 2)));
+  }
+
+  maV5HighestSpellLevel = maV38HighestSpellLevel;
+
+  progressionAt = function(cls, level){
+    const rows = Array.isArray(cls?.progression) ? cls.progression : [];
+    if(!rows.length) return { level, babValue:0, fortValue:0, refValue:0, willValue:0, mpValue:0, hasExplicitMp:false, spellLevel:0, raw:{} };
+    let best = rows[0];
+    for(const row of rows){ if(levelOf(row.level) <= level) best = row; }
+    const hasOwnMp = Object.prototype.hasOwnProperty.call(best, 'mpValue') || Object.prototype.hasOwnProperty.call(best, 'mp') || Object.prototype.hasOwnProperty.call(best, 'MP');
+    const mpRaw = best.mpValue ?? best.mp ?? best.MP;
+    const mpText = String(mpRaw ?? '').trim();
+    const hasExplicitMp = hasOwnMp && mpText !== '' && mpText !== '—' && mpText !== '-';
+    const out = {
+      level,
+      babValue: Number(best.babValue ?? intVal(best.bab)) || 0,
+      fortValue: Number(best.fortValue ?? intVal(best.fort)) || 0,
+      refValue: Number(best.refValue ?? intVal(best.ref)) || 0,
+      willValue: Number(best.willValue ?? intVal(best.will)) || 0,
+      mpValue: hasExplicitMp ? (Number(mpRaw) || 0) : 0,
+      hasExplicitMp,
+      spellLevel:0,
+      raw: best
+    };
+    out.spellLevel = maV38HighestSpellLevel(level, out);
+    return out;
+  };
+
+  function maV38LevelBonusChoices(maxLevel){
+    const d = data();
+    if(!d[MA_V38_LEVEL_BONUS_KEY] || typeof d[MA_V38_LEVEL_BONUS_KEY] !== 'object' || Array.isArray(d[MA_V38_LEVEL_BONUS_KEY])) d[MA_V38_LEVEL_BONUS_KEY] = {};
+    Object.keys(d[MA_V38_LEVEL_BONUS_KEY]).forEach(level => {
+      const n = Number(level) || 0;
+      if(n < 2 || n > maxLevel) delete d[MA_V38_LEVEL_BONUS_KEY][level];
+    });
+    return d[MA_V38_LEVEL_BONUS_KEY];
+  }
+
+  function maV38StoreLevelBonusChoices(result, maxLevel){
+    const choices = maV38LevelBonusChoices(maxLevel);
+    if(result?.favoredChoices){
+      Object.entries(result.favoredChoices).forEach(([level, choice]) => {
+        const n = Number(level) || 0;
+        if(n >= 2 && n <= maxLevel && (choice === 'hp' || choice === 'skill')) choices[String(n)] = choice;
+      });
+    }
+    return maV38LevelBonusChoices(maxLevel);
+  }
+
+  function maV38LevelBonusTotals(maxLevel){
+    const choices = maV38LevelBonusChoices(maxLevel);
+    let hp = 0, skill = 0;
+    Object.entries(choices).forEach(([level, choice]) => {
+      const n = Number(level) || 0;
+      if(n < 2 || n > maxLevel) return;
+      if(choice === 'hp') hp += 1;
+      if(choice === 'skill') skill += 1;
+    });
+    return { hp, skill };
+  }
+
+  function maV38LevelBonusHtml(oldLevel, newLevel){
+    const choices = maV38LevelBonusChoices(newLevel);
+    const rows = [];
+    for(let level = oldLevel + 1; level <= newLevel; level++){
+      if(level <= 1) continue;
+      const selected = choices[String(level)] || '';
+      rows.push(`<div class="ma-levelup-choice-row" style="display:grid;grid-template-columns:100px 1fr;gap:8px;align-items:center;margin:8px 0;padding:8px;border:1px solid rgba(var(--accent-rgb),.22);border-radius:10px;background:#171717;"><strong style="color:var(--accent)">Level ${level}</strong><select data-favored-level="${level}" data-required-pick="true"><option value="" ${selected ? '' : 'selected'}>Choose one</option><option value="hp" ${selected === 'hp' ? 'selected' : ''}>1 HP</option><option value="skill" ${selected === 'skill' ? 'selected' : ''}>1 Skill Point</option></select></div>`);
+    }
+    if(!rows.length) return '';
+    return `<div class="ma-levelup-section ma-levelup-favored-required"><h4>Level Bonus</h4>${rows.join('')}<div class="ma-levelup-note">Level 1 gets no extra HP or skill point. Every later character level chooses either 1 HP or 1 Skill Point.</div></div>`;
+  }
+
+  function maV38RanksSpent(){
+    try {
+      const inputs = Array.from(document.querySelectorAll('#skillsTableBody .skill-ranks'));
+      if(inputs.length) return inputs.reduce((sum, input) => sum + Math.max(0, Number(input.value || 0) || 0), 0);
+      const rows = Array.isArray(data().skills) ? data().skills : [];
+      return rows.reduce((sum, row) => sum + Math.max(0, Number(row?.lvl ?? row?.ranks ?? row?.rank ?? 0) || 0), 0);
+    } catch(e) { return 0; }
+  }
+
+  maCalcClassTotals = function(lib, sel){
+    maV5EnsureRuntimeFields();
+    const con = statMod('con');
+    const intel = statMod('int');
+    const totalLevel = maTotalCharacterLevel(sel);
+    const totals = { hp:0, skill:0, bab:0, fort:0, ref:0, will:0, mpBase:0, mpBonus:0, mp:0, hasMp:false, totalLevel, levelHpBonus:0, levelSkillBonus:0, rows:[] };
+    maClassEntryList(lib, sel).forEach(entry => {
+      const die = maFfd20HitDie ? maFfd20HitDie(entry.cls) : 8;
+      const avg = maFfd20AvgHp ? maFfd20AvgHp(die) : (Math.floor(die/2)+1);
+      const skillBase = maFfd20SkillBase ? maFfd20SkillBase(entry.cls) : 4;
+      const skillEach = Math.max(1, skillBase + intel);
+      let hpGain = 0, skillGain = 0;
+      for(let lvl=1; lvl<=entry.level; lvl++){
+        const firstOverall = entry.firstOverall && lvl === 1;
+        hpGain += Math.max(1, (firstOverall ? die : avg) + con);
+        skillGain += firstOverall ? (skillEach * 4) : skillEach;
+      }
+      const prog = progressionAt(entry.cls, entry.level);
+      const castingStat = maV38CastingStat(entry);
+      const castingScore = maV38Score(castingStat);
+      const spellLevel = maV38HighestSpellLevel(entry.level, prog);
+      const bonusMp = prog.hasExplicitMp ? maV38BonusMpFromTable(castingScore, spellLevel) : 0;
+      totals.hp += hpGain;
+      totals.skill += skillGain;
+      totals.bab += prog.babValue || 0;
+      totals.fort += prog.fortValue || 0;
+      totals.ref += prog.refValue || 0;
+      totals.will += prog.willValue || 0;
+      totals.mpBase += prog.hasExplicitMp ? (prog.mpValue || 0) : 0;
+      totals.mpBonus += bonusMp;
+      if(prog.hasExplicitMp) totals.hasMp = true;
+      totals.rows.push({...entry, die, avg, skillBase, skillEach, hpGain, skillGain, prog, spellLevel, bonusMp, castingStat, castingScore});
+    });
+    const levelBonus = maV38LevelBonusTotals(totalLevel);
+    totals.hp += levelBonus.hp;
+    totals.skill += levelBonus.skill;
+    totals.levelHpBonus = levelBonus.hp;
+    totals.levelSkillBonus = levelBonus.skill;
+    totals.mp = totals.hasMp ? (totals.mpBase + totals.mpBonus) : 0;
+    return totals;
+  };
+
+  maSetCoreProgressionFields = function(finalTotals){
+    maV5EnsureRuntimeFields();
+    setBaseField('bab', finalTotals.bab || 0);
+    setBaseField('fort_base', finalTotals.fort || 0);
+    setBaseField('ref_base', finalTotals.ref || 0);
+    setBaseField('will_base', finalTotals.will || 0);
+    setBaseField('mp_base', finalTotals.hasMp ? (finalTotals.mpBase || 0) : 0);
+    setBaseField('mp_bonus', finalTotals.hasMp ? (finalTotals.mpBonus || 0) : 0);
+    setBaseField('mp_max', finalTotals.hasMp ? (finalTotals.mp || 0) : 0);
+    const mpMaxTemp = Number(document.getElementById('mp_max_temp')?.value || data().mp_max_temp || 0) || 0;
+    const effectiveMpMax = Math.max(0, (finalTotals.hasMp ? (finalTotals.mp || 0) : 0) + mpMaxTemp);
+    const mpEff = document.getElementById('mp_effective_max');
+    if(mpEff) mpEff.value = String(effectiveMpMax);
+    data().mp_effective_max = String(effectiveMpMax);
+    if(data().mp_temp === undefined || data().mp_temp === null || String(data().mp_temp).trim() === '') setBaseField('mp_temp', 0);
+    ['bab','fort_base','ref_base','will_base'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el){ el.readOnly = true; el.setAttribute('readonly', 'readonly'); el.title = 'Auto-filled from class progression JSON.'; }
+    });
+  };
+
+  maApplyFinalClassTotals = function(lib, oldSel, newSel, levelResult){
+    maV5EnsureRuntimeFields();
+    const newTotalLevel = maTotalCharacterLevel(newSel);
+    maV38StoreLevelBonusChoices(levelResult, newTotalLevel);
+    const oldTotals = levelResult?.oldTotals || maCalcClassTotals(lib, oldSel);
+    maApplyAbilityPicks(levelResult?.pickedStats || []);
+    const finalTotals = maCalcClassTotals(lib, newSel);
+    const d = data();
+
+    const prevHpBase = Number(d.hp_max || document.getElementById('hp_max')?.value || oldTotals.hp) || oldTotals.hp;
+    const hpGain = finalTotals.hp - prevHpBase;
+    const hpMaxTemp = Number(d.hp_max_temp || document.getElementById('hp_max_temp')?.value || 0) || 0;
+    const curHp = Number(d.hp_curr || document.getElementById('hp_curr')?.value || 0) || 0;
+    const newEffectiveHpMax = Math.max(0, finalTotals.hp + hpMaxTemp);
+    const newHpCurr = levelResult ? Math.min(newEffectiveHpMax, Math.max(0, curHp + Math.max(0,hpGain))) : Math.min(curHp || newEffectiveHpMax, newEffectiveHpMax);
+    setBaseField('hp_max', finalTotals.hp);
+    setBaseField('hp_curr', newHpCurr);
+    if(d.hp_temp === undefined || d.hp_temp === null || d.hp_temp === '') setBaseField('hp_temp', 0);
+    if(d.hp_max_temp === undefined || d.hp_max_temp === null || d.hp_max_temp === '') setBaseField('hp_max_temp', 0);
+
+    const spEl = document.getElementById('skill_points');
+    const earnedSkills = Math.max(0, finalTotals.skill || 0);
+    const unusedSkills = Math.max(0, earnedSkills - maV38RanksSpent());
+    if(spEl) spEl.value = String(unusedSkills);
+    d.skill_points = String(unusedSkills);
+
+    const oldMpAuto = Number(d.mp_max || document.getElementById('mp_max')?.value || oldTotals.mp) || oldTotals.mp;
+    maSetCoreProgressionFields(finalTotals);
+    const mpMaxTemp = Number(d.mp_max_temp || document.getElementById('mp_max_temp')?.value || 0) || 0;
+    const curMp = Number(d.mp_curr || document.getElementById('mp_curr')?.value || 0) || 0;
+    const mpGain = (finalTotals.hasMp ? finalTotals.mp : 0) - oldMpAuto;
+    const effectiveMpMax = Math.max(0, (finalTotals.hasMp ? finalTotals.mp : 0) + mpMaxTemp);
+    const newMpCurr = finalTotals.hasMp
+      ? (levelResult ? Math.min(effectiveMpMax, Math.max(0, curMp + Math.max(0,mpGain))) : Math.min(curMp || effectiveMpMax, effectiveMpMax))
+      : 0;
+    setBaseField('mp_curr', newMpCurr);
+
+    if(typeof window.refreshEffectiveVitals === 'function') window.refreshEffectiveVitals();
+    refreshCards(finalTotals);
+    try{ computeDerivedStats(); }catch(e){}
+    try{ updateSpellMpPanel?.(); }catch(e){}
+    return finalTotals;
+  };
+
+  updateProgressionFields = async function(){
+    maV5EnsureRuntimeFields();
+    let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ return null; }
+    const sel = maCurrentSelectionClone();
+    const totals = maApplyFinalClassTotals(lib, sel, sel, null);
+    try{ maFfd20SaveNow(); }catch(e){}
+    return totals;
+  };
+
+  statStrip = function(t){
+    t = t || {bab:0,fort:0,ref:0,will:0,mp:0,mpBase:0,mpBonus:0,hasMp:false};
+    return `<div class="ma-stat-strip"><div class="ma-stat-chip"><small>BAB</small><strong>${maV38Plain(t.bab)}</strong></div><div class="ma-stat-chip"><small>Fort</small><strong>${maV38Plain(t.fort)}</strong></div><div class="ma-stat-chip"><small>Ref</small><strong>${maV38Plain(t.ref)}</strong></div><div class="ma-stat-chip"><small>Will</small><strong>${maV38Plain(t.will)}</strong></div><div class="ma-stat-chip"><small>MP</small><strong>${t.hasMp ? maV38Plain(t.mp||0) : '—'}</strong></div></div>`;
+  };
+
+  maClassFormulaLine = function(totals){
+    if(!totals?.rows?.length) return 'No class data found.';
+    const rows = totals.rows.map(r => {
+      const base = `${r.label} ${r.level}: d${r.die}, ${r.skillBase}+INT skill, BAB ${maV38Plain(r.prog.babValue||0)}, saves ${maV38Plain(r.prog.fortValue||0)}/${maV38Plain(r.prog.refValue||0)}/${maV38Plain(r.prog.willValue||0)}`;
+      if(!r.prog.hasExplicitMp) return base;
+      return `${base}, MP ${r.prog.mpValue||0} from JSON + ${r.bonusMp||0} bonus MP (${String(r.castingStat||'').toUpperCase()} ${r.castingScore||10}, highest spell ${r.spellLevel||0}) = ${(r.prog.mpValue||0) + (r.bonusMp||0)}`;
+    });
+    const extras = [];
+    if(totals.levelHpBonus) extras.push(`level bonus HP ${totals.levelHpBonus}`);
+    if(totals.levelSkillBonus) extras.push(`level bonus skill ${totals.levelSkillBonus}`);
+    return rows.join(' · ') + (extras.length ? ` · ${extras.join(', ')}` : '');
+  };
+
+  maShowLevelUpScreen = async function(lib, oldSel, newSel, slotLabel){
+    const oldTotalLevel = maTotalCharacterLevel(oldSel);
+    const newTotalLevel = maTotalCharacterLevel(newSel);
+    if(newTotalLevel <= oldTotalLevel) {
+      maV38LevelBonusChoices(newTotalLevel);
+      return { oldTotals:maCalcClassTotals(lib, oldSel), newTotals:maCalcClassTotals(lib, newSel), pickedStats:[], favoredChoices:{} };
+    }
+
+    const oldTotals = maCalcClassTotals(lib, oldSel);
+    const newTotals = maCalcClassTotals(lib, newSel);
+    const feats = maLevelsBetween(oldTotalLevel, newTotalLevel, l => l % 2 === 1 && l > 1);
+    const milestones = maLevelsBetween(oldTotalLevel, newTotalLevel, l => [4,8,12,16,20].includes(l));
+    const abilities = maFeatureNamesBetween(lib, oldSel, newSel);
+
+    const featSection = feats.length
+      ? `<div class="ma-levelup-section"><h4>Feats</h4><div class="ma-levelup-pill-list">${feats.map(l=>`<span class="ma-levelup-pill ma-levelup-feat">Feat gained at level ${l}</span>`).join('')}</div></div>`
+      : '';
+    const abilitySection = milestones.length
+      ? `<div class="ma-levelup-section ma-levelup-ability-required"><h4>Ability Score</h4>${maAbilityPicksHtml(milestones)}<div class="ma-levelup-note">This adds 1 to the actual ability score.</div></div>`
+      : '';
+    const classAbilitySection = abilities.length
+      ? `<div class="ma-levelup-section"><h4>New Class Abilities</h4><div class="ma-levelup-pill-list">${abilities.map(n=>`<span class="ma-levelup-pill">${maFfd20Esc(n)}</span>`).join('')}</div></div>`
+      : '';
+
+    const body = `
+      <div class="ma-levelup-hero"><div class="ma-levelup-runes"><i></i><i></i><i></i><i></i><i></i></div><div class="ma-levelup-title">LEVEL UP</div><div class="ma-levelup-sub">${maFfd20Esc(slotLabel)} · Character Level ${oldTotalLevel} → ${newTotalLevel}</div></div>
+      <div class="ma-levelup-grid">
+        <div class="ma-levelup-card"><small>HP Max</small><strong>${maV38Plain(newTotals.hp)}</strong><span>${maV38Delta(oldTotals.hp, newTotals.hp, 'previous HP')}</span></div>
+        <div class="ma-levelup-card"><small>Skill Points</small><strong>${maV38Plain(newTotals.skill)}</strong><span>${maV38Delta(oldTotals.skill, newTotals.skill, 'previous skill total')}</span></div>
+        <div class="ma-levelup-card"><small>BAB Base</small><strong>${maV38Plain(newTotals.bab)}</strong><span>${maV38Delta(oldTotals.bab, newTotals.bab, 'previous BAB')}</span></div>
+        <div class="ma-levelup-card"><small>Saves Base</small><strong>${maV38Plain(newTotals.fort)}/${maV38Plain(newTotals.ref)}/${maV38Plain(newTotals.will)}</strong><span>was ${maV38Plain(oldTotals.fort)}/${maV38Plain(oldTotals.ref)}/${maV38Plain(oldTotals.will)} · Fort / Ref / Will</span></div>
+        <div class="ma-levelup-card"><small>MP Max</small><strong>${newTotals.hasMp ? maV38Plain(newTotals.mp) : '0'}</strong><span>${newTotals.hasMp ? `base ${maV38Plain(newTotals.mpBase)} from JSON + bonus ${maV38Plain(newTotals.mpBonus)} from table` : 'No MP table in class JSON'}</span></div>
+      </div>
+      ${maV38LevelBonusHtml(oldTotalLevel, newTotalLevel)}
+      ${featSection}
+      ${abilitySection}
+      ${classAbilitySection}
+      <div class="ma-levelup-section"><h4>Class Math</h4><div class="ma-levelup-note">${maFfd20Esc(maClassFormulaLine(newTotals))}</div></div>
+    `;
+
+    const overlay = await maFfd20Dialog('Level Up', body, 'Apply Level Up');
+    if(!overlay) return null;
+
+    const pickedStats = Array.from(overlay.querySelectorAll('[data-ability-level]')).map(sel => sel.value).filter(Boolean);
+    if(milestones.length && pickedStats.length !== milestones.length){
+      alert('Please pick an ability score for every ability-score increase.');
+      return null;
+    }
+
+    const favoredChoices = {};
+    for(const select of Array.from(overlay.querySelectorAll('[data-favored-level]'))){
+      const level = select.dataset.favoredLevel;
+      const choice = select.value;
+      if(!choice){
+        alert('Please choose 1 HP or 1 Skill Point for every new level after level 1.');
+        return null;
+      }
+      favoredChoices[level] = choice;
+    }
+
+    return { oldTotals, newTotals, pickedStats, favoredChoices };
+  };
+
+  window.maDebugMpV38 = async function(){
+    let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ console.warn(e); return null; }
+    const totals = maCalcClassTotals(lib, maCurrentSelectionClone());
+    console.table(totals.rows.map(r => ({
+      class:r.className,
+      level:r.level,
+      mp_base_json:r.prog.mpValue || 0,
+      casting_stat:String(r.castingStat || '').toUpperCase(),
+      casting_score:r.castingScore,
+      highest_spell_level:r.spellLevel,
+      bonus_mp:r.bonusMp,
+      total_mp:(r.prog.mpValue || 0) + (r.bonusMp || 0)
+    })));
+    console.log('MP totals', { mp_base:totals.mpBase, mp_bonus:totals.mpBonus, mp_max:totals.mp });
+    return totals;
   };
 
 
@@ -10799,6 +11435,454 @@ h2,h3,h4,
   setTimeout(updateButtonAndCircle, 0);
   setTimeout(updateButtonAndCircle, 250);
 })();
+
+
+/* --- v32 seamless race/class lists + prestige class group --- */
+const MA_V32_CLASS_RACE_PATCH = true;
+
+function maV32Name(item){
+  if(typeof item === 'string') return item.trim();
+  return String(item?.name || item?.title || item?.className || item?.class || '').trim();
+}
+
+function maV32Norm(value){
+  return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+}
+
+function maV32ToObject(item){
+  if(typeof item === 'string') return { name:item };
+  return item && typeof item === 'object' ? item : { name:String(item || '') };
+}
+
+function maV32IsPrestigeClass(item){
+  const text = [
+    item?.type,
+    item?.category,
+    item?.group,
+    item?.classType,
+    item?.sourceType,
+    item?.tags,
+    item?.name
+  ].map(v => String(v || '').toLowerCase()).join(' ');
+  return /\bprestige\b/.test(text);
+}
+
+function maV32UniqueSorted(list){
+  const seen = new Set();
+  return (list || [])
+    .map(maV32ToObject)
+    .filter(item => maV32Name(item))
+    .filter(item => {
+      const key = maV32Norm(maV32Name(item));
+      if(seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((a,b) => maV32Name(a).localeCompare(maV32Name(b), undefined, { sensitivity:'base' }));
+}
+
+function maV32Array(lib, keys){
+  const out = [];
+  keys.forEach(key => {
+    if(Array.isArray(lib?.[key])) out.push(...lib[key]);
+  });
+  return out;
+}
+
+function maV32NormalizeLibrary(lib){
+  if(!lib || typeof lib !== 'object') lib = {};
+
+  const allClassSources = maV32Array(lib, [
+    'classes',
+    'baseClasses',
+    'base_classes',
+    'coreClasses',
+    'core_classes'
+  ]);
+
+  const prestigeSources = maV32Array(lib, [
+    'prestigeClasses',
+    'prestige_classes',
+    'prestige',
+    'prestigeClass'
+  ]);
+
+  const baseCore = [];
+  const prestige = [];
+
+  allClassSources.forEach(item => {
+    if(maV32IsPrestigeClass(item)) prestige.push(item);
+    else baseCore.push(item);
+  });
+
+  prestige.push(...prestigeSources);
+
+  lib.baseCoreClasses = maV32UniqueSorted(baseCore);
+  lib.prestigeClasses = maV32UniqueSorted(prestige);
+
+  // Important: calculations and ability imports use lib.classes,
+  // so include prestige classes here too.
+  lib.classes = maV32UniqueSorted([
+    ...lib.baseCoreClasses,
+    ...lib.prestigeClasses
+  ]);
+
+  lib.races = maV32UniqueSorted(lib.races || []);
+
+  return lib;
+}
+
+const maV32OldLoadLibrary = maFfd20LoadLibrary;
+maFfd20LoadLibrary = async function(){
+  const lib = await maV32OldLoadLibrary();
+  return maV32NormalizeLibrary(lib);
+};
+
+function maV32AddOption(select, value, text){
+  const opt = document.createElement('option');
+  opt.value = value || '';
+  opt.textContent = text || value || '';
+  select.appendChild(opt);
+  return opt;
+}
+
+function maV32FillClassSelect(select, lib, placeholder='Choose class', currentValue=''){
+  if(!select) return;
+
+  const current = currentValue || select.value || '';
+  select.innerHTML = '';
+  maV32AddOption(select, '', placeholder);
+
+  const addGroup = (label, list) => {
+    if(!list || !list.length) return;
+    const group = document.createElement('optgroup');
+    group.label = label;
+    list.forEach(item => {
+      const name = maV32Name(item);
+      if(!name) return;
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      group.appendChild(opt);
+    });
+    select.appendChild(group);
+  };
+
+  addGroup('Base / Core Classes', lib.baseCoreClasses || []);
+  addGroup('Prestige Classes', lib.prestigeClasses || []);
+
+  const all = [...(lib.baseCoreClasses || []), ...(lib.prestigeClasses || [])];
+  if(current && !all.some(item => maV32Name(item) === current)){
+    maV32AddOption(select, current, `${current} (current)`);
+  }
+
+  select.value = current;
+}
+
+function maV32FillNameSelect(select, list, placeholder, currentValue=''){
+  if(!select) return;
+  const current = currentValue || select.value || '';
+  select.innerHTML = '';
+  maV32AddOption(select, '', placeholder);
+  maV32UniqueSorted(list || []).forEach(item => {
+    const name = maV32Name(item);
+    if(name) maV32AddOption(select, name, name);
+  });
+  if(current && !Array.from(select.options).some(opt => opt.value === current)){
+    maV32AddOption(select, current, `${current} (current)`);
+  }
+  select.value = current;
+}
+
+const maV32OldFillSelect = maFfd20FillSelect;
+maFfd20FillSelect = function(select, list, placeholder, currentValue=''){
+  if(select && (select.id === 'class' || select.id === 'maEditClass')){
+    const lib = maV32NormalizeLibrary(maFfd20Library || { classes:list || [] });
+    return maV32FillClassSelect(select, lib, placeholder || 'Choose class', currentValue);
+  }
+  if(select && select.id === 'race'){
+    return maV32FillNameSelect(select, list, placeholder || 'Choose race', currentValue);
+  }
+  return maV32OldFillSelect.apply(this, arguments);
+};
+
+maFfd20RefreshOptions = async function(){
+  maFfd20BuildChoiceGrid();
+
+  let lib;
+  try {
+    lib = maV32NormalizeLibrary(await maFfd20LoadLibrary());
+  } catch(e) {
+    ['race','class','archetype','prestige_class'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el && !el.options.length) maFfd20AddOption(el, '', e.message);
+    });
+    console.warn(e);
+    return null;
+  }
+
+  maV32FillNameSelect(
+    document.getElementById('race'),
+    lib.races,
+    'Choose race',
+    document.getElementById('race')?.value || maFfd20ActiveData()?.race || ''
+  );
+
+  maV32FillClassSelect(
+    document.getElementById('class'),
+    lib,
+    'Choose class',
+    document.getElementById('class')?.value || maFfd20ActiveData()?.class || ''
+  );
+
+  await maFfd20RefreshArchetypes();
+
+  try { maFfd20RenderMulticlasses(); } catch(e) {}
+
+  setTimeout(() => {
+    try { window.maRefreshRaceCardV31?.(); } catch(e) {}
+    try { window.maRefreshRaceCardV29?.(); } catch(e) {}
+  }, 80);
+
+  return lib;
+};
+
+maFfd20RefreshArchetypes = async function(){
+  let lib;
+  try { lib = maV32NormalizeLibrary(await maFfd20LoadLibrary()); }
+  catch(e) { return; }
+
+  const className = document.getElementById('class')?.value || '';
+  const cls = maFfd20Find(lib.classes, className);
+
+  maFfd20FillSelect(
+    document.getElementById('archetype'),
+    cls?.archetypes || [],
+    'No archetype',
+    document.getElementById('archetype')?.value || maFfd20ActiveData()?.archetype || ''
+  );
+};
+
+setTimeout(() => maFfd20RefreshOptions(), 0);
+setTimeout(() => maFfd20RefreshOptions(), 250);
+setTimeout(() => maFfd20RefreshOptions(), 1000);
+
+
+
+/* --- v33 stronger prestige class discovery --- */
+const MA_V33_PRESTIGE_DISCOVERY_PATCH = true;
+
+function maV33Name(item){
+  if(typeof item === 'string') return item.trim();
+  return String(item?.name || item?.title || item?.className || item?.class || item?.label || '').trim();
+}
+
+function maV33Norm(value){
+  return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+}
+
+function maV33Object(item){
+  if(typeof item === 'string') return { name:item };
+  return item && typeof item === 'object' ? item : { name:String(item || '') };
+}
+
+function maV33UniqueSorted(list){
+  const seen = new Set();
+  return (list || [])
+    .map(maV33Object)
+    .filter(item => maV33Name(item))
+    .filter(item => {
+      const key = maV33Norm(maV33Name(item));
+      if(seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((a,b) => maV33Name(a).localeCompare(maV33Name(b), undefined, { sensitivity:'base' }));
+}
+
+function maV33LooksPrestige(item, path=''){
+  const text = [
+    path,
+    item?.type,
+    item?.category,
+    item?.group,
+    item?.classType,
+    item?.sourceType,
+    item?.tags,
+    item?.section,
+    item?.kind
+  ].map(v => String(v || '').toLowerCase()).join(' ');
+  return /\bprestige\b/.test(text);
+}
+
+function maV33LooksClass(item){
+  if(!item || typeof item !== 'object') return false;
+  if(maV33Name(item) && (
+    Array.isArray(item.features) ||
+    Array.isArray(item.traits) ||
+    Array.isArray(item.progression) ||
+    Array.isArray(item.archetypes) ||
+    item.hitDie || item.hit_die || item.skillRanks || item.skill_ranks || item.bab
+  )) return true;
+  return false;
+}
+
+function maV33WalkForPrestige(node, path='', out=[]){
+  if(!node || typeof node !== 'object') return out;
+
+  if(Array.isArray(node)){
+    if(/\bprestige\b/i.test(path)){
+      node.forEach(item => {
+        if(maV33Name(item)) out.push(item);
+      });
+    } else {
+      node.forEach((item, index) => maV33WalkForPrestige(item, `${path}[${index}]`, out));
+    }
+    return out;
+  }
+
+  Object.entries(node).forEach(([key, value]) => {
+    const nextPath = path ? `${path}.${key}` : key;
+
+    if(Array.isArray(value) && /\bprestige\b/i.test(nextPath)){
+      value.forEach(item => {
+        if(maV33Name(item)) out.push(item);
+      });
+      return;
+    }
+
+    if(maV33LooksPrestige(value, nextPath) && maV33LooksClass(value)){
+      out.push(value);
+      return;
+    }
+
+    if(value && typeof value === 'object') maV33WalkForPrestige(value, nextPath, out);
+  });
+
+  return out;
+}
+
+function maV33NormalizeLibrary(lib){
+  if(!lib || typeof lib !== 'object') lib = {};
+
+  const classSource = [];
+  [
+    'classes',
+    'baseClasses',
+    'base_classes',
+    'coreClasses',
+    'core_classes'
+  ].forEach(key => {
+    if(Array.isArray(lib[key])) classSource.push(...lib[key]);
+  });
+
+  const prestigeFound = maV33WalkForPrestige(lib);
+  const baseCore = [];
+  const prestige = [];
+
+  classSource.forEach(item => {
+    if(maV33LooksPrestige(item, 'classes')) prestige.push(item);
+    else baseCore.push(item);
+  });
+
+  prestige.push(...prestigeFound);
+
+  lib.baseCoreClasses = maV33UniqueSorted(baseCore);
+  lib.prestigeClasses = maV33UniqueSorted(prestige);
+  lib.classes = maV33UniqueSorted([...lib.baseCoreClasses, ...lib.prestigeClasses]);
+
+  if(Array.isArray(lib.races)) lib.races = maV33UniqueSorted(lib.races);
+
+  console.log('[Mount Aetheria] base/core classes:', lib.baseCoreClasses.length, 'prestige classes:', lib.prestigeClasses.length, lib.prestigeClasses.map(maV33Name));
+
+  return lib;
+}
+
+function maV33FillClassSelect(select, lib, placeholder='Choose class', currentValue=''){
+  if(!select) return;
+
+  lib = maV33NormalizeLibrary(lib || maFfd20Library || {});
+  const current = currentValue || select.value || '';
+
+  select.innerHTML = '';
+
+  const empty = document.createElement('option');
+  empty.value = '';
+  empty.textContent = placeholder;
+  select.appendChild(empty);
+
+  const addGroup = (label, list) => {
+    const group = document.createElement('optgroup');
+    group.label = label;
+
+    if(!list || !list.length){
+      const opt = document.createElement('option');
+      opt.disabled = true;
+      opt.textContent = label === 'Prestige Classes'
+        ? 'No prestige classes found in JSON'
+        : 'No classes found';
+      group.appendChild(opt);
+    } else {
+      list.forEach(item => {
+        const name = maV33Name(item);
+        if(!name) return;
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        group.appendChild(opt);
+      });
+    }
+
+    select.appendChild(group);
+  };
+
+  addGroup('Base / Core Classes', lib.baseCoreClasses || []);
+  addGroup('Prestige Classes', lib.prestigeClasses || []);
+
+  const all = [...(lib.baseCoreClasses || []), ...(lib.prestigeClasses || [])];
+  if(current && !all.some(item => maV33Name(item) === current)){
+    const opt = document.createElement('option');
+    opt.value = current;
+    opt.textContent = `${current} (current)`;
+    select.appendChild(opt);
+  }
+
+  select.value = current;
+}
+
+const maV33OldLoadLibrary = maFfd20LoadLibrary;
+maFfd20LoadLibrary = async function(){
+  const lib = await maV33OldLoadLibrary();
+  return maV33NormalizeLibrary(lib);
+};
+
+const maV33OldFillSelect = maFfd20FillSelect;
+maFfd20FillSelect = function(select, list, placeholder, currentValue=''){
+  if(select && (select.id === 'class' || select.id === 'maEditClass')){
+    const lib = maV33NormalizeLibrary(maFfd20Library || { classes:list || [] });
+    return maV33FillClassSelect(select, lib, placeholder || 'Choose class', currentValue);
+  }
+  return maV33OldFillSelect.apply(this, arguments);
+};
+
+const maV33OldRefreshOptions = maFfd20RefreshOptions;
+maFfd20RefreshOptions = async function(){
+  const lib = await maV33OldRefreshOptions();
+  const fixedLib = maV33NormalizeLibrary(lib || maFfd20Library || {});
+  maV33FillClassSelect(
+    document.getElementById('class'),
+    fixedLib,
+    'Choose class',
+    document.getElementById('class')?.value || maFfd20ActiveData()?.class || ''
+  );
+  await maFfd20RefreshArchetypes();
+  return fixedLib;
+};
+
+setTimeout(() => maFfd20RefreshOptions(), 100);
+setTimeout(() => maFfd20RefreshOptions(), 600);
+setTimeout(() => maFfd20RefreshOptions(), 1500);
+
 </script>
 
 
@@ -11153,6 +12237,277 @@ h2,h3,h4,
   setInterval(refreshRaceCardV31, 1500);
 })();
 </script>
+
+
+<style>
+/* --- v34 phone ability tabs + weapon proficiency placement --- */
+
+/* Stop Active / Passive / Racial / Feats from sticking on phone scroll */
+@media(max-width: 700px){
+  #c-abilities-main .sub-nav-container,
+  #c-abilities-main .sub-nav,
+  #abilitiesSubSubNav{
+    position: static !important;
+    top: auto !important;
+    bottom: auto !important;
+    z-index: auto !important;
+    transform: none !important;
+  }
+
+  #c-abilities-main{
+    overflow: visible !important;
+  }
+
+  #c-abilities-main .sub-sub-group{
+    overflow: visible !important;
+  }
+}
+
+/* Weapon proficiency card under Add Weapon */
+#weaponProficiencyCardV34{
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+#weaponProficiencyCardV34 label{
+  color: var(--accent);
+  font-family: 'Uncial Antiqua', serif;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+#weaponProficiencyCardV34 textarea{
+  min-height: 90px;
+}
+</style>
+
+<script>
+/* --- v34 phone ability tabs + weapon proficiency autofill --- */
+(function(){
+  const FEATURE_NAME = 'Weapon and Armor Proficiency';
+
+  function norm(value){
+    return String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  function getData(){
+    try {
+      if(typeof maFfd20ActiveData === 'function') return maFfd20ActiveData() || {};
+      if(typeof getActiveData === 'function') return getActiveData() || {};
+    } catch(e) {}
+    return {};
+  }
+
+  function getFeatureText(feature){
+    return String(
+      feature?.desc ??
+      feature?.description ??
+      feature?.text ??
+      feature?.body ??
+      feature?.effect ??
+      feature?.summary ??
+      ''
+    ).trim();
+  }
+
+  function featureList(source){
+    if(!source || typeof source !== 'object') return [];
+    return []
+      .concat(Array.isArray(source.features) ? source.features : [])
+      .concat(Array.isArray(source.traits) ? source.traits : [])
+      .concat(Array.isArray(source.abilities) ? source.abilities : [])
+      .concat(Array.isArray(source.classFeatures) ? source.classFeatures : [])
+      .concat(Array.isArray(source.class_features) ? source.class_features : []);
+  }
+
+  function findProficiencyFeature(source){
+    const target = norm(FEATURE_NAME);
+    return featureList(source).find(feature => norm(feature?.name || feature?.title || '') === target);
+  }
+
+  function findClassInLibrary(lib, className){
+    const target = norm(className);
+    if(!target) return null;
+
+    const all = []
+      .concat(Array.isArray(lib?.classes) ? lib.classes : [])
+      .concat(Array.isArray(lib?.baseCoreClasses) ? lib.baseCoreClasses : [])
+      .concat(Array.isArray(lib?.prestigeClasses) ? lib.prestigeClasses : [])
+      .concat(Array.isArray(lib?.prestige_classes) ? lib.prestige_classes : []);
+
+    return all.find(item => norm(item?.name || item?.title || item?.className || item?.class || '') === target) || null;
+  }
+
+  function currentClassRows(){
+    const data = getData();
+    const rows = [];
+
+    const mainClass =
+      document.getElementById('class')?.value ||
+      data.class ||
+      data.className ||
+      '';
+
+    if(mainClass){
+      rows.push({
+        label: 'Class',
+        name: mainClass
+      });
+    }
+
+    const multiclasses = Array.isArray(data.multiclasses) ? data.multiclasses : [];
+    multiclasses.forEach((mc, index) => {
+      const name = mc?.className || mc?.class || mc?.name || '';
+      if(name){
+        rows.push({
+          label: 'Class ' + (index + 2),
+          name
+        });
+      }
+    });
+
+    const prestige =
+      document.getElementById('prestige_class')?.value ||
+      data.prestige_class ||
+      data.prestigeClass ||
+      '';
+
+    if(prestige){
+      rows.push({
+        label: 'Prestige',
+        name: prestige
+      });
+    }
+
+    return rows;
+  }
+
+  function ensureWeaponProficiencyCard(){
+    const textarea = document.getElementById('proficiencies');
+    const weaponList = document.getElementById('weaponList');
+    if(!textarea || !weaponList) return null;
+
+    const weaponPanel = weaponList.parentElement;
+    if(!weaponPanel) return textarea;
+
+    let card = document.getElementById('weaponProficiencyCardV34');
+
+    if(!card){
+      card = document.createElement('div');
+      card.id = 'weaponProficiencyCardV34';
+      card.innerHTML = '<label for="proficiencies">Weapon and Armor Proficiency</label>';
+      card.appendChild(textarea);
+    }
+
+    const addWeaponBtn = Array.from(weaponPanel.querySelectorAll('button'))
+      .find(btn => /add weapon/i.test(btn.textContent || ''));
+
+    if(addWeaponBtn && card.parentElement !== weaponPanel){
+      addWeaponBtn.insertAdjacentElement('afterend', card);
+    } else if(!card.parentElement) {
+      weaponPanel.appendChild(card);
+    }
+
+    // Remove the old empty wrapper left under Feats if it exists.
+    document.querySelectorAll('#a-feats > div').forEach(div => {
+      if(div !== card && div.textContent.trim() === 'Proficiencies' && !div.querySelector('#proficiencies')){
+        div.remove();
+      }
+    });
+
+    return textarea;
+  }
+
+  async function autofillWeaponProficiency(){
+    const textarea = ensureWeaponProficiencyCard();
+    if(!textarea) return;
+
+    let lib = null;
+    try {
+      if(typeof maFfd20LoadLibrary === 'function') lib = await maFfd20LoadLibrary();
+    } catch(e) {
+      console.warn('Could not load class library for proficiencies', e);
+      return;
+    }
+
+    const rows = currentClassRows();
+    const blocks = [];
+
+    rows.forEach(row => {
+      const cls = findClassInLibrary(lib, row.name);
+      const feature = findProficiencyFeature(cls);
+      if(!feature) return;
+
+      const desc = getFeatureText(feature);
+      blocks.push(desc ? `${row.name}: ${desc}` : `${row.name}: ${FEATURE_NAME}`);
+    });
+
+    const next = blocks.join('\n\n').trim();
+
+    // Forceful for test branch: class JSON owns this field.
+    if(next && textarea.value !== next){
+      textarea.value = next;
+
+      const data = getData();
+      data.proficiencies = next;
+
+      textarea.dispatchEvent(new Event('input', { bubbles:true }));
+      textarea.dispatchEvent(new Event('change', { bubbles:true }));
+
+      try {
+        if(typeof save === 'function') save(true);
+        else if(typeof triggerSave === 'function') triggerSave();
+      } catch(e) {}
+    }
+  }
+
+  function scheduleAutofill(){
+    ensureWeaponProficiencyCard();
+    setTimeout(autofillWeaponProficiency, 80);
+    setTimeout(autofillWeaponProficiency, 400);
+  }
+
+  document.addEventListener('DOMContentLoaded', scheduleAutofill);
+  window.addEventListener('load', scheduleAutofill);
+
+  document.addEventListener('change', event => {
+    if(['class','archetype','character_level','prestige_class','prestige_level'].includes(event.target?.id)){
+      scheduleAutofill();
+    }
+  }, true);
+
+  document.addEventListener('click', event => {
+    if(event.target?.closest?.('#maClassBuildCard, #maMulticlassList, #maAddMulticlassBtn')){
+      setTimeout(scheduleAutofill, 500);
+    }
+  }, true);
+
+  const oldRefreshOptions = window.maFfd20RefreshOptions;
+  if(typeof oldRefreshOptions === 'function'){
+    window.maFfd20RefreshOptions = async function(){
+      const result = await oldRefreshOptions.apply(this, arguments);
+      scheduleAutofill();
+      return result;
+    };
+  }
+
+  window.maV34RefreshWeaponProficiency = scheduleAutofill;
+
+  setTimeout(scheduleAutofill, 250);
+  setTimeout(scheduleAutofill, 1000);
+})();
+</script>
+
+
+
+
 
 </body>
 </html>
