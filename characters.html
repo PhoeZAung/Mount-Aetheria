@@ -2316,6 +2316,37 @@ body:not(.skill-edit-mode) #skills.active #skillsTableBody tr:has(.trained-untra
 }
 </style>
 
+
+<style>
+/* --- Items inventory redesign: combat-style currency cards + left tag tabs --- */
+#items.active{max-width:1120px !important;}
+.item-wallet-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 14px;}
+.item-resource-card{position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;min-height:98px;padding:13px 14px;background:linear-gradient(145deg,#242424,#151515);border:1px solid rgba(var(--accent-rgb),.28);border-radius:18px;box-shadow:0 10px 24px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.04);}
+.item-resource-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at top left,rgba(var(--accent-rgb),.14),transparent 44%);pointer-events:none;}
+.item-resource-icon{position:relative;z-index:1;width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:15px;background:#0f0f0f;border:1px solid rgba(var(--accent-rgb),.30);font-size:26px;box-shadow:0 0 18px rgba(var(--accent-rgb),.10);}
+.item-resource-body{position:relative;z-index:1;min-width:0;flex:1;display:flex;flex-direction:column;gap:6px;}
+.item-resource-body label{margin:0;color:var(--accent);font-family:'Uncial Antiqua',serif;font-size:14px;letter-spacing:.04em;}
+.item-resource-body input,.item-resource-body .slot-box-value{min-height:42px;border-radius:12px;background:#0c0c0c;border:1px solid #3f3f3f;color:#fff;font-size:18px;font-weight:900;text-align:center;}
+.item-resource-body input{padding:7px 8px;}
+.item-resource-body .slot-box-value{display:flex;align-items:center;justify-content:center;}
+.item-resource-body .slot-box-value.over{color:#ff7b7b;border-color:#b44;box-shadow:0 0 14px rgba(255,80,80,.18);}
+.item-layout-shell{display:grid;grid-template-columns:210px minmax(0,1fr);gap:12px;align-items:start;padding:12px !important;}
+.item-category-tabs{position:sticky;top:112px;display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,#181818,#101010);border:1px solid rgba(var(--accent-rgb),.28);border-radius:18px;padding:10px;max-height:calc(100vh - 150px);overflow-y:auto;}
+.item-cat-group{display:flex;flex-direction:column;gap:7px;padding-top:10px;border-top:1px solid #303030;}
+.item-cat-group:first-of-type{border-top:0;padding-top:0;}
+.item-cat-btn{width:100%;display:grid;grid-template-columns:30px minmax(0,1fr);align-items:center;gap:9px;text-align:left;background:#202020;border:1px solid #383838;border-radius:13px;color:#ddd;padding:9px 10px;cursor:pointer;font-weight:900;transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;}
+.item-cat-btn:hover{border-color:rgba(var(--accent-rgb),.66);box-shadow:0 0 14px rgba(var(--accent-rgb),.12);transform:translateX(2px);}
+.item-cat-btn.active{background:linear-gradient(135deg,rgba(var(--accent-rgb),.24),#181818);border-color:var(--accent);color:#fff;box-shadow:inset 3px 0 0 var(--accent),0 0 18px rgba(var(--accent-rgb),.16);}
+.item-cat-emoji{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;background:#111;border:1px solid #3a3a3a;border-radius:10px;font-size:16px;}
+.item-cat-btn.active .item-cat-emoji{border-color:var(--accent);}
+.item-content-panel{min-width:0;}
+.item-toolbar-row{display:flex;justify-content:flex-end;gap:10px;margin:0 0 10px;}
+.item-toolbar-row #itemSort{max-width:170px;border-radius:999px;border-color:rgba(var(--accent-rgb),.30);background:#141414;}
+.item-filter-hidden{position:absolute !important;left:-9999px !important;width:1px !important;height:1px !important;opacity:0 !important;pointer-events:none !important;}
+#items.active #itemFilterTag{display:block !important;}
+@media(max-width:700px){.item-wallet-grid{grid-template-columns:1fr !important;}.item-layout-shell{grid-template-columns:1fr;}.item-category-tabs{position:relative;top:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;overflow:visible;}.item-cat-group{display:contents;}.item-cat-btn{min-height:52px;}.item-toolbar-row{justify-content:stretch;}.item-toolbar-row #itemSort{max-width:none;width:100%;}}
+@media(max-width:390px){.item-category-tabs{grid-template-columns:1fr;}}
+</style>
 </head>
 <body>
 
@@ -2636,22 +2667,45 @@ setTimeout(() => {
 </div>
 
 <div id="items" class="tab-content">
-  <div class="item-top-grid">
-    <div class="stat-box"><label>💰 Gil</label><input id="currency_gil" class="live-field"></div>
-    <div class="stat-box"><label>Moogle Pts</label><input id="currency_moogle" class="live-field"></div>
-    <div class="stat-box"><label>Slot</label><div id="slotUsageDisplay" class="slot-box-value">0/20</div></div>
+  <div class="item-top-grid item-wallet-grid">
+    <div class="item-resource-card item-gil-card"><div class="item-resource-icon">💰</div><div class="item-resource-body"><label>Gil</label><input id="currency_gil" class="live-field"></div></div>
+    <div class="item-resource-card item-moogle-card"><div class="item-resource-icon">🐾</div><div class="item-resource-body"><label>Moogle Points</label><input id="currency_moogle" class="live-field"></div></div>
+    <div class="item-resource-card item-slot-card"><div class="item-resource-icon">🎒</div><div class="item-resource-body"><label>Slots</label><div id="slotUsageDisplay" class="slot-box-value">0/20</div></div></div>
   </div>
-  <div class="items-panel-shell">
-    <div class="item-section-tabs">
-      <button class="sub-btn active" id="itemView-storage" onclick="setItemView('storage')">Storage</button>
-      <button class="sub-btn" id="itemView-equipped" onclick="setItemView('equipped')">Equipped</button>
-    </div>
-    <div style="display:flex; gap:10px; margin-bottom:10px;">
-      <select id="itemFilterTag" onchange="renderItems()" style="flex:1;"><option value="All">All Tags</option><option value="Weapons">Weapons</option><option value="Ranged Weapon">Ranged Weapon</option><option value="Ammunition">Ammunition</option><option value="Armor">Armor</option><option value="Gear">Gear</option><option value="Machine">Machine</option><option value="Alchemical Items">Alchemical Items</option><option value="Artifacts">Artifacts</option><option value="Magic Items">Magic Items</option><option value="Food">Food</option><option value="Collections">Collections</option><option value="Misc">Misc</option></select>
-      <select id="itemSort" onchange="renderItems()" style="flex:1;"><option value="recent">Recent</option><option value="abc">A-Z</option></select>
-    </div>
-    <div id="itemList"></div>
-    <button class="btn-add" onclick="addNewItem('item')">+ Add Item</button>
+  <div class="items-panel-shell item-layout-shell">
+    <aside class="item-category-tabs" id="itemCategoryTabs" aria-label="Item category tabs">
+      <button class="item-cat-btn active" type="button" data-tag="All" onclick="setItemTagFilter('All')"><span class="item-cat-emoji">✨</span><span>All Items</span></button>
+      <div class="item-cat-group">
+        <button class="item-cat-btn" type="button" data-tag="Weapon" onclick="setItemTagFilter('Weapon')"><span class="item-cat-emoji">⚔️</span><span>Weapon</span></button>
+        <button class="item-cat-btn" type="button" data-tag="Ammunition" onclick="setItemTagFilter('Ammunition')"><span class="item-cat-emoji">🏹</span><span>Ammunition</span></button>
+        <button class="item-cat-btn" type="button" data-tag="Armor" onclick="setItemTagFilter('Armor')"><span class="item-cat-emoji">🛡️</span><span>Armor</span></button>
+      </div>
+      <div class="item-cat-group">
+        <button class="item-cat-btn" type="button" data-tag="Gear" onclick="setItemTagFilter('Gear')"><span class="item-cat-emoji">🪢</span><span>Gear</span></button>
+        <button class="item-cat-btn" type="button" data-tag="Food" onclick="setItemTagFilter('Food')"><span class="item-cat-emoji">🍖</span><span>Food</span></button>
+        <button class="item-cat-btn" type="button" data-tag="Collections" onclick="setItemTagFilter('Collections')"><span class="item-cat-emoji">📜</span><span>Collection</span></button>
+      </div>
+      <div class="item-cat-group">
+        <button class="item-cat-btn" type="button" data-tag="Alchemical Items" onclick="setItemTagFilter('Alchemical Items')"><span class="item-cat-emoji">🧪</span><span>Alchemical Items</span></button>
+        <button class="item-cat-btn" type="button" data-tag="Artifacts" onclick="setItemTagFilter('Artifacts')"><span class="item-cat-emoji">🏺</span><span>Artifacts</span></button>
+        <button class="item-cat-btn" type="button" data-tag="Magic Items" onclick="setItemTagFilter('Magic Items')"><span class="item-cat-emoji">🔮</span><span>Magic Items</span></button>
+      </div>
+      <div class="item-cat-group">
+        <button class="item-cat-btn" type="button" data-tag="Misc" onclick="setItemTagFilter('Misc')"><span class="item-cat-emoji">📦</span><span>Misc</span></button>
+      </div>
+    </aside>
+    <section class="item-content-panel">
+      <div class="item-section-tabs">
+        <button class="sub-btn active" id="itemView-storage" onclick="setItemView('storage')">Storage</button>
+        <button class="sub-btn" id="itemView-equipped" onclick="setItemView('equipped')">Equipped</button>
+      </div>
+      <div class="item-toolbar-row">
+        <select id="itemFilterTag" onchange="syncItemTagTabs(); renderItems()" class="item-filter-hidden" aria-hidden="true" tabindex="-1"><option value="All">All Tags</option><option value="Weapon">Weapon</option><option value="Ammunition">Ammunition</option><option value="Armor">Armor</option><option value="Gear">Gear</option><option value="Food">Food</option><option value="Collections">Collections</option><option value="Alchemical Items">Alchemical Items</option><option value="Artifacts">Artifacts</option><option value="Magic Items">Magic Items</option><option value="Misc">Misc</option></select>
+        <select id="itemSort" onchange="renderItems()"><option value="recent">Recent</option><option value="abc">A-Z</option></select>
+      </div>
+      <div id="itemList"></div>
+      <button class="btn-add" onclick="addNewItem('item')">+ Add Item</button>
+    </section>
   </div>
 </div>
 
@@ -4512,14 +4566,40 @@ window.useActiveAbility = (idx) => {
 };
 
 
+function getItemTagFilterValue() {
+    const el = document.getElementById('itemFilterTag');
+    return el ? (el.value || 'All') : 'All';
+}
+
+function itemMatchesTagFilter(itemTag, tagFilter) {
+    if(tagFilter === 'All') return true;
+    if(tagFilter === 'Weapon') return itemTag === 'Weapons' || itemTag === 'Ranged Weapon' || itemTag === 'Weapon';
+    return itemTag === tagFilter;
+}
+
+window.setItemTagFilter = (tag) => {
+    const el = document.getElementById('itemFilterTag');
+    if(el) el.value = tag || 'All';
+    syncItemTagTabs();
+    renderItems();
+};
+
+window.syncItemTagTabs = () => {
+    const tag = getItemTagFilterValue();
+    document.querySelectorAll('#itemCategoryTabs .item-cat-btn').forEach(btn => {
+        btn.classList.toggle('active', (btn.dataset.tag || 'All') === tag);
+    });
+};
+
 window.renderItems = () => {
     const data = getActiveData().items || [];
     const container = document.getElementById('itemList'); container.innerHTML = '';
-    const tagFilter = document.getElementById('itemFilterTag').value;
+    const tagFilter = getItemTagFilterValue();
+    syncItemTagTabs();
     const sortType = document.getElementById('itemSort').value;
     let filtered = data.filter(i => {
         const itemTag = normalizeItemTagLabel(i.tags);
-        const matchesTag = tagFilter === "All" || itemTag === tagFilter;
+        const matchesTag = itemMatchesTagFilter(itemTag, tagFilter);
         const equipped = !!i.equipped;
         const matchesView = currentItemView === 'equipped' ? equipped : !equipped;
         return matchesTag && matchesView;
