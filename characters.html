@@ -327,9 +327,21 @@ input.readonly-yellow[type=number] {
 .item-meta-line { color:#888; font-size:12px; display:flex; flex-wrap:wrap; gap:8px; }
 
 /* --- Shop-style item previews on character sheets --- */
-.item-name-link{background:none;border:0;color:var(--accent);font-weight:bold;text-align:left;cursor:pointer;padding:0;font-size:14px;white-space:normal;font-family:inherit;}
+.item-name-link{background:none;border:0;color:var(--accent);font-weight:bold;text-align:left;cursor:pointer;padding:0;font-size:14px;white-space:normal;font-family:inherit;display:inline-flex;align-items:center;gap:7px;min-width:0;}
 .item-name-link:hover{text-decoration:underline;color:var(--accent);}
-.sheet-item-name{display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;}
+.sheet-item-name{display:inline-flex;align-items:center;gap:7px;max-width:100%;overflow:hidden;text-overflow:ellipsis;}
+.item-title-text{display:inline-block;min-width:0;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;}
+.rarity-marker{display:inline-block;width:13px;height:13px;flex:0 0 13px;background:#fff;border:1px solid rgba(255,255,255,.78);box-shadow:0 0 7px rgba(255,255,255,.18);vertical-align:middle;}
+.rarity-common{background:#fff;clip-path:circle(48% at 50% 50%);}
+.rarity-uncommon{background:#46d66f;clip-path:polygon(50% 0,100% 100%,0 100%);}
+.rarity-rare{background:#4ea1ff;clip-path:polygon(0 0,100% 0,50% 100%);}
+.rarity-epic{background:#b46cff;clip-path:polygon(0 0,100% 0,100% 100%,0 100%);}
+.rarity-legendary{background:#ffd84d;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.item-image-preview-panel{display:none;position:fixed;left:0;top:0;width:min(310px,28vw);max-height:min(72vh,520px);z-index:6500;background:#151515;border:1px solid var(--accent);border-radius:14px;padding:10px;box-shadow:0 12px 36px rgba(0,0,0,.72),0 0 18px rgba(var(--accent-rgb),.16);}
+.item-image-preview-panel.show{display:block;}
+.item-image-preview-panel img{display:block;width:100%;max-height:min(62vh,455px);object-fit:contain;border-radius:10px;background:#050505;border:1px solid #333;}
+.item-image-preview-title{color:var(--accent);font-family:'Uncial Antiqua';font-size:14px;font-weight:bold;text-align:center;margin:0 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media(max-width:900px){.item-image-preview-panel{display:none!important;}.item-name-link,.sheet-item-name{font-size:15px;}}
 .price-badge{background:#000;border:1px solid var(--accent);border-radius:999px;color:var(--accent);padding:3px 8px;font-size:12px;font-weight:bold;white-space:nowrap;display:inline-flex;width:max-content;}
 .modal-price{margin-bottom:10px;}
 .item-meta{display:flex;gap:6px;flex-wrap:wrap;}
@@ -834,6 +846,12 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 .spell-tab-control.spells-collapsed #spellsSubBtn{display:none !important;}
 .spell-tab-control.spells-collapsed .spell-collapse-toggle{border-color:var(--accent);}
 
+
+/* --- Unified item editor patch --- */
+.ma-edit-dual-textareas{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.ma-edit-dual-textareas .ma-edit-field{height:100%;}
+.ma-edit-dual-textareas textarea{min-height:210px;}
+@media(max-width:700px){.ma-edit-dual-textareas{grid-template-columns:1fr;}}
 </style>
 
 <style>
@@ -2778,13 +2796,14 @@ setTimeout(() => {
       </div>
       <div class="item-cat-group">
         <button class="item-cat-btn" type="button" data-tag="Gear" onclick="setItemTagFilter('Gear')"><span class="item-cat-emoji">🪢</span><span>Gear</span></button>
+        <button class="item-cat-btn" type="button" data-tag="Machine" onclick="setItemTagFilter('Machine')"><span class="item-cat-emoji">⚙️</span><span>Machine</span></button>
         <button class="item-cat-btn" type="button" data-tag="Food" onclick="setItemTagFilter('Food')"><span class="item-cat-emoji">🍖</span><span>Food</span></button>
-        <button class="item-cat-btn" type="button" data-tag="Collections" onclick="setItemTagFilter('Collections')"><span class="item-cat-emoji">📜</span><span>Collection</span></button>
+        <button class="item-cat-btn" type="button" data-tag="Collection" onclick="setItemTagFilter('Collection')"><span class="item-cat-emoji">📜</span><span>Collection</span></button>
       </div>
       <div class="item-cat-group">
         <button class="item-cat-btn" type="button" data-tag="Alchemical Items" onclick="setItemTagFilter('Alchemical Items')"><span class="item-cat-emoji">🧪</span><span>Alchemical Items</span></button>
         <button class="item-cat-btn" type="button" data-tag="Artifacts" onclick="setItemTagFilter('Artifacts')"><span class="item-cat-emoji">🏺</span><span>Artifacts</span></button>
-        <button class="item-cat-btn" type="button" data-tag="Magic Items" onclick="setItemTagFilter('Magic Items')"><span class="item-cat-emoji">🔮</span><span>Magic Items</span></button>
+        <button class="item-cat-btn" type="button" data-tag="Magic Item" onclick="setItemTagFilter('Magic Item')"><span class="item-cat-emoji">🔮</span><span>Magic Item</span></button>
       </div>
       <div class="item-cat-group">
         <button class="item-cat-btn" type="button" data-tag="Misc" onclick="setItemTagFilter('Misc')"><span class="item-cat-emoji">📦</span><span>Misc</span></button>
@@ -2796,7 +2815,7 @@ setTimeout(() => {
         <button class="sub-btn" id="itemView-equipped" onclick="setItemView('equipped')">Equipped</button>
       </div>
       <div class="item-toolbar-row">
-        <select id="itemFilterTag" onchange="syncItemTagTabs(); renderItems()" class="item-filter-hidden" aria-hidden="true" tabindex="-1"><option value="All">All Tags</option><option value="Weapon">Weapon</option><option value="Ammunition">Ammunition</option><option value="Armor">Armor</option><option value="Gear">Gear</option><option value="Food">Food</option><option value="Collections">Collections</option><option value="Alchemical Items">Alchemical Items</option><option value="Artifacts">Artifacts</option><option value="Magic Items">Magic Items</option><option value="Misc">Misc</option></select>
+        <select id="itemFilterTag" onchange="syncItemTagTabs(); renderItems()" class="item-filter-hidden" aria-hidden="true" tabindex="-1"><option value="All">All Tags</option><option value="Weapon">Weapon</option><option value="Ammunition">Ammunition</option><option value="Armor">Armor</option><option value="Gear">Gear</option><option value="Machine">Machine</option><option value="Food">Food</option><option value="Collection">Collection</option><option value="Alchemical Items">Alchemical Items</option><option value="Artifacts">Artifacts</option><option value="Magic Item">Magic Item</option><option value="Misc">Misc</option></select>
         <select id="itemSort" onchange="renderItems()"><option value="recent">Recent</option><option value="abc">A-Z</option></select>
       </div>
       <div id="itemList"></div>
@@ -2853,9 +2872,9 @@ setTimeout(() => {
 
 <div id="viewModal" class="modal-overlay">
     <div class="modal-content">
-        <div class="modal-header"><h3 id="viewTitle">Item Name</h3><button class="btn-close" onclick="document.getElementById('viewModal').style.display='none'">&times;</button></div>
+        <div class="modal-header"><h3 id="viewTitle">Item Name</h3><button class="btn-close" onclick="closeViewModal()">&times;</button></div>
         <div id="viewBody" class="modal-body"></div>
-        <div style="padding:10px; text-align:right; border-top:1px solid #333;"><button class="btn-save" onclick="document.getElementById('viewModal').style.display='none'">Close</button></div>
+        <div style="padding:10px; text-align:right; border-top:1px solid #333;"><button class="btn-save" onclick="closeViewModal()">Close</button></div>
     </div>
 </div>
 
@@ -3028,15 +3047,44 @@ function createBlankCharacterData(name = 'New Character') {
     base.updatedAt = new Date();
     return base;
 }
-const ITEM_TAG_OPTIONS = ["Weapons", "Ranged Weapon", "Ammunition", "Armor", "Gear", "Machine", "Enchantment", "Alchemical Items", "Artifacts", "Magic Items", "Food", "Collections", "Misc"];
+const ITEM_TAG_OPTIONS = ["Weapon", "Ammunition", "Armor", "Gear", "Machine", "Food", "Collection", "Alchemical Items", "Artifacts", "Magic Item", "Misc"];
 function normalizeItemTagLabel(tag) {
-    const t = String(tag || '').trim();
-    if(!t) return 'Misc';
-    if(/^consumables?$/i.test(t)) return 'Food';
-    if(/^magic item$/i.test(t)) return 'Magic Items';
-    if(/^collection$/i.test(t)) return 'Collections';
-    if(/^weapon$/i.test(t)) return 'Weapons';
-    return ITEM_TAG_OPTIONS.includes(t) ? t : t;
+    const rawParts = Array.isArray(tag) ? tag : String(tag || '').split(/[,|\n]+/);
+    const candidates = rawParts.map(v => String(v || '').trim()).filter(Boolean);
+    const ordered = [...candidates, String(tag || '').trim()].filter(Boolean);
+    for (const t of ordered) {
+        if(/^weapons?$/i.test(t) || /^ranged weapons?$/i.test(t) || /^ranged weapon$/i.test(t)) return 'Weapon';
+        if(/^ammo$/i.test(t) || /^ammunition$/i.test(t)) return 'Ammunition';
+        if(/^armou?r$/i.test(t)) return 'Armor';
+        if(/^machines?$/i.test(t) || /^vehicle$/i.test(t) || /^vehicles$/i.test(t)) return 'Machine';
+        if(/^gear$/i.test(t)) return 'Gear';
+        if(/^food$/i.test(t) || /^consumables?$/i.test(t)) return 'Food';
+        if(/^collections?$/i.test(t) || /^collectibles?$/i.test(t)) return 'Collection';
+        if(/^alchemical items?$/i.test(t) || /^alchemy$/i.test(t) || /^potions?$/i.test(t)) return 'Alchemical Items';
+        if(/^artifacts?$/i.test(t)) return 'Artifacts';
+        if(/^magic items?$/i.test(t) || /^wondrous$/i.test(t) || /^enchantments?$/i.test(t)) return 'Magic Item';
+        const exact = ITEM_TAG_OPTIONS.find(opt => opt.toLowerCase() === t.toLowerCase());
+        if(exact) return exact;
+    }
+    return 'Misc';
+}
+function normalizeItemRarity(value) {
+    const t = String(value || '').trim().toLowerCase().replace(/[\s_-]+/g, ' ');
+    if(!t || t === 'none' || t === 'n/a' || t === 'na') return 'Common';
+    if(t === 'un common' || t === 'uncommon') return 'Uncommon';
+    if(t === 'very rare' || t === 'every rare' || t === 'veryrare' || t === 'epic') return 'Epic';
+    if(t === 'legendary') return 'Legendary';
+    if(t === 'rare') return 'Rare';
+    if(t === 'common') return 'Common';
+    return String(value || 'Common').trim();
+}
+function itemRarityClass(value) {
+    const rarity = normalizeItemRarity(value);
+    return 'rarity-' + rarity.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z-]/g, '');
+}
+function itemRarityMarkerHtml(item = {}) {
+    const rarity = normalizeItemRarity(item.rarity || itemFirstValue(item, ['rarity']));
+    return `<span class="rarity-marker ${itemEsc(itemRarityClass(rarity))}" title="${itemEsc(rarity)}"></span>`;
 }
 
 
@@ -3048,36 +3096,45 @@ const ITEM_META_FIELD_LABELS = {
     usageType: 'Usage',
     tier: 'Tier',
     lvl: 'Lvl',
-    rarity: 'Rarity'
+    rarity: 'Rarity',
+    cl: 'CL'
 };
 const ITEM_VISIBLE_TAG_FIELDS_BY_CATEGORY = {
-    Weapons: ['rarity','lvl','proficiency','type','secondaryType'],
-    Weapon: ['rarity','lvl','proficiency','type','secondaryType'],
-    'Ranged Weapon': ['rarity','lvl','proficiency','type','secondaryType'],
+    Weapons: ['rarity','lvl','proficiency','usageType','type','secondaryType'],
+    Weapon: ['rarity','lvl','proficiency','usageType','type','secondaryType'],
+    'Ranged Weapon': ['rarity','lvl','proficiency','usageType','type','secondaryType'],
     Ammunition: ['rarity','lvl','type'],
     Armor: ['rarity','lvl','type'],
     Gear: ['rarity','lvl','type','secondaryType'],
-    Machine: ['rarity','lvl','type'],
-    Enchantment: ['rarity','lvl','type','tier'],
-    'Alchemical Items': ['rarity','lvl','type','tier'],
-    Artifacts: ['rarity','lvl','type'],
-    'Magic Items': ['rarity','lvl','type'],
+    Machine: ['rarity','lvl','cl','type'],
+    Enchantment: ['rarity','lvl','cl','type','tier'],
+    'Alchemical Items': ['rarity','lvl','tier','cl','type'],
+    Artifacts: ['rarity','lvl','cl','type'],
+    'Magic Items': ['rarity','lvl','cl','type'],
+    'Magic Item': ['rarity','lvl','cl','type'],
     Food: ['rarity','type','secondaryType'],
     Collections: ['rarity','type'],
-    Misc: ['rarity','lvl','type']
+    Collection: ['rarity','type'],
+    Misc: ['rarity','lvl','type','secondaryType']
 };
 const ITEM_DETAIL_FIELD_KEYS_BY_CATEGORY = {
     Weapons: [
+        ['Proficiency', ['proficiency']],
+        ['Usage', ['usageType','usage','use']],
         ['Dmg', ['dmg','damage','damageDice','damage_dice','dmgM','dmgS','attackDmg']],
         ['Crit', ['crit','critical','crit_range','critRange','crit range','crit_mult','crit mult']],
         ['Range', ['range','rangeIncrement','range_increment']]
     ],
     Weapon: [
+        ['Proficiency', ['proficiency']],
+        ['Usage', ['usageType','usage','use']],
         ['Dmg', ['dmg','damage','damageDice','damage_dice','dmgM','dmgS','attackDmg']],
         ['Crit', ['crit','critical','crit_range','critRange','crit range','crit_mult','crit mult']],
         ['Range', ['range','rangeIncrement','range_increment']]
     ],
     'Ranged Weapon': [
+        ['Proficiency', ['proficiency']],
+        ['Usage', ['usageType','usage','use']],
         ['Dmg', ['dmg','damage','damageDice','damage_dice','dmgM','dmgS','attackDmg']],
         ['Crit', ['crit','critical','crit_range','critRange','crit range','crit_mult','crit mult']],
         ['Range', ['range','rangeIncrement','range_increment']],
@@ -3091,27 +3148,90 @@ const ITEM_DETAIL_FIELD_KEYS_BY_CATEGORY = {
         ['Speed', ['speed','speedPenalty','speed penalty','speed30Ft','speed20Ft']]
     ],
     Machine: [
-        ['Speed', ['speed']],
+        ['CL', ['cl','casterLevel','caster level']],
         ['Full speed', ['fullSpeed','full speed']],
         ['Passengers/Crew', ['passengersCrew','passengers/crew','passengers','crew']],
         ['Fuel', ['fuel']],
         ['Mileage', ['mileage']],
         ['AC/CMD', ['acCmd','ac/cmd','ac cmd']],
         ['HP', ['hp']],
-        ['Hardness', ['hardness']]
+        ['Hardness', ['hardness']],
+        ['Attack/Dmg', ['attackDmg','attack/dmg','attack dmg']],
+        ['Critical', ['critical','crit']],
+        ['Range', ['range']],
+        ['Damage Type', ['damageType','damage type']],
+        ['Aim', ['aim']],
+        ['Load', ['load']]
     ],
     'Alchemical Items': [
+        ['Tier', ['tier']],
+        ['CL', ['cl','casterLevel','caster level']],
         ['Range', ['range']],
-        ['DC Saves', ['dcSave','dc saves','dcSaves','saveDc','save DC']],
-        ['Spell Needed', ['spellNeeded','spell needed','spell']]
+        ['DC/Save', ['dcSave','dc/save','dc save','dc saves','dcSaves','saveDc','save DC']]
     ],
     Enchantment: [['CL', ['cl','casterLevel','caster level']]],
     Artifacts: [['CL', ['cl','casterLevel','caster level']]],
     'Magic Items': [['CL', ['cl','casterLevel','caster level']]],
+    'Magic Item': [['CL', ['cl','casterLevel','caster level']]],
     Gear: [],
     Food: [],
+    Collection: [],
     Ammunition: []
 };
+const ITEM_EDIT_EXTRA_FIELDS_BY_CATEGORY = {
+    Weapon: [
+        ['Proficiency', 'proficiency', ['proficiency']],
+        ['Usage', 'usageType', ['usageType','usage','use']],
+        ['Dmg', 'dmg', ['dmg','damage','damageDice','damage_dice','dmgM','dmgS','attackDmg']],
+        ['Crit', 'crit', ['crit','critical','crit_range','critRange','crit range','crit_mult','crit mult']],
+        ['Range', 'range', ['range','rangeIncrement','range_increment']]
+    ],
+    Armor: [
+        ['AC Bonus', 'acBonus', ['acBonus','ac bonus','armorBonus','armor bonus','shieldBonus']],
+        ['Max Dex', 'maxDex', ['maxDex','max dex','maxDexBonus']],
+        ['Check Penalty', 'checkPenalty', ['checkPenalty','check penalty','armorCheckPenalty']],
+        ['Spell Failure', 'spellFailure', ['spellFailure','spell failure','arcaneSpellFailure']],
+        ['Speed', 'speed', ['speed','speedPenalty','speed penalty','speed30Ft','speed20Ft']]
+    ],
+    Machine: [
+        ['CL', 'cl', ['cl','casterLevel','caster level']],
+        ['Full Speed', 'fullSpeed', ['fullSpeed','full speed']],
+        ['Passengers/Crew', 'passengersCrew', ['passengersCrew','passengers/crew','passengers','crew']],
+        ['Fuel', 'fuel', ['fuel']],
+        ['Mileage', 'mileage', ['mileage']],
+        ['AC/CMD', 'acCmd', ['acCmd','ac/cmd','ac cmd']],
+        ['HP', 'hp', ['hp']],
+        ['Hardness', 'hardness', ['hardness']],
+        ['Attack/Dmg', 'attackDmg', ['attackDmg','attack/dmg','attack dmg']],
+        ['Critical', 'critical', ['critical','crit']],
+        ['Range', 'range', ['range']],
+        ['Damage Type', 'damageType', ['damageType','damage type']],
+        ['Aim', 'aim', ['aim']],
+        ['Load', 'load', ['load']]
+    ],
+    'Alchemical Items': [
+        ['Tier', 'tier', ['tier']],
+        ['CL', 'cl', ['cl','casterLevel','caster level']],
+        ['Range', 'range', ['range']],
+        ['DC/Save', 'dcSave', ['dcSave','dc/save','dc save','dc saves','dcSaves','saveDc','save DC']]
+    ]
+};
+function itemEditAllowsSecondaryType(category) {
+    return !['Weapon','Ammunition','Armor','Machine'].includes(normalizeItemTagLabel(category));
+}
+function itemEditAllowsCl(category) {
+    return !['Weapon','Ammunition','Armor','Food'].includes(normalizeItemTagLabel(category));
+}
+function itemImageUrlValue(item = {}) {
+    return itemFirstValue(item, ['img','image','imageUrl','imgUrl','icon','Image URL','Img URL','Image Url','Image']);
+}
+function itemFilteredExtraFieldsForEdit(category) {
+    const fields = ITEM_EDIT_EXTRA_FIELDS_BY_CATEGORY[normalizeItemTagLabel(category)] || [];
+    const commonKeys = new Set();
+    if (itemEditAllowsCl(category)) commonKeys.add('cl');
+    if (itemEditAllowsSecondaryType(category)) commonKeys.add('secondaryType');
+    return fields.filter(([, key]) => !commonKeys.has(key));
+}
 const ITEM_NOISY_META_VALUES = new Set(['container','containers','gear','tool','tools','misc','miscellaneous','storage','stored','source','origin','origins','n/a','na','none','—','-']);
 const ITEM_SKIP_DETAIL_LABELS = new Set(['weight','weightlb','weightlbs','bulk','location','storage','storedin','source','sourcesystem','sourceorigin','origin','origins','skilluse','skilluses','use skill','skill']);
 function itemEsc(value) {
@@ -3134,7 +3254,15 @@ function itemFirstValue(item, keys) {
             if (item?.raw && Object.prototype.hasOwnProperty.call(item.raw, vKey) && itemCleanText(item.raw[vKey])) return item.raw[vKey];
         }
     }
-    return '';
+    const wanted = new Set(keys.map(k => itemNormKey(k)));
+    const scan = (obj) => {
+        if(!obj || typeof obj !== 'object') return '';
+        for (const [k, v] of Object.entries(obj)) {
+            if(wanted.has(itemNormKey(k)) && itemCleanText(v)) return v;
+        }
+        return '';
+    };
+    return scan(item) || scan(item?.raw) || '';
 }
 function itemDisplayCost(item = {}) {
     if (itemCleanText(item.cost)) return item.cost;
@@ -3225,8 +3353,8 @@ function itemDetailsHtmlForSheet(item = {}) {
     return `<h4>Details</h4><div class="item-detail-grid">${rows.map(([label,value]) => `<div class="item-detail-cell"><small>${itemEsc(label)}</small><span>${itemEsc(value)}</span></div>`).join('')}</div>`;
 }
 function itemCanEditWeaponStats(item = {}) {
-    const main = itemMainCategory(item);
-    return main === 'Weapons' || main === 'Weapon' || main === 'Ranged Weapon' || /weapon/i.test(String(item.tags || item.sourceCategory || item.category || ''));
+    const main = normalizeItemTagLabel(itemMainCategory(item));
+    return main === 'Weapon' || /weapon/i.test(String(item.tags || item.sourceCategory || item.category || item.shopGroup || item.filterTag || item.type || ''));
 }
 function updateItemTagListValue(value) {
     return String(value || '').split(/[,|\n]+/).map(t => t.trim()).filter(Boolean).filter((t, i, arr) => arr.indexOf(t) === i);
@@ -3246,7 +3374,7 @@ function sanitizeCharacterDoc(raw = {}, fallbackName = 'New Character') {
     };
     delete data.summons;
     if (!Array.isArray(data.items)) data.items = [];
-    data.items = data.items.map(item => ({ ...item, tags: normalizeItemTagLabel(item?.tags) }));
+    data.items = data.items.map(item => ({ ...item, tags: normalizeItemTagLabel(item?.sourceCategory || item?.category || item?.tags), rarity: normalizeItemRarity(item?.rarity || item?.raw?.Rarity || 'Common') }));
     if (!Array.isArray(data.weapons)) data.weapons = [];
     data.weapons = data.weapons.map(weapon => normalizeWeaponData(weapon));
     if (!Array.isArray(data.spells)) data.spells = [];
@@ -3949,6 +4077,88 @@ window.toggleItemEquipped = (idx, checked) => {
     if (typeof triggerSave === 'function') triggerSave(); else saveDataOnly();
 };
 
+function ensureItemImagePreviewPanel() {
+    let panel = document.getElementById('itemImagePreviewPanel');
+    if(panel) return panel;
+    panel = document.createElement('aside');
+    panel.id = 'itemImagePreviewPanel';
+    panel.className = 'item-image-preview-panel';
+    document.body.appendChild(panel);
+    return panel;
+}
+function hideItemImagePreview() {
+    const panel = document.getElementById('itemImagePreviewPanel');
+    if(panel) {
+        panel.classList.remove('show');
+        panel.innerHTML = '';
+    }
+}
+function positionItemImagePreviewPanel() {
+    const panel = document.getElementById('itemImagePreviewPanel');
+    const viewModal = document.getElementById('viewModal');
+    const modalContent = viewModal ? viewModal.querySelector('.modal-content') : null;
+    if(!panel || !panel.classList.contains('show') || !modalContent) return;
+    const rect = modalContent.getBoundingClientRect();
+    const gap = 14;
+    const margin = 12;
+    const viewportW = window.innerWidth || document.documentElement.clientWidth || 0;
+    const viewportH = window.innerHeight || document.documentElement.clientHeight || 0;
+    const roomRight = Math.max(0, viewportW - rect.right - gap - margin);
+    if(roomRight >= 180) {
+        panel.style.width = Math.min(310, roomRight) + 'px';
+    } else {
+        panel.style.width = '180px';
+    }
+    const panelRect = panel.getBoundingClientRect();
+    const left = Math.min(rect.right + gap, Math.max(margin, viewportW - panelRect.width - margin));
+    const top = Math.min(Math.max(margin, rect.top + (rect.height - panelRect.height) / 2), Math.max(margin, viewportH - panelRect.height - margin));
+    panel.style.left = `${left}px`;
+    panel.style.top = `${top}px`;
+}
+function showItemImagePreviewForView(item = {}) {
+    const img = itemCleanText(itemImageUrlValue(item));
+    if(!img || !window.matchMedia || !window.matchMedia('(min-width: 901px)').matches) {
+        hideItemImagePreview();
+        return;
+    }
+
+    const panel = ensureItemImagePreviewPanel();
+
+    // Hide until the image has loaded, so the first position uses the real image height.
+    panel.style.visibility = 'hidden';
+    panel.innerHTML = `
+        <div class="item-image-preview-title">${itemEsc(item.name || 'Item Image')}</div>
+        <img src="${itemEsc(img)}" alt="${itemEsc(item.name || 'Item image')}">
+    `;
+
+    panel.classList.add('show');
+
+    const imgEl = panel.querySelector('img');
+
+    const revealCentered = () => {
+        requestAnimationFrame(() => {
+            positionItemImagePreviewPanel();
+            panel.style.visibility = 'visible';
+        });
+    };
+
+    imgEl?.addEventListener('load', revealCentered, { once: true });
+    imgEl?.addEventListener('error', () => {
+        panel.classList.remove('show');
+        panel.style.visibility = 'visible';
+    }, { once: true });
+
+    // Handles cached images that are already loaded.
+    if(imgEl?.complete && imgEl.naturalWidth > 0) {
+        revealCentered();
+    }
+}
+window.addEventListener('resize', positionItemImagePreviewPanel);
+window.closeViewModal = () => {
+    const viewModal = document.getElementById('viewModal');
+    if(viewModal) viewModal.style.display = 'none';
+    hideItemImagePreview();
+};
 
 window.openView = (type, index) => {
     // Prevent view from opening if we are dragging
@@ -4727,8 +4937,7 @@ function getItemTagFilterValue() {
 
 function itemMatchesTagFilter(itemTag, tagFilter) {
     if(tagFilter === 'All') return true;
-    if(tagFilter === 'Weapon') return itemTag === 'Weapons' || itemTag === 'Ranged Weapon' || itemTag === 'Weapon';
-    return itemTag === tagFilter;
+    return normalizeItemTagLabel(itemTag) === normalizeItemTagLabel(tagFilter);
 }
 
 window.setItemTagFilter = (tag) => {
@@ -4752,7 +4961,7 @@ window.renderItems = () => {
     syncItemTagTabs();
     const sortType = document.getElementById('itemSort').value;
     let filtered = data.filter(i => {
-        const itemTag = normalizeItemTagLabel(i.tags);
+        const itemTag = itemMainCategory(i);
         const matchesTag = itemMatchesTagFilter(itemTag, tagFilter);
         const equipped = !!i.equipped;
         const matchesView = currentItemView === 'equipped' ? equipped : !equipped;
@@ -4765,15 +4974,15 @@ window.renderItems = () => {
         const div = document.createElement('div'); div.className = 'list-row';
         const amount = getItemAmount(item);
         const slot = getItemSlot(item);
-        let extraBtn = (item.tags === "Collections" && item.img) ? `<button class="btn-save" style="font-size:10px; padding:4px 8px;" onclick="event.stopPropagation();viewCollection('${item.img}')">IMG</button>` : '';
+        const normalizedTag = itemMainCategory(item);
+        let extraBtn = (normalizedTag === "Collection" && itemImageUrlValue(item)) ? `<button class="btn-save" style="font-size:10px; padding:4px 8px;" onclick="event.stopPropagation();viewCollection('${itemEsc(itemImageUrlValue(item))}')">IMG</button>` : '';
         const displayCost = itemDisplayCost(item);
         const itemTitle = `${amount}x ${item.name || 'New Item'}`;
-        const metaPills = itemSheetPills(item).slice(0, 4).map(p => `<span>${itemEsc(p.text)}</span>`).join('');
         div.innerHTML = `<div class="item-toggle-wrap">
             <input type="checkbox" class="item-equip-check" ${item.equipped ? 'checked' : ''} onchange="event.stopPropagation();toggleItemEquipped(${idx}, this.checked)">
             <div class="row-content">
-                <button type="button" class="item-name-link sheet-item-name" onclick="event.stopPropagation();openView('item',${idx})">${itemEsc(itemTitle)}</button>
-                <span class="item-meta-line">${metaPills}<span>Slot ${itemEsc(slot)}</span>${displayCost && displayCost !== '—' ? `<span>Cost ${itemEsc(displayCost)}</span>` : ''}</span>
+                <button type="button" class="item-name-link sheet-item-name" onclick="event.stopPropagation();openView('item',${idx})">${itemRarityMarkerHtml(item)}<span class="item-title-text">${itemEsc(itemTitle)}</span></button>
+                <span class="item-meta-line"><span>Slot ${itemEsc(slot)}</span>${displayCost && displayCost !== '—' ? `<span>Cost ${itemEsc(displayCost)}</span>` : ''}</span>
             </div>
         </div><div class="row-actions" style="display:flex; gap:5px">${extraBtn}<button class="btn-edit" onclick="openEditor('item',${idx})">Edit</button></div>`;
         container.appendChild(div);
@@ -4788,6 +4997,7 @@ function populateViewModal(type, item, index = -1) {
     viewTitleEl.textContent = item.name || "Unnamed";
     const body = document.getElementById('viewBody'); body.innerHTML = '';
     document.getElementById('viewModal').style.display = 'flex';
+    hideItemImagePreview();
     const add = (l, t) => { if(t !== undefined && t !== null && String(t).trim() !== ''){ body.innerHTML += `<div class="view-label">${l}</div><div class="view-text">${t}</div>`; } };
 
     if(type === 'weapon') {
@@ -4965,19 +5175,18 @@ function populateViewModal(type, item, index = -1) {
     if(type === 'item') {
         const titleEl = document.getElementById('viewTitle');
         titleEl.className = 'item-modal-title-row';
-        titleEl.innerHTML = `<span>${itemEsc(item.name || 'Item')}</span>`;
+        titleEl.innerHTML = `${itemRarityMarkerHtml(item)}<span>${itemEsc(item.name || 'Item')}</span>`;
         const pills = itemSheetPills(item);
         const desc = itemCleanText(item.desc);
         const special = itemCleanText(item.special);
-        const sourceUrl = itemCleanText(item.link || item.sourceUrl);
         body.innerHTML = `<div class="item-view-shell">
             <div class="price-badge modal-price">${itemEsc(itemDisplayCost(item))}</div>
             <div class="item-meta modal-meta">${pills.map(p => `<span class="tag-pill ${itemEsc(p.cls)}">${itemEsc(p.text)}</span>`).join('')}</div>
             ${itemDetailsHtmlForSheet(item)}
             ${desc ? `<h4>Description</h4><p>${itemEsc(desc)}</p>` : ''}
             ${special && special !== desc ? `<h4>Special</h4><p>${itemEsc(special)}</p>` : ''}
-            ${sourceUrl ? `<p><a href="${itemEsc(sourceUrl)}" target="_blank" class="source-link">Open Source</a></p>` : ''}
         </div>`;
+        showItemImagePreviewForView(item);
         return;
     }
     document.getElementById('viewTitle').className = '';
@@ -5035,7 +5244,7 @@ function populateEditorModal(type, item, index, col) {
     modalBody.classList.add('ma-editor-body');
     const linkBtn = document.getElementById('modalLinkBtn');
     linkBtn.textContent = 'Open Link';
-    linkBtn.style.display = (item.link) ? 'inline-block' : 'none'; linkBtn.href = item.link || '#';
+    linkBtn.style.display = (type !== 'item' && item.link) ? 'inline-block' : 'none'; linkBtn.href = (type !== 'item' && item.link) ? item.link : '#';
 
     createInput('Name', item.name, 'name');
     if(type === 'weapon') {
@@ -5101,19 +5310,26 @@ function populateEditorModal(type, item, index, col) {
 
     if(type === 'feat') createInput('Link URL', item.link, 'link');
     if(type === 'item') {
-        createEditorSection('Inventory');
+        const itemCategory = itemMainCategory(item);
+        createEditorSection('Item Details');
+        createSelect('Tag', itemCategory, 'tags', ITEM_TAG_OPTIONS);
+        createInput('Type', itemFirstValue(item, ['type']), 'type');
+        if (itemEditAllowsSecondaryType(itemCategory)) {
+            createInput('Secondary Type', itemFirstValue(item, ['secondaryType','secondary type','filterTag']), 'secondaryType');
+        }
+        createInput('Image URL', itemImageUrlValue(item), 'img');
         createInput('Amount', getItemAmount(item), 'amount');
         createInput('Cost', item.cost, 'cost');
         createInput('Slot Amount', getItemSlot(item), 'slot');
-        createCheckbox('Equipped', !!item.equipped, 'equipped');
-        createInput('Image URL', item.img, 'img');
-        createInput('Source Link URL', item.link || item.sourceUrl, 'link');
+        if (itemEditAllowsCl(itemCategory)) {
+            createInput('CL', itemFirstValue(item, ['cl','casterLevel','caster level']), 'cl');
+        }
+        createSelect('Rarity', normalizeItemRarity(item.rarity || itemFirstValue(item, ['rarity'])), 'rarity', ['Common','Uncommon','Rare','Epic','Legendary']);
 
-        if (itemCanEditWeaponStats(item)) {
-            createEditorSection('Weapon Stats');
-            createInput('Damage', itemFirstValue(item, ['damage','dmg','damageDice','damage_dice','dmgM','dmgS','attackDmg']), 'damage');
-            createInput('Crit', itemFirstValue(item, ['crit','critical','crit_range','critRange','crit range','crit_mult','crit mult']), 'crit');
-            createInput('Range', itemFirstValue(item, ['range','rangeIncrement','range_increment']), 'range');
+        const extraFields = itemFilteredExtraFieldsForEdit(itemCategory);
+        if (extraFields.length) {
+            createEditorSection(itemCategory + ' Stats');
+            extraFields.forEach(([label, key, keys]) => createItemInput(label, item, key, keys));
         }
     }
     if(type === 'spell') {
@@ -5126,7 +5342,13 @@ function populateEditorModal(type, item, index, col) {
         createTextArea('Description', item.desc, 'desc');
         createEditorSection('At Higher Levels');
         createTextArea('At Higher Levels', item.at_higher_lvls || item.at_higher, 'at_higher_lvls');
+    } else if(type === 'item') {
+        createEditorSection('Description');
+        createTextArea('Description', item.desc, 'desc');
+        createEditorSection('Special');
+        createTextArea('Special', item.special, 'special');
     } else {
+        createEditorSection('Description');
         createTextArea('Description', item.desc, 'desc');
     }
 
@@ -5153,6 +5375,10 @@ function createInput(l, v, k) {
     i.oninput = e => updateCurrentItem(k, e.target.value);
     createEditField(l, i);
 }
+function createItemInput(label, item, key, keys) {
+    const value = itemFirstValue(item, keys || [key]);
+    createInput(label, value, key);
+}
 function prepareScrollableTextarea(t, opts = {}) {
     if(!t) return t;
     t.classList.add('scrollable-textarea');
@@ -5170,7 +5396,7 @@ function prepareScrollableTextarea(t, opts = {}) {
 function createTextArea(l, v, k) {
     const t = document.createElement('textarea');
     t.value = v || '';
-    const isLong = k === 'desc' || k === 'at_higher_lvls';
+    const isLong = k === 'desc' || k === 'special' || k === 'at_higher_lvls';
     prepareScrollableTextarea(t, { longDesc: isLong });
     t.oninput = e => { autoExpand(t); updateCurrentItem(k, e.target.value); };
     createEditField(l, t, { long: isLong });
@@ -5211,12 +5437,17 @@ function addAttrRow(c, d, i) {
 
 function updateCurrentItem(k, v) {
     const item = getActiveData()[currentEditContext.col][currentEditContext.index];
-    if(k === 'tags') item[k] = normalizeItemTagLabel(v);
+    if(k === 'tags') { item[k] = normalizeItemTagLabel(v); item.category = item[k]; item.sourceCategory = item[k]; }
+    else if(k === 'rarity') item[k] = normalizeItemRarity(v);
     else if(k === 'tagList') item[k] = updateItemTagListValue(v);
     else {
         item[k] = v;
         if(k === 'link') item.sourceUrl = v;
         if(k === 'sourceCategory') item.category = v;
+        if(k === 'secondaryType') item.filterTag = v;
+        if(k === 'slot') item.slotAmount = v;
+        if(k === 'dmg') item.damage = v;
+        if(k === 'critical') item.crit = v;
     }
     if(k==='link') { const b=document.getElementById('modalLinkBtn'); b.href=v; b.style.display=v?'inline-block':'none'; }
     if(currentEditContext?.type === 'weapon' && k === 'ability_mod') item.mod = v;
@@ -5225,7 +5456,7 @@ function updateCurrentItem(k, v) {
             maFfd20CaptureAutoOverride(getActiveData(), item);
         }
     } catch(e) { console.warn('Could not save auto FFD20 override', e); }
-    if(['name','lvl','tags','tagList','sourceCategory','category','shopGroup','secondaryType','filterTag','proficiency','usageType','tier','sourceSystem','rarity','sourceShopName','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','amount','cost','slot','equipped','img','ability_mod','attack_misc','damage','dmg','crit','critical','crit_range','crit_mult','range','ammo','link','sourceUrl'].includes(k)) refreshList(currentEditContext.type);
+    if(['name','lvl','tags','tagList','sourceCategory','category','shopGroup','secondaryType','filterTag','proficiency','usageType','tier','sourceSystem','rarity','sourceShopName','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','amount','cost','slot','slotAmount','equipped','img','image','imageUrl','ability_mod','attack_misc','damage','dmg','crit','critical','crit_range','crit_mult','range','ammo','cl','acBonus','maxDex','checkPenalty','spellFailure','speed','fullSpeed','passengersCrew','fuel','mileage','acCmd','hp','hardness','attackDmg','damageType','aim','load','dcSave','special','link','sourceUrl'].includes(k)) refreshList(currentEditContext.type);
     saveDataOnly();
 }
 window.closeModal = () => { modal.style.display='none'; if(currentEditContext) refreshList(currentEditContext.type); };
@@ -5234,7 +5465,7 @@ function refreshList(t) { if(t==='weapon') renderWeapons(); else if(t==='spell')
 window.addNewItem = (t) => {
     const d = getActiveData();
     let n={name:''}, c='';
-    if(t==='weapon'){c='weapons';n.mod='STR';n.ability_mod='STR';n.attack_misc='';n.damage='';n.type='';n.crit_range='20';n.crit_mult='x2';n.range='';n.ammo='';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';n.attack_type='None';n.spell_resist='No';n.saving_throw='';n.school='';n.target='';n.range='';n.duration='';n.damage='';n.at_higher_lvls='';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;n.attack_type='None';n.damage='';n.at_higher_lvls='';n.restoreOnLongRest=true;} else if(t==='passive'){c='passiveAbilities';n.damage='';n.at_higher_lvls='';} else if(t==='racial'){c='racialAbilities';n.type='Racial';n.damage='';n.at_higher_lvls='';} else if(t==='feat'){c='feats';n.damage='';n.at_higher_lvls='';} else if(t==='item'){c='items';n.tags='Misc';n.amount=1;n.slot=1;n.equipped=false;}
+    if(t==='weapon'){c='weapons';n.mod='STR';n.ability_mod='STR';n.attack_misc='';n.damage='';n.type='';n.crit_range='20';n.crit_mult='x2';n.range='';n.ammo='';n.attrs=[];} else if(t==='spell'){c='spells';n.lvl='Cantrip';n.type='Standard';n.attack_type='None';n.spell_resist='No';n.saving_throw='';n.school='';n.target='';n.range='';n.duration='';n.damage='';n.at_higher_lvls='';} else if(t==='active'){c='activeAbilities';n.type='Standard';n.u_curr=0;n.u_max=0;n.attack_type='None';n.damage='';n.at_higher_lvls='';n.restoreOnLongRest=true;} else if(t==='passive'){c='passiveAbilities';n.damage='';n.at_higher_lvls='';} else if(t==='racial'){c='racialAbilities';n.type='Racial';n.damage='';n.at_higher_lvls='';} else if(t==='feat'){c='feats';n.damage='';n.at_higher_lvls='';} else if(t==='item'){c='items';n.tags='Misc';n.category='Misc';n.amount=1;n.slot=1;n.rarity='Common';n.equipped=false;}
     if(!d[c]) d[c]=[]; d[c].push(n);
     saveDataOnly(); refreshList(t); openEditor(t, d[c].length-1);
 };
@@ -8341,15 +8572,32 @@ async function maClassRowsOpenDialog(kind='primary', index=null){
   const overlayPromise = maFfd20Dialog(title, body, 'Save Class');
   setTimeout(() => {
     const c = document.getElementById('maEditClass'), a = document.getElementById('maEditArch');
+
     maFfd20FillSelect(c, lib.classes, 'Choose class', curClass);
-    const fillArch = (keep=true) => { const cls = maFfd20Find(lib.classes, c?.value || ''); maFfd20FillSelect(a, cls?.archetypes || [], 'No archetype', keep ? curArch : ''); };
+
+    // Keep the current class saved, but do not visually select it in the open dropdown.
+    // This removes the native browser "selected option vs hovered option" highlight fight.
+    if(c) {
+        c.dataset.currentClass = curClass || '';
+        c.selectedIndex = -1;
+        c.value = '';
+        c.title = curClass ? `Current class: ${curClass}` : '';
+    }
+
+    const fillArch = (keep=true) => {
+        const activeClass = c?.value || c?.dataset.currentClass || curClass || '';
+        const cls = maFfd20Find(lib.classes, activeClass);
+        maFfd20FillSelect(a, cls?.archetypes || [], 'No archetype', keep ? curArch : '');
+    };
+
     fillArch(true);
     c?.addEventListener('change', () => fillArch(false));
   }, 0);
   const target = isMulti && index !== null ? document.querySelectorAll('#maMulticlassList .ma-build-card')[index] : document.getElementById('maClassBuildCard');
   target?.classList.add('ma-glow'); setTimeout(()=>target?.classList.remove('ma-glow'),700);
   const overlay = await overlayPromise; if(!overlay) return;
-  const className = overlay.querySelector('#maEditClass')?.value || '';
+  const classSelectEl = overlay.querySelector('#maEditClass');
+  const className = classSelectEl?.value || classSelectEl?.dataset.currentClass || curClass || '';
   if(!className) return;
   let archetype = overlay.querySelector('#maEditArch')?.value || '';
   const chosenClassForArch = maFfd20Find(lib.classes, className);
