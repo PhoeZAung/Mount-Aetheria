@@ -2750,7 +2750,7 @@ setTimeout(() => {
     <button id="skillsEnterEditBtn" class="skills-mode-btn" type="button" onclick="toggleSkillEditMode(true)" aria-label="Edit skills">✏️ Edit Skills</button>
   </div>
   <div class="skills-editor-toolbar" aria-label="Skill editing controls">
-    <div class="skill-points-wrap"><span>Unused Skill Points</span><input id="skill_points" class="live-field" type="number" min="0" step="1" aria-label="Unused skill points" readonly title="Skill points are earned from class levels and spent by adding ranks."></div>
+    <div class="skill-points-wrap"><span>Unused Skill Points</span><input id="skill_points" class="live-field" type="number" min="0" step="1" aria-label="Unused skill points" readonly title="Skill points are automatic from class levels, favored +1 skill choices, and ranks spent."></div>
     <button id="skillsExitEditBtn" class="skills-mode-btn" type="button" onclick="toggleSkillEditMode(false)" aria-label="Finish editing skills">✓ Done</button>
   </div>
   <div id="mobileSkillHeader" style="display:none; color:#888; font-size:12px;"><span style="display:inline-block; width:40%;"></span><span style="display:inline-block; width:18%; text-align:right;">TEMP</span><span style="display:inline-block; width:21%; text-align:right;">RANKS</span><span style="display:inline-block; width:21%; text-align:right;">TOTAL</span></div>
@@ -3537,7 +3537,7 @@ function sanitizeSkillPoolUi() {
 }
 window.toggleSkillPointEdit = () => {
     sanitizeSkillPoolUi();
-    alert('Unused skill points are calculated from class level-ups. Spend them by adding skill ranks.');
+    alert('Unused skill points are calculated from class level-ups. Spend them by adding skill ranks; old manual pools are ignored.');
 };
 function syncSkillRankCap(refundReducedRanks = false) {
     const cap = getSkillRankCap();
@@ -5133,6 +5133,7 @@ function populateEditorModal(type, item, index, col) {
     const deleteBtn = document.getElementById('modalDeleteBtn');
     if(type === 'active' && item.isLimitBreak) { deleteBtn.style.display='none'; } else { deleteBtn.style.display='block'; }
     deleteBtn.onclick = () => { getActiveData()[col].splice(index, 1); saveDataOnly(); closeModal(); };
+    maFfd20AddAutoResetButton(type, item, index, col);
     modal.style.display = 'flex';
 }
 
@@ -5219,6 +5220,11 @@ function updateCurrentItem(k, v) {
     }
     if(k==='link') { const b=document.getElementById('modalLinkBtn'); b.href=v; b.style.display=v?'inline-block':'none'; }
     if(currentEditContext?.type === 'weapon' && k === 'ability_mod') item.mod = v;
+    try {
+        if(['active','passive','racial','feat','spell'].includes(currentEditContext?.type)) {
+            maFfd20CaptureAutoOverride(getActiveData(), item);
+        }
+    } catch(e) { console.warn('Could not save auto FFD20 override', e); }
     if(['name','lvl','tags','tagList','sourceCategory','category','shopGroup','secondaryType','filterTag','proficiency','usageType','tier','sourceSystem','rarity','sourceShopName','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','amount','cost','slot','equipped','img','ability_mod','attack_misc','damage','dmg','crit','critical','crit_range','crit_mult','range','ammo','link','sourceUrl'].includes(k)) refreshList(currentEditContext.type);
     saveDataOnly();
 }
@@ -5268,6 +5274,7 @@ function scrapeCurrentSheet() {
     });
     const m = current;
     try { if (typeof maFfd20MoveRaceEffectsToRacial === 'function') maFfd20MoveRaceEffectsToRacial(m); } catch (e) {}
+    try { if (typeof maFfd20CaptureAllAutoOverrides === 'function') maFfd20CaptureAllAutoOverrides(m); } catch (e) {}
     p.weapons = m.weapons || [];
     p.spells = m.spells || [];
     p.activeAbilities = m.activeAbilities || [];
@@ -7732,6 +7739,243 @@ function maFfd20Bucket(entry, sourcePrefix=''){
 function maFfd20AutoKey(entry, sourcePrefix=''){
   return ['ffd20', sourcePrefix || entry?.originType || 'source', entry?.originName || entry?.sourceName || '', entry?.level || 0, entry?.name || ''].map(maFfd20Norm).filter(Boolean).join(':');
 }
+
+
+/* --- Auto FFD20 override persistence helpers ---
+   Stores player-edited fields for JSON-imported abilities/spells before the
+   level/class rebuild removes them, then reapplies those edits when the same
+   auto entry is earned again. */
+const MA_FFD20_AUTO_OVERRIDE_STORE = 'ffd20AutoOverrides';
+const MA_FFD20_LEGACY_DESC_OVERRIDE_STORE = 'autoAbilityDescOverrides';
+const MA_FFD20_AUTO_COLLECTIONS = ['activeAbilities','passiveAbilities','racialAbilities','feats','spells'];
+const MA_FFD20_AUTO_EDIT_FIELDS = [
+  'name','type','desc','description','at_higher_lvls','at_higher','link','sourceUrl',
+  'u_curr','u_max','restoreOnLongRest','attack_type','damage','lvl','school',
+  'saving_throw','spell_resist','target','range','duration','attrs','tags','tagList','details'
+];
+function maFfd20CloneValue(value){
+  if(value === undefined) return undefined;
+  try { return JSON.parse(JSON.stringify(value)); } catch(e) { return value; }
+}
+function maFfd20AutoStableString(value){
+  try { return JSON.stringify(value, Object.keys(value || {}).sort()); } catch(e) { return String(value); }
+}
+function maFfd20AutoSnapshotsEqual(a, b){
+  return maFfd20AutoStableString(a || {}) === maFfd20AutoStableString(b || {});
+}
+function maFfd20IsImportedAutoItem(item){
+  if(!item || typeof item !== 'object') return false;
+  const sourceKind = String(item.sourceKind || item.originType || item.sourceType || item.originCategory || '').trim().toLowerCase();
+  const bucket = String(item.bucket || item.sheetBucket || '').trim().toLowerCase();
+  const autoKey = String(item.autoKey || '').trim().toLowerCase();
+  if(item.autoGenerated) return true;
+  if(autoKey.startsWith('ffd20:')) return true;
+  if(autoKey.includes(':class:') || autoKey.includes(':archetype:') || autoKey.includes(':multiclass:') || autoKey.includes(':prestige:') || autoKey.includes(':race:')) return true;
+  if(['race','class','archetype','multiclass','prestige'].includes(sourceKind)) return true;
+  if(['racial','race','class','archetype','multiclass','prestige'].includes(bucket) && (item.sourceName || item.originName)) return true;
+  return false;
+}
+function maFfd20AutoKeyForItem(item){
+  const explicit = String(item?.autoKey || '').trim();
+  if(explicit) return explicit;
+  return ['ffd20', item?.sourceKind || item?.originType || item?.sourceType || 'source', item?.sourceName || item?.originName || '', item?.sourceLevel || item?.level || 0, item?.name || ''].map(maFfd20Norm).filter(Boolean).join(':');
+}
+function maFfd20EnsureAutoOverrideStore(data){
+  if(!data || typeof data !== 'object') data = maFfd20ActiveData();
+  if(!data[MA_FFD20_AUTO_OVERRIDE_STORE] || typeof data[MA_FFD20_AUTO_OVERRIDE_STORE] !== 'object' || Array.isArray(data[MA_FFD20_AUTO_OVERRIDE_STORE])) data[MA_FFD20_AUTO_OVERRIDE_STORE] = {};
+  return data[MA_FFD20_AUTO_OVERRIDE_STORE];
+}
+function maFfd20AutoFieldSnapshot(item){
+  const out = {};
+  if(!item || typeof item !== 'object') return out;
+  MA_FFD20_AUTO_EDIT_FIELDS.forEach(field => {
+    if(Object.prototype.hasOwnProperty.call(item, field) && item[field] !== undefined) out[field] = maFfd20CloneValue(item[field]);
+  });
+  if(out.description !== undefined && out.desc === undefined) out.desc = out.description;
+  if(out.at_higher !== undefined && out.at_higher_lvls === undefined) out.at_higher_lvls = out.at_higher;
+  if(out.link !== undefined && out.sourceUrl === undefined) out.sourceUrl = out.link;
+  if(out.sourceUrl !== undefined && out.link === undefined) out.link = out.sourceUrl;
+  return out;
+}
+function maFfd20StampAutoDefaults(item){
+  if(!item || typeof item !== 'object') return item;
+  const snap = maFfd20AutoFieldSnapshot(item);
+  item.autoDefaultValues = maFfd20CloneValue(snap);
+  item._ffd20DefaultValues = maFfd20CloneValue(snap);
+  item.autoDefaultDesc = snap.desc ?? '';
+  item.autoDefaultAtHigherLvls = snap.at_higher_lvls ?? '';
+  item._ffd20DefaultDesc = snap.desc ?? '';
+  item._ffd20DefaultAtHigherLvls = snap.at_higher_lvls ?? '';
+  return item;
+}
+function maFfd20DefaultSnapshotForItem(item, existingOverride){
+  if(item?.autoDefaultValues && typeof item.autoDefaultValues === 'object') return maFfd20CloneValue(item.autoDefaultValues);
+  if(item?._ffd20DefaultValues && typeof item._ffd20DefaultValues === 'object') return maFfd20CloneValue(item._ffd20DefaultValues);
+  if(existingOverride?.defaults && typeof existingOverride.defaults === 'object') return maFfd20CloneValue(existingOverride.defaults);
+  const out = {};
+  if(item?.autoDefaultDesc !== undefined || item?._ffd20DefaultDesc !== undefined) out.desc = String(item.autoDefaultDesc ?? item._ffd20DefaultDesc ?? '');
+  if(item?.autoDefaultAtHigherLvls !== undefined || item?._ffd20DefaultAtHigherLvls !== undefined) out.at_higher_lvls = String(item.autoDefaultAtHigherLvls ?? item._ffd20DefaultAtHigherLvls ?? '');
+  if(Object.keys(out).length) return out;
+  return maFfd20AutoFieldSnapshot(item);
+}
+function maFfd20MigrateLegacyDescOverrides(data){
+  if(!data || typeof data !== 'object') return;
+  const legacy = data[MA_FFD20_LEGACY_DESC_OVERRIDE_STORE];
+  if(!legacy || typeof legacy !== 'object' || Array.isArray(legacy)) return;
+  const store = maFfd20EnsureAutoOverrideStore(data);
+  Object.entries(legacy).forEach(([key, value]) => {
+    if(!value || typeof value !== 'object' || store[key]) return;
+    store[key] = {
+      key,
+      values: {
+        ...(value.desc !== undefined ? { desc: String(value.desc ?? '') } : {}),
+        ...(value.at_higher_lvls !== undefined || value.at_higher !== undefined ? { at_higher_lvls: String(value.at_higher_lvls ?? value.at_higher ?? '') } : {})
+      },
+      defaults: {
+        ...(value.defaultDesc !== undefined ? { desc: String(value.defaultDesc ?? '') } : {}),
+        ...(value.defaultAtHigherLvls !== undefined ? { at_higher_lvls: String(value.defaultAtHigherLvls ?? '') } : {})
+      },
+      migratedFrom: MA_FFD20_LEGACY_DESC_OVERRIDE_STORE,
+      updatedAt: value.updatedAt || Date.now()
+    };
+  });
+}
+function maFfd20CaptureAutoOverride(data, item, opts={}){
+  if(!data || typeof data !== 'object' || !maFfd20IsImportedAutoItem(item)) return;
+  maFfd20MigrateLegacyDescOverrides(data);
+  const key = maFfd20AutoKeyForItem(item);
+  if(!key) return;
+  item.autoKey = item.autoKey || key;
+  const store = maFfd20EnsureAutoOverrideStore(data);
+  const existing = store[key] && typeof store[key] === 'object' ? store[key] : {};
+  const values = maFfd20AutoFieldSnapshot(item);
+  const defaults = maFfd20DefaultSnapshotForItem(item, existing);
+  const changed = !!opts.force || !maFfd20AutoSnapshotsEqual(values, defaults);
+  if(!changed){
+    if(store[key]) delete store[key];
+    item.autoCustomized = false;
+    return;
+  }
+  store[key] = {
+    ...existing,
+    key,
+    bucket: item.bucket || existing.bucket || '',
+    sourceKind: item.sourceKind || item.originType || existing.sourceKind || '',
+    sourceName: item.sourceName || item.originName || existing.sourceName || '',
+    sourceLevel: item.sourceLevel || item.level || existing.sourceLevel || 0,
+    values,
+    defaults: Object.keys(defaults || {}).length ? maFfd20CloneValue(defaults) : (existing.defaults || {}),
+    updatedAt: Date.now()
+  };
+  item.autoCustomized = true;
+}
+function maFfd20CaptureAllAutoOverrides(data){
+  if(!data || typeof data !== 'object') return;
+  maFfd20MigrateLegacyDescOverrides(data);
+  MA_FFD20_AUTO_COLLECTIONS.forEach(col => {
+    if(!Array.isArray(data[col])) return;
+    data[col].forEach(item => maFfd20CaptureAutoOverride(data, item));
+  });
+}
+function maFfd20ApplyAutoOverride(data, item){
+  if(!data || typeof data !== 'object' || !item || typeof item !== 'object') return item;
+  if(!maFfd20IsImportedAutoItem(item)) return item;
+  maFfd20MigrateLegacyDescOverrides(data);
+  maFfd20StampAutoDefaults(item);
+  const key = maFfd20AutoKeyForItem(item);
+  const store = maFfd20EnsureAutoOverrideStore(data);
+  const override = store[key];
+  if(!override || typeof override !== 'object') { item.autoCustomized = false; return item; }
+  const values = override.values && typeof override.values === 'object' ? override.values : override;
+  MA_FFD20_AUTO_EDIT_FIELDS.forEach(field => {
+    if(Object.prototype.hasOwnProperty.call(values, field)) item[field] = maFfd20CloneValue(values[field]);
+  });
+  if(item.desc === undefined && item.description !== undefined) item.desc = item.description;
+  if(item.at_higher_lvls === undefined && item.at_higher !== undefined) item.at_higher_lvls = item.at_higher;
+  if(item.link && !item.sourceUrl) item.sourceUrl = item.link;
+  if(item.sourceUrl && !item.link) item.link = item.sourceUrl;
+  item.autoKey = item.autoKey || key;
+  item.autoCustomized = true;
+  return item;
+}
+async function maFfd20FindDefaultSnapshotForAutoItem(item){
+  const ownDefaults = maFfd20DefaultSnapshotForItem(item, null);
+  if(ownDefaults && Object.keys(ownDefaults).length) return ownDefaults;
+  const data = maFfd20ActiveData();
+  const key = maFfd20AutoKeyForItem(item);
+  const saved = data?.[MA_FFD20_AUTO_OVERRIDE_STORE]?.[key];
+  if(saved?.defaults && Object.keys(saved.defaults).length) return maFfd20CloneValue(saved.defaults);
+  try {
+    const lib = await maFfd20LoadLibrary();
+    const imported = maFfd20BuildImported(lib, maFfd20ReadSelection()) || [];
+    const hit = imported.find(row => maFfd20AutoKeyForItem(row?.ability) === key)?.ability;
+    if(hit) return maFfd20AutoFieldSnapshot(hit);
+  } catch(e) { console.warn('Could not find default FFD20 entry for reset', e); }
+  return null;
+}
+function maFfd20ApplySnapshotToItem(item, snap){
+  if(!item || typeof item !== 'object' || !snap || typeof snap !== 'object') return;
+  MA_FFD20_AUTO_EDIT_FIELDS.forEach(field => {
+    if(Object.prototype.hasOwnProperty.call(snap, field)) item[field] = maFfd20CloneValue(snap[field]);
+    else if(Object.prototype.hasOwnProperty.call(item, field)) delete item[field];
+  });
+  if(item.desc === undefined && item.description !== undefined) item.desc = item.description;
+  if(item.at_higher_lvls === undefined && item.at_higher !== undefined) item.at_higher_lvls = item.at_higher;
+  if(item.link && !item.sourceUrl) item.sourceUrl = item.link;
+  if(item.sourceUrl && !item.link) item.link = item.sourceUrl;
+  maFfd20StampAutoDefaults(item);
+  item.autoCustomized = false;
+}
+async function maFfd20ResetCurrentAutoItemToDefault(type, index, col, button){
+  const data = maFfd20ActiveData();
+  const collection = col || ({active:'activeAbilities',passive:'passiveAbilities',racial:'racialAbilities',feat:'feats',spell:'spells'}[type]);
+  const item = data?.[collection]?.[index];
+  if(!maFfd20IsImportedAutoItem(item)) return;
+  const oldText = button?.textContent;
+  if(button){ button.disabled = true; button.textContent = 'Resetting...'; }
+  try {
+    const defaults = await maFfd20FindDefaultSnapshotForAutoItem(item);
+    if(!defaults){ alert('Could not find the default JSON version for this auto entry yet. Re-apply the class/race auto update once, then try reset again.'); return; }
+    const key = maFfd20AutoKeyForItem(item);
+    maFfd20ApplySnapshotToItem(item, defaults);
+    const store = maFfd20EnsureAutoOverrideStore(data);
+    delete store[key];
+    if(typeof saveDataOnly === 'function') saveDataOnly();
+    if(typeof refreshList === 'function') refreshList(type);
+    populateEditorModal(type, item, index, collection);
+  } finally {
+    if(button){ button.disabled = false; button.textContent = oldText || 'Reset to Default'; }
+  }
+}
+function maFfd20AddAutoResetButton(type, item, index, col){
+  if(!['active','passive','racial','feat','spell'].includes(type) || !maFfd20IsImportedAutoItem(item)) return;
+  if(!modalBody || modalBody.querySelector('[data-ffd20-auto-reset="true"]')) return;
+  const panel = document.createElement('div');
+  panel.className = 'ma-edit-field ma-edit-long ffd20-auto-reset-panel';
+  panel.dataset.ffd20AutoReset = 'true';
+  panel.style.border = '1px dashed rgba(var(--accent-rgb), .55)';
+  panel.style.borderRadius = '10px';
+  panel.style.padding = '10px 12px';
+  panel.style.background = '#151515';
+  panel.style.display = 'flex';
+  panel.style.flexDirection = 'column';
+  panel.style.gap = '8px';
+  const note = document.createElement('small');
+  note.style.color = '#aaa';
+  note.style.lineHeight = '1.35';
+  note.textContent = 'Auto-added FFD20 entry. Any edited info here is saved and restored if this entry disappears from leveling down and comes back later.';
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'btn-edit';
+  btn.style.width = 'max-content';
+  btn.style.maxWidth = '100%';
+  btn.textContent = 'Reset to Default';
+  btn.onclick = (event) => { event.preventDefault(); event.stopPropagation(); maFfd20ResetCurrentAutoItemToDefault(type, index, col, btn); };
+  panel.appendChild(note);
+  panel.appendChild(btn);
+  modalBody.appendChild(panel);
+}
+
 function maFfd20ToAbility(entry, sourcePrefix=''){
   const bucket = maFfd20Bucket(entry, sourcePrefix);
   const sourceKind = (sourcePrefix === 'race' || bucket === 'racial') ? 'race' : (entry.originType || sourcePrefix || '');
@@ -7752,6 +7996,7 @@ function maFfd20ToAbility(entry, sourcePrefix=''){
     replaces: Array.isArray(entry.replaces) ? entry.replaces : []
   };
   if(bucket === 'active') { ability.u_curr = Number(entry.u_curr ?? 0); ability.u_max = Number(entry.u_max ?? 0); ability.attack_type = entry.attack_type || 'None'; ability.damage = entry.damage || ''; ability.restoreOnLongRest = !!entry.restoreOnLongRest; }
+  maFfd20StampAutoDefaults(ability);
   return { bucket, ability };
 }
 function maFfd20Collect(source, level, originType, originName){
@@ -7782,27 +8027,12 @@ function maFfd20BuildImported(lib, selection){
 }
 function maFfd20RemoveOldAuto(data){
   // Rebuild every JSON-imported FFD20 entry from the current class/race/level.
-  // This is intentionally aggressive so level-down and class-swap do not leave
-  // old active/passive/racial/feat/spell entries behind.
-  const autoSources = new Set(['race','class','archetype','multiclass','prestige']);
-  const isImportedAuto = item => {
-    if(!item || typeof item !== 'object') return false;
-    const sourceKind = String(item.sourceKind || item.originType || item.sourceType || item.originCategory || '').trim().toLowerCase();
-    const bucket = String(item.bucket || item.sheetBucket || '').trim().toLowerCase();
-    const autoKey = String(item.autoKey || '').trim().toLowerCase();
-
-    if(item.autoGenerated) return true;
-    if(autoKey.startsWith('ffd20:')) return true;
-    if(autoKey.includes(':class:') || autoKey.includes(':archetype:') || autoKey.includes(':multiclass:') || autoKey.includes(':prestige:') || autoKey.includes(':race:')) return true;
-    if(autoSources.has(sourceKind)) return true;
-    if(['racial','race','class','archetype','multiclass','prestige'].includes(bucket) && (item.sourceName || item.originName)) return true;
-
-    return false;
-  };
-
+  // Before removing them, capture any player-edited fields so they can return
+  // when the same auto entry is earned again.
+  maFfd20CaptureAllAutoOverrides(data);
   ['activeAbilities','passiveAbilities','racialAbilities','feats','spells'].forEach(key => {
     if(!Array.isArray(data[key])) data[key] = [];
-    data[key] = data[key].filter(item => !isImportedAuto(item));
+    data[key] = data[key].filter(item => !maFfd20IsImportedAutoItem(item));
   });
 }
 function maFfd20Push(data, imported){
@@ -7819,6 +8049,7 @@ function maFfd20Push(data, imported){
       ability.bucket = 'racial';
       ability.type = 'Racial';
     }
+    maFfd20ApplyAutoOverride(data, ability);
     const key = bucket === 'active' ? 'activeAbilities' : bucket === 'racial' ? 'racialAbilities' : bucket === 'feat' ? 'feats' : bucket === 'spell' ? 'spells' : 'passiveAbilities';
     if(!Array.isArray(data[key])) data[key] = [];
     if(!data[key].some(x => x.autoKey && x.autoKey === ability.autoKey)) data[key].push(ability);
@@ -10309,7 +10540,7 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
       <div class="ma-levelup-hero"><div class="ma-levelup-runes"><i></i><i></i><i></i><i></i><i></i></div><div class="ma-levelup-title">LEVEL UP</div><div class="ma-levelup-sub">${maFfd20Esc(slotLabel)} · Character Level ${oldTotalLevel} → ${newTotalLevel}</div></div>
       <div class="ma-levelup-grid">
         <div class="ma-levelup-card"><small>HP</small><strong>${plus(hpDelta)}</strong><span>New auto max: ${newTotals.hp}</span></div>
-        <div class="ma-levelup-card"><small>Skill Points</small><strong>${plus(skillDelta)}</strong><span>Added to unused points</span></div>
+        <div class="ma-levelup-card"><small>Skill Points</small><strong>${plus(skillDelta)}</strong><span>Auto budget only</span></div>
         <div class="ma-levelup-card"><small>BAB</small><strong>${plus(newTotals.bab)}</strong><span>${plus(newTotals.bab-oldTotals.bab)} from this change</span></div>
         <div class="ma-levelup-card"><small>Saves</small><strong>${plus(newTotals.fort)}/${plus(newTotals.ref)}/${plus(newTotals.will)}</strong><span>Fort / Ref / Will</span></div>
         <div class="ma-levelup-card"><small>MP</small><strong>${newTotals.hasMp ? newTotals.mp : '—'}</strong><span>${newTotals.hasMp ? `${plus(newTotals.mp-oldTotals.mp)} from tables` : 'No MP table'}</span></div>
@@ -16155,6 +16386,298 @@ function showRollOverlay(entry){
   }, outcomeKind ? 3450 : 1650);
 }
 </script>
+
+
+
+<script>
+/* --- v41 automated skill-point hard lock ---
+   Skill points are now always derived from class JSON + saved favored +1 skill choices - ranks spent.
+   Legacy/manual stored skill-point pools are ignored and cleaned so old characters cannot keep inflated pools. */
+(function(){
+  const PATCH = 'v41-auto-skill-only';
+  let libPromise = null;
+  let writeLock = false;
+  let saveLock = false;
+  let lastComputed = null;
+  let timer = null;
+
+  function data(){
+    try { if(typeof window.maFfd20ActiveData === 'function') return window.maFfd20ActiveData() || {}; } catch(e) {}
+    try { if(typeof window.getActiveData === 'function') return window.getActiveData() || {}; } catch(e) {}
+    try { if(window.fullData) return window.fullData; } catch(e) {}
+    try { if(window.fullSheetData) return window.fullSheetData; } catch(e) {}
+    return {};
+  }
+  function intVal(value, fallback=0){
+    if(value === '' || value === null || value === undefined) return fallback;
+    const m = String(value).match(/[+-]?\d+/);
+    const n = m ? Number(m[0]) : Number(value);
+    return Number.isFinite(n) ? Math.trunc(n) : fallback;
+  }
+  function norm(value){ return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
+  function read(id, fallback=''){
+    const el = document.getElementById(id);
+    const d = data();
+    const raw = (el && String(el.value ?? '').trim() !== '') ? el.value : d[id];
+    return raw === undefined || raw === null || raw === '' ? fallback : raw;
+  }
+  function intMod(){ return Math.floor((intVal(read('int', data().int || 10), 10) - 10) / 2); }
+  function levelOf(value, fallback=0){ return Math.max(0, intVal(value, fallback)); }
+  function skillBase(cls){
+    const raw = cls?.skillPoints ?? cls?.skill_points ?? cls?.skillRanks ?? cls?.skill_ranks ?? '';
+    const m = String(raw).match(/\d+/);
+    return m ? Number(m[0]) : 0;
+  }
+  async function fetchJson(path){
+    const res = await fetch(path, { cache:'no-store' });
+    if(!res.ok) throw new Error(path + ' failed');
+    return res.json();
+  }
+  async function loadLib(){
+    if(libPromise) return libPromise;
+    libPromise = (async function(){
+      try { if(window.maFfd20Library && (window.maFfd20Library.classes || window.maFfd20Library.prestigeClasses)) return window.maFfd20Library; } catch(e) {}
+      try { if(typeof window.maFfd20LoadLibrary === 'function') return await window.maFfd20LoadLibrary(); } catch(e) {}
+      try { if(window.FFD20_DATA) return window.FFD20_DATA; } catch(e) {}
+      const paths = ['data/ffd20_data.json','ffd20_data.json','./data/ffd20_data.json','./ffd20_data.json'];
+      let lastErr = null;
+      for(const path of paths){
+        try { const lib = await fetchJson(path); window.maFfd20Library = lib; return lib; }
+        catch(e){ lastErr = e; }
+      }
+      throw lastErr || new Error('Could not load ffd20_data.json');
+    })();
+    return libPromise;
+  }
+  function findByName(list, name){
+    const target = norm(name);
+    if(!target) return null;
+    const arr = Array.isArray(list) ? list : [];
+    return arr.find(item => norm(item?.name || item?.className || item?.title) === target) || arr.find(item => norm(item?.name || item?.className || item?.title).includes(target)) || null;
+  }
+  function classRows(){
+    const d = data();
+    const rows = [];
+    const mainName = read('class', d.class || d.className || '');
+    const mainLevel = Math.max(1, levelOf(read('character_level', d.character_level || d.level || 1), 1));
+    if(String(mainName || '').trim()) rows.push({ label:'Class', name:mainName, level:mainLevel, prestige:false });
+    const mcs = Array.isArray(d.multiclasses) ? d.multiclasses : [];
+    mcs.forEach((mc, i) => {
+      const name = mc?.className || mc?.class || mc?.name || '';
+      const lvl = levelOf(mc?.level || mc?.classLevel || 0, 0);
+      if(name && lvl) rows.push({ label:'Class ' + (i+2), name, level:lvl, prestige:!!mc.prestige });
+    });
+    const prestigeName = read('prestige_class', d.prestige_class || '');
+    const prestigeLevel = levelOf(read('prestige_level', d.prestige_level || 0), 0);
+    if(prestigeName && prestigeLevel && !rows.some(r => norm(r.name) === norm(prestigeName))) rows.push({ label:'Prestige', name:prestigeName, level:prestigeLevel, prestige:true });
+    return rows;
+  }
+  function totalLevel(rows = classRows()){
+    return Math.max(1, rows.reduce((sum, row) => sum + Math.max(0, levelOf(row.level, 0)), 0));
+  }
+  function ranksSpent(){
+    const inputs = Array.from(document.querySelectorAll('#skillsTableBody .skill-ranks'));
+    if(inputs.length) return inputs.reduce((sum, input) => sum + Math.max(0, intVal(input.value,0)), 0);
+    const skills = Array.isArray(data().skills) ? data().skills : [];
+    return skills.reduce((sum, skill) => sum + Math.max(0, intVal(skill?.lvl ?? skill?.ranks ?? skill?.rank ?? 0, 0)), 0);
+  }
+  function favoredSkillCount(maxLevel){
+    const d = data();
+    const maps = [
+      d.favoredClassBonuses,
+      d.levelBonusChoicesV37,
+      d.levelBonusChoicesV36,
+      d.levelBonusChoicesV35,
+      d.favored_bonuses,
+      d.favoredBonuses
+    ].filter(map => map && typeof map === 'object' && !Array.isArray(map));
+    const seen = new Set();
+    let count = 0;
+    for(const map of maps){
+      for(const [level, choice] of Object.entries(map)){
+        const lvl = intVal(level, 0);
+        if(lvl < 1 || lvl > maxLevel || seen.has(String(lvl))) continue;
+        const normalized = String(choice || '').trim().toLowerCase();
+        if(normalized === 'skill' || normalized === '+1 skill' || normalized === '+1 skill point') count++;
+        if(normalized === 'skill' || normalized === 'hp' || normalized === '+1 hp' || normalized === '+1 skill' || normalized === '+1 skill point') seen.add(String(lvl));
+      }
+    }
+    return count;
+  }
+  function clearLegacyManualFields(d){
+    if(!d || typeof d !== 'object') return;
+    [
+      'manual_skill_points','skill_points_manual','skillPointAdjustment','skill_point_adjustment','skill_points_adjustment',
+      'extra_skill_points','bonus_skill_points','skill_points_extra','skill_points_bonus','skill_points_added',
+      'skillPoolBonus','skill_pool_bonus','skillPoolManual','skill_points_pool_manual','unspent_skill_points_manual',
+      'skill_points_override','skillPointOverride','skill_points_legacy_bonus'
+    ].forEach(key => { if(Object.prototype.hasOwnProperty.call(d, key)) delete d[key]; });
+  }
+  async function compute(){
+    const lib = await loadLib();
+    const rows = classRows();
+    const mod = intMod();
+    let classBudget = 0;
+    const debugRows = [];
+    rows.forEach((row, index) => {
+      const cls = findByName(row.prestige ? (lib.prestigeClasses || lib.prestige_classes || lib.classes) : lib.classes, row.name) || findByName(lib.prestigeClasses || lib.prestige_classes, row.name) || {};
+      const base = skillBase(cls);
+      const perLevel = Math.max(1, base + mod);
+      const lvlCount = Math.max(0, levelOf(row.level, 0));
+      let subtotal = 0;
+      for(let lvl=1; lvl<=lvlCount; lvl++) subtotal += (index === 0 && lvl === 1) ? perLevel * 4 : perLevel;
+      classBudget += subtotal;
+      debugRows.push({ label:row.label, className:row.name, level:lvlCount, skillBase:base, intMod:mod, perLevel, total:subtotal });
+    });
+    const maxLevel = totalLevel(rows);
+    const favoredSkill = favoredSkillCount(maxLevel);
+    const ranks = ranksSpent();
+    const totalBudget = classBudget + favoredSkill;
+    return { unused: totalBudget - ranks, totalBudget, classBudget, favoredSkill, ranks, totalLevel:maxLevel, rows:debugRows };
+  }
+  function write(result){
+    if(!result) return result;
+    const d = data();
+    clearLegacyManualFields(d);
+    const value = String(intVal(result.unused, 0));
+    const el = document.getElementById('skill_points');
+    writeLock = true;
+    try {
+      if(el){
+        el.value = value;
+        el.readOnly = true;
+        el.setAttribute('readonly','readonly');
+        el.setAttribute('aria-readonly','true');
+        el.removeAttribute('min');
+        el.dataset.calculated = PATCH;
+        el.title = 'Automatic only: unused skill points = class skill budget + saved +1 skill choices - ranks spent. Old manual/bonus skill pools are ignored.';
+        el.classList.toggle('overspent', intVal(value,0) < 0);
+      }
+      d.skill_points = value;
+      d.skill_points_total = String(result.totalBudget);
+      d.total_skill_points = String(result.totalBudget);
+      d.skill_points_total_earned = String(result.totalBudget);
+      d.skill_points_class_budget = String(result.classBudget);
+      d.skill_points_favored_bonus = String(result.favoredSkill);
+      d.skill_ranks_spent = String(result.ranks);
+      d.skill_points_formula = 'Automatic only: unused = class skill budget + favored +1 skill choices - ranks spent; manual skill pools ignored';
+      d.skill_points_debug_rows = result.rows;
+      d.skill_points_patch = PATCH;
+      lastComputed = result;
+    } finally {
+      setTimeout(() => { writeLock = false; }, 0);
+    }
+    document.querySelectorAll('#skillsTableBody .skill-ranks').forEach(input => {
+      input.setAttribute('min','0');
+      input.setAttribute('max', String(Math.max(1, result.totalLevel || totalLevel())));
+      input.dataset.prevValue = String(Math.max(0, intVal(input.value, 0)));
+    });
+    const editBtn = document.getElementById('skillPointsEditBtn');
+    if(editBtn) editBtn.remove();
+    return result;
+  }
+  async function recalc(options={}){
+    try {
+      const result = write(await compute());
+      if(options.save) saveNow();
+      return result;
+    } catch(e){
+      console.warn('[' + PATCH + '] skill budget recalc failed', e);
+      return null;
+    }
+  }
+  function schedule(options={}){
+    clearTimeout(timer);
+    timer = setTimeout(() => recalc(options), options.delay ?? 80);
+  }
+  function saveNow(){
+    if(saveLock) return;
+    saveLock = true;
+    setTimeout(() => {
+      try { if(typeof window.maFfd20SaveNow === 'function') window.maFfd20SaveNow(); else if(typeof window.save === 'function') window.save(true); }
+      catch(e){ console.warn('[' + PATCH + '] save after skill recalc failed', e); }
+      finally { saveLock = false; }
+    }, 0);
+  }
+
+  window.maAutoSkillOnlyRecalc = recalc;
+  window.maV41AutoSkillOnlyRecalc = recalc;
+  window.toggleSkillPointEdit = function(){
+    schedule({delay:0, save:true});
+    alert('Unused Skill Points are automatic now. Change class levels, INT, favored +1 skill choices, or skill ranks instead. Old manual skill-point bonuses are ignored.');
+  };
+  window.setUnusedSkillPoints = function(){ schedule({delay:0, save:true}); };
+  window.getUnusedSkillPoints = function(){ return lastComputed ? intVal(lastComputed.unused, 0) : intVal(document.getElementById('skill_points')?.value, 0); };
+  window.applySkillRankChange = function(input){
+    if(input){
+      const cap = Math.max(1, lastComputed?.totalLevel || totalLevel());
+      input.setAttribute('min','0'); input.setAttribute('max', String(cap));
+      input.value = String(Math.max(0, Math.min(cap, intVal(input.value, 0))));
+      input.dataset.prevValue = String(intVal(input.value, 0));
+    }
+    schedule({delay:0, save:true});
+  };
+
+  ['save','maFfd20SaveNow'].forEach(name => {
+    const old = window[name];
+    if(typeof old === 'function' && old.__maAutoSkillOnlyWrapped !== true){
+      const wrapped = function(){
+        if(!saveLock) schedule({delay:0, save:false});
+        return old.apply(this, arguments);
+      };
+      wrapped.__maAutoSkillOnlyWrapped = true;
+      try { window[name] = wrapped; } catch(e) {}
+    }
+  });
+  ['populateSheet','loadCurrentSheet','updateCalcs','updateCalculations','computeDerivedStats','updateProgressionFields'].forEach(name => {
+    const old = window[name];
+    if(typeof old === 'function' && old.__maAutoSkillOnlyWrapped !== true){
+      const wrapped = function(){
+        const result = old.apply(this, arguments);
+        Promise.resolve(result).finally(() => schedule({delay:120, save:name === 'updateProgressionFields'}));
+        return result;
+      };
+      wrapped.__maAutoSkillOnlyWrapped = true;
+      try { window[name] = wrapped; } catch(e) {}
+    }
+  });
+  document.addEventListener('input', event => {
+    const target = event.target;
+    if(target?.matches?.('#skill_points')) { if(!writeLock) schedule({delay:0, save:true}); return; }
+    if(target?.matches?.('#skillsTableBody .skill-ranks, #int, #character_level, #class, #archetype, [data-favored-level], .ma-multiclass-level, .ma-class-level')) schedule({delay:35, save:true});
+  }, true);
+  document.addEventListener('change', event => {
+    const target = event.target;
+    if(target?.matches?.('#skill_points')) { if(!writeLock) schedule({delay:0, save:true}); return; }
+    if(target?.matches?.('#skillsTableBody .skill-ranks, #int, #character_level, #class, #archetype, [data-favored-level], select, input')) schedule({delay:70, save:true});
+  }, true);
+  document.addEventListener('click', event => {
+    if(event.target?.closest?.('#maClassBuildCard,#maAddMulticlassBtn,.ma-multiclass-edit,.ma-levelup-confirm,.btn-save,#skillsExitEditBtn,#skillsEnterEditBtn,.ffd20-modal-actions button,.modal-footer button')){
+      schedule({delay:180, save:true});
+      setTimeout(() => recalc({save:true}), 650);
+    }
+  }, true);
+  function boot(){
+    schedule({delay:0, save:false});
+    setTimeout(() => recalc({save:false}), 300);
+    setTimeout(() => recalc({save:true}), 1400);
+    const el = document.getElementById('skill_points');
+    if(el && !el.__maAutoSkillOnlyObserved){
+      el.__maAutoSkillOnlyObserved = true;
+      new MutationObserver(() => { if(!writeLock) schedule({delay:0, save:true}); }).observe(el, { attributes:true, attributeFilter:['value','min','readonly'] });
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true}); else boot();
+  window.addEventListener('load', () => setTimeout(() => recalc({save:true}), 1200));
+})();
+</script>
+
+
+<style>
+/* --- v41 automatic skill-point visual state --- */
+#skill_points[data-calculated="v41-auto-skill-only"]{background:#121212!important;color:var(--accent)!important;font-weight:900!important;}
+#skill_points.overspent{color:#ff7777!important;border-color:#aa4444!important;box-shadow:0 0 0 1px rgba(170,68,68,.25)!important;}
+</style>
 
 </body>
 </html>

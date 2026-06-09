@@ -3961,7 +3961,7 @@ setTimeout(() => {
     <button id="skillsEnterEditBtn" class="skills-mode-btn" type="button" onclick="toggleSkillEditMode(true)" aria-label="Edit skills">✏️ Edit Skills</button>
   </div>
   <div class="skills-editor-toolbar" aria-label="Skill editing controls">
-    <div class="skill-points-wrap"><span>Unused Skill Points</span><input id="skill_points" class="save-field" type="number" min="0" step="1" aria-label="Unused skill points" readonly title="Skill points are earned from class levels and spent by adding ranks."></div>
+    <div class="skill-points-wrap"><span>Unused Skill Points</span><input id="skill_points" class="save-field" type="number" min="0" step="1" aria-label="Unused skill points" readonly title="Skill points are automatic from class levels, favored +1 skill choices, and ranks spent."></div>
     <button id="skillsExitEditBtn" class="skills-mode-btn" type="button" onclick="toggleSkillEditMode(false)" aria-label="Finish editing skills">✓ Done</button>
   </div>
   <div id="mobileSkillHeader" style="display:none; color:#888; font-size:12px;"><span style="display:inline-block; width:40%;"></span><span style="display:inline-block; width:18%; text-align:right;">TEMP</span><span style="display:inline-block; width:21%; text-align:right;">RANKS</span><span style="display:inline-block; width:21%; text-align:right;">TOTAL</span></div>
@@ -5233,7 +5233,7 @@ window.toggleSkillEditMode = (force) => {
 };
 window.toggleSkillPointEdit = () => {
     sanitizeSkillPoolUi();
-    alert('Unused skill points are calculated from class level-ups. Spend them by adding skill ranks.');
+    alert('Unused skill points are calculated from class level-ups. Spend them by adding skill ranks; old manual pools are ignored.');
 };
 
 function bindSkillRowEvents(row) {
@@ -6667,6 +6667,8 @@ function populateEditorModal(type, item, index, col) {
         modalBody.appendChild(lb); modalBody.appendChild(t);
     }
 
+    try { maFfd20AddAutoResetButton(type, item, index, col); } catch(e) { console.warn('Could not add auto FFD20 reset button', e); }
+
     const deleteBtn = document.getElementById('modalDeleteBtn');
     if(type === 'active' && item.isLimitBreak) { deleteBtn.style.display='none'; } else { deleteBtn.style.display='block'; }
     deleteBtn.onclick = () => { getActiveData()[col].splice(index, 1); triggerSave(); closeModal(); };
@@ -6718,6 +6720,12 @@ function updateCurrentItem(k, v) {
     item[k] = v;
     if(k==='link') { const b=document.getElementById('modalLinkBtn'); b.href=v; b.style.display=v?'inline-block':'none'; }
     if(currentEditContext?.type === 'weapon' && k === 'ability_mod') item.mod = v;
+    if(k === 'link') item.sourceUrl = v;
+    try {
+        if(['active','passive','racial','feat','spell'].includes(currentEditContext?.type)) {
+            maFfd20CaptureAutoOverride(getActiveData(), item);
+        }
+    } catch(e) { console.warn('Could not save auto FFD20 override', e); }
     if(['name','lvl','tags','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','restoreOnLongRest','amount','slot','equipped','ability_mod','attack_misc','damage','crit_range','crit_mult','range','ammo','link','at_higher_lvls'].includes(k)) refreshList(currentEditContext.type);
     triggerSave();
 }
@@ -8324,17 +8332,275 @@ function maFfd20Bucket(entry){
 function maFfd20AutoKey(entry, sourcePrefix=''){
   return ['ffd20', sourcePrefix || entry?.originType || 'source', entry?.originName || entry?.sourceName || '', entry?.level || 0, entry?.name || ''].map(maFfd20Norm).filter(Boolean).join(':');
 }
+/* --- Auto FFD20 override persistence helpers ---
+   Stores player-edited fields for JSON-imported abilities/spells before the
+   level/class rebuild removes them, then reapplies those edits when the same
+   auto entry is earned again. */
+const MA_FFD20_AUTO_OVERRIDE_STORE = 'ffd20AutoOverrides';
+const MA_FFD20_LEGACY_DESC_OVERRIDE_STORE = 'autoAbilityDescOverrides';
+const MA_FFD20_AUTO_COLLECTIONS = ['activeAbilities','passiveAbilities','racialAbilities','feats','spells'];
+const MA_FFD20_AUTO_EDIT_FIELDS = [
+  'name','type','desc','description','at_higher_lvls','at_higher','link','sourceUrl',
+  'u_curr','u_max','restoreOnLongRest','attack_type','damage','lvl','school',
+  'saving_throw','spell_resist','target','range','duration','attrs','tags','tagList','details'
+];
+function maFfd20CloneValue(value){
+  if(value === undefined) return undefined;
+  try { return JSON.parse(JSON.stringify(value)); } catch(e) { return value; }
+}
+function maFfd20AutoStableString(value){
+  try { return JSON.stringify(value, Object.keys(value || {}).sort()); } catch(e) { return String(value); }
+}
+function maFfd20AutoSnapshotsEqual(a, b){
+  return maFfd20AutoStableString(a || {}) === maFfd20AutoStableString(b || {});
+}
+function maFfd20IsImportedAutoItem(item){
+  if(!item || typeof item !== 'object') return false;
+  const sourceKind = String(item.sourceKind || item.originType || item.sourceType || item.originCategory || '').trim().toLowerCase();
+  const bucket = String(item.bucket || item.sheetBucket || '').trim().toLowerCase();
+  const autoKey = String(item.autoKey || '').trim().toLowerCase();
+  if(item.autoGenerated) return true;
+  if(autoKey.startsWith('ffd20:')) return true;
+  if(autoKey.includes(':class:') || autoKey.includes(':archetype:') || autoKey.includes(':multiclass:') || autoKey.includes(':prestige:') || autoKey.includes(':race:')) return true;
+  if(['race','class','archetype','multiclass','prestige'].includes(sourceKind)) return true;
+  if(['racial','race','class','archetype','multiclass','prestige'].includes(bucket) && (item.sourceName || item.originName)) return true;
+  return false;
+}
+function maFfd20AutoKeyForItem(item){
+  const explicit = String(item?.autoKey || '').trim();
+  if(explicit) return explicit;
+  return ['ffd20', item?.sourceKind || item?.originType || item?.sourceType || 'source', item?.sourceName || item?.originName || '', item?.sourceLevel || item?.level || 0, item?.name || ''].map(maFfd20Norm).filter(Boolean).join(':');
+}
+function maFfd20EnsureAutoOverrideStore(data){
+  if(!data || typeof data !== 'object') data = maFfd20ActiveData();
+  if(!data[MA_FFD20_AUTO_OVERRIDE_STORE] || typeof data[MA_FFD20_AUTO_OVERRIDE_STORE] !== 'object' || Array.isArray(data[MA_FFD20_AUTO_OVERRIDE_STORE])) data[MA_FFD20_AUTO_OVERRIDE_STORE] = {};
+  return data[MA_FFD20_AUTO_OVERRIDE_STORE];
+}
+function maFfd20AutoFieldSnapshot(item){
+  const out = {};
+  if(!item || typeof item !== 'object') return out;
+  MA_FFD20_AUTO_EDIT_FIELDS.forEach(field => {
+    if(Object.prototype.hasOwnProperty.call(item, field) && item[field] !== undefined) out[field] = maFfd20CloneValue(item[field]);
+  });
+  if(out.description !== undefined && out.desc === undefined) out.desc = out.description;
+  if(out.at_higher !== undefined && out.at_higher_lvls === undefined) out.at_higher_lvls = out.at_higher;
+  if(out.link !== undefined && out.sourceUrl === undefined) out.sourceUrl = out.link;
+  if(out.sourceUrl !== undefined && out.link === undefined) out.link = out.sourceUrl;
+  return out;
+}
+function maFfd20StampAutoDefaults(item){
+  if(!item || typeof item !== 'object') return item;
+  const snap = maFfd20AutoFieldSnapshot(item);
+  item.autoDefaultValues = maFfd20CloneValue(snap);
+  item._ffd20DefaultValues = maFfd20CloneValue(snap);
+  item.autoDefaultDesc = snap.desc ?? '';
+  item.autoDefaultAtHigherLvls = snap.at_higher_lvls ?? '';
+  item._ffd20DefaultDesc = snap.desc ?? '';
+  item._ffd20DefaultAtHigherLvls = snap.at_higher_lvls ?? '';
+  return item;
+}
+function maFfd20DefaultSnapshotForItem(item, existingOverride){
+  if(item?.autoDefaultValues && typeof item.autoDefaultValues === 'object') return maFfd20CloneValue(item.autoDefaultValues);
+  if(item?._ffd20DefaultValues && typeof item._ffd20DefaultValues === 'object') return maFfd20CloneValue(item._ffd20DefaultValues);
+  if(existingOverride?.defaults && typeof existingOverride.defaults === 'object') return maFfd20CloneValue(existingOverride.defaults);
+  const out = {};
+  if(item?.autoDefaultDesc !== undefined || item?._ffd20DefaultDesc !== undefined) out.desc = String(item.autoDefaultDesc ?? item._ffd20DefaultDesc ?? '');
+  if(item?.autoDefaultAtHigherLvls !== undefined || item?._ffd20DefaultAtHigherLvls !== undefined) out.at_higher_lvls = String(item.autoDefaultAtHigherLvls ?? item._ffd20DefaultAtHigherLvls ?? '');
+  if(Object.keys(out).length) return out;
+  return maFfd20AutoFieldSnapshot(item);
+}
+function maFfd20MigrateLegacyDescOverrides(data){
+  if(!data || typeof data !== 'object') return;
+  const legacy = data[MA_FFD20_LEGACY_DESC_OVERRIDE_STORE];
+  if(!legacy || typeof legacy !== 'object' || Array.isArray(legacy)) return;
+  const store = maFfd20EnsureAutoOverrideStore(data);
+  Object.entries(legacy).forEach(([key, value]) => {
+    if(!value || typeof value !== 'object' || store[key]) return;
+    store[key] = {
+      key,
+      values: {
+        ...(value.desc !== undefined ? { desc: String(value.desc ?? '') } : {}),
+        ...(value.at_higher_lvls !== undefined || value.at_higher !== undefined ? { at_higher_lvls: String(value.at_higher_lvls ?? value.at_higher ?? '') } : {})
+      },
+      defaults: {
+        ...(value.defaultDesc !== undefined ? { desc: String(value.defaultDesc ?? '') } : {}),
+        ...(value.defaultAtHigherLvls !== undefined ? { at_higher_lvls: String(value.defaultAtHigherLvls ?? '') } : {})
+      },
+      migratedFrom: MA_FFD20_LEGACY_DESC_OVERRIDE_STORE,
+      updatedAt: value.updatedAt || Date.now()
+    };
+  });
+}
+function maFfd20CaptureAutoOverride(data, item, opts={}){
+  if(!data || typeof data !== 'object' || !maFfd20IsImportedAutoItem(item)) return;
+  maFfd20MigrateLegacyDescOverrides(data);
+  const key = maFfd20AutoKeyForItem(item);
+  if(!key) return;
+  item.autoKey = item.autoKey || key;
+  const store = maFfd20EnsureAutoOverrideStore(data);
+  const existing = store[key] && typeof store[key] === 'object' ? store[key] : {};
+  const values = maFfd20AutoFieldSnapshot(item);
+  const defaults = maFfd20DefaultSnapshotForItem(item, existing);
+  const changed = !!opts.force || !maFfd20AutoSnapshotsEqual(values, defaults);
+  if(!changed){
+    if(store[key]) delete store[key];
+    item.autoCustomized = false;
+    return;
+  }
+  store[key] = {
+    ...existing,
+    key,
+    bucket: item.bucket || existing.bucket || '',
+    sourceKind: item.sourceKind || item.originType || existing.sourceKind || '',
+    sourceName: item.sourceName || item.originName || existing.sourceName || '',
+    sourceLevel: item.sourceLevel || item.level || existing.sourceLevel || 0,
+    values,
+    defaults: Object.keys(defaults || {}).length ? maFfd20CloneValue(defaults) : (existing.defaults || {}),
+    updatedAt: Date.now()
+  };
+  item.autoCustomized = true;
+}
+function maFfd20CaptureAllAutoOverrides(data){
+  if(!data || typeof data !== 'object') return;
+  maFfd20MigrateLegacyDescOverrides(data);
+  MA_FFD20_AUTO_COLLECTIONS.forEach(col => {
+    if(!Array.isArray(data[col])) return;
+    data[col].forEach(item => maFfd20CaptureAutoOverride(data, item));
+  });
+}
+function maFfd20ApplyAutoOverride(data, item){
+  if(!data || typeof data !== 'object' || !item || typeof item !== 'object') return item;
+  if(!maFfd20IsImportedAutoItem(item)) return item;
+  maFfd20MigrateLegacyDescOverrides(data);
+  maFfd20StampAutoDefaults(item);
+  const key = maFfd20AutoKeyForItem(item);
+  const store = maFfd20EnsureAutoOverrideStore(data);
+  const override = store[key];
+  if(!override || typeof override !== 'object') { item.autoCustomized = false; return item; }
+  const values = override.values && typeof override.values === 'object' ? override.values : override;
+  MA_FFD20_AUTO_EDIT_FIELDS.forEach(field => {
+    if(Object.prototype.hasOwnProperty.call(values, field)) item[field] = maFfd20CloneValue(values[field]);
+  });
+  if(item.desc === undefined && item.description !== undefined) item.desc = item.description;
+  if(item.at_higher_lvls === undefined && item.at_higher !== undefined) item.at_higher_lvls = item.at_higher;
+  if(item.link && !item.sourceUrl) item.sourceUrl = item.link;
+  if(item.sourceUrl && !item.link) item.link = item.sourceUrl;
+  item.autoKey = item.autoKey || key;
+  item.autoCustomized = true;
+  return item;
+}
+async function maFfd20FindDefaultSnapshotForAutoItem(item){
+  const data = maFfd20ActiveData();
+  const key = maFfd20AutoKeyForItem(item);
+  // IMPORTANT: prefer the current JSON/library version first. Older patches could
+  // accidentally stamp a customized item as its own default, making reset appear
+  // to do nothing. The reset button must go back to the source JSON/imported copy.
+  try {
+    const lib = await maFfd20LoadLibrary();
+    const selection = maFfd20ReadSelection ? maFfd20ReadSelection() : {};
+    const imported = maFfd20BuildImported(lib, selection) || [];
+    const hit = imported.find(row => maFfd20AutoKeyForItem(row?.ability) === key)?.ability;
+    if(hit) return maFfd20AutoFieldSnapshot(hit);
+  } catch(e) { console.warn('Could not read default FFD20 entry from JSON library', e); }
+  const saved = data?.[MA_FFD20_AUTO_OVERRIDE_STORE]?.[key];
+  if(saved?.defaults && Object.keys(saved.defaults).length) return maFfd20CloneValue(saved.defaults);
+  const ownDefaults = maFfd20DefaultSnapshotForItem(item, null);
+  if(ownDefaults && Object.keys(ownDefaults).length) return ownDefaults;
+  return null;
+}
+function maFfd20ApplySnapshotToItem(item, snap){
+  if(!item || typeof item !== 'object' || !snap || typeof snap !== 'object') return;
+  MA_FFD20_AUTO_EDIT_FIELDS.forEach(field => {
+    if(Object.prototype.hasOwnProperty.call(snap, field)) item[field] = maFfd20CloneValue(snap[field]);
+    else if(Object.prototype.hasOwnProperty.call(item, field)) delete item[field];
+  });
+  if(item.desc === undefined && item.description !== undefined) item.desc = item.description;
+  if(item.at_higher_lvls === undefined && item.at_higher !== undefined) item.at_higher_lvls = item.at_higher;
+  if(item.link && !item.sourceUrl) item.sourceUrl = item.link;
+  if(item.sourceUrl && !item.link) item.link = item.sourceUrl;
+  maFfd20StampAutoDefaults(item);
+  item.autoCustomized = false;
+}
+async function maFfd20ResetCurrentAutoItemToDefault(type, index, col, button){
+  const data = maFfd20ActiveData();
+  const collection = col || ({active:'activeAbilities',passive:'passiveAbilities',racial:'racialAbilities',feat:'feats',spell:'spells'}[type]);
+  const item = data?.[collection]?.[index];
+  if(!maFfd20IsImportedAutoItem(item)) return;
+  const oldText = button?.textContent;
+  if(button){ button.disabled = true; button.textContent = 'Resetting...'; }
+  try {
+    const defaults = await maFfd20FindDefaultSnapshotForAutoItem(item);
+    if(!defaults){ alert('Could not find the default JSON version for this auto entry. Make sure ffd20_data.json is loaded, then try again.'); return; }
+    const key = maFfd20AutoKeyForItem(item);
+    maFfd20ApplySnapshotToItem(item, defaults);
+    const store = maFfd20EnsureAutoOverrideStore(data);
+    delete store[key];
+
+    // Update currently-open modal controls immediately so the reset visibly happens.
+    modalBody?.querySelectorAll?.('input, textarea, select')?.forEach(el => {
+      const label = el.previousElementSibling?.tagName === 'LABEL' ? el.previousElementSibling.textContent : '';
+      const map = {
+        'Name':'name','Type':'type','Action Type':'type','Attack Type':'attack_type','Saving Throw':'saving_throw',
+        'Spell Resistance':'spell_resist','School':'school','Target':'target','Duration':'duration','Damage':'damage',
+        'Dice Roll':'damage','Link URL':'link','Description':'desc','At Higher Levels':'at_higher_lvls','Level':'lvl'
+      };
+      const field = map[label];
+      if(!field) return;
+      if(Object.prototype.hasOwnProperty.call(item, field)) el.value = item[field] ?? '';
+      else if(field === 'link' && item.sourceUrl !== undefined) el.value = item.sourceUrl || '';
+    });
+
+    if(typeof saveDataOnly === 'function') saveDataOnly();
+    else if(typeof triggerSave === 'function') triggerSave();
+    if(typeof refreshList === 'function') refreshList(type);
+    if(typeof populateEditorModal === 'function') populateEditorModal(type, item, index, collection);
+  } finally {
+    if(button){ button.disabled = false; button.textContent = oldText || 'Reset to Default'; }
+  }
+}
+function maFfd20AddAutoResetButton(type, item, index, col){
+  if(!['active','passive','racial','feat','spell'].includes(type) || !maFfd20IsImportedAutoItem(item)) return;
+  if(!modalBody || modalBody.querySelector('[data-ffd20-auto-reset="true"]')) return;
+  const panel = document.createElement('div');
+  panel.className = 'ma-edit-field ma-edit-long ffd20-auto-reset-panel';
+  panel.dataset.ffd20AutoReset = 'true';
+  panel.style.border = '1px dashed rgba(255,204,102,.55)';
+  panel.style.borderRadius = '10px';
+  panel.style.padding = '10px 12px';
+  panel.style.background = '#151515';
+  panel.style.display = 'flex';
+  panel.style.flexDirection = 'column';
+  panel.style.gap = '8px';
+  const note = document.createElement('small');
+  note.style.color = '#aaa';
+  note.style.lineHeight = '1.35';
+  note.textContent = 'Auto-added FFD20 entry. Any edited info here is saved and restored if this entry disappears from leveling down and comes back later.';
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'btn-edit';
+  btn.style.width = 'max-content';
+  btn.style.maxWidth = '100%';
+  btn.textContent = 'Reset to Default';
+  btn.onclick = (event) => { event.preventDefault(); event.stopPropagation(); maFfd20ResetCurrentAutoItemToDefault(type, index, col, btn); };
+  panel.appendChild(note);
+  panel.appendChild(btn);
+  modalBody.appendChild(panel);
+}
+
+
 function maFfd20ToAbility(entry, sourcePrefix=''){
-  const bucket = maFfd20Bucket(entry);
-  const sourceKind = entry.originType || sourcePrefix || '';
+  const bucket = maFfd20Bucket(entry, sourcePrefix);
+  const sourceKind = (sourcePrefix === 'race' || bucket === 'racial') ? 'race' : (entry.originType || sourcePrefix || '');
   const ability = {
     name: entry.name || '',
-    type: entry.type || entry.action || (bucket === 'active' ? 'Standard' : sourceKind === 'race' ? 'Racial' : ''),
+    type: bucket === 'racial' ? 'Racial' : (entry.type || entry.action || (bucket === 'active' ? 'Standard' : sourceKind === 'race' ? 'Racial' : '')),
     desc: entry.desc || entry.description || '',
     at_higher_lvls: entry.at_higher_lvls || '',
     link: entry.url || entry.sourceUrl || '',
     sourceUrl: entry.url || entry.sourceUrl || '',
     sourceKind,
+    originType: sourceKind,
+    bucket,
     sourceName: entry.originName || entry.sourceName || '',
     sourceLevel: entry.level || 0,
     autoGenerated: true,
@@ -8342,6 +8608,7 @@ function maFfd20ToAbility(entry, sourcePrefix=''){
     replaces: Array.isArray(entry.replaces) ? entry.replaces : []
   };
   if(bucket === 'active') { ability.u_curr = Number(entry.u_curr ?? 0); ability.u_max = Number(entry.u_max ?? 0); ability.attack_type = entry.attack_type || 'None'; ability.damage = entry.damage || ''; ability.restoreOnLongRest = !!entry.restoreOnLongRest; }
+  maFfd20StampAutoDefaults(ability);
   return { bucket, ability };
 }
 function maFfd20Collect(source, level, originType, originName){
@@ -8371,10 +8638,13 @@ function maFfd20BuildImported(lib, selection){
   return imported;
 }
 function maFfd20RemoveOldAuto(data){
-  const sourceSet = new Set(['race','class','archetype','multiclass','prestige']);
+  // Rebuild every JSON-imported FFD20 entry from the current class/race/level.
+  // Before removing them, capture any GM/player-edited fields so they can return
+  // when the same auto entry is earned again.
+  maFfd20CaptureAllAutoOverrides(data);
   ['activeAbilities','passiveAbilities','racialAbilities','feats','spells'].forEach(key => {
     if(!Array.isArray(data[key])) data[key] = [];
-    data[key] = data[key].filter(item => !item?.autoGenerated || !sourceSet.has(String(item.sourceKind || '').toLowerCase()));
+    data[key] = data[key].filter(item => !maFfd20IsImportedAutoItem(item));
   });
 }
 function maFfd20Push(data, imported){
@@ -8383,6 +8653,7 @@ function maFfd20Push(data, imported){
     ['activeAbilities','passiveAbilities','racialAbilities'].forEach(key => { if(Array.isArray(data[key])) data[key] = data[key].filter(item => !replaceNames.includes(maFfd20Norm(item.name))); });
   }
   imported.forEach(({bucket, ability}) => {
+    maFfd20ApplyAutoOverride(data, ability);
     const key = bucket === 'active' ? 'activeAbilities' : bucket === 'racial' ? 'racialAbilities' : bucket === 'feat' ? 'feats' : bucket === 'spell' ? 'spells' : 'passiveAbilities';
     if(!Array.isArray(data[key])) data[key] = [];
     if(!data[key].some(x => x.autoKey && x.autoKey === ability.autoKey)) data[key].push(ability);
@@ -8774,8 +9045,11 @@ async function maFfd20OpenCreationWizard(){
     newData.racialAbilities = Array.isArray(newData.racialAbilities) ? newData.racialAbilities : [];
     newData.multiclasses = [];
     overlay.querySelectorAll('[data-create-ability-level]').forEach(sel => { const stat = sel.value; newData[stat] = String((Number(newData[stat]) || 10) + 1); });
+    const createFavored = overlay.querySelector('#maCreateFavored')?.value || 'hp';
+    newData.favoredClassBonuses = {};
+    for(let lvl=1; lvl<=level; lvl++) newData.favoredClassBonuses[String(lvl)] = createFavored;
     const cls = maFfd20Find(lib.classes, className);
-    const calc = maFfd20ApplyHpSkillToData(newData, cls, level, overlay.querySelector('#maCreateFavored')?.value || 'hp');
+    const calc = maFfd20ApplyHpSkillToData(newData, cls, level, createFavored);
     maFfd20Push(newData, maFfd20BuildImported(lib, { race, className, archetype:newData.archetype, level, multiclasses:[] }));
     const ref = await addDoc(collection(db, 'users', currentUser.uid, 'characters'), newData);
     try { await setDoc(doc(db, 'users', currentUser.uid), { charactersMigrated:true }, { merge:true }); } catch(e){ console.warn(e); }
@@ -8926,13 +9200,25 @@ function maV4Formula(t){
 function maV4LevelList(oldTotal,newTotal,pred){ const out=[]; for(let l=oldTotal+1;l<=newTotal;l++){ if(pred(l)) out.push(l); } return out; }
 async function maV4LevelUpOverlay(lib, oldSel, newSel, label){
   const oldTotal = maV4TotalLevel(oldSel), newTotal = maV4TotalLevel(newSel);
-  if(newTotal <= oldTotal) return {oldTotals:maV4Totals(lib, oldSel), newTotals:maV4Totals(lib, newSel), pickedStats:[]};
+  if(newTotal <= oldTotal) return {oldTotals:maV4Totals(lib, oldSel), newTotals:maV4Totals(lib, newSel), pickedStats:[], favoredChoices:{}};
   const oldTotals = maV4Totals(lib, oldSel), newTotals = maV4Totals(lib, newSel);
   const feats = maV4LevelList(oldTotal, newTotal, l=>l%2===1 && l>1);
   const abilityLevels = maV4LevelList(oldTotal, newTotal, l=>[4,8,12,16,20].includes(l));
+  const bonusLevels = maV4LevelList(oldTotal, newTotal, l=>l > 1);
   const abilities = maV4FeatureNamesBetween(lib, oldSel, newSel);
   const featSection = feats.length
     ? `<div class="ma-levelup-section"><h4>Feats</h4><div class="ma-levelup-pill-list">${feats.map(l=>`<span class="ma-levelup-pill ma-levelup-feat">Feat gained at level ${l}</span>`).join('')}</div></div>`
+    : '';
+  const bonusStore = (() => {
+    const d = maFfd20ActiveData() || {};
+    if(!d.favoredClassBonuses || typeof d.favoredClassBonuses !== 'object' || Array.isArray(d.favoredClassBonuses)) d.favoredClassBonuses = {};
+    return d.favoredClassBonuses;
+  })();
+  const bonusSection = bonusLevels.length
+    ? `<div class="ma-levelup-section ma-levelup-favored-required"><h4>Level Bonus</h4><div class="ma-levelup-picks">${bonusLevels.map(l=>{
+        const saved = String(bonusStore[String(l)] || '').toLowerCase();
+        return `<label>Level ${l}<select data-favored-level="${l}" data-required-pick="true"><option value="" ${saved ? '' : 'selected'}>Choose one</option><option value="hp" ${saved === 'hp' ? 'selected' : ''}>+1 HP</option><option value="skill" ${saved === 'skill' ? 'selected' : ''}>+1 Skill Point</option></select></label>`;
+      }).join('')}</div><div class="ma-levelup-note">Every new character level after level 1 must choose either +1 HP or +1 skill point. These choices stay saved on this character.</div></div>`
     : '';
   const abilitySection = abilityLevels.length
     ? `<div class="ma-levelup-section ma-levelup-ability-required"><h4>Ability Score</h4><div class="ma-levelup-picks">${abilityLevels.map(l=>`<label>Level ${l} +1<select data-ability-level="${l}" data-required-pick="true"><option value="">Pick</option>${MA_STATS.map(s=>`<option value="${s}">${s.toUpperCase()}</option>`).join('')}</select></label>`).join('')}</div><div class="ma-levelup-note">Ability score pick is required before applying the level-up.</div></div>`
@@ -8942,13 +9228,14 @@ async function maV4LevelUpOverlay(lib, oldSel, newSel, label){
     : '';
   const body = `
     <div class="ma-levelup-hero"><div class="ma-levelup-runes"><i></i><i></i><i></i><i></i><i></i></div><div class="ma-levelup-title">LEVEL UP</div><div class="ma-levelup-sub">${maFfd20Esc(label)} · Character Level ${oldTotal} → ${newTotal}</div></div>
-    <div class="ma-levelup-grid">
-      <div class="ma-levelup-card"><small>HP</small><strong>${maV4Plus(newTotals.hp-oldTotals.hp)}</strong><span>Auto base max: ${newTotals.hp}</span></div>
-      <div class="ma-levelup-card"><small>Skill</small><strong>${maV4Plus(newTotals.skill-oldTotals.skill)}</strong><span>Added to unused points</span></div>
-      <div class="ma-levelup-card"><small>BAB</small><strong>${maV4Plus(newTotals.bab)}</strong><span>${maV4Plus(newTotals.bab-oldTotals.bab)} from this change</span></div>
-      <div class="ma-levelup-card"><small>Saves</small><strong>${maV4Plus(newTotals.fort)}/${maV4Plus(newTotals.ref)}/${maV4Plus(newTotals.will)}</strong><span>Fort / Ref / Will</span></div>
-      <div class="ma-levelup-card"><small>MP</small><strong>${newTotals.hasMp ? newTotals.mp : '—'}</strong><span>${newTotals.hasMp ? `${maV4Plus(newTotals.mp-oldTotals.mp)} from MP table` : 'No MP table for this class'}</span></div>
+    <div class="ma-levelup-grid ma-v37-level-grid">
+      <div class="ma-levelup-card ma-v37-level-card"><small>HP</small><strong>${maV4Plus(newTotals.hp-oldTotals.hp)}</strong><span>Before level bonus</span></div>
+      <div class="ma-levelup-card ma-v37-level-card"><small>Skill</small><strong>${maV4Plus(newTotals.skill-oldTotals.skill)}</strong><span>Before level bonus</span></div>
+      <div class="ma-levelup-card ma-v37-level-card"><small>BAB</small><strong>${maV4Plus(newTotals.bab)}</strong><span>${maV4Plus(newTotals.bab-oldTotals.bab)} from this change</span></div>
+      <div class="ma-levelup-card ma-v37-level-card"><small>Saves</small><strong>${maV4Plus(newTotals.fort)}/${maV4Plus(newTotals.ref)}/${maV4Plus(newTotals.will)}</strong><span>Fort / Ref / Will</span></div>
+      <div class="ma-levelup-card ma-v37-level-card"><small>MP</small><strong>${newTotals.hasMp ? newTotals.mp : '—'}</strong><span>${newTotals.hasMp ? `${maV4Plus(newTotals.mp-oldTotals.mp)} from MP table` : 'No MP table for this class'}</span></div>
     </div>
+    ${bonusSection}
     ${featSection}
     ${abilitySection}
     ${classAbilitySection}
@@ -8960,7 +9247,16 @@ async function maV4LevelUpOverlay(lib, oldSel, newSel, label){
     alert('Please pick an ability score for every ability-score increase.');
     return null;
   }
-  return {oldTotals, newTotals, pickedStats};
+  const favoredChoices = {};
+  for(const sel of Array.from(overlay.querySelectorAll('[data-favored-level]'))){
+    const lvl = String(sel.getAttribute('data-favored-level') || '').trim();
+    const choice = String(sel.value || '').toLowerCase();
+    if(!choice){ alert('Please choose +1 HP or +1 Skill Point for every new level after level 1.'); return null; }
+    favoredChoices[lvl] = choice === 'skill' ? 'skill' : 'hp';
+  }
+  const favoredHpBonus = Object.values(favoredChoices).filter(v=>v==='hp').length;
+  const favoredSkillBonus = Object.values(favoredChoices).filter(v=>v==='skill').length;
+  return {oldTotals, newTotals, pickedStats, favoredChoices, favoredHpBonus, favoredSkillBonus};
 }
 function maV4ApplyAbilityPicks(picks){
   (picks || []).forEach(stat=>{
@@ -8993,24 +9289,60 @@ function maV4RefreshVitalsDisplay(){
 }
 window.refreshEffectiveVitals = maV4RefreshVitalsDisplay;
 function maV4ApplyTotals(lib, oldSel, newSel, result=null){
+  const d = maFfd20ActiveData() || {};
+  if(!d.favoredClassBonuses || typeof d.favoredClassBonuses !== 'object' || Array.isArray(d.favoredClassBonuses)) d.favoredClassBonuses = {};
+  if(result?.favoredChoices){
+    Object.entries(result.favoredChoices).forEach(([level, choice]) => {
+      const n = Number(level) || 0;
+      if(n > 1 && (choice === 'hp' || choice === 'skill')) d.favoredClassBonuses[String(n)] = choice;
+    });
+  }
+  const maxLevel = maV4TotalLevel(newSel);
+  Object.keys(d.favoredClassBonuses).forEach(level => {
+    const n = Number(level) || 0;
+    if(n <= 1 || n > maxLevel) delete d.favoredClassBonuses[level];
+  });
+  function bonusCounts(totalLevel){
+    const out = {hp:0, skill:0};
+    for(let lvl=2; lvl<=Number(totalLevel || 0); lvl++){
+      const choice = String(d.favoredClassBonuses[String(lvl)] || '').toLowerCase();
+      if(choice === 'skill') out.skill += 1;
+      else if(choice === 'hp') out.hp += 1;
+    }
+    return out;
+  }
+
   maV4ApplyAbilityPicks(result?.pickedStats || []);
   const oldTotals = result?.oldTotals || maV4Totals(lib, oldSel);
-  const totals = maV4Totals(lib, newSel);
+  const pureTotals = maV4Totals(lib, newSel);
+  const bonuses = bonusCounts(maxLevel);
+  const totals = {...pureTotals, hp:(pureTotals.hp||0)+bonuses.hp, skill:(pureTotals.skill||0)+bonuses.skill, levelHpBonus:bonuses.hp, levelSkillBonus:bonuses.skill};
   const oldHpBase = maV4Num('hp_max', oldTotals.hp);
   const oldHpCurr = maV4Num('hp_curr', 0);
-  const hpTemp = maV4Num('hp_temp', 0);
-  const hpGain = totals.hp - oldHpBase;
+  const hpGain = result ? Math.max(0, ((result.newTotals?.hp || pureTotals.hp || 0) - (result.oldTotals?.hp || oldTotals.hp || 0)) + (result.favoredHpBonus || 0)) : (totals.hp - oldHpBase);
   const hpMaxEff = Math.max(0, totals.hp + maV4Num('hp_max_temp', 0));
   maV4Set('hp_max', totals.hp);
   if(document.getElementById('hp_temp') && (document.getElementById('hp_temp').value === '' || maFfd20ActiveData().hp_temp === undefined)) maV4Set('hp_temp', 0);
   const newHpCurr = result ? Math.min(hpMaxEff, Math.max(0, oldHpCurr + Math.max(0,hpGain))) : (oldHpCurr ? Math.min(oldHpCurr, hpMaxEff) : hpMaxEff);
   maV4Set('hp_curr', newHpCurr);
+
+  const baseSkillGain = result ? Math.max(0, (result.newTotals?.skill || pureTotals.skill || 0) - (result.oldTotals?.skill || oldTotals.skill || 0)) : 0;
+  const skillGain = baseSkillGain + (Number(result?.favoredSkillBonus || 0) || 0);
+  const spEl = document.getElementById('skill_points');
+  if(result && skillGain){
+    const currentUnused = Number(spEl?.value || d.skill_points || 0) || 0;
+    const nextUnused = Math.max(0, currentUnused + skillGain);
+    if(spEl) spEl.value = String(nextUnused);
+    d.skill_points = String(nextUnused);
+  }
+  d.skill_points_total_earned = String(totals.skill || 0);
+  d.skill_points_favored_bonus = String(bonuses.skill || 0);
+
   maV4Set('bab', totals.bab);
   maV4Set('fort_base', totals.fort); maV4Set('ref_base', totals.ref); maV4Set('will_base', totals.will);
   const mpBase = totals.hasMp ? totals.mp : 0;
   const oldMpBase = maV4Num('mp_max', oldTotals.mp);
   const oldMpCurr = maV4Num('mp_curr', 0);
-  const mpTemp = maV4Num('mp_temp', 0);
   const mpEff = Math.max(0, mpBase + maV4Num('mp_max_temp', 0));
   maV4Set('mp_max', mpBase);
   if(document.getElementById('mp_temp') && (document.getElementById('mp_temp').value === '' || maFfd20ActiveData().mp_temp === undefined)) maV4Set('mp_temp', 0);
@@ -9382,20 +9714,73 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     if(!totals?.rows?.length) return 'No class data found.';
     return totals.rows.map(r => `${r.label} ${r.level}: d${r.die}, ${r.skillBase}+INT skill, BAB ${plus(r.prog.babValue||0)}, saves ${plus(r.prog.fortValue||0)}/${plus(r.prog.refValue||0)}/${plus(r.prog.willValue||0)}${r.prog.mpValue ? `, MP ${r.prog.mpValue}` : ''}`).join(' · ');
   }
+  function maFavoredStore(){
+    const d = data();
+    if(!d.favoredClassBonuses || typeof d.favoredClassBonuses !== 'object' || Array.isArray(d.favoredClassBonuses)) d.favoredClassBonuses = {};
+    return d.favoredClassBonuses;
+  }
+  function maFavoredLevelsBetween(oldLevel, newLevel){
+    const out=[];
+    for(let lvl=oldLevel+1; lvl<=newLevel; lvl++) out.push(lvl);
+    return out;
+  }
+  function maFavoredPicksHtml(levels){
+    if(!levels.length) return '';
+    const store = maFavoredStore();
+    return `<div class="ma-levelup-section"><h4>Favored Class Bonus</h4><div class="ma-levelup-picks">${levels.map(l => {
+      const saved = String(store[String(l)] || 'hp').toLowerCase() === 'skill' ? 'skill' : 'hp';
+      return `<label>Level ${l}<select data-favored-level="${l}"><option value="hp"${saved === 'hp' ? ' selected' : ''}>+1 HP</option><option value="skill"${saved === 'skill' ? ' selected' : ''}>+1 Skill Point</option></select></label>`;
+    }).join('')}</div><div class="ma-levelup-note">Pick one favored-class bonus for each new level. These choices are saved on the character.</div></div>`;
+  }
+  function maReadFavoredPicks(overlay){
+    const picks = {};
+    overlay?.querySelectorAll?.('[data-favored-level]')?.forEach(sel => {
+      const lvl = String(sel.getAttribute('data-favored-level') || '').trim();
+      if(lvl) picks[lvl] = String(sel.value || 'hp').toLowerCase() === 'skill' ? 'skill' : 'hp';
+    });
+    return picks;
+  }
+  function maRecordFavoredPicks(picks){
+    if(!picks || typeof picks !== 'object') return;
+    const store = maFavoredStore();
+    Object.entries(picks).forEach(([lvl, pick]) => {
+      store[String(lvl)] = String(pick || 'hp').toLowerCase() === 'skill' ? 'skill' : 'hp';
+    });
+  }
+  function maFavoredCountsFromPicks(picks){
+    const out = { hp:0, skill:0 };
+    Object.values(picks || {}).forEach(pick => {
+      if(String(pick).toLowerCase() === 'skill') out.skill += 1;
+      else out.hp += 1;
+    });
+    return out;
+  }
+  function maFavoredCountsThrough(totalLevel){
+    const store = maFavoredStore();
+    const out = { hp:0, skill:0 };
+    for(let lvl=1; lvl<=Number(totalLevel || 0); lvl++){
+      const pick = String(store[String(lvl)] || '').toLowerCase();
+      if(pick === 'skill') out.skill += 1;
+      else if(pick === 'hp') out.hp += 1;
+    }
+    return out;
+  }
   async function maShowLevelUpScreen(lib, oldSel, newSel, slotLabel){
     const oldTotalLevel = maTotalCharacterLevel(oldSel);
     const newTotalLevel = maTotalCharacterLevel(newSel);
-    if(newTotalLevel <= oldTotalLevel) return { oldTotals:maCalcClassTotals(lib, oldSel), newTotals:maCalcClassTotals(lib, newSel), pickedStats:[] };
+    if(newTotalLevel <= oldTotalLevel) return { oldTotals:maCalcClassTotals(lib, oldSel), newTotals:maCalcClassTotals(lib, newSel), pickedStats:[], favoredPicks:{} };
     const oldTotals = maCalcClassTotals(lib, oldSel);
     const newTotals = maCalcClassTotals(lib, newSel);
     const hpDelta = newTotals.hp - oldTotals.hp;
     const skillDelta = newTotals.skill - oldTotals.skill;
     const feats = maLevelsBetween(oldTotalLevel, newTotalLevel, l => l % 2 === 1 && l > 1);
     const milestones = maLevelsBetween(oldTotalLevel, newTotalLevel, l => [4,8,12,16,20].includes(l));
+    const favoredLevels = maFavoredLevelsBetween(oldTotalLevel, newTotalLevel);
     const abilities = maFeatureNamesBetween(lib, oldSel, newSel);
     const featSection = feats.length
       ? `<div class="ma-levelup-section"><h4>Feats</h4><div class="ma-levelup-pill-list">${feats.map(l=>`<span class="ma-levelup-pill ma-levelup-feat">Feat gained at level ${l}</span>`).join('')}</div></div>`
       : '';
+    const favoredSection = maFavoredPicksHtml(favoredLevels);
     const abilitySection = milestones.length
       ? `<div class="ma-levelup-section ma-levelup-ability-required"><h4>Ability Score</h4>${maAbilityPicksHtml(milestones)}</div>`
       : '';
@@ -9405,12 +9790,13 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     const body = `
       <div class="ma-levelup-hero"><div class="ma-levelup-runes"><i></i><i></i><i></i><i></i><i></i></div><div class="ma-levelup-title">LEVEL UP</div><div class="ma-levelup-sub">${maFfd20Esc(slotLabel)} · Character Level ${oldTotalLevel} → ${newTotalLevel}</div></div>
       <div class="ma-levelup-grid">
-        <div class="ma-levelup-card"><small>HP</small><strong>${plus(hpDelta)}</strong><span>New auto max: ${newTotals.hp}</span></div>
-        <div class="ma-levelup-card"><small>Skill Points</small><strong>${plus(skillDelta)}</strong><span>Added to unused points</span></div>
+        <div class="ma-levelup-card"><small>HP</small><strong>${plus(hpDelta)}</strong><span>Before favored bonus</span></div>
+        <div class="ma-levelup-card"><small>Skill Points</small><strong>${plus(skillDelta)}</strong><span>Before favored bonus</span></div>
         <div class="ma-levelup-card"><small>BAB</small><strong>${plus(newTotals.bab)}</strong><span>${plus(newTotals.bab-oldTotals.bab)} from this change</span></div>
         <div class="ma-levelup-card"><small>Saves</small><strong>${plus(newTotals.fort)}/${plus(newTotals.ref)}/${plus(newTotals.will)}</strong><span>Fort / Ref / Will</span></div>
         <div class="ma-levelup-card"><small>MP</small><strong>${newTotals.hasMp ? newTotals.mp : '—'}</strong><span>${newTotals.hasMp ? `${plus(newTotals.mp-oldTotals.mp)} from tables` : 'No MP table'}</span></div>
       </div>
+      ${favoredSection}
       ${featSection}
       ${abilitySection}
       ${classAbilitySection}
@@ -9423,9 +9809,12 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
       alert('Please pick an ability score for every ability-score increase.');
       return null;
     }
-    return { oldTotals, newTotals, pickedStats };
+    const favoredPicks = maReadFavoredPicks(overlay);
+    const favoredCounts = maFavoredCountsFromPicks(favoredPicks);
+    return { oldTotals, newTotals, pickedStats, favoredPicks, favoredHpBonus:favoredCounts.hp, favoredSkillBonus:favoredCounts.skill };
   }
-  function maApplyAbilityPicks(pickedStats){
+  
+function maApplyAbilityPicks(pickedStats){
     (pickedStats || []).forEach(stat => {
       const el = document.getElementById(stat);
       const cur = Number(el?.value || data()[stat] || 10) || 10;
@@ -9442,20 +9831,32 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
   }
   function maApplyFinalClassTotals(lib, oldSel, newSel, levelResult){
     const oldTotals = levelResult?.oldTotals || maCalcClassTotals(lib, oldSel);
+    if(levelResult?.favoredPicks) maRecordFavoredPicks(levelResult.favoredPicks);
     maApplyAbilityPicks(levelResult?.pickedStats || []);
-    const finalTotals = maCalcClassTotals(lib, newSel);
+    const pureFinalTotals = maCalcClassTotals(lib, newSel);
+    const favoredStored = maFavoredCountsThrough(maTotalCharacterLevel(newSel));
+    const finalTotals = {
+      ...pureFinalTotals,
+      hp: pureFinalTotals.hp + favoredStored.hp,
+      skill: pureFinalTotals.skill + favoredStored.skill
+    };
     const d = data();
     const prevHpMax = Number(d.hp_max || document.getElementById('hp_max')?.value || oldTotals.hp) || oldTotals.hp;
-    const hpGain = finalTotals.hp - prevHpMax;
+    const baseHpGain = levelResult ? Math.max(0, (levelResult.newTotals?.hp ?? pureFinalTotals.hp) - (levelResult.oldTotals?.hp ?? oldTotals.hp)) : (finalTotals.hp - prevHpMax);
+    const favoredHpGain = Number(levelResult?.favoredHpBonus || 0) || 0;
+    const hpGain = levelResult ? (baseHpGain + favoredHpGain) : (finalTotals.hp - prevHpMax);
     const hpMaxTemp = Number(d.hp_max_temp || document.getElementById('hp_max_temp')?.value || 0) || 0;
     const curHp = Number(d.hp_curr || document.getElementById('hp_curr')?.value || 0) || 0;
-    const newEffectiveHpMax = Math.max(0, finalTotals.hp + hpMaxTemp);
+    const targetHpMax = levelResult ? Math.max(0, prevHpMax + hpGain) : Math.max(0, finalTotals.hp);
+    finalTotals.hp = targetHpMax;
+    const newEffectiveHpMax = Math.max(0, targetHpMax + hpMaxTemp);
     const newHpCurr = levelResult ? Math.min(newEffectiveHpMax, Math.max(0, curHp + Math.max(0,hpGain))) : Math.min(curHp || newEffectiveHpMax, newEffectiveHpMax);
-    setBaseField('hp_max', finalTotals.hp);
+    setBaseField('hp_max', targetHpMax);
     setBaseField('hp_curr', newHpCurr);
     if(d.hp_temp === undefined || d.hp_temp === null || d.hp_temp === '') setBaseField('hp_temp', 0);
-    const prevSkillTotal = oldTotals.skill;
-    const skillGain = Math.max(0, finalTotals.skill - prevSkillTotal);
+    const baseSkillGain = levelResult ? Math.max(0, (levelResult.newTotals?.skill ?? pureFinalTotals.skill) - (levelResult.oldTotals?.skill ?? oldTotals.skill)) : Math.max(0, finalTotals.skill - oldTotals.skill);
+    const favoredSkillGain = Number(levelResult?.favoredSkillBonus || 0) || 0;
+    const skillGain = baseSkillGain + favoredSkillGain;
     const spEl = document.getElementById('skill_points');
     if(levelResult && skillGain){
       const nextSp = (Number(spEl?.value || d.skill_points || 0) || 0) + skillGain;
@@ -9476,7 +9877,7 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
   }
 
 
-  function progressionAt(cls, level){
+function progressionAt(cls, level){
     const rows = Array.isArray(cls?.progression) ? cls.progression : [];
     if(!rows.length) return { level, babValue:0, fortValue:0, refValue:0, willValue:0, mpValue:0 };
     let best = rows[0];
@@ -9768,7 +10169,7 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
       const newData=createBlankCharacterData(name);
       Object.assign(newData,{charName:name,race,class:className,archetype:overlay.querySelector('#maCreateArch')?.value || '',character_level:String(level),alignment:overlay.querySelector('#maCreateAlignment')?.value || '',size_category:overlay.querySelector('#maCreateSize')?.value || 'Medium',size:overlay.querySelector('#maCreateSize')?.value || 'Medium',languages:overlay.querySelector('#maCreateLanguages')?.value || '',senses:overlay.querySelector('#maCreateSenses')?.value || '',multiclasses:[]});
       overlay.querySelectorAll('[data-ability-level]').forEach(sel=>{ const stat=sel.value; newData[stat]=String((Number(newData[stat]) || 10)+1); });
-      const cls=maFfd20Find(lib.classes,className); const calc=maFfd20ApplyHpSkillToData(newData, cls, level, overlay.querySelector('#maCreateFavored')?.value || 'hp');
+      const createFavored=overlay.querySelector('#maCreateFavored')?.value || 'hp'; newData.favoredClassBonuses={}; for(let lvl=1; lvl<=level; lvl++) newData.favoredClassBonuses[String(lvl)] = createFavored; const cls=maFfd20Find(lib.classes,className); const calc=maFfd20ApplyHpSkillToData(newData, cls, level, createFavored);
       const prog=combineProgression(lib,{className,archetype:newData.archetype,level,multiclasses:[]});
       newData.bab=String(prog.bab); newData.fort_base=String(prog.fort); newData.ref_base=String(prog.ref); newData.will_base=String(prog.will); newData.mp_max=String(prog.hasMp?prog.mp:0); newData.mp_curr=String(prog.hasMp?prog.mp:0); newData.mp_temp=newData.mp_temp||'0'; newData.hp_temp=newData.hp_temp||'0';
       newData.racialAbilities=Array.isArray(newData.racialAbilities)?newData.racialAbilities:[];
@@ -10144,6 +10545,139 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
     maFfd20SaveNow();
   };
 
+
+
+
+  /* --- Admin v40 skill-point budget repair, matched to working character skill math ---
+     Unused Skill Points is now derived, not blindly incremented:
+     unused = class skill budget + saved +1 skill level bonuses - total ranks spent.
+     This catches overrides from older admin level-up paths and stays correct after level-down. */
+  function maV40Int(value, fallback=0){
+    if(value === '' || value === null || value === undefined) return fallback;
+    const m = String(value).match(/[+-]?\d+/);
+    const n = m ? Number(m[0]) : Number(value);
+    return Number.isFinite(n) ? Math.trunc(n) : fallback;
+  }
+  function maV40RanksSpent(){
+    const inputs = Array.from(document.querySelectorAll('#skillsTableBody .skill-ranks'));
+    if(inputs.length){
+      return inputs.reduce((sum, input) => sum + Math.max(0, maV40Int(input.value, 0)), 0);
+    }
+    const skills = Array.isArray(data().skills) ? data().skills : [];
+    return skills.reduce((sum, skill) => sum + Math.max(0, maV40Int(skill?.lvl ?? skill?.ranks ?? skill?.rank ?? 0, 0)), 0);
+  }
+  function maV40FavoredSkillCount(maxLevel){
+    const d = data();
+    const maps = [
+      d.favoredClassBonuses,
+      d.levelBonusChoicesV37,
+      d.levelBonusChoicesV36,
+      d.levelBonusChoicesV35,
+      d.favored_bonuses,
+      d.favoredBonuses
+    ].filter(map => map && typeof map === 'object' && !Array.isArray(map));
+    const seen = new Set();
+    let count = 0;
+    maps.forEach(map => {
+      Object.entries(map).forEach(([level, choice]) => {
+        const lvl = maV40Int(level, 0);
+        if(lvl < 2 || lvl > maxLevel || seen.has(String(lvl))) return;
+        if(String(choice || '').toLowerCase() === 'skill'){
+          count += 1;
+          seen.add(String(lvl));
+        }
+      });
+    });
+    return count;
+  }
+  function maV40SkillBudget(lib, sel){
+    const safeSel = sel || maCurrentSelectionClone();
+    const totals = maCalcClassTotals(lib, safeSel);
+    const maxLevel = maTotalCharacterLevel(safeSel);
+    const favoredSkill = maV40FavoredSkillCount(maxLevel);
+    const ranks = maV40RanksSpent();
+    const classBudget = Math.max(0, maV40Int(totals.skill, 0));
+    const totalBudget = classBudget + favoredSkill;
+    const unused = totalBudget - ranks;
+    return { unused, totalBudget, classBudget, favoredSkill, ranks, rows: totals.rows || [], totals };
+  }
+  function maV40WriteSkillBudget(result){
+    if(!result) return result;
+    const d = data();
+    const el = document.getElementById('skill_points');
+    const str = String(maV40Int(result.unused, 0));
+    if(el){
+      el.value = str;
+      el.readOnly = true;
+      el.setAttribute('readonly', 'readonly');
+      el.setAttribute('aria-readonly', 'true');
+      el.title = 'Unused Skill Points = class skill budget + saved +1 skill choices - total ranks spent. Negative means too many ranks are spent.';
+      el.dataset.calculated = '1';
+    }
+    d.skill_points = str;
+    d.skill_points_total = String(result.totalBudget);
+    d.total_skill_points = String(result.totalBudget);
+    d.skill_points_total_earned = String(result.totalBudget);
+    d.skill_points_class_budget = String(result.classBudget);
+    d.skill_points_favored_bonus = String(result.favoredSkill);
+    d.skill_ranks_spent = String(result.ranks);
+    d.skill_points_formula = 'Unused = class skill budget + saved +1 skill choices - total ranks spent';
+    d.skill_points_debug_rows = result.rows;
+    return result;
+  }
+  async function maV40RecalcSkillBudget(saveIt=false){
+    let lib;
+    try { lib = await maFfd20LoadLibrary(); }
+    catch(e) { console.warn('[admin v40] Could not load FFD20 library for skill budget', e); return null; }
+    const result = maV40WriteSkillBudget(maV40SkillBudget(lib, maCurrentSelectionClone()));
+    try { if(typeof updateCalculations === 'function') updateCalculations(); } catch(e) {}
+    if(saveIt){ try { maFfd20SaveNow(); } catch(e) {} }
+    return result;
+  }
+  window.maAdminRecalcSkillBudget = maV40RecalcSkillBudget;
+
+  const maV40OldApplyFinalClassTotals = maApplyFinalClassTotals;
+  maApplyFinalClassTotals = function(lib, oldSel, newSel, levelResult){
+    const finalTotals = maV40OldApplyFinalClassTotals(lib, oldSel, newSel, levelResult);
+    try { maV40WriteSkillBudget(maV40SkillBudget(lib, newSel || maCurrentSelectionClone())); } catch(e) { console.warn('[admin v40] skill budget write failed', e); }
+    return finalTotals;
+  };
+
+  const maV40OldUpdateProgressionFields = updateProgressionFields;
+  updateProgressionFields = async function(){
+    const totals = await maV40OldUpdateProgressionFields.apply(this, arguments);
+    try { await maV40RecalcSkillBudget(false); } catch(e) { console.warn('[admin v40] skill budget recalc failed', e); }
+    return totals;
+  };
+
+  let maV40SkillBudgetTimer = null;
+  function maV40ScheduleSkillBudget(saveIt=false){
+    clearTimeout(maV40SkillBudgetTimer);
+    maV40SkillBudgetTimer = setTimeout(() => maV40RecalcSkillBudget(saveIt), 60);
+  }
+  document.addEventListener('input', event => {
+    if(event.target?.matches?.('#skillsTableBody .skill-ranks, #skillsTableBody .skill-cs, #skillsTableBody .skill-custom-input')) maV40ScheduleSkillBudget(true);
+  }, true);
+  document.addEventListener('change', event => {
+    if(event.target?.matches?.('#skillsTableBody .skill-ranks, #skillsTableBody .skill-cs, #skillsTableBody .skill-custom-input, #class, #archetype, #character_level')) maV40ScheduleSkillBudget(true);
+  }, true);
+
+  const maV40OldOpenClassDialog = openClassDialog;
+  openClassDialog = async function(){
+    const result = await maV40OldOpenClassDialog.apply(this, arguments);
+    maV40ScheduleSkillBudget(true);
+    return result;
+  };
+
+  const maV40OldShowLevelUpScreen = maShowLevelUpScreen;
+  maShowLevelUpScreen = async function(lib, oldSel, newSel, slotLabel){
+    const result = await maV40OldShowLevelUpScreen(lib, oldSel, newSel, slotLabel);
+    if(result?.favoredPicks) maRecordFavoredPicks(result.favoredPicks);
+    return result;
+  };
+
+  setTimeout(() => maV40RecalcSkillBudget(false), 350);
+  setTimeout(() => maV40RecalcSkillBudget(false), 1200);
 
   installBuildClickDelegates();
   setTimeout(()=>{ maFfd20BuildChoiceGrid(true); maFfd20RefreshOptions(); refreshCardsFromLibrary(); }, 0);
@@ -12388,6 +12922,368 @@ body.admin-sidebar-collapsed #editorArea{flex:1 1 auto!important;}
   });
 })();
 </script>
+
+
+<style>
+/* --- v39 admin level-bonus + reset reliability patch --- */
+.ma-levelup-favored-required{border-color:var(--accent)!important;box-shadow:0 0 16px rgba(255,204,102,.13)}
+.ma-levelup-favored-required select{font-weight:800;text-align:center;text-align-last:center;}
+.ffd20-auto-reset-panel .btn-edit{background:#352818;border-color:rgba(255,204,102,.7);color:var(--accent)}
+.ffd20-auto-reset-panel .btn-edit:hover{background:var(--accent);color:#000;}
+</style>
+
+
+
+<script>
+/* --- Admin v40 Done button hardening: force skill edit mode closed even if older handlers/CSS disagree. --- */
+(function(){
+  function closeSkillEditorHard(){
+    document.body.classList.remove('skill-edit-mode');
+    document.body.classList.remove('skill-points-unlocked');
+    const editor = document.querySelector('#skills .skills-editor-toolbar');
+    const view = document.querySelector('#skills .skills-view-toolbar');
+    if(editor){ editor.style.display = 'none'; editor.setAttribute('aria-hidden','true'); }
+    if(view){ view.style.display = ''; view.removeAttribute('aria-hidden'); }
+    document.querySelectorAll('#skillsTableBody .skill-custom-input').forEach(input => { input.readOnly = true; input.setAttribute('aria-readonly','true'); input.tabIndex = -1; });
+  }
+  const oldToggle = window.toggleSkillEditMode;
+  window.toggleSkillEditMode = function(force){
+    const result = typeof oldToggle === 'function' ? oldToggle.apply(this, arguments) : undefined;
+    const closing = force === false || (force === undefined && !document.body.classList.contains('skill-edit-mode'));
+    if(closing) setTimeout(closeSkillEditorHard, 0);
+    return result;
+  };
+  document.addEventListener('click', function(event){
+    const done = event.target && event.target.closest && event.target.closest('#skillsExitEditBtn');
+    if(done) setTimeout(closeSkillEditorHard, 0);
+  }, true);
+})();
+</script>
+
+
+<style>
+/* --- Admin v40 skill editor collapse repair ---
+   Later admin CSS was forcing both toolbars visible with #skills.active .skills-editor-toolbar { display:flex !important; }.
+   These rules intentionally come later so Done hides the editor and Unused Skill Points collapses again. */
+body:not(.skill-edit-mode) #skills.active .skills-editor-toolbar,
+body:not(.skill-edit-mode) #skills .skills-editor-toolbar,
+body:not(.skill-edit-mode) .skills-editor-toolbar {
+  display:none !important;
+  visibility:hidden !important;
+  height:0 !important;
+  min-height:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  overflow:hidden !important;
+}
+body.skill-edit-mode #skills.active .skills-view-toolbar,
+body.skill-edit-mode #skills .skills-view-toolbar,
+body.skill-edit-mode .skills-view-toolbar {
+  display:none !important;
+}
+body.skill-edit-mode #skills.active .skills-editor-toolbar,
+body.skill-edit-mode #skills .skills-editor-toolbar,
+body.skill-edit-mode .skills-editor-toolbar {
+  display:flex !important;
+  visibility:visible !important;
+  height:auto !important;
+  min-height:0 !important;
+  overflow:visible !important;
+}
+</style>
+
+
+
+<script>
+/* --- v41 automated skill-point hard lock ---
+   Skill points are now always derived from class JSON + saved favored +1 skill choices - ranks spent.
+   Legacy/manual stored skill-point pools are ignored and cleaned so old characters cannot keep inflated pools. */
+(function(){
+  const PATCH = 'v41-auto-skill-only';
+  let libPromise = null;
+  let writeLock = false;
+  let saveLock = false;
+  let lastComputed = null;
+  let timer = null;
+
+  function data(){
+    try { if(typeof window.maFfd20ActiveData === 'function') return window.maFfd20ActiveData() || {}; } catch(e) {}
+    try { if(typeof window.getActiveData === 'function') return window.getActiveData() || {}; } catch(e) {}
+    try { if(window.fullData) return window.fullData; } catch(e) {}
+    try { if(window.fullSheetData) return window.fullSheetData; } catch(e) {}
+    return {};
+  }
+  function intVal(value, fallback=0){
+    if(value === '' || value === null || value === undefined) return fallback;
+    const m = String(value).match(/[+-]?\d+/);
+    const n = m ? Number(m[0]) : Number(value);
+    return Number.isFinite(n) ? Math.trunc(n) : fallback;
+  }
+  function norm(value){ return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
+  function read(id, fallback=''){
+    const el = document.getElementById(id);
+    const d = data();
+    const raw = (el && String(el.value ?? '').trim() !== '') ? el.value : d[id];
+    return raw === undefined || raw === null || raw === '' ? fallback : raw;
+  }
+  function intMod(){ return Math.floor((intVal(read('int', data().int || 10), 10) - 10) / 2); }
+  function levelOf(value, fallback=0){ return Math.max(0, intVal(value, fallback)); }
+  function skillBase(cls){
+    const raw = cls?.skillPoints ?? cls?.skill_points ?? cls?.skillRanks ?? cls?.skill_ranks ?? '';
+    const m = String(raw).match(/\d+/);
+    return m ? Number(m[0]) : 0;
+  }
+  async function fetchJson(path){
+    const res = await fetch(path, { cache:'no-store' });
+    if(!res.ok) throw new Error(path + ' failed');
+    return res.json();
+  }
+  async function loadLib(){
+    if(libPromise) return libPromise;
+    libPromise = (async function(){
+      try { if(window.maFfd20Library && (window.maFfd20Library.classes || window.maFfd20Library.prestigeClasses)) return window.maFfd20Library; } catch(e) {}
+      try { if(typeof window.maFfd20LoadLibrary === 'function') return await window.maFfd20LoadLibrary(); } catch(e) {}
+      try { if(window.FFD20_DATA) return window.FFD20_DATA; } catch(e) {}
+      const paths = ['data/ffd20_data.json','ffd20_data.json','./data/ffd20_data.json','./ffd20_data.json'];
+      let lastErr = null;
+      for(const path of paths){
+        try { const lib = await fetchJson(path); window.maFfd20Library = lib; return lib; }
+        catch(e){ lastErr = e; }
+      }
+      throw lastErr || new Error('Could not load ffd20_data.json');
+    })();
+    return libPromise;
+  }
+  function findByName(list, name){
+    const target = norm(name);
+    if(!target) return null;
+    const arr = Array.isArray(list) ? list : [];
+    return arr.find(item => norm(item?.name || item?.className || item?.title) === target) || arr.find(item => norm(item?.name || item?.className || item?.title).includes(target)) || null;
+  }
+  function classRows(){
+    const d = data();
+    const rows = [];
+    const mainName = read('class', d.class || d.className || '');
+    const mainLevel = Math.max(1, levelOf(read('character_level', d.character_level || d.level || 1), 1));
+    if(String(mainName || '').trim()) rows.push({ label:'Class', name:mainName, level:mainLevel, prestige:false });
+    const mcs = Array.isArray(d.multiclasses) ? d.multiclasses : [];
+    mcs.forEach((mc, i) => {
+      const name = mc?.className || mc?.class || mc?.name || '';
+      const lvl = levelOf(mc?.level || mc?.classLevel || 0, 0);
+      if(name && lvl) rows.push({ label:'Class ' + (i+2), name, level:lvl, prestige:!!mc.prestige });
+    });
+    const prestigeName = read('prestige_class', d.prestige_class || '');
+    const prestigeLevel = levelOf(read('prestige_level', d.prestige_level || 0), 0);
+    if(prestigeName && prestigeLevel && !rows.some(r => norm(r.name) === norm(prestigeName))) rows.push({ label:'Prestige', name:prestigeName, level:prestigeLevel, prestige:true });
+    return rows;
+  }
+  function totalLevel(rows = classRows()){
+    return Math.max(1, rows.reduce((sum, row) => sum + Math.max(0, levelOf(row.level, 0)), 0));
+  }
+  function ranksSpent(){
+    const inputs = Array.from(document.querySelectorAll('#skillsTableBody .skill-ranks'));
+    if(inputs.length) return inputs.reduce((sum, input) => sum + Math.max(0, intVal(input.value,0)), 0);
+    const skills = Array.isArray(data().skills) ? data().skills : [];
+    return skills.reduce((sum, skill) => sum + Math.max(0, intVal(skill?.lvl ?? skill?.ranks ?? skill?.rank ?? 0, 0)), 0);
+  }
+  function favoredSkillCount(maxLevel){
+    const d = data();
+    const maps = [
+      d.favoredClassBonuses,
+      d.levelBonusChoicesV37,
+      d.levelBonusChoicesV36,
+      d.levelBonusChoicesV35,
+      d.favored_bonuses,
+      d.favoredBonuses
+    ].filter(map => map && typeof map === 'object' && !Array.isArray(map));
+    const seen = new Set();
+    let count = 0;
+    for(const map of maps){
+      for(const [level, choice] of Object.entries(map)){
+        const lvl = intVal(level, 0);
+        if(lvl < 1 || lvl > maxLevel || seen.has(String(lvl))) continue;
+        const normalized = String(choice || '').trim().toLowerCase();
+        if(normalized === 'skill' || normalized === '+1 skill' || normalized === '+1 skill point') count++;
+        if(normalized === 'skill' || normalized === 'hp' || normalized === '+1 hp' || normalized === '+1 skill' || normalized === '+1 skill point') seen.add(String(lvl));
+      }
+    }
+    return count;
+  }
+  function clearLegacyManualFields(d){
+    if(!d || typeof d !== 'object') return;
+    [
+      'manual_skill_points','skill_points_manual','skillPointAdjustment','skill_point_adjustment','skill_points_adjustment',
+      'extra_skill_points','bonus_skill_points','skill_points_extra','skill_points_bonus','skill_points_added',
+      'skillPoolBonus','skill_pool_bonus','skillPoolManual','skill_points_pool_manual','unspent_skill_points_manual',
+      'skill_points_override','skillPointOverride','skill_points_legacy_bonus'
+    ].forEach(key => { if(Object.prototype.hasOwnProperty.call(d, key)) delete d[key]; });
+  }
+  async function compute(){
+    const lib = await loadLib();
+    const rows = classRows();
+    const mod = intMod();
+    let classBudget = 0;
+    const debugRows = [];
+    rows.forEach((row, index) => {
+      const cls = findByName(row.prestige ? (lib.prestigeClasses || lib.prestige_classes || lib.classes) : lib.classes, row.name) || findByName(lib.prestigeClasses || lib.prestige_classes, row.name) || {};
+      const base = skillBase(cls);
+      const perLevel = Math.max(1, base + mod);
+      const lvlCount = Math.max(0, levelOf(row.level, 0));
+      let subtotal = 0;
+      for(let lvl=1; lvl<=lvlCount; lvl++) subtotal += (index === 0 && lvl === 1) ? perLevel * 4 : perLevel;
+      classBudget += subtotal;
+      debugRows.push({ label:row.label, className:row.name, level:lvlCount, skillBase:base, intMod:mod, perLevel, total:subtotal });
+    });
+    const maxLevel = totalLevel(rows);
+    const favoredSkill = favoredSkillCount(maxLevel);
+    const ranks = ranksSpent();
+    const totalBudget = classBudget + favoredSkill;
+    return { unused: totalBudget - ranks, totalBudget, classBudget, favoredSkill, ranks, totalLevel:maxLevel, rows:debugRows };
+  }
+  function write(result){
+    if(!result) return result;
+    const d = data();
+    clearLegacyManualFields(d);
+    const value = String(intVal(result.unused, 0));
+    const el = document.getElementById('skill_points');
+    writeLock = true;
+    try {
+      if(el){
+        el.value = value;
+        el.readOnly = true;
+        el.setAttribute('readonly','readonly');
+        el.setAttribute('aria-readonly','true');
+        el.removeAttribute('min');
+        el.dataset.calculated = PATCH;
+        el.title = 'Automatic only: unused skill points = class skill budget + saved +1 skill choices - ranks spent. Old manual/bonus skill pools are ignored.';
+        el.classList.toggle('overspent', intVal(value,0) < 0);
+      }
+      d.skill_points = value;
+      d.skill_points_total = String(result.totalBudget);
+      d.total_skill_points = String(result.totalBudget);
+      d.skill_points_total_earned = String(result.totalBudget);
+      d.skill_points_class_budget = String(result.classBudget);
+      d.skill_points_favored_bonus = String(result.favoredSkill);
+      d.skill_ranks_spent = String(result.ranks);
+      d.skill_points_formula = 'Automatic only: unused = class skill budget + favored +1 skill choices - ranks spent; manual skill pools ignored';
+      d.skill_points_debug_rows = result.rows;
+      d.skill_points_patch = PATCH;
+      lastComputed = result;
+    } finally {
+      setTimeout(() => { writeLock = false; }, 0);
+    }
+    document.querySelectorAll('#skillsTableBody .skill-ranks').forEach(input => {
+      input.setAttribute('min','0');
+      input.setAttribute('max', String(Math.max(1, result.totalLevel || totalLevel())));
+      input.dataset.prevValue = String(Math.max(0, intVal(input.value, 0)));
+    });
+    const editBtn = document.getElementById('skillPointsEditBtn');
+    if(editBtn) editBtn.remove();
+    return result;
+  }
+  async function recalc(options={}){
+    try {
+      const result = write(await compute());
+      if(options.save) saveNow();
+      return result;
+    } catch(e){
+      console.warn('[' + PATCH + '] skill budget recalc failed', e);
+      return null;
+    }
+  }
+  function schedule(options={}){
+    clearTimeout(timer);
+    timer = setTimeout(() => recalc(options), options.delay ?? 80);
+  }
+  function saveNow(){
+    if(saveLock) return;
+    saveLock = true;
+    setTimeout(() => {
+      try { if(typeof window.maFfd20SaveNow === 'function') window.maFfd20SaveNow(); else if(typeof window.save === 'function') window.save(true); }
+      catch(e){ console.warn('[' + PATCH + '] save after skill recalc failed', e); }
+      finally { saveLock = false; }
+    }, 0);
+  }
+
+  window.maAutoSkillOnlyRecalc = recalc;
+  window.maV41AutoSkillOnlyRecalc = recalc;
+  window.toggleSkillPointEdit = function(){
+    schedule({delay:0, save:true});
+    alert('Unused Skill Points are automatic now. Change class levels, INT, favored +1 skill choices, or skill ranks instead. Old manual skill-point bonuses are ignored.');
+  };
+  window.setUnusedSkillPoints = function(){ schedule({delay:0, save:true}); };
+  window.getUnusedSkillPoints = function(){ return lastComputed ? intVal(lastComputed.unused, 0) : intVal(document.getElementById('skill_points')?.value, 0); };
+  window.applySkillRankChange = function(input){
+    if(input){
+      const cap = Math.max(1, lastComputed?.totalLevel || totalLevel());
+      input.setAttribute('min','0'); input.setAttribute('max', String(cap));
+      input.value = String(Math.max(0, Math.min(cap, intVal(input.value, 0))));
+      input.dataset.prevValue = String(intVal(input.value, 0));
+    }
+    schedule({delay:0, save:true});
+  };
+
+  ['save','maFfd20SaveNow'].forEach(name => {
+    const old = window[name];
+    if(typeof old === 'function' && old.__maAutoSkillOnlyWrapped !== true){
+      const wrapped = function(){
+        if(!saveLock) schedule({delay:0, save:false});
+        return old.apply(this, arguments);
+      };
+      wrapped.__maAutoSkillOnlyWrapped = true;
+      try { window[name] = wrapped; } catch(e) {}
+    }
+  });
+  ['populateSheet','loadCurrentSheet','updateCalcs','updateCalculations','computeDerivedStats','updateProgressionFields'].forEach(name => {
+    const old = window[name];
+    if(typeof old === 'function' && old.__maAutoSkillOnlyWrapped !== true){
+      const wrapped = function(){
+        const result = old.apply(this, arguments);
+        Promise.resolve(result).finally(() => schedule({delay:120, save:name === 'updateProgressionFields'}));
+        return result;
+      };
+      wrapped.__maAutoSkillOnlyWrapped = true;
+      try { window[name] = wrapped; } catch(e) {}
+    }
+  });
+  document.addEventListener('input', event => {
+    const target = event.target;
+    if(target?.matches?.('#skill_points')) { if(!writeLock) schedule({delay:0, save:true}); return; }
+    if(target?.matches?.('#skillsTableBody .skill-ranks, #int, #character_level, #class, #archetype, [data-favored-level], .ma-multiclass-level, .ma-class-level')) schedule({delay:35, save:true});
+  }, true);
+  document.addEventListener('change', event => {
+    const target = event.target;
+    if(target?.matches?.('#skill_points')) { if(!writeLock) schedule({delay:0, save:true}); return; }
+    if(target?.matches?.('#skillsTableBody .skill-ranks, #int, #character_level, #class, #archetype, [data-favored-level], select, input')) schedule({delay:70, save:true});
+  }, true);
+  document.addEventListener('click', event => {
+    if(event.target?.closest?.('#maClassBuildCard,#maAddMulticlassBtn,.ma-multiclass-edit,.ma-levelup-confirm,.btn-save,#skillsExitEditBtn,#skillsEnterEditBtn,.ffd20-modal-actions button,.modal-footer button')){
+      schedule({delay:180, save:true});
+      setTimeout(() => recalc({save:true}), 650);
+    }
+  }, true);
+  function boot(){
+    schedule({delay:0, save:false});
+    setTimeout(() => recalc({save:false}), 300);
+    setTimeout(() => recalc({save:true}), 1400);
+    const el = document.getElementById('skill_points');
+    if(el && !el.__maAutoSkillOnlyObserved){
+      el.__maAutoSkillOnlyObserved = true;
+      new MutationObserver(() => { if(!writeLock) schedule({delay:0, save:true}); }).observe(el, { attributes:true, attributeFilter:['value','min','readonly'] });
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true}); else boot();
+  window.addEventListener('load', () => setTimeout(() => recalc({save:true}), 1200));
+})();
+</script>
+
+
+<style>
+/* --- v41 automatic skill-point visual state --- */
+#skill_points[data-calculated="v41-auto-skill-only"]{background:#121212!important;color:var(--accent)!important;font-weight:900!important;}
+#skill_points.overspent{color:#ff7777!important;border-color:#aa4444!important;box-shadow:0 0 0 1px rgba(170,68,68,.25)!important;}
+</style>
 
 </body>
 </html>
