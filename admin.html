@@ -379,7 +379,6 @@ body.edit-mode-active .edit-stat-btn { display:inline-flex; align-items:center; 
 body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; align-items:center; justify-content:center; }
 .main-vital-input[readonly]::-webkit-outer-spin-button, .main-vital-input[readonly]::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
 .main-vital-input[readonly][type=number] { -moz-appearance:textfield; }
-.hpmp-card .stat-main-value { font-size:20px; }
 .select-display { appearance:none; -webkit-appearance:none; }
 .section-note { color:#9a9a9a; font-size:12px; margin-top:4px; }
 .edit-grid-2, .edit-grid-3, .edit-grid-4 { display:grid; gap:10px; }
@@ -690,10 +689,8 @@ body.edit-mode-active .toolbar-card .general-edit-btn { display:inline-flex; ali
 .vital-showcase{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:12px;max-width:590px;margin:0 auto 18px;}
 .vital-card{position:relative;display:flex;align-items:center;gap:11px;min-height:126px;padding:13px 12px;background:#161616;border:1px solid #343434;border-radius:18px;box-shadow:0 8px 20px rgba(0,0,0,.24);}
 .vital-card.vital-heart{border-color:#552b31;box-shadow:0 8px 20px rgba(0,0,0,.24),0 0 15px rgba(216,50,67,.14);}
-.vital-card.vital-drop{border-color:#23435f;box-shadow:0 8px 20px rgba(0,0,0,.24),0 0 15px rgba(44,143,219,.14);}
 .vital-icon{font-size:46px;line-height:1;flex:0 0 48px;text-align:center;animation:vitalPulse 2.2s ease-in-out infinite;}
 .vital-heart .vital-icon{filter:drop-shadow(0 0 9px rgba(255,45,65,.55));}
-.vital-drop .vital-icon{filter:drop-shadow(0 0 9px rgba(67,168,255,.58));}
 .vital-content{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1;}
 .vital-title{font-family:'Uncial Antiqua',serif;font-size:18px;font-weight:bold;letter-spacing:.08em;color:var(--accent);}
 .vital-number-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;width:100%;}
@@ -996,12 +993,6 @@ body.skill-edit-mode #skillsTable .skill-stat-tag{color:#888;font-weight:normal;
 
 
 <style>
-/* --- v24 centered quick-skill cards + MP spell casting controls --- */
-.spell-mp-panel{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;background:linear-gradient(135deg,#101a22,#151515);border:1px solid rgba(74,190,255,.48);border-radius:14px;padding:12px 14px;margin:0 0 12px;box-shadow:0 0 18px rgba(73,179,235,.10);}
-.spell-mp-label{font-family:'Uncial Antiqua',serif;color:#91deff;font-weight:800;margin-right:6px;}
-.spell-mp-panel strong{font-size:25px;color:#91deff;line-height:1;text-shadow:0 0 12px rgba(84,198,255,.45);}
-.spell-mp-divider,#spellMpMaximum{font-size:20px;font-weight:800;color:#d9e9f2;}
-.spell-mp-panel small{flex-basis:100%;text-align:center;color:#8ea3ae;font-size:11px;margin-top:2px;}
 .spell-use-btn{width:auto;min-height:30px;border-radius:999px;border:1px solid #42d06f;background:#176b33;color:#fff;padding:5px 12px;font-weight:900;cursor:pointer;transition:filter .16s ease,transform .16s ease,box-shadow .16s ease;white-space:nowrap;}
 .spell-use-btn:not(:disabled):hover{filter:brightness(1.13);transform:translateY(-1px);box-shadow:0 0 14px rgba(66,208,111,.34);}
 .spell-use-btn.unavailable,.spell-use-btn:disabled{background:#5c1717;border-color:#b84444;color:#fff;opacity:1;cursor:not-allowed;box-shadow:none;}
@@ -1017,7 +1008,6 @@ body:not(.skill-edit-mode) #skillsTableBody td:nth-child(6){display:flex !import
 body:not(.skill-edit-mode) .skill-stat-tag{display:inline;font-size:10px;color:#9a9a9a;font-weight:800;margin-left:4px;text-transform:uppercase;}
 .spell-row .spell-row-primary{display:flex;align-items:center;gap:9px;min-width:0;}
 
-/* --- Spell level side tabs + live MP refresh --- */
 .spell-level-layout{display:grid;grid-template-columns:172px minmax(0,1fr);gap:12px;align-items:start;margin-top:12px;}
 .spell-level-tabs{position:sticky;top:154px;display:flex;flex-direction:column;gap:7px;background:#151515;border:1px solid #333;border-radius:14px;padding:9px;max-height:calc(100vh - 190px);overflow-y:auto;}
 .spell-level-tab{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name count" "dc count";align-items:center;gap:2px 8px;text-align:left;background:#202020;border:1px solid #3a3a3a;border-radius:10px;color:#ddd;padding:9px 10px;cursor:pointer;transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;}
@@ -1310,9 +1300,8 @@ body > .tab-content.active{
 </style>
 
 <style>
-/* --- Edit-Mode HP/MP + clean inner tabs repair v2 --- */
-.vital-number-grid.ma-v8-hp-grid,
-.vital-number-grid.ma-v8-mp-grid { grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
+/* --- Edit-Mode HP + clean inner tabs repair v2 --- */
+.vital-number-grid.ma-v8-hp-grid { grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
 
 .tab-content.active > .sub-nav-container,
 #combat.active > .sub-nav-container,
@@ -1433,15 +1422,13 @@ body > .tab-content.active{
 
 <style>
 /* --- Edit-Mode front vitals: always show Current / Temp / Total Max --- */
-.vital-number-grid.ma-v8-hp-grid,
-.vital-number-grid.ma-v8-mp-grid {
+.vital-number-grid.ma-v8-hp-grid {
   display:grid !important;
   grid-template-columns:minmax(64px,1fr) minmax(64px,1fr) minmax(82px,1.15fr) !important;
   gap:6px !important;
   width:100% !important;
 }
-.vital-number-grid.ma-v8-hp-grid > label,
-.vital-number-grid.ma-v8-mp-grid > label {
+.vital-number-grid.ma-v8-hp-grid > label {
   display:flex !important;
   visibility:visible !important;
   opacity:1 !important;
@@ -1449,23 +1436,19 @@ body > .tab-content.active{
   flex-direction:column !important;
   align-items:center !important;
 }
-.vital-number-grid.ma-v8-hp-grid input,
-.vital-number-grid.ma-v8-mp-grid input {
+.vital-number-grid.ma-v8-hp-grid input {
   display:block !important;
   visibility:visible !important;
   opacity:1 !important;
   width:100% !important;
   min-width:0 !important;
 }
-.vital-number-grid.ma-v8-hp-grid .ma-v8-temp small,
-.vital-number-grid.ma-v8-mp-grid .ma-v8-temp small {
+.vital-number-grid.ma-v8-hp-grid .ma-v8-temp small {
   color:#f0d18a !important;
 }
 @media(max-width:430px){
-  .vital-number-grid.ma-v8-hp-grid,
-  .vital-number-grid.ma-v8-mp-grid { grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
-  .vital-number-grid.ma-v8-hp-grid small,
-  .vital-number-grid.ma-v8-mp-grid small { font-size:8px !important; letter-spacing:.03em !important; }
+  .vital-number-grid.ma-v8-hp-grid { grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
+  .vital-number-grid.ma-v8-hp-grid small { font-size:8px !important; letter-spacing:.03em !important; }
 }
 </style>
 
@@ -2938,8 +2921,6 @@ h2,h3,h4,
 .skill-total-badge,
 .drawer-stat,
 .spell-level-name,
-.spell-mp-label,
-#spellMpAvailable{ color:var(--accent) !important; }
 .top-nav,
 .main-tabs,
 .modal-content,
@@ -3694,6 +3675,60 @@ body.ma-ffd20-admin #sheetContainer {
 @media (max-width:700px){.usage-overlay-title{font-size:20px;}.usage-overlay-card{padding:18px 20px;}}
 </style>
 
+
+<style>
+/* --- v40 Admin MP system: matches character sheet single-source MP fields --- */
+.ma-v40-vital-showcase{grid-template-columns:repeat(3,minmax(190px,1fr)) !important;max-width:920px !important;align-items:stretch;}
+.vital-card.vital-mp{border-color:rgba(128,111,255,.42);box-shadow:0 8px 20px rgba(0,0,0,.24),0 0 18px rgba(128,111,255,.14);}
+.vital-card.vital-defense{border-color:rgba(255,204,102,.34);}
+.vital-title-button{background:transparent;border:0;padding:0;text-align:left;cursor:pointer;width:auto;}
+.vital-title-button:hover{filter:brightness(1.15);text-decoration:underline;}
+.mp-display-main{display:flex;align-items:baseline;justify-content:flex-start;gap:8px;color:#eee;font-size:28px;font-weight:1000;line-height:1;}
+.mp-display-main strong{color:var(--accent);font-size:32px;}
+.mp-display-main span{color:#777;font-size:20px;}
+.mp-display-caption{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#9e9e9e;font-weight:900;}
+.defense-mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;}
+.defense-mini-grid div{background:#0b0b0b;border:1px solid #3e3e3e;border-radius:9px;padding:6px 5px;text-align:center;min-width:0;}
+.defense-mini-grid small{display:block;color:#999;font-size:9px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.defense-mini-grid strong{display:block;color:var(--accent);font-size:17px;line-height:1;font-weight:1000;}
+.spell-command-panel{position:relative;overflow:hidden;border:1px solid rgba(255,204,102,.22);border-radius:18px;background:radial-gradient(circle at 15% 0%, rgba(255,204,102,.14), transparent 38%),linear-gradient(135deg,#242016 0%,#171717 46%,#101010 100%);padding:13px;margin:0 0 14px;box-shadow:0 10px 22px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.035);}
+.spell-command-panel::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg, transparent, rgba(255,204,102,.06), transparent);pointer-events:none;}
+.spell-command-title{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 12px;text-align:left;}
+.spell-command-icon{width:34px;height:34px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,204,102,.50);background:rgba(0,0,0,.28);color:var(--accent);box-shadow:0 0 18px rgba(255,204,102,.12);font-size:17px;flex:0 0 34px;}
+.spell-command-title h3{margin:0;text-align:left;line-height:1.05;}
+.spell-command-title small{display:block;margin-top:3px;color:#a89f8c;font-size:11px;font-weight:800;letter-spacing:.02em;}
+.spell-command-grid{position:relative;display:grid;grid-template-columns:minmax(150px,.9fr) minmax(130px,.7fr) minmax(180px,1fr) minmax(150px,.8fr);gap:10px;align-items:stretch;}
+.spell-command-card{min-height:78px;border-radius:16px;border:1px solid rgba(255,204,102,.18);background:rgba(0,0,0,.24);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 6px 14px rgba(0,0,0,.16);padding:10px;}
+.spell-card-label{display:block;color:#d8d0bd;font-family:'Uncial Antiqua',serif;font-size:12px;font-weight:900;letter-spacing:.035em;margin:0 0 7px;text-align:center;}
+.spell-dc-card{display:flex !important;flex-direction:column;align-items:center;justify-content:center;gap:3px;margin:0 !important;background:rgba(0,0,0,.24) !important;border-color:rgba(255,204,102,.18) !important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 6px 14px rgba(0,0,0,.16) !important;}
+.spell-dc-card select#spell_dc_base{width:100%;max-width:140px;margin:0 auto;display:block;text-align:center;text-align-last:center;border-radius:999px;border:1px solid rgba(255,204,102,.28);background:#111;color:var(--accent);font-weight:900;}
+.spell-add-card{width:100%;border:1px solid rgba(255,204,102,.45);color:#120d04;background:linear-gradient(180deg,var(--accent),#9a7130);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-weight:900;font-family:inherit;box-shadow:0 8px 18px rgba(0,0,0,.25),0 0 18px rgba(255,204,102,.10);}
+.spell-add-card:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.spell-add-card span{font-size:20px;line-height:1;}.spell-add-card strong{font-size:13px;}
+.spell-mp-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;color:#f4f4f4;text-align:center;font-family:inherit;}
+.spell-mp-card:hover{border-color:rgba(255,204,102,.62);box-shadow:0 0 18px rgba(255,204,102,.14),inset 0 1px 0 rgba(255,255,255,.035);}
+.spell-mp-main{display:flex;align-items:baseline;justify-content:center;gap:6px;font-size:21px;font-weight:1000;line-height:1;color:#777;}
+.spell-mp-main strong{color:var(--accent);font-size:24px;}.spell-mp-card small{color:#a89f8c;font-size:10px;font-weight:900;letter-spacing:.02em;}
+.mp-formula-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px;color:var(--accent);font-weight:900;}
+.mp-total-readout{background:#000;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:7px 12px;font-weight:1000;}
+@media(max-width:900px){.ma-v40-vital-showcase{grid-template-columns:1fr !important;max-width:430px !important;}.spell-command-grid{grid-template-columns:1fr !important;}}
+</style>
+
+
+
+<style>
+/* --- Admin v42 parity: HP-only showcase, Defense rebuilt as combat card, spell-only MP --- */
+.ma-v40-vital-showcase{display:grid !important;grid-template-columns:minmax(260px,430px) !important;max-width:430px !important;justify-content:center !important;align-items:stretch !important;margin-left:auto !important;margin-right:auto !important;}
+.ma-v40-vital-showcase .vital-card.vital-heart{width:100% !important;margin:0 auto !important;justify-content:center !important;text-align:center !important;}
+.ma-v40-vital-showcase .vital-heart .vital-content{align-items:center !important;justify-content:center !important;text-align:center !important;flex:1 1 auto !important;}
+.ma-v40-vital-showcase .vital-heart .vital-title{width:100% !important;text-align:center !important;}
+.ma-v40-vital-showcase .vital-heart .vital-number-grid{width:100% !important;max-width:340px !important;margin-left:auto !important;margin-right:auto !important;}
+.spell-command-grid.ma-v40-spell-command-grid{grid-template-columns:minmax(150px,.9fr) minmax(130px,.7fr) minmax(150px,.8fr) !important;}
+@media(min-width:701px){#c-general .combat-card-grid{grid-template-columns:repeat(4,minmax(0,1fr)) !important;}}
+@media(max-width:900px){.spell-command-grid.ma-v40-spell-command-grid{grid-template-columns:1fr !important;}}
+@media(max-width:700px){.ma-v40-vital-showcase{grid-template-columns:1fr !important;max-width:430px !important;}}
+</style>
+
 </head>
 <body>
 
@@ -3835,7 +3870,7 @@ setTimeout(() => {
       </div>
     </div>
 
-    <section class="vital-showcase" aria-label="Health and magic points">
+    <section class="vital-showcase ma-v40-vital-showcase" aria-label="HP">
       <div class="vital-card vital-heart" aria-label="Health Points">
         <button class="edit-stat-btn vital-edit" type="button" onclick="openStatEdit('hp')" aria-label="Edit HP">✎</button>
         <div class="vital-icon" aria-hidden="true">❤️</div>
@@ -3850,22 +3885,7 @@ setTimeout(() => {
           </div>
         </div>
       </div>
-      <div class="vital-card vital-drop" aria-label="Magic Points">
-        <button class="edit-stat-btn vital-edit" type="button" onclick="openStatEdit('mp')" aria-label="Edit MP">✎</button>
-        <div class="vital-icon" aria-hidden="true">💧</div>
-        <div class="vital-content">
-          <div class="vital-title">MP</div>
-          <input id="mp_max" type="hidden" class="save-field" value="0">
-<input id="mp_max_temp" type="hidden" class="save-field" value="0">
-<input id="mp_base" type="hidden" class="save-field" value="0">
-<input id="mp_bonus" type="hidden" class="save-field" value="0">
-<div class="vital-number-grid ma-v8-mp-grid">
-  <label><small>Current</small><input id="mp_curr" type="number" class="save-field main-vital-input"></label>
-  <label class="ma-v8-temp"><small>Temp MP</small><input id="mp_temp" type="number" class="save-field main-vital-input"></label>
-  <label class="ma-v8-total"><small>Total Max</small><input id="mp_effective_max" type="number" class="main-vital-input readonly-yellow" readonly aria-readonly="true"></label>
-</div>
-        </div>
-      </div>
+
     </section>
 
     <div class="combat-card-grid" aria-label="General combat information">
@@ -3875,10 +3895,26 @@ setTimeout(() => {
           <button class="edit-stat-btn" id="generalEditCombatBtn" type="button" onclick="openStatEdit('general')" aria-label="Edit initiative, BAB, and speed">✎</button>
         </div>
         <div class="combat-metric-grid base-metrics">
-          <button class="long-rest-btn base-long-rest" type="button" onclick="performLongRest()" title="Restore MP, heal HP by level, and refresh selected ability uses">🌙 Long Rest</button>
+          <button class="long-rest-btn base-long-rest" type="button" onclick="performLongRest()" title="Heal HP by level and refresh selected ability uses">🌙 Long Rest</button>
           <div class="combat-metric"><button class="combat-roll-name" type="button" onclick="sendInitiativeRoll()" title="Roll Initiative">Initiative</button><strong id="initDisplayMain">+0</strong></div>
           <div class="combat-metric"><span class="metric-label">BAB</span><strong id="babDisplayMain">+0</strong></div>
           <div class="combat-metric"><span class="metric-label">Speed</span><strong id="speedDisplayMain">30</strong></div>
+        </div>
+      </section>
+
+      <section class="combat-info-card">
+        <div class="combat-info-card-head">
+          <h3>Defense</h3>
+          <button class="edit-stat-btn" type="button" onclick="openStatEdit('ac')" aria-label="Edit defense">✎</button>
+        </div>
+        <select id="ac_view_mode" class="save-field combat-hidden-state" aria-hidden="true" tabindex="-1">
+          <option value="ac" selected>Armor Class</option><option value="touch">Touch AC</option><option value="flat">Flat-Footed</option><option value="cmd">CMD</option>
+        </select>
+        <div class="combat-metric-grid defense-metrics">
+          <div class="combat-metric"><span class="metric-label">AC</span><strong id="acDisplayMain">10</strong></div>
+          <div class="combat-metric"><span class="metric-label">Touch</span><strong id="acDisplayTouch">10</strong></div>
+          <div class="combat-metric"><span class="metric-label">Flat</span><strong id="acDisplayFlat">10</strong></div>
+          <div class="combat-metric"><span class="metric-label">CMD</span><strong id="acDisplayCmd">10</strong></div>
         </div>
       </section>
 
@@ -3896,22 +3932,6 @@ setTimeout(() => {
           <div class="combat-metric"><button class="combat-roll-name" type="button" onclick="rollAttackCheck('touch')" title="Roll Touch Attack">Touch</button><strong id="arDisplayTouch">+0</strong></div>
           <div class="combat-metric"><button class="combat-roll-name" type="button" onclick="rollAttackCheck('ranged_touch')" title="Roll Ranged Touch Attack">Ranged Touch</button><strong id="arDisplayRangedTouch">+0</strong></div>
           <div class="combat-metric"><button class="combat-roll-name" type="button" onclick="rollAttackCheck('cmb')" title="Roll CMB">CMB</button><strong id="arDisplayCmb">+0</strong></div>
-        </div>
-      </section>
-
-      <section class="combat-info-card">
-        <div class="combat-info-card-head">
-          <h3>Defense</h3>
-          <button class="edit-stat-btn" type="button" onclick="openStatEdit('ac')" aria-label="Edit defense">✎</button>
-        </div>
-        <select id="ac_view_mode" class="save-field combat-hidden-state" aria-hidden="true" tabindex="-1">
-          <option value="ac" selected>Armor Class</option><option value="touch">Touch AC</option><option value="flat">Flat-Footed</option><option value="cmd">CMD</option>
-        </select>
-        <div class="combat-metric-grid">
-          <div class="combat-metric"><span class="metric-label">Armor Class</span><strong id="acDisplayMain">10</strong></div>
-          <div class="combat-metric"><span class="metric-label">Touch</span><strong id="acDisplayTouch">10</strong></div>
-          <div class="combat-metric"><span class="metric-label">Flat-Footed</span><strong id="acDisplayFlat">10</strong></div>
-          <div class="combat-metric"><span class="metric-label">CMD</span><strong id="acDisplayCmd">10</strong></div>
         </div>
       </section>
 
@@ -3960,15 +3980,31 @@ setTimeout(() => {
       </div>
   </div>
 
-  <div id="c-spells" class="sub-group" style="display:none">
-      <h3>Spells</h3>
-      <div class="stat-box" style="margin-bottom:10px;"><label>Spell DC Base</label><select id="spell_dc_base" class="save-field"><option value="str">STR</option><option value="dex">DEX</option><option value="con">CON</option><option value="int" selected>INT</option><option value="wis">WIS</option><option value="cha">CHA</option></select></div>
-      <section class="spell-mp-panel" aria-label="Available magic points">
-        <span class="spell-mp-label">💧 Available MP</span>
-        <strong id="spellMpAvailable">0</strong><span class="spell-mp-divider">/</span><span id="spellMpMaximum">0</span>
-        <small>Available MP uses Current MP + Temp MP. Spell cost equals spell level. Cantrip = 0 MP.</small>
+  <div id="c-spells" class="sub-group spell-fancy-shell" style="display:none">
+      <section class="spell-command-panel" aria-label="Spell controls">
+        <div class="spell-command-title">
+          <span class="spell-command-icon">✦</span>
+          <div>
+            <h3>Spells</h3>
+            <small>Manage spell levels, MP, spell base, and casting.</small>
+          </div>
+        </div>
+        <div class="spell-command-grid ma-v40-spell-command-grid">
+          <button class="spell-command-card spell-mp-card" type="button" onclick="openStatEdit('mp')" title="Edit available MP">
+            <span class="spell-card-label">Available MP</span>
+            <span class="spell-mp-main"><strong id="spellMpDisplayCurrent">0</strong><span>/</span><strong id="spellMpDisplayMax">0</strong></span>
+            <small id="spellMpBreakdown">Class 0 + Bonus 0</small>
+          </button>
+          <label class="spell-command-card spell-dc-card">
+            <span class="spell-card-label">Spell Base</span>
+            <select id="spell_dc_base" class="save-field"><option value="str">STR</option><option value="dex">DEX</option><option value="con">CON</option><option value="int" selected>INT</option><option value="wis">WIS</option><option value="cha">CHA</option></select>
+          </label>
+          <button class="spell-command-card spell-add-card" type="button" onclick="openSpellAddChoice()">
+            <span>＋</span>
+            <strong>Add Spell</strong>
+          </button>
+        </div>
       </section>
-      <button class="btn-add" onclick="addNewItem('spell')">+ Add Spell</button>
       <div class="spell-level-layout" aria-label="Spell levels">
         <nav id="spellLevelTabs" class="spell-level-tabs" aria-label="Spell level tabs"></nav>
         <div class="spell-level-content">
@@ -3989,10 +4025,9 @@ setTimeout(() => {
     <input id="will_base" class="save-field"><input id="will_enhance" class="save-field"><input id="will_temp" class="save-field">
     <input id="ac_total" class="save-field"><input id="touch_ac_total" class="save-field"><input id="flat_ac_total" class="save-field"><input id="cmd_total" class="save-field"><input id="ar_total" class="save-field"><input id="ar_ranged_total" class="save-field"><input id="ar_touch_total" class="save-field"><input id="ar_ranged_touch_total" class="save-field"><input id="cmb" class="save-field">
     <input id="fort_bonus" class="save-field"><input id="ref_bonus" class="save-field"><input id="will_bonus" class="save-field">
+    <input id="mp" class="save-field"><input id="mp_temp" class="save-field"><input id="mp_class" class="save-field"><input id="mp_bonus" class="save-field"><input id="mp_max_temp" class="save-field"><input id="mp_curr" class="save-field"><input id="mp_total_max" class="save-field"><input id="mp_max_spell_level" class="save-field">
   </div>
 </div>
-
-
 
 
       <div class="tab-content" id="skills">
@@ -4442,10 +4477,7 @@ window.switchSub = (id) => {
     localStorage.setItem('adminCombatSub', id);
     if(id === 'c-spells') {
         try { if(typeof updateCalculations === 'function') updateCalculations(); } catch(e) {}
-        try { if(typeof computeDerivedStats === 'function') computeDerivedStats(); } catch(e) {}
-        try { if(typeof maFinalMpRecalc === 'function') Promise.resolve(maFinalMpRecalc(false)).finally(() => { try { renderSpells(); refreshSpellMpUi(); } catch(_e) {} }); } catch(e) {}
-        try { renderSpells(); refreshSpellMpUi(); } catch(e) {}
-    }
+        try { if(typeof computeDerivedStats === 'function') computeDerivedStats(); } catch(e) {}}
 };
 window.switchSubSub = (id) => {
     const container = document.getElementById('abilitiesSubSubNav');
@@ -5122,9 +5154,7 @@ function startListening(uid, sid){
     unsubscribeSheet = onSnapshot(docRef, (docSnap) => {
         if(currentParentUid !== uid || currentSummonId !== sid || listenSerial !== adminSheetSwitchSerial) return;
         if(docSnap.metadata.hasPendingWrites) return;
-        const focusedEditorField = document.querySelector('#sheetContainer .save-field:focus, #sheetContainer textarea:focus, #sheetContainer select:focus, #sheetContainer input.save-field:focus, #sheetContainer input.live-field:focus');
-        if (focusedEditorField && activeLoadedDocKey === listenKey) { return; }
-
+                
         if(docSnap.exists()){
             fullSheetData = sanitizeCharacterDoc(docSnap.data(), docSnap.data()?.charName || 'Character');
             activeLoadedDocKey = listenKey;
@@ -5375,9 +5405,6 @@ function populateSheet(){
     renderWeapons(); renderSpells(); renderAbilities('active'); renderAbilities('passive'); renderAbilities('racial'); renderAbilities('feat'); renderItems();
     updateCalculations(); renderSelectedCombatDisplays();
     try { window.maAdminRefreshAbilityScoreMirrors?.('populate-first-calc'); } catch(e) {}
-    try { renderAbilityDrawerScores(); } catch (e) {}
-    try { Promise.resolve(window.maFinalMpRecalc?.(false)).finally(() => { try { renderSpells(); refreshSpellMpUi(); } catch(_e) {} }); } catch (e) {}
-    try { setTimeout(() => { try { renderSpells(); refreshSpellMpUi(); } catch(_e) {} }, 350); } catch(e) {}
     try { applySpellTabVisibility?.(); } catch (e) {}
     try { scheduleAdminPlayerShopPreviewV40?.(350); } catch (e) {}
 
@@ -5412,7 +5439,6 @@ function populateSheet(){
     initAbilityDrawerDrag();
     try { renderAbilityDrawerScores(); } catch (e) {}
     try { window.maAdminHydrateAbilityMp?.('populate-end'); } catch(e) {}
-    try { window.maFinalMpRecalc?.(false); } catch (e) {}
     updateSlotUsageDisplay();
     if(document.getElementById('other')?.classList.contains('active')) renderAdminSheetCalendar();
     try { scheduleAdminPlayerShopPreviewV40?.(650); } catch (e) {}
@@ -5649,20 +5675,37 @@ function positionItemImagePreviewPanel() {
     const viewModal = document.getElementById('viewModal');
     const modalContent = viewModal ? viewModal.querySelector('.modal-content') : null;
     if(!panel || !panel.classList.contains('show') || !modalContent) return;
-    const rect = modalContent.getBoundingClientRect();
-    const gap = 14;
-    const margin = 12;
+    const gap = 16;
+    const margin = 14;
     const viewportW = window.innerWidth || document.documentElement.clientWidth || 0;
     const viewportH = window.innerHeight || document.documentElement.clientHeight || 0;
-    const roomRight = Math.max(0, viewportW - rect.right - gap - margin);
-    if(roomRight >= 180) panel.style.width = Math.min(310, roomRight) + 'px';
-    else panel.style.width = '180px';
+    const rect = modalContent.getBoundingClientRect();
+    const roomRight = viewportW - rect.right - gap - margin;
+    const roomLeft = rect.left - gap - margin;
+    const desiredWidth = Math.min(320, Math.max(220, Math.floor(viewportW * 0.26)));
+
+    let width = desiredWidth;
+    let left;
+    if(roomRight >= 220 || roomRight >= roomLeft) {
+        width = Math.max(180, Math.min(desiredWidth, roomRight));
+        left = rect.right + gap;
+    } else {
+        width = Math.max(180, Math.min(desiredWidth, roomLeft));
+        left = rect.left - gap - width;
+    }
+    panel.style.width = `${width}px`;
+
+    // Measure after width is set so the image panel can be centered beside the item overlay.
     const panelRect = panel.getBoundingClientRect();
-    const left = Math.min(rect.right + gap, Math.max(margin, viewportW - panelRect.width - margin));
-    const top = Math.min(Math.max(margin, rect.top + (rect.height - panelRect.height) / 2), Math.max(margin, viewportH - panelRect.height - margin));
+    left = Math.min(Math.max(margin, left), Math.max(margin, viewportW - panelRect.width - margin));
+    const top = Math.min(
+        Math.max(margin, rect.top + (rect.height - panelRect.height) / 2),
+        Math.max(margin, viewportH - panelRect.height - margin)
+    );
     panel.style.left = `${left}px`;
     panel.style.top = `${top}px`;
 }
+
 function showItemImagePreviewForView(item = {}) {
     const img = itemCleanText(itemImageUrlValue(item));
     if(!img || !window.matchMedia || !window.matchMedia('(min-width: 901px)').matches) {
@@ -5807,6 +5850,195 @@ function spellLevelLabel(levelNum){
     if(levelNum === 0) return 'Cantrip';
     return `${levelNum}${levelNum === 1 ? 'st' : levelNum === 2 ? 'nd' : levelNum === 3 ? 'rd' : 'th'}`;
 }
+
+const MP_BONUS_TABLE = [
+  { min:-Infinity, max:9, values:null },
+  { min:10, max:11, values:[0,0,0,0,0,0,0,0,0] },
+  { min:12, max:13, values:[1,1,1,1,1,1,1,1,1] },
+  { min:14, max:15, values:[1,3,3,3,3,3,3,3,3] },
+  { min:16, max:17, values:[1,3,6,6,6,6,6,6,6] },
+  { min:18, max:19, values:[1,3,6,10,10,10,10,10,10] },
+  { min:20, max:21, values:[2,4,7,11,16,16,16,16,16] },
+  { min:22, max:23, values:[2,6,9,13,18,24,24,24,24] },
+  { min:24, max:25, values:[2,6,12,16,21,27,34,34,34] },
+  { min:26, max:27, values:[2,6,12,20,25,31,38,46,46] },
+  { min:28, max:29, values:[3,7,13,21,31,37,44,52,61] },
+  { min:30, max:31, values:[3,9,15,23,33,45,52,60,69] },
+  { min:32, max:33, values:[3,9,18,26,36,48,62,70,79] },
+  { min:34, max:35, values:[3,9,18,30,40,52,66,82,91] },
+  { min:36, max:37, values:[4,10,19,31,46,58,72,88,106] },
+  { min:38, max:39, values:[4,12,21,33,48,66,80,96,114] },
+  { min:40, max:41, values:[4,12,24,36,51,69,90,106,124] },
+  { min:42, max:43, values:[4,12,24,40,55,73,94,118,136] },
+  { min:44, max:Infinity, values:[5,13,25,41,61,79,100,124,151] }
+];
+let maMpLibraryLoadRequested = false;
+let maMpInitializedForCharacter = '';
+function maMpNumber(value, fallback = 0){
+    if(value === '' || value === null || value === undefined) return fallback;
+    const n = Number(value);
+    return Number.isFinite(n) ? n : fallback;
+}
+function getSpellBaseKey(){
+    const data = (typeof getActiveData === 'function') ? (getActiveData() || {}) : {};
+    const raw = String(document.getElementById('spell_dc_base')?.value || data.spell_dc_base || 'int').trim().toLowerCase();
+    return ['str','dex','con','int','wis','cha'].includes(raw) ? raw : 'int';
+}
+function getSpellBaseScore(){
+    const data = (typeof getActiveData === 'function') ? (getActiveData() || {}) : {};
+    const key = getSpellBaseKey();
+    const raw = document.getElementById(key)?.value || data[key] || 10;
+    const score = Number(raw);
+    return Number.isFinite(score) ? score : 10;
+}
+function maMpBonusFor(score, maxSpellLevel){
+    const lvl = Math.max(0, Math.min(9, Math.trunc(Number(maxSpellLevel) || 0)));
+    if(lvl <= 0) return 0;
+    const row = MP_BONUS_TABLE.find(r => score >= r.min && score <= r.max);
+    if(!row || !row.values) return 0;
+    return Number(row.values[lvl - 1] || 0) || 0;
+}
+function maMpParseProgressionSpecial(special){
+    const text = String(special || '');
+    const re = /(\d+)\s+(1st|2nd|3rd|4th|5th|6th|7th|8th|9th)\b/ig;
+    let match, last = null;
+    while((match = re.exec(text))) last = { mp:Number(match[1]) || 0, maxSpellLevel:spellLevelToNumber(match[2]) };
+    return last || { mp:0, maxSpellLevel:0 };
+}
+function maMpClassProgress(cls, level){
+    const lvl = Math.max(1, Math.min(20, Math.trunc(Number(level) || 1)));
+    const rows = Array.isArray(cls?.progression) ? cls.progression : [];
+    const exact = rows.find(r => Number(r?.level) === lvl) || [...rows].reverse().find(r => Number(r?.level) <= lvl);
+    if(!exact) return { mp:0, maxSpellLevel:0 };
+    if(exact.mp !== undefined || exact.classMp !== undefined || exact.magicPoints !== undefined) {
+        return { mp:maMpNumber(exact.mp ?? exact.classMp ?? exact.magicPoints, 0), maxSpellLevel:maMpNumber(exact.maxSpellLevel ?? exact.spellLevel ?? 0, 0) };
+    }
+    return maMpParseProgressionSpecial(exact.special);
+}
+function maMpAutoClassInfo(){
+    const data = (typeof getActiveData === 'function') ? (getActiveData() || {}) : {};
+    const libReady = (typeof maFfd20Library !== 'undefined') && maFfd20Library && Array.isArray(maFfd20Library.classes);
+    if(!libReady) {
+        if(!maMpLibraryLoadRequested && typeof maFfd20LoadLibrary === 'function') {
+            maMpLibraryLoadRequested = true;
+            maFfd20LoadLibrary().then(() => { maMpLibraryLoadRequested = false; if(typeof computeDerivedStats === 'function') computeDerivedStats(); if(typeof triggerSave === 'function') triggerSave(); }).catch(() => { maMpLibraryLoadRequested = false; });
+        }
+        return { classMp:maMpNumber(document.getElementById('mp_class')?.value || data.mp_class, 0), maxSpellLevel:maMpNumber(document.getElementById('mp_max_spell_level')?.value || data.mp_max_spell_level, 0) };
+    }
+    const sources = [];
+    const primaryName = document.getElementById('class')?.value || data.class || data.className || '';
+    const primaryLevel = document.getElementById('character_level')?.value || data.character_level || data.level || 1;
+    if(primaryName) sources.push({ name:primaryName, level:primaryLevel });
+    (Array.isArray(data.multiclasses) ? data.multiclasses : []).forEach(mc => {
+        const name = mc?.className || mc?.class || mc?.name || '';
+        if(name) sources.push({ name, level:mc?.level || 1 });
+    });
+    let classMp = 0;
+    let maxSpellLevel = 0;
+    sources.forEach(source => {
+        const cls = typeof maFfd20Find === 'function' ? maFfd20Find(maFfd20Library.classes, source.name) : null;
+        if(!cls) return;
+        const info = maMpClassProgress(cls, source.level);
+        classMp += Number(info.mp || 0) || 0;
+        maxSpellLevel = Math.max(maxSpellLevel, Number(info.maxSpellLevel || 0) || 0);
+    });
+    return { classMp, maxSpellLevel };
+}
+function maMpApplyAutoValues(){
+    const data = (typeof getActiveData === 'function') ? (getActiveData() || {}) : {};
+    const info = maMpAutoClassInfo();
+    const classMp = Math.max(0, Math.trunc(info.classMp || 0));
+    const maxSpellLevel = Math.max(0, Math.min(9, Math.trunc(info.maxSpellLevel || 0)));
+    const score = getSpellBaseScore();
+    const bonusMp = maMpBonusFor(score, maxSpellLevel);
+    setVal('mp_class', classMp);
+    setVal('mp_bonus', bonusMp);
+    setVal('mp_max_spell_level', maxSpellLevel);
+    const maxTemp = maMpNumber(document.getElementById('mp_max_temp')?.value || data.mp_max_temp, 0);
+    const totalMax = Math.max(0, classMp + bonusMp + maxTemp);
+    const charKey = currentSummonId || data.id || data.charName || 'active';
+    const currentMpEl = document.getElementById('mp');
+    const tempMpEl = document.getElementById('mp_temp');
+    const hasSavedMp = data.mp !== undefined && data.mp !== null && String(data.mp).trim() !== '';
+    const hasSavedTemp = data.mp_temp !== undefined && data.mp_temp !== null && String(data.mp_temp).trim() !== '';
+    const shouldInit = currentMpEl && !hasSavedMp && !hasSavedTemp && totalMax > 0 && maMpInitializedForCharacter !== charKey;
+    if(shouldInit) {
+        currentMpEl.value = String(totalMax);
+        if(tempMpEl && !tempMpEl.value) tempMpEl.value = '0';
+        maMpInitializedForCharacter = charKey;
+    }
+    const current = maMpNumber(currentMpEl?.value || data.mp, 0) + maMpNumber(tempMpEl?.value || data.mp_temp, 0);
+    setVal('mp_curr', current);
+    setVal('mp_total_max', totalMax);
+    return { current, totalMax, classMp, bonusMp, maxTemp, maxSpellLevel, score };
+}
+function maMpRenderDisplays(info){
+    const m = info || maMpApplyAutoValues();
+    const plain = (value) => String(Math.trunc(Number(value) || 0));
+    [['mpDisplayCurrent',m.current],['spellMpDisplayCurrent',m.current],['mpDisplayMax',m.totalMax],['spellMpDisplayMax',m.totalMax]].forEach(([id,value]) => { const el=document.getElementById(id); if(el) el.textContent = plain(value); });
+    const breakdown = document.getElementById('spellMpBreakdown');
+    if(breakdown) breakdown.textContent = `Class ${plain(m.classMp)} + Bonus ${plain(m.bonusMp)}${m.maxTemp ? ` + Temp Max ${plain(m.maxTemp)}` : ''}`;
+}
+function refreshMpDisplays(){
+    try { maMpRenderDisplays(maMpApplyAutoValues()); } catch(e) { console.warn('MP refresh failed', e); }
+}
+window.refreshMpDisplays = refreshMpDisplays;
+
+function maSpellMpCost(spell){
+    return Math.max(0, Math.min(9, spellLevelToNumber(spell?.lvl)));
+}
+function maSpellCurrentMp(){
+    const data = (typeof getActiveData === 'function') ? (getActiveData() || {}) : {};
+    const mpEl = document.getElementById('mp');
+    const tempEl = document.getElementById('mp_temp');
+    return Math.max(0, Math.trunc(maMpNumber(mpEl ? mpEl.value : data.mp, 0) + maMpNumber(tempEl ? tempEl.value : data.mp_temp, 0)));
+}
+function maSpellCanUse(spell){
+    return maSpellCurrentMp() >= maSpellMpCost(spell);
+}
+function maSpellSpendMp(cost){
+    const spend = Math.max(0, Math.trunc(Number(cost) || 0));
+    if(spend <= 0) return true;
+    const mpEl = document.getElementById('mp');
+    const tempEl = document.getElementById('mp_temp');
+    const data = (typeof getActiveData === 'function') ? (getActiveData() || {}) : {};
+    let base = Math.max(0, maMpNumber(mpEl ? mpEl.value : data.mp, 0));
+    let temp = Math.max(0, maMpNumber(tempEl ? tempEl.value : data.mp_temp, 0));
+    if(base + temp < spend) return false;
+    const fromTemp = Math.min(temp, spend);
+    temp -= fromTemp;
+    base = Math.max(0, base - (spend - fromTemp));
+    if(tempEl) tempEl.value = String(Math.trunc(temp));
+    if(mpEl) mpEl.value = String(Math.trunc(base));
+    if(data){ data.mp_temp = Math.trunc(temp); data.mp = Math.trunc(base); }
+    refreshMpDisplays();
+    return true;
+}
+function useSpellByIndex(index){
+    const list = (getActiveData().spells || []);
+    const spell = list[index];
+    if(!spell) return;
+    const cost = maSpellMpCost(spell);
+    if(!maSpellCanUse(spell)) {
+        renderSpells();
+        if(typeof showUsageOverlay === 'function') showUsageOverlay(spell.name || 'Spell', `Need ${cost} MP`);
+        return;
+    }
+    maSpellSpendMp(cost);
+    if(typeof saveData === 'function') saveData();
+    else if(typeof save === 'function') save(true);
+    else if(typeof saveDataOnly === 'function') saveDataOnly();
+    else if(typeof triggerSave === 'function') triggerSave();
+    renderSpells();
+    const hasDiceRoll = String(spell?.damage || '').trim() !== '';
+    if(hasDiceRoll && typeof rollSpellAction === 'function') {
+        rollSpellAction(index);
+    } else {
+        if(typeof sendSpellCard === 'function') sendSpellCard(index);
+        if(typeof showUsageOverlay === 'function') showUsageOverlay(spell.name || 'Spell', cost > 0 ? `${cost} MP Used` : 'Spell Used');
+    }
+}
+window.useSpellByIndex = useSpellByIndex;
 function getSpellDcBaseValue(){
     const raw = String(document.getElementById('spell_dc_base')?.value || 'int').trim().toLowerCase();
     if(['str','dex','con','int','wis','cha'].includes(raw)) return getMod(raw);
@@ -5819,8 +6051,77 @@ function spellDcDisplayValue(spell){
 function spellHeaderFormula(levelNum){
     return `DC ${10 + getSpellDcBaseValue() + levelNum}`;
 }
+function normalizeAttackModeValue(value){
+    return String(value || '').trim().toLowerCase().replace(/\s+/g, '_');
+}
+function attackFormulaPartsForMode(mode){
+    const babTotal = numVal('bab') + numVal('bab_temp');
+    const sizeMod = numVal('size_mod');
+    const sizeSpecial = numVal('size_special');
+    if(mode === 'melee') {
+        const ability = getAttackAbility('ar_melee_ability', 'str');
+        return [
+            { label: 'BAB', value: babTotal },
+            { label: abilityModLabel(ability), value: modFor(ability) },
+            { label: 'Size', value: sizeMod },
+            { label: 'Temp', value: numVal('ar_melee_temp') }
+        ];
+    }
+    if(mode === 'ranged') {
+        const ability = getAttackAbility('ar_ranged_ability', 'dex');
+        return [
+            { label: 'BAB', value: babTotal },
+            { label: abilityModLabel(ability), value: modFor(ability) },
+            { label: 'Size', value: sizeMod },
+            { label: 'Temp', value: numVal('ar_ranged_temp') }
+        ];
+    }
+    if(mode === 'touch') {
+        const ability = getAttackAbility('ar_touch_ability', 'str');
+        return [
+            { label: 'BAB', value: babTotal },
+            { label: abilityModLabel(ability), value: modFor(ability) },
+            { label: 'Size', value: sizeMod },
+            { label: 'Temp', value: numVal('ar_touch_temp') }
+        ];
+    }
+    if(mode === 'ranged_touch') {
+        const ability = getAttackAbility('ar_ranged_touch_ability', 'dex');
+        return [
+            { label: 'BAB', value: babTotal },
+            { label: abilityModLabel(ability), value: modFor(ability) },
+            { label: 'Size', value: sizeMod },
+            { label: 'Temp', value: numVal('ar_ranged_touch_temp') }
+        ];
+    }
+    if(mode === 'cmb') {
+        return [
+            { label: 'BAB', value: babTotal },
+            { label: 'STR Mod', value: modFor('str') },
+            { label: 'DEX Mod', value: modFor('dex') },
+            { label: 'Size Special', value: sizeSpecial },
+            { label: 'Temp', value: numVal('cmb_temp') }
+        ];
+    }
+    return [];
+}
+function attackConfigFromMode(mode){
+    const map = {
+        melee: { label: 'Melee', id: 'ar_total' },
+        ranged: { label: 'Ranged', id: 'ar_ranged_total' },
+        touch: { label: 'Touch', id: 'ar_touch_total' },
+        ranged_touch: { label: 'Ranged Touch', id: 'ar_ranged_touch_total' },
+        cmb: { label: 'CMB', id: 'cmb' }
+    };
+    const cfg = map[mode];
+    if(!cfg) return null;
+    const parts = attackFormulaPartsForMode(mode);
+    const computedTotal = calcPartList(parts).reduce((sum, part) => sum + calcNumber(part.value), 0);
+    const fallbackTotal = readNumericValue(cfg.id, 0);
+    return { mode, label: cfg.label, total: Number.isFinite(computedTotal) ? computedTotal : fallbackTotal, parts };
+}
 function spellAttackMode(spell){
-    const raw = String(spell?.attack_type || '').trim().toLowerCase().replace(/\s+/g, '_');
+    const raw = normalizeAttackModeValue(spell?.attack_type);
     if(raw === 'touch') return 'touch';
     if(raw === 'ranged_touch') return 'ranged_touch';
     return null;
@@ -5829,10 +6130,7 @@ function spellIsRollable(spell){
     return !!spellAttackMode(spell) || String(spell?.damage || '').trim() !== '';
 }
 function spellAttackConfig(spell){
-    const mode = spellAttackMode(spell);
-    if(mode === 'touch') return { label: 'Touch', total: readNumericValue('ar_touch_total', 0) };
-    if(mode === 'ranged_touch') return { label: 'Ranged Touch', total: readNumericValue('ar_ranged_touch_total', 0) };
-    return null;
+    return attackConfigFromMode(spellAttackMode(spell));
 }
 
 function isSpellGroupOpen(levelNum){
@@ -5846,112 +6144,6 @@ function toggleSpellGroup(levelNum){
     renderSpells();
 }
 
-
-function spellMpCost(spell) {
-    return Math.max(0, spellLevelToNumber(spell?.lvl));
-}
-function spellReadMpNumber(id) {
-    let raw = '';
-    const el = document.getElementById(id);
-    if (el && String(el.value ?? '').trim() !== '') raw = el.value;
-    else {
-        try {
-            const data = (typeof getActiveData === 'function') ? getActiveData() : {};
-            raw = data?.[id];
-        } catch (_err) {}
-    }
-    const parsed = Number(String(raw ?? '').replace(/[^0-9+\-.]/g, ''));
-    return Number.isFinite(parsed) ? Math.max(0, Math.trunc(parsed)) : 0;
-}
-function currentBaseSpellMp() {
-    return spellReadMpNumber('mp_curr');
-}
-function tempSpellMp() {
-    return spellReadMpNumber('mp_temp');
-}
-function currentSpellMp() {
-    return currentBaseSpellMp() + tempSpellMp();
-}
-function maxSpellMp() {
-    return Math.max(0, spellReadMpNumber('mp_max') + spellReadMpNumber('mp_max_temp'));
-}
-function spellCanBeUsed(spell) {
-    return currentSpellMp() >= spellMpCost(spell);
-}
-function updateSpellMpPanel() {
-    const available = document.getElementById('spellMpAvailable');
-    const maximum = document.getElementById('spellMpMaximum');
-    if (available) available.textContent = String(currentSpellMp());
-    if (maximum) maximum.textContent = String(maxSpellMp());
-}
-function refreshSpellMpUi() {
-    updateSpellMpPanel();
-    syncSpellUseButtons();
-}
-window.refreshSpellMpUi = refreshSpellMpUi;
-function syncSpellUseButtons() {
-    const spells = getActiveData().spells || [];
-    document.querySelectorAll('.spell-use-btn[data-spell-index]').forEach(button => {
-        const spell = spells[Number(button.dataset.spellIndex)];
-        if (!spell) return;
-        const cost = spellMpCost(spell);
-        const canUse = spellCanBeUsed(spell);
-        button.disabled = !canUse;
-        button.classList.toggle('unavailable', !canUse);
-        button.classList.toggle('available', canUse);
-        button.textContent = cost > 0 ? `Use • ${cost} MP` : 'Use • Free';
-        button.title = canUse ? `Cast ${spell.name || 'spell'} for ${cost} MP` : `Not enough MP: requires ${cost} MP`;
-    });
-}
-function useSpellAction(index) {
-    const spells = getActiveData().spells || [];
-    const spell = spells[index];
-    if (!spell) return;
-    const cost = spellMpCost(spell);
-    const beforeAvailable = currentSpellMp();
-    if (beforeAvailable < cost) { syncSpellUseButtons(); return; }
-
-    let remainingCost = cost;
-    const mpTempEl = document.getElementById('mp_temp');
-    const mpCurrEl = document.getElementById('mp_curr');
-    const tempBefore = tempSpellMp();
-    const currBefore = currentBaseSpellMp();
-
-    const tempSpent = Math.min(tempBefore, remainingCost);
-    remainingCost -= tempSpent;
-    const currSpent = Math.min(currBefore, remainingCost);
-
-    const newTemp = Math.max(0, tempBefore - tempSpent);
-    const newCurr = Math.max(0, currBefore - currSpent);
-    if (mpTempEl) mpTempEl.value = String(newTemp);
-    if (mpCurrEl) mpCurrEl.value = String(newCurr);
-    try {
-        const active = getActiveData();
-        active.mp_temp = String(newTemp);
-        active.mp_curr = String(newCurr);
-    } catch (_err) {}
-
-    if (typeof updateCalculations === 'function') updateCalculations();
-    if (typeof computeDerivedStats === 'function') computeDerivedStats();
-    if (typeof triggerSave === 'function') triggerSave();
-    refreshSpellMpUi();
-    if (typeof spellIsRollable === 'function' && spellIsRollable(spell)) rollSpellAction(index);
-    else {
-        if (typeof sendSpellCard === 'function') sendSpellCard(index);
-        if (typeof showUsageOverlay === 'function') showUsageOverlay(spellChatTitle(spell), 'Spell Used');
-    }
-}
-window.useSpellAction = useSpellAction;
-document.addEventListener('input', event => {
-    if (event.target && ['mp_curr','mp_temp','mp_max','mp_max_temp','mp_effective_max'].includes(event.target.id)) {
-        refreshSpellMpUi();
-    }
-});
-document.addEventListener('change', event => {
-    if (event.target && ['mp_curr','mp_temp','mp_max','mp_max_temp','mp_effective_max'].includes(event.target.id)) {
-        refreshSpellMpUi();
-    }
-});
 
 const SPELL_LEVEL_TAB_KEY = 'mountAetheriaAdminSelectedSpellLevel';
 function selectedSpellLevel() {
@@ -6064,10 +6256,11 @@ function renderSpells() {
         const div = document.createElement('div');
         div.className = 'list-row spell-row ability-fancy-row';
         const linkHtml = s.link ? `<a class="spell-link-btn" href="${s.link}" target="_blank" onclick="event.stopPropagation()">Link</a>` : '';
-        const spellCost = spellMpCost(s);
-        const spellReady = spellCanBeUsed(s);
-        const useHtml = `<button class="ability-use-chip spell-use-btn ${spellReady ? 'available' : 'unavailable'}" data-spell-index="${idx}" type="button" ${spellReady ? '' : 'disabled'} onclick="event.stopPropagation(); useSpellAction(${idx})" title="${spellReady ? 'Cast spell' : 'Not enough MP'}">${spellCost > 0 ? `Use • ${spellCost} MP` : 'Use • Free'}</button>`;
+        const cost = maSpellMpCost(s);
+        const canUse = maSpellCanUse(s);
+        const useHtml = `<button class="spell-use-btn ability-use-chip ${canUse ? '' : 'unavailable'}" type="button" onclick="event.stopPropagation(); useSpellByIndex(${idx})" ${canUse ? '' : 'disabled'} title="${canUse ? `Use spell for ${cost} MP` : `Need ${cost} MP`}">Use</button>`;
         const sendHtml = `<button class="chat-icon-btn" type="button" onclick="event.stopPropagation(); sendSpellCard(${idx})" title="Send spell to chat without casting">💬</button>`;
+        const rollHtml = String(s.damage || '').trim() ? `<button class="roll-icon-btn" type="button" onclick="event.stopPropagation(); rollSpellAction(${idx})" title="Roll spell dice">🎲</button>` : '';
         const actionType = maNormalizeActionType(s.type || 'Standard');
         const attackType = String(s.attack_type || '').trim();
         const diceRoll = String(s.damage || '').trim();
@@ -6087,12 +6280,11 @@ function renderSpells() {
                 ${spellMetaHtml}
               </div>
           </div>
-          <div class="row-actions">${sendHtml}${linkHtml}<button type="button" class="btn-edit" onclick="event.stopPropagation(); openEditor('spell',${idx})">Edit</button></div>`;
+          <div class="row-actions">${rollHtml}${sendHtml}${linkHtml}<button type="button" class="btn-edit" onclick="event.stopPropagation(); openEditor('spell',${idx})">Edit</button></div>`;
         bodyEl.appendChild(div);
     });
 
     container.appendChild(wrap);
-    refreshSpellMpUi();
 }
 window.renderSpells = renderSpells;
 
@@ -6426,8 +6618,6 @@ window.sendAbilityCard = sendAbilityCard;
 window.rollAbilityAction = rollAbilityAction;
 
 
-
-
 function adminItemEsc(value) {
     return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
@@ -6749,7 +6939,8 @@ function populateViewModal(type, item, index = -1) {
                   <h3>${esc(asText(item.name, 'Unnamed Spell'))}</h3>
                 </div>
                 <div class="spell-view-actions">
-                  ${index > -1 ? `<button class="ability-use-chip spell-use-btn ${spellCanBeUsed(item) ? 'available' : 'unavailable'}" data-spell-index="${index}" type="button" ${spellCanBeUsed(item) ? '' : 'disabled'} onclick="useSpellAction(${index})" title="${spellCanBeUsed(item) ? 'Cast spell' : 'Not enough MP'}">${spellMpCost(item) > 0 ? `Use • ${spellMpCost(item)} MP` : 'Use • Free'}</button>` : ''}
+                  ${index > -1 ? `<button class="spell-use-btn ability-use-chip ${maSpellCanUse(item) ? '' : 'unavailable'}" type="button" onclick="useSpellByIndex(${index})" ${maSpellCanUse(item) ? '' : 'disabled'} title="${maSpellCanUse(item) ? `Use spell for ${maSpellMpCost(item)} MP` : `Need ${maSpellMpCost(item)} MP`}">Use</button>` : ''}
+                  ${String(item.damage || '').trim() && index > -1 ? `<button class="roll-icon-btn" type="button" onclick="rollSpellAction(${index})" title="Roll spell dice">🎲</button>` : ''}
                   ${index > -1 ? `<button class="chat-icon-btn" type="button" onclick="sendSpellCard(${index})" title="Send spell to chat without casting">💬</button>` : ''}
                   ${item.link ? `<a class="spell-link-btn" href="${esc(item.link)}" target="_blank">Open Link</a>` : ''}
                 </div>
@@ -6977,10 +7168,9 @@ function populateEditorModal(type, item, index, col) {
         createSelect('Level', item.lvl || 'Cantrip', 'lvl', ["Cantrip","1st","2nd","3rd","4th","5th","6th","7th","8th","9th"]);
         createSelect('Action Type', (typeof maNormalizeActionType === 'function' ? maNormalizeActionType(item.type || 'Standard') : (item.type || 'Standard')), 'type', (typeof MA_ACTION_TYPE_OPTIONS !== 'undefined' ? MA_ACTION_TYPE_OPTIONS : ["Standard","Move","Swift","Full Round","Free","Immediate","Other"]));
         createInput('School', item.school, 'school');
-
         createEditorSection('Combat');
         createSelect('Attack Type', item.attack_type || 'None', 'attack_type', ["None","Touch","Ranged Touch"]);
-        createInput('Damage', item.damage, 'damage');
+        createInput('Dice Roll', item.damage, 'damage');
         createInput('Saving Throw', item.saving_throw, 'saving_throw');
         createSelect('Spell Resistance', item.spell_resist || 'No', 'spell_resist', ["No","Yes","Yes Harmless","Yes Object"]);
 
@@ -7194,19 +7384,48 @@ function addAttrRow(c, d, i) {
 
 function updateCurrentItem(k, v) {
     const item = getActiveData()[currentEditContext.col][currentEditContext.index];
-    if(k === 'tags') item[k] = normalizeItemTagLabel(v);
-    else item[k] = v;
-    if(k==='link') { const b=document.getElementById('modalLinkBtn'); b.href=v; b.style.display=(currentEditContext?.type !== 'item' && v)?'inline-block':'none'; }
+    if(!item) return;
+    if(k === 'tags') {
+        item[k] = normalizeItemTagLabel(v);
+        item.category = item[k];
+        item.sourceCategory = item[k];
+    } else if(k === 'rarity') {
+        item[k] = normalizeItemRarity(v);
+    } else if(k === 'tagList') {
+        item[k] = String(v || '').split(/[,|\n]+/).map(t => t.trim()).filter(Boolean).filter((t, i, arr) => arr.indexOf(t) === i);
+    } else {
+        item[k] = v;
+        if(k === 'link') item.sourceUrl = v;
+        if(k === 'sourceCategory') item.category = v;
+        if(k === 'category') item.sourceCategory = v;
+        if(k === 'secondaryType') item.filterTag = v;
+        if(k === 'filterTag') item.secondaryType = v;
+        if(k === 'slot') item.slotAmount = v;
+        if(k === 'slotAmount') item.slot = v;
+        if(k === 'dmg') item.damage = v;
+        if(k === 'damage') item.dmg = v;
+        if(k === 'critical') item.crit = v;
+        if(k === 'crit') item.critical = v;
+        if(k === 'img' || k === 'image' || k === 'imageUrl' || k === 'imgUrl' || k === 'icon') {
+            item.img = v;
+            item.image = v;
+            item.imageUrl = v;
+        }
+    }
+    if(k==='link') {
+        const b=document.getElementById('modalLinkBtn');
+        if(b){ b.href=v || '#'; b.style.display=(currentEditContext?.type !== 'item' && v)?'inline-block':'none'; }
+    }
     if(currentEditContext?.type === 'weapon' && k === 'ability_mod') item.mod = v;
-    if(k === 'link' && currentEditContext?.type !== 'item') item.sourceUrl = v;
     try {
         if(['active','passive','racial','feat','spell'].includes(currentEditContext?.type)) {
             maFfd20CaptureAutoOverride(getActiveData(), item);
         }
     } catch(e) { console.warn('Could not save auto FFD20 override', e); }
-    if(['name','lvl','tags','type','secondaryType','filterTag','rarity','cl','proficiency','usageType','tier','acBonus','maxDex','checkPenalty','spellFailure','speed','fullSpeed','passengersCrew','fuel','mileage','acCmd','hp','hardness','attackDmg','critical','damageType','aim','load','dcSave','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','restoreOnLongRest','amount','cost','slot','equipped','img','image','imageUrl','imgUrl','icon','ability_mod','attack_misc','damage','dmg','crit','critical','crit_range','crit_mult','range','ammo','link','at_higher_lvls','gm_notes'].includes(k)) refreshList(currentEditContext.type);
+    if(['name','lvl','tags','tagList','sourceCategory','category','shopGroup','secondaryType','filterTag','proficiency','usageType','tier','sourceSystem','rarity','sourceShopName','type','attack_type','saving_throw','spell_resist','school','target','duration','u_curr','u_max','restoreOnLongRest','amount','cost','slot','slotAmount','equipped','img','image','imageUrl','imgUrl','icon','ability_mod','attack_misc','damage','dmg','crit','critical','crit_range','crit_mult','range','ammo','cl','acBonus','maxDex','checkPenalty','spellFailure','speed','fullSpeed','passengersCrew','fuel','mileage','acCmd','hp','hardness','attackDmg','damageType','aim','load','dcSave','special','link','sourceUrl','at_higher_lvls','gm_notes'].includes(k)) refreshList(currentEditContext.type);
     triggerSave();
 }
+
 window.closeModal = () => { modal.style.display='none'; if(currentEditContext) refreshList(currentEditContext.type); };
 function refreshList(t) { if(t==='weapon') renderWeapons(); else if(t==='spell') renderSpells(); else if(t==='item') renderItems(); else renderAbilities(t); }
 
@@ -7325,10 +7544,11 @@ document.body.addEventListener('input', (e) => {
         if(el) el.textContent = newVal;
     }
 });
-const SPELL_DC_TRIGGER_FIELDS = new Set(['spell_dc_base','str','dex','con','int','wis','cha']);
+const SPELL_DC_TRIGGER_FIELDS = new Set(['spell_dc_base','str','dex','con','int','wis','cha','character_level','class','archetype','mp','mp_temp','mp_max_temp']);
 function refreshSpellDcDisplays(fieldId) {
   if (!SPELL_DC_TRIGGER_FIELDS.has(fieldId)) return;
   if (typeof renderSpells === 'function') renderSpells();
+  if (typeof refreshMpDisplays === 'function') refreshMpDisplays();
 }
 
 const skillsBodyAdminEl = document.getElementById('skillsTableBody');
@@ -7349,15 +7569,27 @@ if(skillsBodyAdminEl && skillsBodyAdminEl.dataset.delegateBound !== '1') {
 
 document.body.addEventListener('change', (e) => { if(e.target.classList.contains('save-field') || e.target.classList.contains('calc-trigger')) { updateCalculations(); refreshSpellDcDisplays(e.target.id); saveData(); } });
 document.body.addEventListener('focusout', (e) => { if(e.target.classList.contains('save-field') || e.target.classList.contains('calc-trigger')) { updateCalculations(); refreshSpellDcDisplays(e.target.id); saveData(); } });
-window.addEventListener('DOMContentLoaded', () => { ['hp_curr','hp_temp','hp_max','hp_max_temp','mp_curr','mp_temp','mp_max','mp_max_temp','str','dex','con','int','wis','cha'].forEach(id => { const el = document.getElementById(id); if(!el) return; el.addEventListener('input', () => { updateCalculations(); computeDerivedStats(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); triggerSave(); }); el.addEventListener('change', () => { updateCalculations(); computeDerivedStats(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); saveData(); }); el.addEventListener('blur', () => { updateCalculations(); computeDerivedStats(); renderAbilityDrawerScores(); refreshSpellDcDisplays(id); saveData(); }); }); ['ac_view_mode','ar_view_mode'].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('change', () => { updateCalculations(); saveData(); }); }); const spellDcBaseEl = document.getElementById('spell_dc_base'); if(spellDcBaseEl){ spellDcBaseEl.addEventListener('input', () => { refreshSpellDcDisplays('spell_dc_base'); }); spellDcBaseEl.addEventListener('change', () => { refreshSpellDcDisplays('spell_dc_base'); }); } });
 window.addEventListener('beforeunload', () => { try { if(typeof saveData === 'function') saveData(); } catch(e) {} });
 window.addEventListener('load', () => { if(typeof computeDerivedStats === 'function') { setTimeout(() => { updateCalculations(); computeDerivedStats(); renderSelectedCombatDisplays(); }, 150); } });
 
-const CRITICAL_SYNC_FIELDS = ['hp_curr','hp_temp','hp_max','hp_max_temp','mp_curr','mp_temp','mp_max','mp_max_temp','str','dex','con','int','wis','cha'];
 function queueCriticalSave() {
-  if (typeof triggerSave === 'function') triggerSave();
-  else if (typeof saveData === 'function') saveData();
+  if (typeof saveData === 'function') {
+    try { clearTimeout(saveTimeout); } catch(_err) {}
+    saveData();
+  } else if (typeof save === 'function') save(true);
+  else if (typeof saveDataOnly === 'function') saveDataOnly();
+  else if (typeof triggerSave === 'function') triggerSave();
 }
+const CRITICAL_SYNC_FIELDS = window.CRITICAL_SYNC_FIELDS || [
+  'hp_curr','hp_temp','hp_max','hp_max_temp','hp_effective_max',
+  'mp','mp_temp','mp_class','mp_bonus','mp_max_temp','mp_curr','mp_total_max','mp_max_spell_level',
+  'spell_dc_base','class','archetype','character_level','str','dex','con','int','wis','cha',
+  'init_temp','bab','bab_temp','speed','speed_temp',
+  'ac_armor','ac_natural','ac_deflect','ac_dodge','ac_temp','touch_temp','flat_temp','cmd_temp',
+  'ar_melee_ability','ar_ranged_ability','ar_touch_ability','ar_ranged_touch_ability','ar_melee_temp','ar_ranged_temp','ar_touch_temp','ar_ranged_touch_temp','cmb_temp',
+  'fort_base','fort_enhance','fort_temp','ref_base','ref_enhance','ref_temp','will_base','will_enhance','will_temp'
+];
+window.CRITICAL_SYNC_FIELDS = CRITICAL_SYNC_FIELDS;
 function bindCriticalFieldPersistence() {
   CRITICAL_SYNC_FIELDS.forEach(id => {
     const el = document.getElementById(id);
@@ -7417,6 +7649,7 @@ function renderSelectedCombatDisplays() {
   setSignedText('arDisplayTouch', arMap.touch ?? 0);
   setSignedText('arDisplayRangedTouch', arMap.ranged_touch ?? 0);
   setSignedText('arDisplayCmb', arMap.cmb ?? 0);
+  if (typeof refreshMpDisplays === 'function') refreshMpDisplays();
 }
 
 function handleDisplayModeChange() { renderSelectedCombatDisplays(); if (typeof triggerSave === 'function') triggerSave(); else save(); }
@@ -7427,22 +7660,32 @@ function performLongRest() {
   const hpMax = numVal('hp_max');
   const hpEffectiveMax = Math.max(0, hpMax + numVal('hp_max_temp'));
   const hpAfter = hpEffectiveMax > 0 ? Math.min(hpEffectiveMax, hpBefore + level) : hpBefore + level;
-  const mpBefore = numVal('mp_curr');
-  const mpAfter = Math.max(0, numVal('mp_max') + numVal('mp_max_temp'));
   setVal('hp_curr', hpAfter);
-  setVal('mp_curr', mpAfter);
+  let mpRestored = 0;
+  try {
+    const mpInfo = typeof maMpApplyAutoValues === 'function' ? maMpApplyAutoValues() : null;
+    const beforeMp = numVal('mp') + numVal('mp_temp');
+    if(mpInfo && Number.isFinite(Number(mpInfo.totalMax))) {
+      setVal('mp', Math.max(0, Math.trunc(Number(mpInfo.totalMax) || 0)));
+      setVal('mp_temp', 0);
+      mpRestored = Math.max(0, Math.trunc(Number(mpInfo.totalMax) || 0) - beforeMp);
+    }
+  } catch(e) { console.warn('Could not restore MP on long rest', e); }
   let restoredAbilities = 0;
   (getActiveData().activeAbilities || []).forEach(ability => {
-    if(ability && ability.restoreOnLongRest) {
-      ability.u_curr = Math.max(0, Number(ability.u_max) || 0);
+    const maxUses = Math.max(0, Number(ability?.u_max) || 0);
+    if(ability && maxUses > 0) {
+      ability.u_curr = maxUses;
+      ability.restoreOnLongRest = true;
       restoredAbilities += 1;
     }
   });
   renderAbilities('active');
+  if(typeof renderSpells === 'function') renderSpells();
   updateCalculations();
   computeDerivedStats();
   triggerSave();
-  routeChatEntry({ kind:'info', title:'Long Rest', subtitle:currentChatSheetLabel(), lines:[`> HP healed: ${Math.max(0, hpAfter-hpBefore)} (Level ${level})`,`> MP restored: ${Math.max(0, mpAfter-mpBefore)}`,`> Ability uses restored: ${restoredAbilities}`], results:[] });
+  routeChatEntry({ kind:'info', title:'Long Rest', subtitle:currentChatSheetLabel(), lines:[`> HP healed: ${Math.max(0, hpAfter-hpBefore)} (Level ${level})`,`> MP restored: ${mpRestored}`,`> Ability uses restored: ${restoredAbilities}`], results:[] });
 }
 window.performLongRest = performLongRest;
 
@@ -7451,9 +7694,7 @@ function computeDerivedStats() {
   const dex = modFor('dex'), str = modFor('str'), con = modFor('con'), wis = modFor('wis');
   const sizeMod = numVal('size_mod'), sizeSpecial = numVal('size_special');
   const hpBase = numVal('hp_curr'), hpTemp = numVal('hp_temp'), hpMax = numVal('hp_max'), hpMaxTemp = numVal('hp_max_temp');
-  const mpBase = numVal('mp_curr'), mpTemp = numVal('mp_temp'), mpMax = numVal('mp_max'), mpMaxTemp = numVal('mp_max_temp');
   const hpTotalMax = Math.max(0, hpMax + hpMaxTemp);
-  const mpTotalMax = Math.max(0, mpMax + mpMaxTemp);
   const init = dex + numVal('init_temp');
   const babTotal = numVal('bab') + numVal('bab_temp');
   const speedTotal = numVal('speed');
@@ -7476,14 +7717,13 @@ function computeDerivedStats() {
   const setText = (id,val,plus=true) => { const el = document.getElementById(id); if(!el) return; const out = plus ? (val>=0?`+${val}`:`${val}`) : String(val); if('value' in el) el.value = out; else el.textContent = out; };
   const setPlain = (id,val) => { const el = document.getElementById(id); if(!el) return; const out = String(val); if('value' in el) el.value = out; else el.textContent = out; };
   setPlain('hpBaseDisplay', hpBase); setPlain('hpTempDisplay', hpTemp); setPlain('hpMaxDisplay', hpTotalMax); setPlain('hp_effective_max', hpTotalMax);
-  setPlain('mpBaseDisplay', mpBase); setPlain('mpTempDisplay', mpTemp); setPlain('mpMaxDisplay', mpTotalMax); setPlain('mp_effective_max', mpTotalMax);
+  if (typeof refreshMpDisplays === 'function') refreshMpDisplays();
   setText('initDisplayMain', init); setText('babDisplayMain', babTotal); setPlain('speedDisplayMain', speedTotal);
   setVal('ac_total', ac); setVal('cmd_total', cmd); setVal('ar_total', melee); setVal('cmb', cmb); setVal('touch_ac_total', touch); setVal('flat_ac_total', flat); setVal('ar_ranged_total', ranged); setVal('ar_touch_total', touchAttack); setVal('ar_ranged_touch_total', rangedTouchAttack);
   setVal('fort_bonus', fort); setVal('ref_bonus', ref); setVal('will_bonus', will);
   renderSelectedCombatDisplays();
   setText('fortDisplayMain', fort); setText('refDisplayMain', ref); setText('willDisplayMain', will);
   updateLimitBreakState();
-  try { if(typeof refreshSpellMpUi === 'function') refreshSpellMpUi(); } catch(e) {}
 }
 function statField(label,id, opts={}) {
   const value = document.getElementById(id)?.value || opts.defaultValue || '';
@@ -7520,9 +7760,11 @@ window.openStatEdit = (section) => {
     html = `<div class="formula-line"><div class="formula-parts">${statField('Current','hp_curr')}${statField('Temp HP','hp_temp')}${statField('Base','hp_max', {readonly:true})}${statField('Max Temp','hp_max_temp')}<div class="mini-field"><label>Total Max</label><input class="graybase" readonly type="number" value="${hpTotalMax}"></div></div></div>`;
   }
   if(section === 'mp') {
-    const mpTotalMax = Math.max(0, numVal('mp_max') + numVal('mp_max_temp'));
+    const mpInfo = (typeof maMpApplyAutoValues === 'function') ? maMpApplyAutoValues() : { current:0, totalMax:0, classMp:0, bonusMp:0, maxTemp:0, maxSpellLevel:0, score:10 };
     title.textContent = 'Edit MP';
-    html = `<div class="formula-line"><div class="formula-parts">${statField('Current','mp_curr')}${statField('Temp MP','mp_temp')}${statField('Base','mp_max', {readonly:true})}${statField('Max Temp','mp_max_temp')}<div class="mini-field"><label>Total Max</label><input class="graybase" readonly type="number" value="${mpTotalMax}"></div></div></div>`;
+    html = `
+      <div class="formula-line"><div class="mp-formula-title"><span>Temp MP + MP = Current MP</span><span class="mp-total-readout">${Math.trunc(Number(mpInfo.current)||0)}</span></div><div class="formula-parts">${statField('Temp MP','mp_temp')}${statField('MP','mp')}<div class="mini-field"><label>Current MP</label><input class="graybase" readonly type="number" value="${Math.trunc(Number(mpInfo.current)||0)}"></div></div></div>
+      <div class="formula-line"><div class="mp-formula-title"><span>Class MP + Bonus MP + Max Temp = Total Max</span><span class="mp-total-readout">${Math.trunc(Number(mpInfo.totalMax)||0)}</span></div><div class="formula-parts">${statField('Class MP','mp_class', {readonly:true})}${statField('Bonus MP','mp_bonus', {readonly:true})}${statField('Max Temp','mp_max_temp')}<div class="mini-field"><label>Spell Level</label><input class="graybase" readonly type="number" value="${Math.trunc(Number(mpInfo.maxSpellLevel)||0)}"></div><div class="mini-field"><label>Spell Base Score</label><input class="graybase" readonly type="number" value="${Math.trunc(Number(mpInfo.score)||0)}"></div><div class="mini-field"><label>Total Max</label><input class="graybase" readonly type="number" value="${Math.trunc(Number(mpInfo.totalMax)||0)}"></div></div></div>`;
   }
   if(section === 'general') { title.textContent = 'Edit Base Combat Stats'; html = `<div class="formula-line"><div class="formula-parts">${statField('Initiative Temp','init_temp')}${statField('BAB Base','bab', {readonly:true})}${statField('BAB Temp','bab_temp')}${statField('Speed','speed')}</div></div>`; }
   if(section === 'ac') { title.textContent = 'Edit Defense'; html = `
@@ -7562,7 +7804,7 @@ window.openStatEdit = (section) => {
       if(id === 'size_category') syncSizeFields();
       computeDerivedStats();
       save();
-      if(section === 'ar' || section === 'ac' || section === 'saves' || section === 'general' || id === 'size_category' || id === 'init_temp' || id === 'bab' || id === 'bab_temp' || id === 'speed' || id === 'speed_temp' || /_ability$/.test(id) || /_(base|enhance|temp)$/.test(id)) {
+      if(section === 'ar' || section === 'ac' || section === 'saves' || section === 'general' || section === 'mp' || id === 'size_category' || id === 'init_temp' || id === 'bab' || id === 'bab_temp' || id === 'speed' || id === 'speed_temp' || /_ability$/.test(id) || /_(base|enhance|temp)$/.test(id) || /^mp/.test(id)) {
         openStatEdit(section);
       }
     };
@@ -7572,6 +7814,13 @@ window.openStatEdit = (section) => {
   document.getElementById('statEditOverlay').style.display = 'flex';
 };
 window.closeStatEdit = () => { const o = document.getElementById('statEditOverlay'); if(o) o.style.display = 'none'; };
+
+try {
+  if (Array.isArray(window.CRITICAL_SYNC_FIELDS)) {
+    ['mp','mp_temp','mp_class','mp_bonus','mp_max_temp','mp_curr','mp_total_max','mp_max_spell_level'].forEach(id => { if(!window.CRITICAL_SYNC_FIELDS.includes(id)) window.CRITICAL_SYNC_FIELDS.push(id); });
+  }
+} catch(e) {}
+setTimeout(() => { try { if(typeof refreshMpDisplays === 'function') refreshMpDisplays(); } catch(e){} }, 0);
 function getNotesData() { return document.getElementById('notesArea')?.value || ''; }
 function renderNotesList() { return; }
 function saveNotesData(notes) { const el = document.getElementById('notesArea'); if(el) el.value = String(notes || ''); if (typeof triggerSave === 'function') triggerSave(); else if (typeof save === 'function') save(); }
@@ -7821,6 +8070,153 @@ function rollD20WithModifier(modifier) {
 function makeRollResultHtml(roll) {
   return `<strong>Total: ${roll.total}</strong> <span style="color:#9e9e9e;">(d20 ${roll.die} ${roll.modifier >= 0 ? '+' : '−'} ${Math.abs(roll.modifier)})</span>`;
 }
+
+function rollSpecialChoice(kind){
+  return String(kind || '').trim() || 'roll';
+}
+function naturalRollNoteHtml(roll) {
+  if (!roll) return '';
+  if (roll.die === 20) return '<strong>Natural 20 — Critical Success</strong>';
+  if (roll.die === 1) return '<strong>Natural 1 — Critical Failure</strong>';
+  return '';
+}
+function d20OutcomeMeta(roll, options = {}) {
+  if (!roll || !Number.isFinite(Number(roll.die))) return null;
+  const die = Number(roll.die);
+  const critRangeMin = Number(options.critRangeMin || 20) || 20;
+  const critRange = String(options.critRange || (critRangeMin <= 20 ? (critRangeMin === 20 ? '20' : `${critRangeMin}-20`) : '')).trim();
+  if (die === 1) return { kind:'nat1', die, critRange, label:'Natural 1 — Critical Failure', animation: rollSpecialChoice('fail') };
+  if (die === 20) return { kind:'nat20', die, critRange, label:'Natural 20 — Critical Success', animation: rollSpecialChoice('success') };
+  if (options.canCrit && die >= critRangeMin) return { kind:'critical-hit', die, critRange, label:`Critical Hit${critRange ? ` (${critRange})` : ''}`, animation: rollSpecialChoice('success') };
+  if (options.forceSuccess) return { kind:'critical-success', die, critRange, label:'Critical Success', animation: rollSpecialChoice('success') };
+  return null;
+}
+function d20OutcomeHtml(outcome) {
+  if (!outcome) return '';
+  if (outcome.kind === 'nat1') return '<strong>Natural 1 — Critical Failure</strong>';
+  if (outcome.kind === 'nat20') return '<strong>Natural 20 — Critical Success</strong>';
+  if (outcome.kind === 'critical-hit') return `<strong>Critical Hit${outcome.critRange ? ` (${chatEscapeHtml(outcome.critRange)})` : ''}</strong>`;
+  if (outcome.kind === 'critical-success') return '<strong>Critical Success</strong>';
+  return '';
+}
+function d20OutcomeDiscordLine(outcome) {
+  if (!outcome) return '';
+  if (outcome.kind === 'nat1') return '> D20 Outcome: Natural 1 — Critical Failure';
+  if (outcome.kind === 'nat20') return '> D20 Outcome: Natural 20 — Critical Success';
+  if (outcome.kind === 'critical-hit') return `> D20 Outcome: Critical Hit${outcome.critRange ? ` (${outcome.critRange})` : ''}${Number.isFinite(Number(outcome.die)) ? ` on ${outcome.die}` : ''}`;
+  if (outcome.kind === 'critical-success') return '> D20 Outcome: Critical Success';
+  return '';
+}
+function pushD20OutcomeResult(results, outcome) {
+  const html = d20OutcomeHtml(outcome);
+  if (html) results.push(html);
+  return results;
+}
+function d20EntryExtra(outcome) {
+  const extra = {};
+  if (outcome) {
+    extra.d20Outcome = outcome;
+    const discordLine = d20OutcomeDiscordLine(outcome);
+    if (discordLine) extra.discordOnly = [discordLine];
+  }
+  return extra;
+}
+function simpleRollResultLines(roll, label = 'Rolled Total') {
+  const out = [`<strong>${chatEscapeHtml(label)}:</strong> ${chatEscapeHtml(String(roll?.total ?? 0))}`];
+  pushD20OutcomeResult(out, d20OutcomeMeta(roll));
+  return out;
+}
+function calcNumber(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+function calcPart(label, value) {
+  const num = calcNumber(value);
+  if (!num) return null;
+  return { label: String(label || '').trim(), value: num };
+}
+function calcPartList(parts = []) {
+  return (parts || []).map(part => calcPart(part?.label, part?.value)).filter(Boolean);
+}
+function shortCalcLabel(label) {
+  const raw = String(label || '').trim().replace(/\s+/g, ' ');
+  if (!raw) return '';
+  const lower = raw.toLowerCase();
+  const statMatch = lower.match(/^(str|dex|con|int|wis|cha)(?:\s+mod)?$/);
+  if (statMatch) return statMatch[1];
+  const map = {
+    'attack misc': 'misc',
+    'misc bonus': 'misc',
+    'initiative temp': 'temp',
+    'class skill': 'class',
+    'ability mod': 'ability',
+    'bab': 'bab',
+    'base': 'base',
+    'enhance': 'enh',
+    'temp': 'temp',
+    'ranks': 'ranks',
+    'size': 'size'
+  };
+  if (map[lower]) return map[lower];
+  return raw.replace(/\bmod\b/ig, '').trim().toLowerCase();
+}
+function signedCalcTerm(part) {
+  const value = calcNumber(part?.value);
+  if (!value) return '';
+  const sign = value > 0 ? '+' : '-';
+  const label = shortCalcLabel(part?.label);
+  return `${sign}${Math.abs(value)}${label ? ` ${label}` : ''}`;
+}
+function rollCalcLine(roll, parts = [], label = 'Calc') {
+  const die = roll?.die ?? '?';
+  const formula = [`d20 (${die})`].concat(calcPartList(parts).map(signedCalcTerm).filter(Boolean)).join(' ');
+  return `> ${label}: ${formula}`;
+}
+function abilityModLabel(stat) {
+  const key = String(stat || '').trim().toUpperCase();
+  return key ? `${key} Mod` : 'Ability Mod';
+}
+function damageCalcLine(result, label = 'Dmg Calc', multiplier = 1) {
+  if (!result || !Array.isArray(result.breakdown) || !result.breakdown.length) return '';
+  const pieces = result.breakdown.map(part => String(part?.text || '').trim()).filter(Boolean);
+  if (!pieces.length) return '';
+  const mult = Number(multiplier || 1) || 1;
+  return `> ${label}: ${pieces.join(' | ')}${mult > 1 ? ` × ${mult}` : ''}`;
+}
+function saveFormulaConfig(kind) {
+  const map = {
+    fort: { label: 'Fortitude Save', stat: 'con', statLabel: 'CON Mod', base: 'fort_base', enhance: 'fort_enhance', temp: 'fort_temp' },
+    ref: { label: 'Reflex Save', stat: 'dex', statLabel: 'DEX Mod', base: 'ref_base', enhance: 'ref_enhance', temp: 'ref_temp' },
+    will: { label: 'Will Save', stat: 'wis', statLabel: 'WIS Mod', base: 'will_base', enhance: 'will_enhance', temp: 'will_temp' }
+  };
+  const cfg = map[kind];
+  if (!cfg) return null;
+  const statMod = (typeof getMod === 'function') ? getMod(cfg.stat) : 0;
+  const base = numVal(cfg.base);
+  const enhance = numVal(cfg.enhance);
+  const temp = numVal(cfg.temp);
+  return {
+    label: cfg.label,
+    total: statMod + base + enhance + temp,
+    parts: [
+      { label: cfg.statLabel, value: statMod },
+      { label: 'Base', value: base },
+      { label: 'Enhance', value: enhance },
+      { label: 'Temp', value: temp }
+    ]
+  };
+}
+function initiativeFormulaConfig() {
+  const dexMod = (typeof getMod === 'function') ? getMod('dex') : 0;
+  const temp = numVal('init_temp');
+  return {
+    total: dexMod + temp,
+    parts: [
+      { label: 'DEX Mod', value: dexMod },
+      { label: 'Initiative Temp', value: temp }
+    ]
+  };
+}
 function normalizeAbilityKey(value, fallback = 'STR') {
   const raw = String(value || fallback || 'STR').trim();
   return raw ? raw.toLowerCase() : String(fallback || 'STR').toLowerCase();
@@ -7833,8 +8229,9 @@ function readWeaponAttackBonus(weapon) {
   const bab = readNumericValue('bab', 0) + readNumericValue('bab_temp', 0);
   const misc = Number(weapon?.attack_misc || 0) || 0;
   const size = readNumericValue('size_mod', 0);
-  const abilityMod = readWeaponAbilityModifier(weapon);
-  return { bab, misc, size, abilityMod, total: bab + misc + size + abilityMod };
+  const abilityKey = normalizeAbilityKey(weapon?.ability_mod || weapon?.mod || 'STR', 'STR');
+  const abilityMod = (typeof modFor === 'function') ? modFor(abilityKey) : getMod(abilityKey);
+  return { bab, misc, size, abilityKey, abilityMod, total: bab + misc + size + abilityMod };
 }
 function parseCritRangeMin(value) {
   const raw = String(value || '20').trim();
@@ -7865,6 +8262,9 @@ function rollDamageExpression(expr) {
   const segments = splitDamageSegments(expr);
   const breakdown = [];
   const typedTotals = {};
+  const typedLabels = {};
+  const typeOrder = [];
+  let untypedTotal = 0;
   let total = 0;
   segments.forEach(segment => {
     let match = segment.match(/^(\d*)d(\d+)(?:\s+([A-Za-z][A-Za-z0-9\s\/-]*))?$/i);
@@ -7876,7 +8276,17 @@ function rollDamageExpression(expr) {
       const rolls = rollDiceCount(count, sides);
       const subtotal = rolls.reduce((sum, value) => sum + value, 0);
       total += subtotal;
-      if (damageType) typedTotals[damageType] = (typedTotals[damageType] || 0) + subtotal;
+      if (damageType) {
+        const key = damageType.toLowerCase();
+        if (!(key in typedTotals)) {
+          typedTotals[key] = 0;
+          typedLabels[key] = damageType;
+          typeOrder.push(key);
+        }
+        typedTotals[key] += subtotal;
+      } else {
+        untypedTotal += subtotal;
+      }
       breakdown.push({
         text: `${count}d${sides}${damageType ? ` ${damageType}` : ''}: [${rolls.join(', ')}] = ${subtotal}`,
         total: subtotal
@@ -7888,7 +8298,17 @@ function rollDamageExpression(expr) {
       const flat = Number(match[1] || 0);
       const damageType = String(match[2] || '').trim();
       total += flat;
-      if (damageType) typedTotals[damageType] = (typedTotals[damageType] || 0) + flat;
+      if (damageType) {
+        const key = damageType.toLowerCase();
+        if (!(key in typedTotals)) {
+          typedTotals[key] = 0;
+          typedLabels[key] = damageType;
+          typeOrder.push(key);
+        }
+        typedTotals[key] += flat;
+      } else {
+        untypedTotal += flat;
+      }
       breakdown.push({
         text: `${flat >= 0 ? '+' : ''}${flat}${damageType ? ` ${damageType}` : ''}`,
         total: flat
@@ -7897,12 +8317,60 @@ function rollDamageExpression(expr) {
     }
     breakdown.push({ text: segment, total: 0 });
   });
-  return { formula: String(expr || '').trim(), total, breakdown, typedTotals };
+  return { formula: String(expr || '').trim(), total, untypedTotal, breakdown, typedTotals, typedLabels, typeOrder };
+}
+function formatDamageTotalText(result) {
+  if (!result || !result.formula) return '—';
+  const parts = [];
+  if (result.untypedTotal) parts.push(String(result.untypedTotal));
+  (result.typeOrder || []).forEach(key => {
+    const value = Number(result.typedTotals?.[key] || 0);
+    if (!value) return;
+    const label = String(result.typedLabels?.[key] || key).trim();
+    parts.push(`${value} ${label}`.trim());
+  });
+  const hasTyped = (result.typeOrder || []).some(key => Number(result.typedTotals?.[key] || 0));
+  const needsBreakdown = hasTyped || parts.length > 1;
+  return `${result.total}${needsBreakdown ? ` (${parts.join(' + ')})` : ''}`;
+}
+function scaleDamageResult(result, multiplier) {
+  if (!result) return null;
+  const mult = Number(multiplier || 1) || 1;
+  const typedTotals = {};
+  Object.keys(result.typedTotals || {}).forEach(key => {
+    typedTotals[key] = (Number(result.typedTotals[key] || 0) || 0) * mult;
+  });
+  return {
+    ...result,
+    total: (Number(result.total || 0) || 0) * mult,
+    untypedTotal: (Number(result.untypedTotal || 0) || 0) * mult,
+    typedTotals
+  };
 }
 function formatDamageRollHtml(result) {
   if (!result || !result.formula) return '<strong>—</strong>';
-  const details = result.breakdown.map(part => part.text).join(' <span style="color:#777;">|</span> ');
-  return `<strong>Total: ${result.total}</strong> <span style="color:#9e9e9e;">(${details || chatEscapeHtml(result.formula)})</span>`;
+  return `<strong>Total: ${chatEscapeHtml(formatDamageTotalText(result))}</strong>`;
+}
+function buildDiscordCritBundle({ isCrit, attack, attackParts, baseDamageResult, damageExpr, multiplier = 2, attackLabel = 'Attack' } = {}) {
+  if (!isCrit || !attack) return { calcLines: [], resultLines: [] };
+  const calcLines = [];
+  const resultLines = [];
+  const confirmRoll = rollD20WithModifier(attack.total);
+  calcLines.push(rollCalcLine(confirmRoll, attackParts || attack.parts || [], 'Crit AR Calc'));
+  resultLines.push(`<strong>Crit AR${attackLabel ? ` (${chatEscapeHtml(attackLabel)})` : ''}:</strong> ${chatEscapeHtml(String(confirmRoll.total))}`);
+  const dmgText = String(damageExpr || '').trim();
+  const normalDamage = baseDamageResult || (dmgText ? rollDamageExpression(dmgText) : null);
+  if (normalDamage) {
+    const mult = parseCritMultiplier(`x${Number(multiplier || 2) || 2}`);
+    calcLines.push(`> Crit Dmg Calc: Dmg x${mult}`);
+    const critDamage = scaleDamageResult(normalDamage, mult);
+    resultLines.push(`<strong>Crit Dmg:</strong> ${chatEscapeHtml(formatDamageTotalText(critDamage))}`);
+  }
+  return { calcLines, resultLines };
+}
+function buildDiscordCritConfirmLines(options = {}) {
+  const bundle = buildDiscordCritBundle(options);
+  return [...bundle.calcLines, ...bundle.resultLines];
 }
 function updateWeaponAmmo(index, value) {
   const list = getActiveData().weapons || [];
@@ -7955,7 +8423,7 @@ function rollWeaponAttack(index) {
   const results = [
     `<strong>Attack Roll:</strong> ${makeRollResultHtml(attackRoll)}`
   ];
-  if (damageResult) results.push(`<strong>Dmg:</strong> ${formatDamageRollHtml(damageResult)}`);
+  if (damageResult) results.push(`<strong>Dice Roll:</strong> ${formatDamageRollHtml(damageResult)}`);
   if (attackRoll.die >= critMin) {
     const confirmRoll = rollD20WithModifier(attack.total);
     results.push(`<strong>Crit Threat:</strong> Natural ${attackRoll.die} hits ${weapon.crit_range || '20'}`);
@@ -8006,11 +8474,10 @@ function spellChatTitle(spell) {
 }
 function spellSendLines(spell) {
   const lines = [
-    `> Level: ${spell?.lvl || 'Cantrip'} | Action: ${spell?.type || 'Standard'}`,
+    `> Level: ${spell?.lvl || 'Cantrip'} | Action: ${maNormalizeActionType(spell?.type || 'Standard')}`,
     `> Range: ${spell?.range || '—'} | Target: ${spell?.target || '—'} | Duration: ${spell?.duration || '—'}`,
-    `> Attack Type: ${spell?.attack_type || '—'} | Damage: ${spell?.damage || '—'}`,
-    `> Save: ${spell?.saving_throw || '—'} | DC: ${spellDcDisplayValue(spell)} | SR: ${spell?.spell_resist || '—'}`,
-    `> School: ${spell?.school || '—'}`
+    `> Attack Type: ${spell?.attack_type || '—'} | Dice Roll: ${spell?.damage || '—'}`,
+    `> Save: ${spell?.saving_throw || '—'} | DC: ${spellDcDisplayValue(spell)} | SR: ${spell?.spell_resist || '—'}`
   ];
   if (String(spell?.desc || '').trim()) lines.push(`> Description: ${String(spell.desc).trim()}`);
   if (String(spell?.at_higher_lvls || spell?.at_higher || '').trim()) lines.push(`> At Higher Levels: ${String(spell.at_higher_lvls || spell.at_higher).trim()}`);
@@ -8033,34 +8500,57 @@ function rollSpellAction(index) {
   const spell = list[index];
   if (!spell) return;
   const attack = spellAttackConfig(spell);
-  const damageResult = String(spell?.damage || '').trim() ? rollDamageExpression(spell.damage) : null;
-  const lines = spellSendLines(spell);
-  if (attack) lines.splice(2, 0, `> ${attack.label} Attack Total: ${signedChatNumber(attack.total)}`);
-  const results = [];
-  if (attack) {
-    const attackRoll = rollD20WithModifier(attack.total);
-    results.push(`<strong>${attack.label} Attack:</strong> ${makeRollResultHtml(attackRoll)}`);
-    if (attackRoll.die === 20) {
-      const confirmRoll = rollD20WithModifier(attack.total);
-      results.push('<strong>Crit Threat:</strong> Natural 20');
-      results.push(`<strong>Crit Confirm:</strong> ${makeRollResultHtml(confirmRoll)}`);
-      if (damageResult) {
-        const critTotal = damageResult.total * 2;
-        results.push(`<strong>Crit Dmg:</strong> ${critTotal} <span style="color:#9e9e9e;">(if confirm hits, ${damageResult.total} × 2)</span>`);
-      }
-    }
+  if (!attack) { rollSpellDamage(index); return; }
+  const attackRoll = rollD20WithModifier(attack.total);
+  const isCrit = attackRoll.die === 20;
+  const outcome = d20OutcomeMeta(attackRoll, { canCrit: true, critRangeMin: 20, critRange: '20' });
+  const calcLines = [rollCalcLine(attackRoll, attack.parts, 'AR Calc')];
+  const results = [`<strong>Attack Roll (${chatEscapeHtml(attack.label)}):</strong> ${chatEscapeHtml(String(attackRoll.total))}${isCrit ? ' <strong>Crit !!!</strong>' : ''}`];
+  pushD20OutcomeResult(results, outcome);
+  const damageExpr = String(spell?.damage || '').trim();
+  let damageResult = null;
+  if (damageExpr) {
+    damageResult = rollDamageExpression(damageExpr);
+    const dmgLine = damageCalcLine(damageResult, 'Dice Roll Calc');
+    if (dmgLine) calcLines.push(dmgLine);
+    results.push(`<strong>Dice Roll:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`);
   }
-  if (damageResult) results.push(`<strong>Dmg:</strong> ${formatDamageRollHtml(damageResult)}`);
+  const critBundle = buildDiscordCritBundle({
+    isCrit,
+    attack,
+    attackParts: attack.parts,
+    baseDamageResult: damageResult,
+    damageExpr,
+    multiplier: 2,
+    attackLabel: attack.label
+  });
+  const discordLines = calcLines.concat(critBundle.calcLines);
+  const discordResults = results.concat(critBundle.resultLines);
+  routeChatEntry({ kind: 'roll', title: `${spellChatTitle(spell)}${isCrit ? ' — Crit!' : ''}`, subtitle: currentChatSheetLabel(), lines: calcLines, results, discordLines, discordResults, ...d20EntryExtra(outcome) });
+}
+function rollSpellDamage(index) {
+  const list = getActiveData().spells || [];
+  const spell = list[index];
+  if (!spell) return;
+  const damageExpr = String(spell?.damage || '').trim();
+  if (!damageExpr) return;
+  const damageResult = rollDamageExpression(damageExpr);
+  const dmgLine = damageCalcLine(damageResult, 'Dice Roll Calc');
+  const calcLines = dmgLine ? [dmgLine] : [];
+  const results = [`<strong>Dice Roll:</strong> ${chatEscapeHtml(formatDamageTotalText(damageResult))}`];
   routeChatEntry({
     kind: 'roll',
-    title: attack ? `${spellChatTitle(spell)} ${attack.label}` : `${spellChatTitle(spell)} Damage`,
+    title: `${spellChatTitle(spell)} Dice Roll`,
     subtitle: currentChatSheetLabel(),
-    lines,
-    results
+    lines: calcLines,
+    discordLines: calcLines,
+    results,
+    discordResults: results
   });
 }
 window.sendSpellCard = sendSpellCard;
 window.rollSpellAction = rollSpellAction;
+window.rollSpellDamage = rollSpellDamage;
 function sendInitiativeRoll() {
   const total = readNumericValue('initDisplayMain', 0);
   const roll = rollD20WithModifier(total);
@@ -8672,6 +9162,7 @@ function maFfd20RenderAll(){
   try { if(typeof computeDerivedStats === 'function') computeDerivedStats(); } catch(e){ console.warn(e); }
   try { if(typeof renderSelectedCombatDisplays === 'function') renderSelectedCombatDisplays(); } catch(e){ console.warn(e); }
   try { if(typeof renderAbilityDrawerScores === 'function') renderAbilityDrawerScores(); } catch(e){ console.warn(e); }
+  try { if(typeof refreshMpDisplays === 'function') refreshMpDisplays(); } catch(e){ console.warn(e); }
 }
 async function maFfd20LoadLibrary(){
   if(maFfd20Library) return maFfd20Library;
@@ -8764,13 +9255,14 @@ function maFfd20BuildChoiceGrid(){
   const sizeEl = document.getElementById('size');
   if(sizeEl && !sizeEl.value) sizeEl.value = document.getElementById('size_category')?.value || 'Medium';
   document.getElementById('maAddMulticlassBtn')?.addEventListener('click', () => maFfd20OpenMulticlassDialog());
-  document.getElementById('class')?.addEventListener('change', async () => { await maFfd20RefreshArchetypes(); await maFfd20ApplySheetChoices({silent:true}); });
+  document.getElementById('class')?.addEventListener('change', async () => { await maFfd20RefreshArchetypes(); await maFfd20ApplySheetChoices({silent:true}); if(typeof refreshMpDisplays === 'function') refreshMpDisplays(); });
   document.getElementById('race')?.addEventListener('change', () => maFfd20ApplySheetChoices({silent:true}));
   document.getElementById('archetype')?.addEventListener('change', () => maFfd20ApplySheetChoices({silent:true}));
   document.getElementById('prestige_class')?.addEventListener('change', () => maFfd20ApplySheetChoices({silent:true}));
   document.getElementById('prestige_level')?.addEventListener('change', () => maFfd20ApplySheetChoices({silent:true}));
   document.getElementById('size_category')?.addEventListener('change', () => { const h=document.getElementById('size'); if(h) h.value=document.getElementById('size_category').value; try{ syncSizeFields(); }catch(e){} });
   document.getElementById('character_level')?.addEventListener('change', maFfd20HandleLevelChanged);
+  setTimeout(() => { try { if(typeof refreshMpDisplays === 'function') refreshMpDisplays(); } catch(e){} }, 0);
 }
 async function maFfd20RefreshOptions(){
   maFfd20BuildChoiceGrid();
@@ -9289,7 +9781,7 @@ async function maFfd20HandleLevelChanged(event){
         <li>HP per new level: Avg d${die} = ${avg} + CON mod ${con >= 0 ? '+' : ''}${con}</li>
         <li>Skill points per new level: ${maFfd20SkillBase(cls)} + INT mod ${intel >= 0 ? '+' : ''}${intel} = ${skillEach}</li>
         <li>Feat reminder: ${feats.length ? feats.map(x=>'level '+x).join(', ') : 'no odd-level feat in this increase'}</li>
-        <li>TODO reminder: BAB, saves, and MP automation still need rules hookup.</li>
+        <li>TODO reminder: BAB and saves automation still need rules hookup.</li>
       </ul>
     </div>
     <label>Favored class bonus for this level-up<select id="maLevelFavored"><option value="hp">+1 HP</option><option value="skill">+1 Skill Point</option></select></label>
@@ -9566,7 +10058,7 @@ async function maFfd20OpenCreationWizard(){
       <label>Senses<input id="maCreateSenses" placeholder="Darkvision, low-light, ..."></label>
       <label>Favored class bonus<select id="maCreateFavored"><option value="hp">+1 HP each level</option><option value="skill">+1 Skill Point each level</option></select></label>
     </div>
-    <div class="ffd20-level-summary"><strong>Starting calculations</strong><ul><li>Level 1 HP = Hit Die + CON mod.</li><li>Later HP = average Hit Die + CON mod. Example: d8 = 5 + CON.</li><li>Level 1 skill points are multiplied by 4.</li><li>Odd levels remind you to pick feats.</li><li>TODO reminder: BAB, saves, and MP automation still need rules hookup.</li></ul></div>
+    <div class="ffd20-level-summary"><strong>Starting calculations</strong><ul><li>Level 1 HP = Hit Die + CON mod.</li><li>Later HP = average Hit Die + CON mod. Example: d8 = 5 + CON.</li><li>Level 1 skill points are multiplied by 4.</li><li>Odd levels remind you to pick feats.</li><li>TODO reminder: BAB and saves automation still need rules hookup.</li></ul></div>
     <div id="maCreateMilestones">${maFfd20CreateMilestoneFields(1)}</div>`;
   const overlayPromise = maFfd20Dialog('Create FFD20 Character', body, 'Create Character');
   setTimeout(() => {
@@ -9633,7 +10125,7 @@ function maFfd20InitChoiceUi(){
 }
 if(MA_FFD20_IS_ADMIN){
   const maOldPopulateSheet = populateSheet;
-  populateSheet = function(...args){ const result = maOldPopulateSheet.apply(this, args); maFfd20SyncAfterPopulate(); return result; };
+  populateSheet = function(...args){ const result = maOldPopulateSheet.apply(this, args); maFfd20SyncAfterPopulate(); if(typeof refreshMpDisplays === 'function') refreshMpDisplays(); return result; };
 } else {
   const maOldLoadCurrentSheet = loadCurrentSheet;
   loadCurrentSheet = function(...args){ const result = maOldLoadCurrentSheet.apply(this, args); maFfd20SyncAfterPopulate(); const addBtn=document.getElementById('btnAddSummon'); if(addBtn) addBtn.onclick = window.createNewSummon || maFfd20OpenCreationWizard; return result; };
@@ -9672,15 +10164,11 @@ function maV4ProgressionAt(cls, lvl){
   let best = null;
   for(const row of rows){ if(maV4Level(row.level) <= lvl) best = row; }
   best = best || rows[0] || {};
-  const hasExplicitMp = Object.prototype.hasOwnProperty.call(best, 'mpValue') || Object.prototype.hasOwnProperty.call(best, 'mp');
-  const mpRaw = best.mpValue ?? best.mp;
   return {
     bab: Number(best.babValue ?? maV4Int(best.bab)) || 0,
     fort: Number(best.fortValue ?? maV4Int(best.fort)) || 0,
     ref: Number(best.refValue ?? maV4Int(best.ref)) || 0,
-    will: Number(best.willValue ?? maV4Int(best.will)) || 0,
-    mp: hasExplicitMp ? (Number(mpRaw ?? 0) || 0) : 0,
-    hasMp: hasExplicitMp && String(mpRaw ?? '').trim() !== '' && String(mpRaw ?? '').trim() !== '—'
+    will: Number(best.willValue ?? maV4Int(best.will)) || 0
   };
 }
 function maV4ClassEntries(lib, sel){
@@ -9709,7 +10197,7 @@ function maV4TotalLevel(sel){
 }
 function maV4Totals(lib, sel){
   const con = maV4StatMod('con'), intel = maV4StatMod('int');
-  const totals = {hp:0, skill:0, bab:0, fort:0, ref:0, will:0, mp:0, hasMp:false, rows:[]};
+  const totals = {hp:0, skill:0, bab:0, fort:0, ref:0, will:0, rows:[]};
   let overallLevel = 0;
   maV4ClassEntries(lib, sel).forEach(entry=>{
     const die = maV4HitDie(entry.cls);
@@ -9725,11 +10213,8 @@ function maV4Totals(lib, sel){
     const p = maV4ProgressionAt(entry.cls, entry.level);
     totals.hp += hpGain; totals.skill += skillGain;
     totals.bab += p.bab; totals.fort += p.fort; totals.ref += p.ref; totals.will += p.will;
-    totals.mp += p.mp;
-    if(p.hasMp) totals.hasMp = true;
     totals.rows.push({...entry, die, avg, skillEach, hpGain, skillGain, prog:p});
   });
-  if(!totals.hasMp) totals.mp = 0;
   return totals;
 }
 function maV4FeatureNamesBetween(lib, oldSel, newSel){
@@ -9747,7 +10232,7 @@ function maV4FeatureNamesBetween(lib, oldSel, newSel){
 }
 function maV4Plus(n){ n=Number(n)||0; return n>0?`+${n}`:String(n); }
 function maV4Formula(t){
-  return t.rows.map(r=>`${r.label} ${r.level}: d${r.die}, HP ${r.hpGain}, skill ${r.skillGain}, BAB ${maV4Plus(r.prog.bab)}, saves ${maV4Plus(r.prog.fort)}/${maV4Plus(r.prog.ref)}/${maV4Plus(r.prog.will)}${r.prog.hasMp ? `, MP ${r.prog.mp}` : ''}`).join(' · ') || 'No class data found.';
+  return t.rows.map(r=>`${r.label} ${r.level}: d${r.die}, HP ${r.hpGain}, skill ${r.skillGain}, BAB ${maV4Plus(r.prog.bab)}, saves ${maV4Plus(r.prog.fort)}/${maV4Plus(r.prog.ref)}/${maV4Plus(r.prog.will)}`).join(' · ') || 'No class data found.';
 }
 function maV4LevelList(oldTotal,newTotal,pred){ const out=[]; for(let l=oldTotal+1;l<=newTotal;l++){ if(pred(l)) out.push(l); } return out; }
 async function maV4LevelUpOverlay(lib, oldSel, newSel, label){
@@ -9785,7 +10270,6 @@ async function maV4LevelUpOverlay(lib, oldSel, newSel, label){
       <div class="ma-levelup-card ma-v37-level-card"><small>Skill</small><strong>${maV4Plus(newTotals.skill-oldTotals.skill)}</strong><span>Before level bonus</span></div>
       <div class="ma-levelup-card ma-v37-level-card"><small>BAB</small><strong>${maV4Plus(newTotals.bab)}</strong><span>${maV4Plus(newTotals.bab-oldTotals.bab)} from this change</span></div>
       <div class="ma-levelup-card ma-v37-level-card"><small>Saves</small><strong>${maV4Plus(newTotals.fort)}/${maV4Plus(newTotals.ref)}/${maV4Plus(newTotals.will)}</strong><span>Fort / Ref / Will</span></div>
-      <div class="ma-levelup-card ma-v37-level-card"><small>MP</small><strong>${newTotals.hasMp ? newTotals.mp : '—'}</strong><span>${newTotals.hasMp ? `${maV4Plus(newTotals.mp-oldTotals.mp)} from MP table` : 'No MP table for this class'}</span></div>
     </div>
     ${bonusSection}
     ${featSection}
@@ -9818,7 +10302,7 @@ function maV4ApplyAbilityPicks(picks){
   });
 }
 function maV4RefreshVitalsDisplay(){
-  [['hp','HP'],['mp','MP']].forEach(([prefix])=>{
+  [['hp','HP']].forEach(([prefix])=>{
     const curr = document.getElementById(prefix+'_curr');
     const base = document.getElementById(prefix+'_max');
     const temp = document.getElementById(prefix+'_temp');
@@ -9892,14 +10376,6 @@ function maV4ApplyTotals(lib, oldSel, newSel, result=null){
 
   maV4Set('bab', totals.bab);
   maV4Set('fort_base', totals.fort); maV4Set('ref_base', totals.ref); maV4Set('will_base', totals.will);
-  const mpBase = totals.hasMp ? totals.mp : 0;
-  const oldMpBase = maV4Num('mp_max', oldTotals.mp);
-  const oldMpCurr = maV4Num('mp_curr', 0);
-  const mpEff = Math.max(0, mpBase + maV4Num('mp_max_temp', 0));
-  maV4Set('mp_max', mpBase);
-  if(document.getElementById('mp_temp') && (document.getElementById('mp_temp').value === '' || maFfd20ActiveData().mp_temp === undefined)) maV4Set('mp_temp', 0);
-  const mpGain = mpBase - oldMpBase;
-  maV4Set('mp_curr', totals.hasMp ? (result ? Math.min(mpEff, Math.max(0, oldMpCurr + Math.max(0,mpGain))) : (oldMpCurr ? Math.min(oldMpCurr, mpEff) : mpEff)) : 0);
   try{ maV4RefreshVitalsDisplay(); }catch(e){}
   try{ updateCalcs?.(); updateCalculations?.(); computeDerivedStats?.(); renderSelectedCombatDisplays?.(); }catch(e){}
   return totals;
@@ -10009,7 +10485,6 @@ try {
     window.__adminSheetHydrated = !!activeLoadedDocKey && !adminHydratingSheet;
     window.__adminSheetSwitchSerial = adminSheetSwitchSerial;
   } catch(e) {}
-  window.refreshSpellMpUi = () => { try { updateSpellMpPanel(); syncSpellUseButtons(); } catch(e) {} };
   try {
     Object.defineProperty(window, 'maFfd20Library', {
       configurable: true,
@@ -10018,6 +10493,8 @@ try {
     });
   } catch(e) {}
 } catch(e) { console.warn('Admin character bridge failed', e); }
+
+
 
 </script>
 <style>
@@ -10128,8 +10605,6 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
 }
 
 
-
-
 /* --- Level-up overlay v1: neon crystal celebration --- */
 .ma-levelup-modal{max-width:780px!important;border-color:#74f7ff!important;box-shadow:0 0 0 1px rgba(116,247,255,.35),0 0 42px rgba(116,247,255,.24),0 24px 70px rgba(0,0,0,.62)!important;overflow:hidden;}
 .ma-levelup-hero{position:relative;text-align:center;padding:18px 12px 14px;margin:-4px -2px 14px;border:1px solid rgba(116,247,255,.45);border-radius:18px;background:radial-gradient(circle at 50% 0%,rgba(116,247,255,.22),rgba(255,204,102,.07) 42%,rgba(10,10,10,.1) 70%);}
@@ -10219,7 +10694,7 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
   function maCalcClassTotals(lib, sel){
     const con = statMod('con');
     const intel = statMod('int');
-    const totals = { hp:0, skill:0, bab:0, fort:0, ref:0, will:0, mp:0, hasMp:false, totalLevel:maTotalCharacterLevel(sel), rows:[] };
+    const totals = { hp:0, skill:0, bab:0, fort:0, ref:0, will:0, totalLevel:maTotalCharacterLevel(sel), rows:[] };
     maClassEntryList(lib, sel).forEach(entry => {
       const die = maFfd20HitDie ? maFfd20HitDie(entry.cls) : 8;
       const avg = maFfd20AvgHp ? maFfd20AvgHp(die) : (Math.floor(die/2)+1);
@@ -10233,8 +10708,7 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
       }
       const prog = progressionAt(entry.cls, entry.level);
       totals.hp += hpGain; totals.skill += skillGain;
-      totals.bab += prog.babValue || 0; totals.fort += prog.fortValue || 0; totals.ref += prog.refValue || 0; totals.will += prog.willValue || 0; totals.mp += prog.mpValue || 0;
-      if(entry.cls?.hasMp || entry.cls?.spellcaster || prog.mpValue) totals.hasMp = true;
+      totals.bab += prog.babValue || 0; totals.fort += prog.fortValue || 0; totals.ref += prog.refValue || 0; totals.will += prog.willValue || 0;
       totals.rows.push({...entry, die, avg, skillBase, skillEach, hpGain, skillGain, prog});
     });
     return totals;
@@ -10264,7 +10738,7 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
   }
   function maClassFormulaLine(totals){
     if(!totals?.rows?.length) return 'No class data found.';
-    return totals.rows.map(r => `${r.label} ${r.level}: d${r.die}, ${r.skillBase}+INT skill, BAB ${plus(r.prog.babValue||0)}, saves ${plus(r.prog.fortValue||0)}/${plus(r.prog.refValue||0)}/${plus(r.prog.willValue||0)}${r.prog.mpValue ? `, MP ${r.prog.mpValue}` : ''}`).join(' · ');
+    return totals.rows.map(r => `${r.label} ${r.level}: d${r.die}, ${r.skillBase}+INT skill, BAB ${plus(r.prog.babValue||0)}, saves ${plus(r.prog.fortValue||0)}/${plus(r.prog.refValue||0)}/${plus(r.prog.willValue||0)}`).join(' · ');
   }
   function maFavoredStore(){
     const d = data();
@@ -10346,7 +10820,6 @@ body.ma-ffd20-player #character { padding-bottom:110px; }
         <div class="ma-levelup-card"><small>Skill Points</small><strong>${plus(skillDelta)}</strong><span>Before favored bonus</span></div>
         <div class="ma-levelup-card"><small>BAB</small><strong>${plus(newTotals.bab)}</strong><span>${plus(newTotals.bab-oldTotals.bab)} from this change</span></div>
         <div class="ma-levelup-card"><small>Saves</small><strong>${plus(newTotals.fort)}/${plus(newTotals.ref)}/${plus(newTotals.will)}</strong><span>Fort / Ref / Will</span></div>
-        <div class="ma-levelup-card"><small>MP</small><strong>${newTotals.hasMp ? newTotals.mp : '—'}</strong><span>${newTotals.hasMp ? `${plus(newTotals.mp-oldTotals.mp)} from tables` : 'No MP table'}</span></div>
       </div>
       ${favoredSection}
       ${featSection}
@@ -10379,7 +10852,6 @@ function maApplyAbilityPicks(pickedStats){
     setBaseField('fort_base', finalTotals.fort || 0);
     setBaseField('ref_base', finalTotals.ref || 0);
     setBaseField('will_base', finalTotals.will || 0);
-    setBaseField('mp_max', finalTotals.hasMp ? finalTotals.mp : 0);
   }
   function maApplyFinalClassTotals(lib, oldSel, newSel, levelResult){
     const oldTotals = levelResult?.oldTotals || maCalcClassTotals(lib, oldSel);
@@ -10415,14 +10887,7 @@ function maApplyAbilityPicks(pickedStats){
       if(spEl) spEl.value = String(nextSp);
       d.skill_points = String(nextSp);
     }
-    const oldMpMax = Number(d.mp_max || document.getElementById('mp_max')?.value || oldTotals.mp) || oldTotals.mp;
     maSetCoreProgressionFields(finalTotals);
-    const mpMaxTemp = Number(d.mp_max_temp || document.getElementById('mp_max_temp')?.value || 0) || 0;
-    const curMp = Number(d.mp_curr || document.getElementById('mp_curr')?.value || 0) || 0;
-    const mpGain = (finalTotals.hasMp ? finalTotals.mp : 0) - oldMpMax;
-    const effectiveMpMax = Math.max(0, (finalTotals.hasMp ? finalTotals.mp : 0) + mpMaxTemp);
-    const newMpCurr = finalTotals.hasMp ? (levelResult ? Math.min(effectiveMpMax, Math.max(0, curMp + Math.max(0,mpGain))) : Math.min(curMp || effectiveMpMax, effectiveMpMax)) : 0;
-    setBaseField('mp_curr', newMpCurr);
     refreshCards(finalTotals);
     try{ computeDerivedStats(); }catch(e){}
     return finalTotals;
@@ -10431,7 +10896,7 @@ function maApplyAbilityPicks(pickedStats){
 
 function progressionAt(cls, level){
     const rows = Array.isArray(cls?.progression) ? cls.progression : [];
-    if(!rows.length) return { level, babValue:0, fortValue:0, refValue:0, willValue:0, mpValue:0 };
+    if(!rows.length) return { level, babValue:0, fortValue:0, refValue:0, willValue:0 };
     let best = rows[0];
     for(const row of rows){ if(levelOf(row.level) <= level) best = row; }
     return {
@@ -10440,12 +10905,11 @@ function progressionAt(cls, level){
       fortValue: Number(best.fortValue ?? intVal(best.fort)) || 0,
       refValue: Number(best.refValue ?? intVal(best.ref)) || 0,
       willValue: Number(best.willValue ?? intVal(best.will)) || 0,
-      mpValue: Number(best.mpValue ?? intVal(best.mp)) || 0,
       raw: best
     };
   }
   function combineProgression(lib, selection){
-    const totals = { bab:0, fort:0, ref:0, will:0, mp:0, hasMp:false };
+    const totals = { bab:0, fort:0, ref:0, will:0 };
     function add(cls, lvl){
       if(!cls || !lvl) return;
       const p = progressionAt(cls, lvl);
@@ -10453,8 +10917,6 @@ function progressionAt(cls, level){
       totals.fort += p.fortValue || 0;
       totals.ref += p.refValue || 0;
       totals.will += p.willValue || 0;
-      totals.mp += p.mpValue || 0;
-      if(cls.hasMp || cls.spellcaster || p.mpValue) totals.hasMp = true;
     }
     add(maFfd20Find(lib.classes, selection.className), levelOf(selection.level || 1));
     (selection.multiclasses || []).forEach(mc => add(maFfd20Find(lib.classes, mc.className || mc.class || mc.name), levelOf(mc.level || 1)));
@@ -10481,18 +10943,13 @@ function progressionAt(cls, level){
     const hpEffectiveMax = Math.max(0, newHpBase + (Number(d.hp_max_temp || document.getElementById('hp_max_temp')?.value || 0) || 0));
     if(!oldHpCurr || oldHpCurr > hpEffectiveMax) setBaseField('hp_curr', hpEffectiveMax);
     else if(hpDelta > 0) setBaseField('hp_curr', Math.min(hpEffectiveMax, oldHpCurr + hpDelta));
-    const mpCurr = document.getElementById('mp_curr');
-    const mpMaxTemp = Number(document.getElementById('mp_max_temp')?.value || d.mp_max_temp || 0) || 0;
-    const effectiveMpMax = Math.max(0, (totals.hasMp ? totals.mp : 0) + mpMaxTemp);
-    if(mpCurr && (!mpCurr.value || Number(mpCurr.value) === 0 || Number(mpCurr.value) > effectiveMpMax)) { mpCurr.value = String(totals.hasMp ? effectiveMpMax : 0); d.mp_curr = mpCurr.value; }
     try{ refreshEffectiveVitals(); }catch(e){}
     refreshCards(totals);
     try{ computeDerivedStats(); }catch(e){}
     return totals;
   }
   function statStrip(t){
-    t = t || {bab:0,fort:0,ref:0,will:0,mp:0,hasMp:false};
-    return `<div class="ma-stat-strip"><div class="ma-stat-chip"><small>BAB</small><strong>${plus(t.bab)}</strong></div><div class="ma-stat-chip"><small>Fort</small><strong>${plus(t.fort)}</strong></div><div class="ma-stat-chip"><small>Ref</small><strong>${plus(t.ref)}</strong></div><div class="ma-stat-chip"><small>Will</small><strong>${plus(t.will)}</strong></div><div class="ma-stat-chip"><small>MP</small><strong>${t.hasMp ? (t.mp||0) : '—'}</strong></div></div>`;
+    t = t || {bab:0,fort:0,ref:0,will:0};
   }
   function adminChoiceValue(id){
     const d = data();
@@ -10729,7 +11186,6 @@ function progressionAt(cls, level){
       overlay.querySelectorAll('[data-ability-level]').forEach(sel=>{ const stat=sel.value; newData[stat]=String((Number(newData[stat]) || 10)+1); });
       const createFavored=overlay.querySelector('#maCreateFavored')?.value || 'hp'; newData.favoredClassBonuses={}; for(let lvl=1; lvl<=level; lvl++) newData.favoredClassBonuses[String(lvl)] = createFavored; const cls=maFfd20Find(lib.classes,className); const calc=maFfd20ApplyHpSkillToData(newData, cls, level, createFavored);
       const prog=combineProgression(lib,{className,archetype:newData.archetype,level,multiclasses:[]});
-      newData.bab=String(prog.bab); newData.fort_base=String(prog.fort); newData.ref_base=String(prog.ref); newData.will_base=String(prog.will); newData.mp_max=String(prog.hasMp?prog.mp:0); newData.mp_curr=String(prog.hasMp?prog.mp:0); newData.mp_temp=newData.mp_temp||'0'; newData.hp_temp=newData.hp_temp||'0';
       newData.racialAbilities=Array.isArray(newData.racialAbilities)?newData.racialAbilities:[];
       maFfd20Push(newData, maFfd20BuildImported(lib,{race,className,archetype:newData.archetype,level,multiclasses:[]}));
       const ref=await addDoc(collection(db,'users',currentUser.uid,'characters'),newData);
@@ -10759,494 +11215,12 @@ function progressionAt(cls, level){
     const levelEl=document.getElementById('character_level'); if(levelEl) levelEl.dataset.prevLevel=String(levelOf(levelEl.value || d.character_level || 1)||1);
     maFfd20RefreshOptions(); maFfd20RenderMulticlasses(); refreshCardsFromLibrary();
   };
-
-
-  /* --- v5 repair: HP temp vs max-temp, MP bonus conversion from CON, and cleaner vital edit views --- */
-  const MA_V5_BONUS_MP_TABLE = [
-    {min:10,max:11, vals:[0,0,0,0,0,0,0,0,0]},
-    {min:12,max:13, vals:[1,1,1,1,1,1,1,1,1]},
-    {min:14,max:15, vals:[1,3,3,3,3,3,3,3,3]},
-    {min:16,max:17, vals:[1,3,6,6,6,6,6,6,6]},
-    {min:18,max:19, vals:[1,3,6,10,10,10,10,10,10]},
-    {min:20,max:21, vals:[2,4,7,11,16,16,16,16,16]},
-    {min:22,max:23, vals:[2,6,9,13,18,24,24,24,24]},
-    {min:24,max:25, vals:[2,6,12,16,21,27,34,34,34]},
-    {min:26,max:27, vals:[2,6,12,20,25,31,38,46,46]},
-    {min:28,max:29, vals:[3,7,13,21,31,37,44,52,61]},
-    {min:30,max:999, vals:[3,9,15,23,33,45,52,60,69]},
-  ];
-  const MA_V5_FIELD_CLASS = IS_ADMIN ? 'save-field' : 'live-field';
-  function maV5RuntimeField(id, fallback='0'){
-    let el = document.getElementById(id);
-    const d = data();
-    if(!el){
-      el = document.createElement('input');
-      el.type = 'hidden';
-      el.id = id;
-      el.className = MA_V5_FIELD_CLASS;
-      document.body.appendChild(el);
-    }
-    if((el.value === undefined || el.value === null || String(el.value).trim() === '') && d[id] !== undefined && d[id] !== null && String(d[id]).trim() !== '') el.value = String(d[id]);
-    if(el.value === undefined || el.value === null || String(el.value).trim() === '') el.value = String(fallback);
-    if(d[id] === undefined || d[id] === null || String(d[id]).trim() === '') d[id] = el.value;
-    return el;
-  }
-  function maV5EnsureRuntimeFields(){
-    maV5RuntimeField('hp_max_temp','0');
-    maV5RuntimeField('mp_base','0');
-    maV5RuntimeField('mp_bonus','0');
-    maV5RuntimeField('mp_temp','0');
-    maV5RuntimeField('hp_temp','0');
-  }
-  function maV5Score(stat){
-    const raw = Number(document.getElementById(stat)?.value || data()[stat] || 10);
-    return Number.isFinite(raw) ? Math.trunc(raw) : 10;
-  }
-  function maV5BonusMp(score, spellLevel){
-    const maxSpellLevel = Math.max(0, Math.min(9, Math.trunc(Number(spellLevel)||0)));
-    const abilityScore = Math.trunc(Number(score)||0);
-    const mod = Math.floor((abilityScore - 10) / 2);
-    if(maxSpellLevel <= 0 || mod < 1) return 0;
-    let total = 0;
-    for(let lvl=1; lvl<=maxSpellLevel; lvl++){
-      if(mod >= lvl) total += (Math.floor((mod - lvl) / 4) + 1) * lvl;
-    }
-    return total;
-  }
-  function maV5CastingStat(entry){
-    const name = String(entry?.className || entry?.cls?.name || '').toLowerCase();
-    if(name.includes('black mage') || name.includes('blue mage') || name.includes('time mage') || name.includes('scholar') || name.includes('chemist')) return 'int';
-    if(name.includes('white mage') || name.includes('geomancer')) return 'wis';
-    if(name.includes('red mage') || name.includes('summoner') || name.includes('bard') || name.includes('dark knight') || name.includes('paladin')) return 'cha';
-    return 'int';
-  }
-  function maV5HighestSpellLevel(classLevel, prog){
-    if(!prog?.hasExplicitMp) return 0;
-    // FFd20 full caster progression example: 2nd-level spells become available at class level 3.
-    return Math.max(1, Math.min(9, Math.ceil((Number(classLevel)||1) / 2)));
-  }
-  progressionAt = function(cls, level){
-    const rows = Array.isArray(cls?.progression) ? cls.progression : [];
-    if(!rows.length) return { level, babValue:0, fortValue:0, refValue:0, willValue:0, mpValue:0, hasExplicitMp:false, raw:{} };
-    let best = rows[0];
-    for(const row of rows){ if(levelOf(row.level) <= level) best = row; }
-    const hasOwnMp = Object.prototype.hasOwnProperty.call(best, 'mpValue') || Object.prototype.hasOwnProperty.call(best, 'mp');
-    const mpRaw = best.mpValue ?? best.mp;
-    const mpText = String(mpRaw ?? '').trim();
-    const hasExplicitMp = hasOwnMp && mpText !== '' && mpText !== '—' && mpText !== '-';
-    return {
-      level,
-      babValue: Number(best.babValue ?? intVal(best.bab)) || 0,
-      fortValue: Number(best.fortValue ?? intVal(best.fort)) || 0,
-      refValue: Number(best.refValue ?? intVal(best.ref)) || 0,
-      willValue: Number(best.willValue ?? intVal(best.will)) || 0,
-      mpValue: hasExplicitMp ? (Number(mpRaw) || 0) : 0,
-      hasExplicitMp,
-      raw: best
-    };
-  };
-  maCalcClassTotals = function(lib, sel){
-    maV5EnsureRuntimeFields();
-    const con = statMod('con');
-    const intel = statMod('int');
-    const totals = { hp:0, skill:0, bab:0, fort:0, ref:0, will:0, mpBase:0, mpBonus:0, mp:0, hasMp:false, totalLevel:maTotalCharacterLevel(sel), rows:[] };
-    maClassEntryList(lib, sel).forEach(entry => {
-      const die = maFfd20HitDie ? maFfd20HitDie(entry.cls) : 8;
-      const avg = maFfd20AvgHp ? maFfd20AvgHp(die) : (Math.floor(die/2)+1);
-      const skillBase = maFfd20SkillBase ? maFfd20SkillBase(entry.cls) : 4;
-      const skillEach = Math.max(1, skillBase + intel);
-      let hpGain = 0, skillGain = 0;
-      for(let lvl=1; lvl<=entry.level; lvl++){
-        const firstOverall = entry.firstOverall && lvl === 1;
-        hpGain += Math.max(1, (firstOverall ? die : avg) + con);
-        skillGain += firstOverall ? (skillEach * 4) : skillEach;
-      }
-      const prog = progressionAt(entry.cls, entry.level);
-      const spellLevel = maV5HighestSpellLevel(entry.level, prog);
-      const bonusMp = prog.hasExplicitMp ? maV5BonusMp(maV5Score(maV5CastingStat(entry)), spellLevel) : 0;
-      totals.hp += hpGain; totals.skill += skillGain;
-      totals.bab += prog.babValue || 0; totals.fort += prog.fortValue || 0; totals.ref += prog.refValue || 0; totals.will += prog.willValue || 0;
-      totals.mpBase += prog.hasExplicitMp ? (prog.mpValue || 0) : 0;
-      totals.mpBonus += bonusMp;
-      if(prog.hasExplicitMp) totals.hasMp = true;
-      totals.rows.push({...entry, die, avg, skillBase, skillEach, hpGain, skillGain, prog, spellLevel, bonusMp});
-    });
-    totals.mp = totals.hasMp ? (totals.mpBase + totals.mpBonus) : 0;
-    return totals;
-  };
-  maSetCoreProgressionFields = function(finalTotals){
-    maV5EnsureRuntimeFields();
-    setBaseField('bab', finalTotals.bab || 0);
-    setBaseField('fort_base', finalTotals.fort || 0);
-    setBaseField('ref_base', finalTotals.ref || 0);
-    setBaseField('will_base', finalTotals.will || 0);
-    setBaseField('mp_base', finalTotals.hasMp ? (finalTotals.mpBase || 0) : 0);
-    setBaseField('mp_bonus', finalTotals.hasMp ? (finalTotals.mpBonus || 0) : 0);
-    setBaseField('mp_max', finalTotals.hasMp ? (finalTotals.mp || 0) : 0);
-    if(data().mp_temp === undefined || data().mp_temp === null || String(data().mp_temp).trim() === '') setBaseField('mp_temp', 0);
-  };
-  maApplyFinalClassTotals = function(lib, oldSel, newSel, levelResult){
-    maV5EnsureRuntimeFields();
-    const oldTotals = levelResult?.oldTotals || maCalcClassTotals(lib, oldSel);
-    maApplyAbilityPicks(levelResult?.pickedStats || []);
-    const finalTotals = maCalcClassTotals(lib, newSel);
-    const d = data();
-    const prevHpBase = Number(d.hp_max || document.getElementById('hp_max')?.value || oldTotals.hp) || oldTotals.hp;
-    const hpGain = finalTotals.hp - prevHpBase;
-    const hpMaxTemp = Number(d.hp_max_temp || document.getElementById('hp_max_temp')?.value || 0) || 0;
-    const curHp = Number(d.hp_curr || document.getElementById('hp_curr')?.value || 0) || 0;
-    const newEffectiveHpMax = Math.max(0, finalTotals.hp + hpMaxTemp);
-    const newHpCurr = levelResult ? Math.min(newEffectiveHpMax, Math.max(0, curHp + Math.max(0,hpGain))) : Math.min(curHp || newEffectiveHpMax, newEffectiveHpMax);
-    setBaseField('hp_max', finalTotals.hp);
-    setBaseField('hp_curr', newHpCurr);
-    if(d.hp_temp === undefined || d.hp_temp === null || d.hp_temp === '') setBaseField('hp_temp', 0);
-    if(d.hp_max_temp === undefined || d.hp_max_temp === null || d.hp_max_temp === '') setBaseField('hp_max_temp', 0);
-    const prevSkillTotal = oldTotals.skill;
-    const skillGain = Math.max(0, finalTotals.skill - prevSkillTotal);
-    const spEl = document.getElementById('skill_points');
-    if(levelResult && skillGain){
-      const nextSp = (Number(spEl?.value || d.skill_points || 0) || 0) + skillGain;
-      if(spEl) spEl.value = String(nextSp);
-      d.skill_points = String(nextSp);
-    }
-    const oldMpAuto = Number(d.mp_max || document.getElementById('mp_max')?.value || oldTotals.mp) || oldTotals.mp;
-    maSetCoreProgressionFields(finalTotals);
-    const mpMaxTemp = Number(d.mp_max_temp || document.getElementById('mp_max_temp')?.value || 0) || 0;
-    const curMp = Number(d.mp_curr || document.getElementById('mp_curr')?.value || 0) || 0;
-    const mpGain = (finalTotals.hasMp ? finalTotals.mp : 0) - oldMpAuto;
-    const effectiveMpMax = Math.max(0, (finalTotals.hasMp ? finalTotals.mp : 0) + mpMaxTemp);
-    const newMpCurr = finalTotals.hasMp ? (levelResult ? Math.min(effectiveMpMax, Math.max(0, curMp + Math.max(0,mpGain))) : Math.min(curMp || effectiveMpMax, effectiveMpMax)) : 0;
-    setBaseField('mp_curr', newMpCurr);
-    if(typeof window.refreshEffectiveVitals === 'function') window.refreshEffectiveVitals();
-    refreshCards(finalTotals);
-    try{ computeDerivedStats(); }catch(e){}
-    return finalTotals;
-  };
-  updateProgressionFields = async function(){
-    maV5EnsureRuntimeFields();
-    let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ return null; }
-    const sel = maCurrentSelectionClone();
-    const totals = maCalcClassTotals(lib, sel);
-    maSetCoreProgressionFields(totals);
-    const d = data();
-    const oldHpBase = Number(d.hp_max || document.getElementById('hp_max')?.value || 0) || 0;
-    const oldHpCurr = Number(d.hp_curr || document.getElementById('hp_curr')?.value || 0) || 0;
-    const newHpBase = totals.hp || 0;
-    const hpDelta = newHpBase - oldHpBase;
-    setBaseField('hp_max', newHpBase);
-    if(d.hp_temp === undefined || d.hp_temp === null || d.hp_temp === '') setBaseField('hp_temp', 0);
-    if(d.hp_max_temp === undefined || d.hp_max_temp === null || d.hp_max_temp === '') setBaseField('hp_max_temp', 0);
-    const hpEffectiveMax = Math.max(0, newHpBase + (Number(d.hp_max_temp || document.getElementById('hp_max_temp')?.value || 0) || 0));
-    if(!oldHpCurr || oldHpCurr > hpEffectiveMax) setBaseField('hp_curr', hpEffectiveMax);
-    else if(hpDelta > 0) setBaseField('hp_curr', Math.min(hpEffectiveMax, oldHpCurr + hpDelta));
-    const mpCurr = document.getElementById('mp_curr');
-    const mpMaxTemp = Number(document.getElementById('mp_max_temp')?.value || d.mp_max_temp || 0) || 0;
-    const effectiveMpMax = Math.max(0, (totals.hasMp ? totals.mp : 0) + mpMaxTemp);
-    if(mpCurr && (!mpCurr.value || Number(mpCurr.value) === 0 || Number(mpCurr.value) > effectiveMpMax)) { mpCurr.value = String(totals.hasMp ? effectiveMpMax : 0); d.mp_curr = mpCurr.value; }
-    if(typeof window.refreshEffectiveVitals === 'function') window.refreshEffectiveVitals();
-    refreshCards(totals);
-    try{ computeDerivedStats(); }catch(e){}
-    return totals;
-  };
-  statStrip = function(t){
-    t = t || {bab:0,fort:0,ref:0,will:0,mp:0,hasMp:false};
-    return `<div class="ma-stat-strip"><div class="ma-stat-chip"><small>BAB</small><strong>${plus(t.bab)}</strong></div><div class="ma-stat-chip"><small>Fort</small><strong>${plus(t.fort)}</strong></div><div class="ma-stat-chip"><small>Ref</small><strong>${plus(t.ref)}</strong></div><div class="ma-stat-chip"><small>Will</small><strong>${plus(t.will)}</strong></div><div class="ma-stat-chip"><small>MP</small><strong>${t.hasMp ? (t.mp||0) : '—'}</strong></div></div>`;
-  };
-  maClassFormulaLine = function(totals){
-    if(!totals?.rows?.length) return 'No class data found.';
-    return totals.rows.map(r => `${r.label} ${r.level}: d${r.die}, ${r.skillBase}+INT skill, BAB ${plus(r.prog.babValue||0)}, saves ${plus(r.prog.fortValue||0)}/${plus(r.prog.refValue||0)}/${plus(r.prog.willValue||0)}${r.prog.hasExplicitMp ? `, MP ${r.prog.mpValue||0} + bonus ${r.bonusMp||0} (CON, max spell ${r.spellLevel})` : ''}`).join(' · ');
-  };
-    function installBuildClickDelegates(){
-    if(document.body.dataset.maBuildClickDelegate === '1') return;
-    document.body.dataset.maBuildClickDelegate = '1';
-    document.addEventListener('click', event => {
-      const primary = event.target.closest('#maClassBuildCard');
-      if(primary){
-        event.preventDefault();
-        event.stopPropagation();
-        openClassDialog('primary');
-        return;
-      }
-      const add = event.target.closest('#maAddMulticlassBtn');
-      if(add){
-        event.preventDefault();
-        event.stopPropagation();
-        openClassDialog('multi', null);
-        return;
-      }
-      const multi = event.target.closest('#maMulticlassList .ma-multiclass-edit');
-      if(multi){
-        const cards = Array.from(document.querySelectorAll('#maMulticlassList .ma-multiclass-edit'));
-        const index = cards.indexOf(multi);
-        if(index >= 0){
-          event.preventDefault();
-          event.stopPropagation();
-          openClassDialog('multi', index);
-        }
-      }
-    }, true);
-  }
-
-
-  /* --- v6 repair: compact multiclass slots + HP Temp vs Max Temp semantics --- */
-  function maV6CleanMulticlasses(){
-    const d = data();
-    const raw = Array.isArray(d.multiclasses) ? d.multiclasses : [];
-    const clean = raw
-      .filter(mc => mc && String(mc.className || mc.class || mc.name || '').trim())
-      .map(mc => ({
-        className: String(mc.className || mc.class || mc.name || '').trim(),
-        archetype: String(mc.archetype || '').trim(),
-        level: String(levelOf(mc.level || 1) || 1)
-      }));
-    d.multiclasses = clean;
-    return clean;
-  }
-  function maV6ClearLegacyMulticlassKeys(){
-    const d = data();
-    Object.keys(d || {}).forEach(k => {
-      if(/^(maMulti|multiClass|multiclass_|multiclass\d+|class[2-9]\b|archetype[2-9]\b|level[2-9]\b)/.test(k)) delete d[k];
-    });
-  }
-  const maV6OldSelectionClone = maCurrentSelectionClone;
-  maCurrentSelectionClone = function(){
-    const sel = maV6OldSelectionClone ? maV6OldSelectionClone() : (maFfd20ReadSelection ? maFfd20ReadSelection() : {});
-    sel.multiclasses = maV6CleanMulticlasses().map(x => ({...x}));
-    return sel;
-  };
-  maFfd20RenderMulticlasses = function(){
-    const list = document.getElementById('maMulticlassList');
-    if(!list) return;
-    const rows = maV6CleanMulticlasses();
-    list.innerHTML = '';
-    rows.forEach((mc, index) => {
-      const row = document.createElement('div');
-      row.className = 'ma-multiclass-card';
-      row.innerHTML = `<button type="button" class="ma-build-card ma-multiclass-edit" data-mc-index="${index}"><span class="ma-class-click-label">Class ${index+2}</span><span class="ma-class-slot-main"><strong class="ma-build-card-title">${maFfd20Esc(mc.className || 'Choose Class')}</strong><small class="ma-build-card-sub">${maFfd20Esc(mc.archetype || 'No archetype')}</small></span><span class="ma-build-card-level">Lv ${maFfd20Esc(mc.level || 1)}</span></button><button class="ffd20-mini-btn danger ma-multiclass-delete" type="button" data-mc-index="${index}">Delete</button>`;
-      row.querySelector('.ma-multiclass-edit')?.addEventListener('click', () => openClassDialog('multi', index));
-      row.querySelector('.ma-multiclass-delete')?.addEventListener('click', async (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const d = data();
-        const current = maV6CleanMulticlasses();
-        current.splice(index, 1);
-        d.multiclasses = current;
-        maV6ClearLegacyMulticlassKeys();
-        maFfd20RenderMulticlasses();
-        await maFfd20ApplySheetChoices({silent:true});
-        maFfd20RenderMulticlasses();
-        try{ await updateProgressionFields(); }catch(e){}
-        maFfd20SaveNow();
-      });
-      list.appendChild(row);
-    });
-  };
-  openClassDialog = async function(kind='primary', index=null){
-    let lib; try { lib = await maFfd20LoadLibrary(); } catch(e){ alert(e.message); return; }
-    const isMulti = kind === 'multi';
-    maV6CleanMulticlasses();
-    const oldSel = maCurrentSelectionClone();
-    const rows = maV6CleanMulticlasses();
-    const safeIndex = index === null || index === undefined ? null : Number(index);
-    const mc = isMulti && safeIndex !== null ? (rows[safeIndex] || {}) : {};
-    const curClass = isMulti ? (mc.className || mc.class || '') : value('class','');
-    const curArch = isMulti ? (mc.archetype || '') : value('archetype','');
-    const curLevel = isMulti ? (mc.level || 1) : value('character_level','1');
-    const title = isMulti ? (safeIndex === null ? `Add Class ${rows.length + 2}` : `Edit Class ${safeIndex+2}`) : 'Edit Class';
-    const body = `<div class="ffd20-modal-grid"><label>Class<select id="maEditClass"></select></label><label>Archetype<select id="maEditArch"><option value="">No archetype</option></select></label><label>Level<select id="maEditLevel">${maFfd20LevelOptions(curLevel)}</select></label></div>`;
-    const promise = maFfd20Dialog(title, body, 'Save Class');
-    setTimeout(() => {
-      const c=document.getElementById('maEditClass'), a=document.getElementById('maEditArch');
-      maFfd20FillSelect(c, lib.classes, 'Choose class', curClass);
-      const fillA=(keepCurrent=true)=>{ const cls=maFfd20Find(lib.classes, c?.value || ''); maFfd20FillSelect(a, cls?.archetypes || [], 'No archetype', keepCurrent ? curArch : ''); };
-      fillA(true); c?.addEventListener('change', () => fillA(false));
-    },0);
-    const glowTarget = isMulti && safeIndex !== null ? document.querySelectorAll('#maMulticlassList .ma-build-card')[safeIndex] : document.getElementById('maClassBuildCard');
-    glowTarget?.classList.add('ma-glow'); setTimeout(()=>glowTarget?.classList.remove('ma-glow'),700);
-    const overlay = await promise; if(!overlay) return;
-    const className=overlay.querySelector('#maEditClass')?.value || '';
-    const arch=overlay.querySelector('#maEditArch')?.value || '';
-    const lvl=levelOf(overlay.querySelector('#maEditLevel')?.value || '1') || 1;
-    if(!className) return;
-    const newSel = {...oldSel, multiclasses:maV6CleanMulticlasses().map(x=>({...x}))};
-    let slotLabel = 'Class';
-    if(isMulti){
-      const item={className, archetype:arch, level:String(lvl)};
-      if(safeIndex === null){ newSel.multiclasses.push(item); slotLabel = `Class ${newSel.multiclasses.length + 1}`; }
-      else { newSel.multiclasses[safeIndex]=item; slotLabel = `Class ${safeIndex+2}`; }
-    } else {
-      newSel.className = className; newSel.class = className; newSel.archetype = arch; newSel.level = lvl;
-    }
-    const oldTotal = maTotalCharacterLevel(oldSel);
-    const newTotal = maTotalCharacterLevel(newSel);
-    let levelResult = null;
-    if(newTotal > oldTotal){
-      levelResult = await maShowLevelUpScreen(lib, oldSel, newSel, slotLabel);
-      if(!levelResult) return;
-    }
-    if(isMulti){
-      const d = data();
-      d.multiclasses = newSel.multiclasses.filter(mc => mc && String(mc.className || mc.class || '').trim());
-      maV6ClearLegacyMulticlassKeys();
-      maFfd20RenderMulticlasses();
-    } else {
-      setField('class', className); await maFfd20RefreshArchetypes(); setField('archetype', arch);
-      const levelEl=document.getElementById('character_level');
-      if(levelEl){ levelEl.value=String(lvl); levelEl.dataset.prevLevel = String(lvl); }
-      setField('character_level', lvl);
-    }
-    maApplyFinalClassTotals(lib, oldSel, newSel, levelResult);
-    await maFfd20ApplySheetChoices({silent:true});
-    maApplyFinalClassTotals(lib, oldSel, newSel, levelResult);
-    if(typeof window.refreshEffectiveVitals === 'function') window.refreshEffectiveVitals();
-    maFfd20RenderMulticlasses();
-    maFfd20SaveNow();
-  };
-
-
-
-
-  /* --- Admin v40 skill-point budget repair, matched to working character skill math ---
-     Unused Skill Points is now derived, not blindly incremented:
-     unused = class skill budget + saved +1 skill level bonuses - total ranks spent.
-     This catches overrides from older admin level-up paths and stays correct after level-down. */
-  function maV40Int(value, fallback=0){
-    if(value === '' || value === null || value === undefined) return fallback;
-    const m = String(value).match(/[+-]?\d+/);
-    const n = m ? Number(m[0]) : Number(value);
-    return Number.isFinite(n) ? Math.trunc(n) : fallback;
-  }
-  function maV40RanksSpent(){
-    const inputs = Array.from(document.querySelectorAll('#skillsTableBody .skill-ranks'));
-    if(inputs.length){
-      return inputs.reduce((sum, input) => sum + Math.max(0, maV40Int(input.value, 0)), 0);
-    }
-    const skills = Array.isArray(data().skills) ? data().skills : [];
-    return skills.reduce((sum, skill) => sum + Math.max(0, maV40Int(skill?.lvl ?? skill?.ranks ?? skill?.rank ?? 0, 0)), 0);
-  }
-  function maV40FavoredSkillCount(maxLevel){
-    const d = data();
-    const maps = [
-      d.favoredClassBonuses,
-      d.levelBonusChoicesV37,
-      d.levelBonusChoicesV36,
-      d.levelBonusChoicesV35,
-      d.favored_bonuses,
-      d.favoredBonuses
-    ].filter(map => map && typeof map === 'object' && !Array.isArray(map));
-    const seen = new Set();
-    let count = 0;
-    maps.forEach(map => {
-      Object.entries(map).forEach(([level, choice]) => {
-        const lvl = maV40Int(level, 0);
-        if(lvl < 2 || lvl > maxLevel || seen.has(String(lvl))) return;
-        if(String(choice || '').toLowerCase() === 'skill'){
-          count += 1;
-          seen.add(String(lvl));
-        }
-      });
-    });
-    return count;
-  }
-  function maV40SkillBudget(lib, sel){
-    const safeSel = sel || maCurrentSelectionClone();
-    const totals = maCalcClassTotals(lib, safeSel);
-    const maxLevel = maTotalCharacterLevel(safeSel);
-    const favoredSkill = maV40FavoredSkillCount(maxLevel);
-    const ranks = maV40RanksSpent();
-    const classBudget = Math.max(0, maV40Int(totals.skill, 0));
-    const totalBudget = classBudget + favoredSkill;
-    const unused = totalBudget - ranks;
-    return { unused, totalBudget, classBudget, favoredSkill, ranks, rows: totals.rows || [], totals };
-  }
-  function maV40WriteSkillBudget(result){
-    if(!result) return result;
-    const d = data();
-    const el = document.getElementById('skill_points');
-    const str = String(maV40Int(result.unused, 0));
-    if(el){
-      el.value = str;
-      el.readOnly = true;
-      el.setAttribute('readonly', 'readonly');
-      el.setAttribute('aria-readonly', 'true');
-      el.title = 'Unused Skill Points = class skill budget + saved +1 skill choices - total ranks spent. Negative means too many ranks are spent.';
-      el.dataset.calculated = '1';
-    }
-    d.skill_points = str;
-    d.skill_points_total = String(result.totalBudget);
-    d.total_skill_points = String(result.totalBudget);
-    d.skill_points_total_earned = String(result.totalBudget);
-    d.skill_points_class_budget = String(result.classBudget);
-    d.skill_points_favored_bonus = String(result.favoredSkill);
-    d.skill_ranks_spent = String(result.ranks);
-    d.skill_points_formula = 'Unused = class skill budget + saved +1 skill choices - total ranks spent';
-    d.skill_points_debug_rows = result.rows;
-    return result;
-  }
-  async function maV40RecalcSkillBudget(saveIt=false){
-    let lib;
-    try { lib = await maFfd20LoadLibrary(); }
-    catch(e) { console.warn('[admin v40] Could not load FFD20 library for skill budget', e); return null; }
-    const result = maV40WriteSkillBudget(maV40SkillBudget(lib, maCurrentSelectionClone()));
-    try { if(typeof updateCalculations === 'function') updateCalculations(); } catch(e) {}
-    if(saveIt){ try { maFfd20SaveNow(); } catch(e) {} }
-    return result;
-  }
-  window.maAdminRecalcSkillBudget = maV40RecalcSkillBudget;
-
-  const maV40OldApplyFinalClassTotals = maApplyFinalClassTotals;
-  maApplyFinalClassTotals = function(lib, oldSel, newSel, levelResult){
-    const finalTotals = maV40OldApplyFinalClassTotals(lib, oldSel, newSel, levelResult);
-    try { maV40WriteSkillBudget(maV40SkillBudget(lib, newSel || maCurrentSelectionClone())); } catch(e) { console.warn('[admin v40] skill budget write failed', e); }
-    return finalTotals;
-  };
-
-  const maV40OldUpdateProgressionFields = updateProgressionFields;
-  updateProgressionFields = async function(){
-    const totals = await maV40OldUpdateProgressionFields.apply(this, arguments);
-    try { await maV40RecalcSkillBudget(false); } catch(e) { console.warn('[admin v40] skill budget recalc failed', e); }
-    return totals;
-  };
-
-  let maV40SkillBudgetTimer = null;
-  function maV40ScheduleSkillBudget(saveIt=false){
-    clearTimeout(maV40SkillBudgetTimer);
-    maV40SkillBudgetTimer = setTimeout(() => maV40RecalcSkillBudget(saveIt), 60);
-  }
-  document.addEventListener('input', event => {
-    if(event.target?.matches?.('#skillsTableBody .skill-ranks, #skillsTableBody .skill-cs, #skillsTableBody .skill-custom-input')) maV40ScheduleSkillBudget(true);
-  }, true);
-  document.addEventListener('change', event => {
-    if(event.target?.matches?.('#skillsTableBody .skill-ranks, #skillsTableBody .skill-cs, #skillsTableBody .skill-custom-input, #class, #archetype, #character_level')) maV40ScheduleSkillBudget(true);
-  }, true);
-
-  const maV40OldOpenClassDialog = openClassDialog;
-  openClassDialog = async function(){
-    const result = await maV40OldOpenClassDialog.apply(this, arguments);
-    maV40ScheduleSkillBudget(true);
-    return result;
-  };
-
-  const maV40OldShowLevelUpScreen = maShowLevelUpScreen;
-  maShowLevelUpScreen = async function(lib, oldSel, newSel, slotLabel){
-    const result = await maV40OldShowLevelUpScreen(lib, oldSel, newSel, slotLabel);
-    if(result?.favoredPicks) maRecordFavoredPicks(result.favoredPicks);
-    return result;
-  };
-
-  setTimeout(() => maV40RecalcSkillBudget(false), 350);
-  setTimeout(() => maV40RecalcSkillBudget(false), 1200);
-
-  installBuildClickDelegates();
-  setTimeout(()=>{ maFfd20BuildChoiceGrid(true); maFfd20RefreshOptions(); refreshCardsFromLibrary(); }, 0);
 })();
 </script>
 
 
-
-
 <style>
-/* --- v8 clean final: one scroll system + one HP/MP system --- */
+/* --- v8 clean final: one scroll system + one HP system --- */
 html, body { height:100vh !important; overflow:hidden !important; }
 body { min-height:100vh !important; padding-bottom:0 !important; }
 body > .main-tabs{
@@ -11303,17 +11277,15 @@ body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border
 #skills .skills-view-toolbar,
 #skills .skills-editor-toolbar{ padding:10px 12px !important; }
 .vital-number-grid.ma-v8-hp-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
-.vital-number-grid.ma-v8-mp-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
 .vital-number-grid input[readonly], .ma-v8-total input{ background:#141414 !important; color:var(--accent) !important; }
 .ma-v8-hidden{ display:none !important; }
 @media(max-width:700px){
   body > .tab-content{ height:calc(100vh - 96px) !important; max-height:calc(100vh - 96px) !important; padding-bottom:150px !important; }
   .vital-number-grid.ma-v8-hp-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
-  .vital-number-grid.ma-v8-mp-grid{ grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
-}
+  }
 </style>
 <script>
-/* --- v8 clean final: HP Temp separate from Max Temp; MP current/total view --- */
+/* --- v8 clean final: HP Temp separate from Max Temp --- */
 (function(){
   const priorOpenStatEdit = window.openStatEdit;
   function activeData(){
@@ -11322,7 +11294,7 @@ body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border
     return {};
   }
   function cls(){
-    const probe=document.getElementById('hp_curr')||document.getElementById('mp_curr');
+    const probe=document.getElementById('hp_curr');
     if(probe?.classList?.contains('save-field')) return 'save-field';
     return 'live-field';
   }
@@ -11346,7 +11318,7 @@ body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border
   }
   function labelFor(id, text){ const s=document.getElementById(id)?.closest('label')?.querySelector('small'); if(s) s.textContent=text; }
   function refreshVitals(){
-    ensureHidden('hp_max','0'); ensureHidden('hp_max_temp','0'); ensureHidden('mp_max','0'); ensureHidden('mp_max_temp','0'); ensureHidden('mp_base','0'); ensureHidden('mp_bonus','0');
+    ensureHidden('hp_max','0'); ensureHidden('hp_max_temp','0');
     const hpGrid=document.getElementById('hp_curr')?.closest('.vital-number-grid');
     if(hpGrid){
       hpGrid.className='vital-number-grid ma-v8-hp-grid';
@@ -11355,15 +11327,6 @@ body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border
       if(hpCurr){ hpCurr.readOnly=false; hpCurr.removeAttribute('aria-readonly'); hpCurr.classList.remove('readonly-yellow'); }
       if(hpTemp){ hpTemp.readOnly=false; hpTemp.removeAttribute('aria-readonly'); hpTemp.classList.remove('readonly-yellow'); }
       if(hpTotal){ hpTotal.readOnly=true; hpTotal.setAttribute('aria-readonly','true'); hpTotal.value=String(Math.max(0, num('hp_max') + num('hp_max_temp'))); }
-    }
-    const mpGrid=document.getElementById('mp_curr')?.closest('.vital-number-grid');
-    if(mpGrid){
-      mpGrid.className='vital-number-grid ma-v8-mp-grid';
-      labelFor('mp_curr','Current'); labelFor('mp_temp','Temp MP'); labelFor('mp_effective_max','Total Max');
-      const mpCurr=document.getElementById('mp_curr'), mpTemp=document.getElementById('mp_temp'), mpTotal=document.getElementById('mp_effective_max');
-      if(mpCurr){ mpCurr.readOnly=false; mpCurr.removeAttribute('aria-readonly'); mpCurr.classList.remove('readonly-yellow'); }
-      if(mpTemp){ mpTemp.closest('label')?.classList.add('ma-v8-temp'); mpTemp.readOnly=false; mpTemp.removeAttribute('aria-readonly'); mpTemp.classList.remove('readonly-yellow'); }
-      if(mpTotal){ mpTotal.readOnly=true; mpTotal.setAttribute('aria-readonly','true'); mpTotal.value=String(Math.max(0, num('mp_max') + num('mp_max_temp'))); }
     }
   }
   window.refreshEffectiveVitals = refreshVitals;
@@ -11380,6 +11343,7 @@ body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border
       inp.addEventListener('input',run); inp.addEventListener('change',run);
     });
     recalc();
+    try { if(typeof refreshMpDisplays === 'function') refreshMpDisplays(); } catch(e) {}
   }
   window.openStatEdit = function(section){
     const overlay=document.getElementById('statEditOverlay');
@@ -11394,17 +11358,9 @@ body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border
       if(overlay) overlay.style.display='flex';
       return;
     }
-    if(section === 'mp'){
-      ensureHidden('mp_max','0'); ensureHidden('mp_max_temp','0'); ensureHidden('mp_base','0'); ensureHidden('mp_bonus','0');
-      if(title) title.textContent='Edit MP';
-      body.innerHTML='<div class="formula-line"><strong>MP</strong><div class="formula-parts">'+mini('Current','mp_curr',false)+mini('Temp MP','mp_temp',false)+mini('Base','mp_max',true)+mini('Max Temp','mp_max_temp',false)+total('Total Max', num('mp_max')+num('mp_max_temp'))+'</div><div class="section-note">Temp MP is separate from Max Temp. Base comes from class/spell data. Max Temp modifies Total Max.</div></div>';
-      bindEdit(body,['mp_curr','mp_temp','mp_max_temp'],()=>num('mp_max')+num('mp_max_temp'));
-      if(overlay) overlay.style.display='flex';
-      return;
-    }
     return typeof priorOpenStatEdit==='function' ? priorOpenStatEdit(section) : undefined;
   };
-  ['hp_curr','hp_temp','hp_max','hp_max_temp','mp_curr','mp_temp','mp_max','mp_max_temp','mp_base','mp_bonus','str','dex','con','int','wis','cha'].forEach(id=>{
+  ['hp_curr','hp_temp','hp_max','hp_max_temp','mp','mp_temp','mp_max_temp','spell_dc_base','class','character_level','str','dex','con','int','wis','cha'].forEach(id=>{
     document.addEventListener('input', e=>{ if(e.target && e.target.id===id) setTimeout(refreshVitals,0); }, true);
     document.addEventListener('change', e=>{ if(e.target && e.target.id===id) setTimeout(refreshVitals,0); }, true);
   });
@@ -12199,378 +12155,6 @@ body > .tab-content::-webkit-scrollbar-thumb{ background:#444 !important; border
 
 
 <script>
-/* --- FINAL MP repair: active Build-card MP calculation + FFd20 special-table parser --- */
-(function(){
-  const FINAL_MP_PATCH_FLAG = 'maFinalMpPatchV2';
-  if(window[FINAL_MP_PATCH_FLAG]) return;
-  window[FINAL_MP_PATCH_FLAG] = true;
-
-  const BONUS_MP_TABLE_FINAL = [
-    {min:-999,max:9, vals:[0,0,0,0,0,0,0,0,0]},
-    {min:10,max:11, vals:[0,0,0,0,0,0,0,0,0]},
-    {min:12,max:13, vals:[1,1,1,1,1,1,1,1,1]},
-    {min:14,max:15, vals:[1,3,3,3,3,3,3,3,3]},
-    {min:16,max:17, vals:[1,3,6,6,6,6,6,6,6]},
-    {min:18,max:19, vals:[1,3,6,10,10,10,10,10,10]},
-    {min:20,max:21, vals:[2,4,7,11,16,16,16,16,16]},
-    {min:22,max:23, vals:[2,6,9,13,18,24,24,24,24]},
-    {min:24,max:25, vals:[2,6,12,16,21,27,34,34,34]},
-    {min:26,max:27, vals:[2,6,12,20,25,31,38,46,46]},
-    {min:28,max:29, vals:[3,7,13,21,31,37,44,52,61]},
-    {min:30,max:31, vals:[3,9,15,23,33,45,52,60,69]},
-    {min:32,max:33, vals:[3,9,18,26,36,48,62,70,79]},
-    {min:34,max:35, vals:[3,9,18,30,40,52,66,82,91]},
-    {min:36,max:37, vals:[4,10,19,31,46,58,72,88,106]},
-    {min:38,max:39, vals:[4,12,21,33,48,66,80,96,114]},
-    {min:40,max:41, vals:[4,12,24,36,51,69,90,106,124]},
-    {min:42,max:43, vals:[4,12,24,40,55,73,94,118,136]},
-    {min:44,max:999, vals:[5,13,25,41,61,79,100,124,151]}
-  ];
-
-  function d(){
-    try { return (typeof maFfd20ActiveData === 'function' && maFfd20ActiveData()) || (typeof getActiveData === 'function' && getActiveData()) || {}; }
-    catch(e){ return {}; }
-  }
-  function num(value, fallback=0){
-    const n = Number(value);
-    return Number.isFinite(n) ? Math.trunc(n) : fallback;
-  }
-  function readNum(id, fallback=0){
-    const data = d();
-    const el = document.getElementById(id);
-    const raw = (el && String(el.value ?? '').trim() !== '') ? el.value : data[id];
-    return num(raw, fallback);
-  }
-  function writeField(id, value){
-    const out = String(num(value, 0));
-    const el = document.getElementById(id);
-    if(el) el.value = out;
-    const data = d();
-    if(data) data[id] = out;
-  }
-  function normName(value){
-    return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-  }
-  function level(v){
-    const m = String(v ?? '').match(/\d+/);
-    return Math.max(0, num(m ? m[0] : v, 0));
-  }
-  function intFrom(v){
-    const m = String(v ?? '').match(/[+-]?\d+/);
-    return m ? num(m[0], 0) : 0;
-  }
-  function abilityScore(stat){
-    const score = readNum(stat, 10);
-    return Number.isFinite(score) ? score : 10;
-  }
-  function statMod(stat){
-    return Math.floor((abilityScore(stat) - 10) / 2);
-  }
-  function hitDie(cls){ return Math.max(1, intFrom(cls?.hitDie || '8') || 8); }
-  function avgDie(die){ return Math.floor(die / 2) + 1; }
-  function skillBase(cls){ return Math.max(0, intFrom(cls?.skillPoints || cls?.skill_points || '0') || 0); }
-
-  function parseSpellLevel(value){
-    if(value === undefined || value === null) return 0;
-    if(typeof value === 'number') return Math.max(0, Math.min(9, Math.trunc(value)));
-    const raw = String(value).trim().toLowerCase();
-    if(!raw || raw === '-' || raw === '—') return 0;
-    const ordinal = raw.match(/\b([1-9])(?:st|nd|rd|th)\b/);
-    if(ordinal) return Math.max(0, Math.min(9, num(ordinal[1], 0)));
-    const plain = raw.match(/\b(?:spell\s*level|max\s*spell|highest\s*spell|spells?)\D*([1-9])\b/);
-    if(plain) return Math.max(0, Math.min(9, num(plain[1], 0)));
-    if(/^[1-9]$/.test(raw)) return num(raw, 0);
-    return 0;
-  }
-
-  function parseSpecialMp(row){
-    const text = String(row?.special ?? row?.Special ?? row?.features ?? row?.ability ?? '').trim();
-    if(!text) return { found:false, mpValue:0, spellLevel:0, source:'' };
-    const matches = Array.from(text.matchAll(/(?:^|[\s,;:])([0-9]{1,4})\s+(1st|2nd|3rd|[4-9]th)\b/gi));
-    if(!matches.length) return { found:false, mpValue:0, spellLevel:0, source:text };
-    const last = matches[matches.length - 1];
-    const mpValue = num(last[1], 0);
-    const spellLevel = parseSpellLevel(last[2]);
-    return { found: mpValue > 0 && spellLevel > 0, mpValue, spellLevel, source:text };
-  }
-
-  function classClaimsMp(cls){
-    return !!(cls?.hasMp || cls?.hasMP || cls?.spellcaster || cls?.caster || cls?.mpCaster || cls?.magicUser);
-  }
-
-  function classCastingStat(cls, className=''){
-    const direct = String(cls?.castingStat || cls?.castingAbility || cls?.spellcastingAbility || cls?.spellAbility || cls?.mpAbility || '').toLowerCase().slice(0,3);
-    if(['str','dex','con','int','wis','cha'].includes(direct)) return direct;
-
-    const spellFeature = (Array.isArray(cls?.features) ? cls.features : []).find(f => /\bspells?\b/i.test(String(f?.name || '')) || /additional MP/i.test(String(f?.desc || '')));
-    const desc = String(spellFeature?.desc || '');
-    const abilityMatch = desc.match(/additional\s+MP[\s\S]{0,90}?\b(Strength|Dexterity|Constitution|Intelligence|Wisdom|Charisma)\b/i)
-      || desc.match(/\b(Strength|Dexterity|Constitution|Intelligence|Wisdom|Charisma)\b\s*[—-]\s*see\s*Table/i);
-    if(abilityMatch){
-      const map = {strength:'str', dexterity:'dex', constitution:'con', intelligence:'int', wisdom:'wis', charisma:'cha'};
-      const found = map[String(abilityMatch[1]).toLowerCase()];
-      if(found) return found;
-    }
-
-    const name = normName(className || cls?.name || '');
-    if(/\b(black mage|blue mage|time mage)\b/.test(name)) return 'int';
-    if(/\b(astrologian|druid|geomancer|ninja|white mage)\b/.test(name)) return 'wis';
-    if(/\b(bard|dark knight|holy knight|illusionist|red mage|necromancer|summoner)\b/.test(name)) return 'cha';
-
-    const manual = String(document.getElementById('spell_dc_base')?.value || d().spell_dc_base || '').toLowerCase();
-    return ['str','dex','con','int','wis','cha'].includes(manual) ? manual : 'int';
-  }
-
-  function bonusMp(score, highestSpellLevel){
-    const ability = num(score, 0);
-    const spellLevel = Math.max(0, Math.min(9, num(highestSpellLevel, 0)));
-    if(spellLevel <= 0 || ability <= 9) return 0;
-    const row = BONUS_MP_TABLE_FINAL.find(r => ability >= r.min && ability <= r.max) || BONUS_MP_TABLE_FINAL[BONUS_MP_TABLE_FINAL.length - 1];
-    return num(row.vals[spellLevel - 1], 0);
-  }
-
-  function findClass(lib, name){
-    if(typeof maFfd20Find === 'function') return maFfd20Find(lib?.classes || [], name);
-    const target = normName(name);
-    return (lib?.classes || []).find(cls => normName(cls?.name) === target) || null;
-  }
-
-  function classEntries(lib, sel){
-    if(typeof maV4ClassEntries === 'function') return maV4ClassEntries(lib, sel).filter(e => e && e.cls);
-    const data = d();
-    const out = [];
-    const mainName = sel?.className || sel?.class || document.getElementById('class')?.value || data.class || data.className || '';
-    const mainLevel = level(sel?.level || sel?.character_level || document.getElementById('character_level')?.value || data.character_level || 1) || 1;
-    if(mainName) out.push({label:'Class', name:mainName, className:mainName, level:mainLevel, cls:findClass(lib, mainName)});
-    const mcs = Array.isArray(sel?.multiclasses) ? sel.multiclasses : (Array.isArray(data.multiclasses) ? data.multiclasses : []);
-    mcs.forEach((mc, i) => {
-      const name = mc.className || mc.class || mc.name || '';
-      if(name) out.push({label:`Class ${i+2}`, name, className:name, level:level(mc.level || 1) || 1, cls:findClass(lib, name)});
-    });
-    return out.filter(e => e && e.cls);
-  }
-
-  window.maFinalParseClassMp = function(cls, lvl){
-    const rows = Array.isArray(cls?.progression) ? cls.progression : [];
-    let best = null;
-    for(const row of rows){ if(level(row.level) <= lvl) best = row; }
-    best = best || rows[0] || {};
-
-    const mpRaw = best.mpValue ?? best.mp ?? best.MP;
-    const hasCleanMp = Object.prototype.hasOwnProperty.call(best, 'mpValue') || Object.prototype.hasOwnProperty.call(best, 'mp') || Object.prototype.hasOwnProperty.call(best, 'MP');
-    const mpText = String(mpRaw ?? '').trim();
-    const cleanMpFound = hasCleanMp && mpText !== '' && mpText !== '-' && mpText !== '—';
-    const special = parseSpecialMp(best);
-    const hasMp = cleanMpFound || special.found || classClaimsMp(cls);
-    const mpValue = cleanMpFound ? num(mpRaw, 0) : (special.found ? special.mpValue : 0);
-    const spellLevel = special.spellLevel || parseSpellLevel(best.highestSpellLevel ?? best.highest_spell_level ?? best.spellLevel ?? best.spell_level) || (mpValue > 0 ? Math.max(1, Math.min(9, Math.ceil((level(lvl) || 1) / 2))) : 0);
-
-    return {
-      bab: num(best.babValue ?? intFrom(best.bab), 0),
-      fort: num(best.fortValue ?? intFrom(best.fort), 0),
-      ref: num(best.refValue ?? intFrom(best.ref), 0),
-      will: num(best.willValue ?? intFrom(best.will), 0),
-      mp: mpValue,
-      mpBase: mpValue,
-      spellLevel,
-      hasMp: hasMp && (mpValue > 0 || classClaimsMp(cls)),
-      hasExplicitMp: mpValue > 0,
-      raw: best,
-      specialSource: special.source || ''
-    };
-  };
-
-  try {
-    maV4ProgressionAt = function(cls, lvl){
-      return window.maFinalParseClassMp(cls, lvl);
-    };
-  } catch(e) {}
-
-  try {
-    progressionAt = function(cls, lvl){
-      const p = window.maFinalParseClassMp(cls, lvl);
-      return {
-        level:lvl,
-        babValue:p.bab,
-        fortValue:p.fort,
-        refValue:p.ref,
-        willValue:p.will,
-        mpValue:p.mpBase,
-        hasExplicitMp:p.hasExplicitMp,
-        spellLevel:p.spellLevel,
-        raw:p.raw,
-        cls
-      };
-    };
-  } catch(e) {}
-
-  window.maFinalCalcClassTotals = function(lib, sel){
-    const conMod = statMod('con');
-    const intMod = statMod('int');
-    const entries = classEntries(lib, sel);
-    const totalLevel = entries.reduce((sum, e) => sum + Math.max(0, level(e.level)), 0) || 1;
-    const totals = { hp:0, skill:0, bab:0, fort:0, ref:0, will:0, mpBase:0, mpBonus:0, mp:0, hasMp:false, totalLevel, rows:[] };
-    let overallLevel = 0;
-
-    entries.forEach(entry => {
-      const die = hitDie(entry.cls);
-      const avg = avgDie(die);
-      const skillEach = Math.max(1, skillBase(entry.cls) + intMod);
-      let hpGain = 0;
-      let skillGain = 0;
-      for(let i = 1; i <= level(entry.level); i++){
-        overallLevel++;
-        const firstOverall = overallLevel === 1;
-        hpGain += Math.max(1, (firstOverall ? die : avg) + conMod);
-        skillGain += firstOverall ? skillEach * 4 : skillEach;
-      }
-
-      const prog = window.maFinalParseClassMp(entry.cls, entry.level);
-      const castingStat = classCastingStat(entry.cls, entry.className || entry.name);
-      const castingScore = abilityScore(castingStat);
-      const extraMp = prog.hasMp ? bonusMp(castingScore, prog.spellLevel) : 0;
-
-      totals.hp += hpGain;
-      totals.skill += skillGain;
-      totals.bab += prog.bab;
-      totals.fort += prog.fort;
-      totals.ref += prog.ref;
-      totals.will += prog.will;
-      totals.mpBase += prog.hasMp ? prog.mpBase : 0;
-      totals.mpBonus += extraMp;
-      if(prog.hasMp) totals.hasMp = true;
-      totals.rows.push({...entry, die, avg, skillEach, hpGain, skillGain, prog, castingStat, castingScore, spellLevel:prog.spellLevel, bonusMp:extraMp});
-    });
-
-    try {
-      const choices = d().levelBonusChoicesV38 || d().levelBonusChoicesV37 || {};
-      Object.entries(choices || {}).forEach(([lvl, choice]) => {
-        const n = level(lvl);
-        if(n >= 2 && n <= totalLevel){
-          if(choice === 'hp') totals.hp += 1;
-          if(choice === 'skill') totals.skill += 1;
-        }
-      });
-    } catch(e) {}
-
-    totals.mp = totals.hasMp ? totals.mpBase + totals.mpBonus : 0;
-    return totals;
-  };
-
-  function writeMpTotals(totals){
-    const oldMax = readNum('mp_max', 0);
-    const current = readNum('mp_curr', 0);
-    const tempMax = readNum('mp_max_temp', 0);
-    const baseTotal = totals?.hasMp ? num(totals.mp, 0) : 0;
-    const totalMax = Math.max(0, baseTotal + tempMax);
-
-    writeField('mp_base', totals?.hasMp ? num(totals.mpBase, 0) : 0);
-    writeField('mp_bonus', totals?.hasMp ? num(totals.mpBonus, 0) : 0);
-    writeField('mp_max', baseTotal);
-    writeField('mp_effective_max', totalMax);
-
-    if(!totals?.hasMp){
-      writeField('mp_curr', 0);
-    } else if(oldMax <= 0 && totalMax > 0){
-      writeField('mp_curr', totalMax);
-    } else if(current > totalMax){
-      writeField('mp_curr', totalMax);
-    } else if(String(document.getElementById('mp_curr')?.value ?? d().mp_curr ?? '').trim() === ''){
-      writeField('mp_curr', totalMax);
-    }
-
-    if(String(document.getElementById('mp_temp')?.value ?? d().mp_temp ?? '').trim() === '') writeField('mp_temp', 0);
-    try { if(typeof refreshSpellMpUi === 'function') refreshSpellMpUi(); else if(typeof updateSpellMpPanel === 'function') updateSpellMpPanel(); } catch(e) {}
-    try { if(typeof refreshEffectiveVitals === 'function') refreshEffectiveVitals(); } catch(e) {}
-    return totals;
-  }
-
-  try {
-    const oldV4Totals = typeof maV4Totals === 'function' ? maV4Totals : null;
-    maV4Totals = function(lib, sel){
-      try { return window.maFinalCalcClassTotals(lib, sel); }
-      catch(e){ console.warn('Final MP maV4Totals fallback', e); return oldV4Totals ? oldV4Totals(lib, sel) : {hp:0,skill:0,bab:0,fort:0,ref:0,will:0,mp:0,hasMp:false,rows:[]}; }
-    };
-  } catch(e) {}
-
-  try {
-    const oldCalc = typeof maCalcClassTotals === 'function' ? maCalcClassTotals : null;
-    maCalcClassTotals = function(lib, sel){
-      try { return window.maFinalCalcClassTotals(lib, sel); }
-      catch(e){ console.warn('Final MP maCalcClassTotals fallback', e); return oldCalc ? oldCalc(lib, sel) : {hp:0,skill:0,bab:0,fort:0,ref:0,will:0,mpBase:0,mpBonus:0,mp:0,hasMp:false,rows:[]}; }
-    };
-  } catch(e) {}
-
-  try {
-    const oldApply = typeof maV4ApplyTotals === 'function' ? maV4ApplyTotals : null;
-    maV4ApplyTotals = function(lib, oldSel, newSel, result){
-      const applied = oldApply ? oldApply(lib, oldSel, newSel, result) : null;
-      const totals = window.maFinalCalcClassTotals(lib, newSel || (typeof maV4ReadSelection === 'function' ? maV4ReadSelection() : {}));
-      writeMpTotals(totals);
-      return {...(applied || {}), ...totals};
-    };
-  } catch(e) {}
-
-  window.maFinalMpRecalc = async function(saveIt=false){
-    // In admin, do not calculate from the temporary blank DOM while switching sheets.
-    if(window.MA_FFD20_IS_ADMIN && (!window.__adminActiveDocKey || window.__adminSheetHydrated === false || window.adminHydratingSheet)) return null;
-    let lib = null;
-    try { lib = await maFfd20LoadLibrary(); }
-    catch(e){ console.warn('MP recalc could not load class library', e); lib = {classes:[]}; }
-    const sel = (typeof maV4ReadSelection === 'function') ? maV4ReadSelection() : ((typeof maCurrentSelectionClone === 'function') ? maCurrentSelectionClone() : {});
-    const totals = window.maFinalCalcClassTotals(lib, sel);
-    writeMpTotals(totals);
-    if(saveIt){ try { maFfd20SaveNow?.(); } catch(e) { try { save?.(true); } catch(_e) {} } }
-    return totals;
-  };
-
-  window.maDebugMpFinal = async function(){
-    const totals = await window.maFinalMpRecalc(false);
-    console.table((totals.rows || []).map(r => ({
-      class:r.className || r.name,
-      level:r.level,
-      class_mp:r.prog?.mpBase || 0,
-      highest_spell_level:r.spellLevel || 0,
-      casting_stat:String(r.castingStat || '').toUpperCase(),
-      casting_score:r.castingScore,
-      bonus_mp:r.bonusMp || 0,
-      base_mp:(r.prog?.mpBase || 0) + (r.bonusMp || 0),
-      special:r.prog?.specialSource || ''
-    })));
-    console.log('MP fields', {
-      mp_base:readNum('mp_base',0),
-      mp_bonus:readNum('mp_bonus',0),
-      mp_max:readNum('mp_max',0),
-      mp_max_temp:readNum('mp_max_temp',0),
-      total_max:readNum('mp_effective_max',0),
-      current:readNum('mp_curr',0)
-    });
-    return totals;
-  };
-
-  let timer = null;
-  function schedule(saveIt=false, delay=120){
-    clearTimeout(timer);
-    timer = setTimeout(() => window.maFinalMpRecalc(saveIt), delay);
-  }
-
-  document.addEventListener('DOMContentLoaded', () => { schedule(false, 500); schedule(false, 1400); });
-  window.addEventListener('load', () => { schedule(false, 700); schedule(false, 1800); });
-  document.addEventListener('change', event => {
-    const id = event.target?.id || '';
-    if(['class','archetype','character_level','spell_dc_base','str','dex','con','int','wis','cha','mp_max_temp'].includes(id)) schedule(true, 160);
-  }, true);
-  document.addEventListener('input', event => {
-    const id = event.target?.id || '';
-    if(['str','dex','con','int','wis','cha','mp_max_temp'].includes(id)) schedule(false, 120);
-  }, true);
-  document.addEventListener('click', event => {
-    if(event.target?.closest?.('#maClassBuildCard,#maAddMulticlassBtn,#maMulticlassList,.ffd20-modal-actions .btn-save,.ffd20-modal-actions [data-confirm]')) schedule(true, 700);
-  }, true);
-
-  setTimeout(() => schedule(false, 50), 0);
-  setTimeout(() => schedule(false, 1500), 0);
-})();
 
 /* --- Stock Spell Picker: generated from stock_spells.json, theme-aware --- */
 const MA_STOCK_SPELL_JSON = 'data/stock_spell.json';
@@ -12613,12 +12197,6 @@ function maStockRenderSpellsSafe() {
   } catch (error) {
     console.warn('Stock spell render failed', error);
   }
-}
-function maStockRefreshSpellMpUiSafe() {
-  try {
-    if (typeof window.refreshSpellMpUi === 'function') return window.refreshSpellMpUi();
-    if (typeof refreshSpellMpUi === 'function') return refreshSpellMpUi();
-  } catch (error) {}
 }
 function maStockSpellLevelLabelSafe(levelNum) {
   try {
@@ -12991,7 +12569,7 @@ function addStockSpellToCharacter(slug, level, fallbackName) {
     spell_resist: maStockSpellResistance(details.spell_resist || details.spellResistance),
     saving_throw: details.saving_throw || details.savingThrow || '',
     school: details.school || '',
-    target: details.target || details.targets || details.effect || details.area || '',
+        target: details.target || details.targets || details.effect || details.area || '',
     range: details.range || '',
     duration: details.duration || '',
     damage: maStockInferDamage({ ...details, summary: row.summary }),
@@ -13005,7 +12583,6 @@ function addStockSpellToCharacter(slug, level, fallbackName) {
   data.spells.push(sheetSpell);
   maStockSaveDataOnlySafe();
   maStockRenderSpellsSafe();
-  maStockRefreshSpellMpUiSafe();
   renderStockSpellBrowser(`${name} added to ${sheetSpell.lvl} spells.`);
 }
 window.openSpellAddChoice = openSpellAddChoice;
@@ -13066,7 +12643,7 @@ maStockQueueAddSpellHookInstall();
       Array.isArray(item.classFeatures) || Array.isArray(item.class_features) || Array.isArray(item.progression) ||
       Array.isArray(item.levels) || Array.isArray(item.archetypes) || item.hitDie || item.hit_die ||
       item.skillPoints || item.skill_points || item.skillRanks || item.skill_ranks || item.bab ||
-      item.fort || item.ref || item.will || item.saves || item.hp || item.mp || item.table
+      item.fort || item.ref || item.will || item.saves || item.hp || item.table
     );
   }
   function pushUnique(out, item, isPrestige){
@@ -13289,11 +12866,7 @@ maStockQueueAddSpellHookInstall();
 /* --- Admin synced startup: rerun sheet add-ons after Firebase/admin module becomes available --- */
 (function(){
   function rerun(){
-    try { window.maFfd20RefreshOptions?.(); } catch(e) {}
-    try { window.maFinalMpRecalc?.(false); } catch(e) {}
-    try { window.maV34RefreshWeaponProficiency?.(); } catch(e) {}
-    try { window.refreshSpellMpUi?.(); } catch(e) {}
-  }
+    try { window.maFfd20RefreshOptions?.(); } catch(e) {}try { window.maV34RefreshWeaponProficiency?.(); } catch(e) {}}
   window.addEventListener('load', () => { setTimeout(rerun, 300); setTimeout(rerun, 1200); setTimeout(rerun, 2500); });
 })();
 
@@ -13368,160 +12941,6 @@ maStockQueueAddSpellHookInstall();
   const observer = new MutationObserver(() => polishAdminSheet());
   try { observer.observe(document.documentElement, { childList:true, subtree:true }); } catch(_e) {}
   window.addEventListener('load', () => { polishAdminSheet(); setTimeout(polishAdminSheet, 400); setTimeout(polishAdminSheet, 1400); });
-})();
-</script>
-
-
-
-<script>
-/* --- Admin v42: character-page ability/MP hydrate repair ---
-   Mirrors characters.html behavior for ability score cards, then reruns MP after the
-   admin sheet has finished switching/hydrating so values do not blank out between tabs. */
-(function(){
-  if(window.maAdminHydrateAbilityMpV42) return;
-  window.maAdminHydrateAbilityMpV42 = true;
-
-  const STATS = ['str','dex','con','int','wis','cha'];
-
-  function activeData(){
-    try { if(typeof window.maFfd20ActiveData === 'function') return window.maFfd20ActiveData() || {}; } catch(e) {}
-    try { if(typeof window.getActiveData === 'function') return window.getActiveData() || {}; } catch(e) {}
-    return {};
-  }
-
-  function cleanScore(value, fallback='10'){
-    const text = String(value ?? '').trim();
-    if(text === '') return fallback;
-    return text;
-  }
-
-  function signedModFromScore(score){
-    const n = Number(score);
-    if(!Number.isFinite(n)) return '+0';
-    const mod = Math.floor((n - 10) / 2);
-    return (mod >= 0 ? '+' : '') + mod;
-  }
-
-  function dispatchQuiet(el){
-    if(!el) return;
-    try { el.dispatchEvent(new Event('input', {bubbles:true})); } catch(e) {}
-  }
-
-  function ensureOriginalScore(stat, score){
-    const original = document.getElementById(stat);
-    if(!original) return null;
-    const current = String(original.value ?? '').trim();
-    if(current === '' && score !== '') original.value = score;
-    return original;
-  }
-
-  function refreshAbilityScoreMirrors(reason){
-    const data = activeData();
-    STATS.forEach(stat => {
-      const original = document.getElementById(stat);
-      const fromOriginal = String(original?.value ?? '').trim();
-      const fromData = String(data?.[stat] ?? '').trim();
-      const score = cleanScore(fromOriginal || fromData, '10');
-      ensureOriginalScore(stat, score);
-      if(data && String(data[stat] ?? '').trim() === '' && score !== '') data[stat] = score;
-
-      const signed = signedModFromScore(score);
-      const legacyMod = document.getElementById('mod-' + stat);
-      if(legacyMod) legacyMod.textContent = signed;
-
-      document.querySelectorAll('[data-ma-stat-input="' + stat + '"]').forEach(mirror => {
-        if(document.activeElement !== mirror) mirror.value = score;
-      });
-      document.querySelectorAll('[data-ma-stat-mod="' + stat + '"]').forEach(pill => {
-        pill.textContent = signed;
-      });
-    });
-    try { if(typeof window.renderAbilityDrawerScores === 'function') window.renderAbilityDrawerScores(); } catch(e) {}
-  }
-
-  function refreshCombatAndVitals(){
-    try { if(typeof window.updateCalculations === 'function') window.updateCalculations(); } catch(e) {}
-    refreshAbilityScoreMirrors('after-update-calculations');
-    try { if(typeof window.computeDerivedStats === 'function') window.computeDerivedStats(); } catch(e) {}
-    try { if(typeof window.renderSelectedCombatDisplays === 'function') window.renderSelectedCombatDisplays(); } catch(e) {}
-    try { if(typeof window.refreshEffectiveVitals === 'function') window.refreshEffectiveVitals(); } catch(e) {}
-    try { if(typeof window.updateSpellMpPanel === 'function') window.updateSpellMpPanel(); } catch(e) {}
-  }
-
-  function recalcMpSoon(delay){
-    setTimeout(() => {
-      try {
-        if(window.MA_FFD20_IS_ADMIN && window.__adminSheetHydrated === false) return;
-        const result = window.maFinalMpRecalc?.(false);
-        if(result && typeof result.then === 'function') result.finally(() => refreshCombatAndVitals());
-        else refreshCombatAndVitals();
-      } catch(e) {
-        refreshCombatAndVitals();
-      }
-    }, delay);
-  }
-
-  function hydrateAbilityMp(reason){
-    refreshAbilityScoreMirrors(reason || 'hydrate');
-    refreshCombatAndVitals();
-    if(!(window.MA_FFD20_IS_ADMIN && window.__adminSheetHydrated === false)){
-      recalcMpSoon(0);
-      recalcMpSoon(180);
-      recalcMpSoon(650);
-    }
-  }
-
-  window.maAdminRefreshAbilityScoreMirrors = refreshAbilityScoreMirrors;
-  window.maAdminHydrateAbilityMp = hydrateAbilityMp;
-
-  document.addEventListener('input', event => {
-    const target = event.target;
-    const id = target?.id || '';
-    const mirrorStat = target?.getAttribute?.('data-ma-stat-input');
-    if(mirrorStat && STATS.includes(mirrorStat)){
-      const data = activeData();
-      const original = document.getElementById(mirrorStat);
-      if(original && original.value !== target.value){
-        original.value = target.value;
-        data[mirrorStat] = target.value;
-        dispatchQuiet(original);
-      }
-      hydrateAbilityMp('mirror-input');
-      return;
-    }
-    if(STATS.includes(id) || ['class','archetype','character_level','mp_max_temp','mp_curr','mp_temp','mp_max','mp_base','mp_bonus'].includes(id)){
-      const data = activeData();
-      if(STATS.includes(id)) data[id] = target.value;
-      hydrateAbilityMp('field-input');
-    }
-  }, true);
-
-  document.addEventListener('change', event => {
-    const target = event.target;
-    const id = target?.id || '';
-    const mirrorStat = target?.getAttribute?.('data-ma-stat-input');
-    if((mirrorStat && STATS.includes(mirrorStat)) || STATS.includes(id) || ['race','class','archetype','character_level','mp_max_temp','mp_curr','mp_temp','mp_max','mp_base','mp_bonus'].includes(id)){
-      hydrateAbilityMp('field-change');
-    }
-  }, true);
-
-  const previousSwitchTab = window.switchTab;
-  if(typeof previousSwitchTab === 'function' && previousSwitchTab.__adminHydrateAbilityMpV42 !== true){
-    const wrapped = function(id){
-      const out = previousSwitchTab.apply(this, arguments);
-      setTimeout(() => hydrateAbilityMp('switch-tab-0'), 0);
-      setTimeout(() => hydrateAbilityMp('switch-tab-200'), 200);
-      return out;
-    };
-    wrapped.__adminHydrateAbilityMpV42 = true;
-    window.switchTab = wrapped;
-  }
-
-  document.addEventListener('DOMContentLoaded', () => hydrateAbilityMp('dom-ready'));
-  window.addEventListener('load', () => hydrateAbilityMp('window-load'));
-  setTimeout(() => hydrateAbilityMp('initial-0'), 0);
-  setTimeout(() => hydrateAbilityMp('initial-350'), 350);
-  setTimeout(() => hydrateAbilityMp('initial-1200'), 1200);
 })();
 </script>
 
@@ -14000,6 +13419,10 @@ body.skill-edit-mode .skills-editor-toolbar {
 #skill_points[data-calculated="v41-auto-skill-only"]{background:#121212!important;color:var(--accent)!important;font-weight:900!important;}
 #skill_points.overspent{color:#ff7777!important;border-color:#aa4444!important;box-shadow:0 0 0 1px rgba(170,68,68,.25)!important;}
 </style>
+
+
+<script>
+</script>
 
 </body>
 </html>
