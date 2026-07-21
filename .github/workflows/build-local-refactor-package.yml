@@ -1,17 +1,2 @@
-name: Build Local Refactor Package
-
-on:
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
-
-permissions:
-  contents: read
-
-jobs:
-  package:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Package marker
-        run: echo "Base workflow performs the local refactor package build."
+# Temporary local packaging branch marker.
+# No production application files were changed.
