@@ -10,455 +10,21 @@
 <meta name="theme-color" content="#1a1a1a">
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-:root{--bg:#1a1a1a;--panel:#252525;--panel2:#1f1f1f;--panel3:#171717;--border:#333;--border2:#444;--accent:#ffcc66;--text:#ddd;--muted:#888;--bad:#ff6666;--good:#66dd88;--blue:#66ccff;--purple:#b998ff;}
-*{box-sizing:border-box} body{margin:0;padding-top:70px;font-family:Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:30px}.top-nav{position:fixed;top:0;left:0;right:0;height:50px;background:#000;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 15px;z-index:2000}.nav-brand{font-family:'Uncial Antiqua';color:var(--accent);font-size:18px;text-decoration:none}.nav-links{display:flex;gap:20px}.nav-links a{color:#888;text-decoration:none;font-size:14px;font-weight:bold}.nav-links a:hover,.nav-links a.active{color:#fff}#hamburgerBtn{display:none;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0}#mobileMenu{display:none;position:fixed;top:50px;left:0;width:100%;background:#111;border-bottom:1px solid var(--accent);flex-direction:column;z-index:1999;align-items:flex-start}#mobileMenu.show{display:flex}#mobileMenu a{width:100%;padding:15px 20px;color:#fff;text-decoration:none;border-bottom:1px solid #333;font-family:'Uncial Antiqua';text-align:left}h1{color:var(--accent);font-family:'Uncial Antiqua';text-align:center;margin:0 0 25px}.tab-buttons{margin:20px auto;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;max-width:94%}.tab-buttons button{background:#333;border:1px solid #555;color:#fff;padding:10px 30px;font-size:16px;font-family:'Uncial Antiqua',serif;cursor:pointer;border-radius:8px;transition:.2s;flex:1;max-width:200px}.tab-buttons button.active{background:var(--accent);color:#000;font-weight:bold;border-color:var(--accent)}.tab-buttons button:hover{background:#444}.tab-content{display:none;max-width:1180px;margin:0 auto 50px;text-align:center;padding:0 12px}.tab-content.active{display:block}.url-grid{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;padding:10px}.url-card{width:150px;height:150px;background:var(--panel);border:1px solid var(--border);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:#fff;font-weight:bold;transition:.2s;font-size:14px;box-shadow:0 4px 10px rgba(0,0,0,.5);padding:10px}.url-card img{width:100%;height:60px;object-fit:contain;margin-bottom:10px}.url-card:hover{background:#333;transform:translateY(-3px);border-color:var(--accent)}.shop-shell{background:var(--panel);padding:20px;border-radius:12px;text-align:left;margin:0 auto;border:1px solid var(--border);min-height:300px}.shop-shell{max-width:1180px}.shop-shell h2{font-family:'Uncial Antiqua';margin-top:0;margin-bottom:20px;font-size:22px;color:var(--accent);text-align:center;border-bottom:1px solid #444;padding-bottom:10px}.admin-shop-panel{display:none;background:#2a1a1a;padding:15px;border:1px solid #633;border-radius:8px;margin-bottom:20px}.admin-shop-panel h3{margin:0 0 10px;color:#eaa;font-size:16px}.shop-input, .shop-select, .shop-textarea{background:#111;border:1px solid #444;color:#fff;padding:8px;border-radius:6px;min-width:150px}.shop-btn{background:var(--accent);color:#000;border:none;padding:8px 14px;font-weight:bold;border-radius:6px;cursor:pointer}.shop-btn.secondary{background:#444;color:#fff;border:1px solid #666}.shop-btn.danger{background:#773333;color:#fff;border:1px solid #aa5555}.shop-btn.small{font-size:12px;padding:5px 9px}.shop-btn:disabled{opacity:.45;cursor:not-allowed}.custom-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:3000;justify-content:center;align-items:center;backdrop-filter:blur(3px)}.custom-modal-content{background:var(--panel);border:1px solid var(--accent);padding:25px;border-radius:8px;width:90%;max-width:420px;text-align:center;box-shadow:0 0 20px rgba(0,0,0,.8)}.custom-modal-content h3{color:var(--accent);font-family:'Uncial Antiqua';margin-top:0}.custom-modal-content p{color:#ccc;margin-bottom:20px;line-height:1.5;white-space:pre-wrap}.modal-actions{display:flex;gap:10px;justify-content:center}.modal-btn{padding:10px 20px;border:none;border-radius:4px;font-weight:bold;cursor:pointer;flex:1}.modal-btn.confirm{background:var(--accent);color:#000}.modal-btn.cancel{background:#444;color:#fff}.empty-msg{text-align:center;color:#777;font-style:italic;padding:20px}.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.tag-pill{display:inline-flex;align-items:center;gap:4px;background:#151515;border:1px solid #454545;border-radius:999px;color:#ddd;padding:3px 9px;font-size:12px}.tag-pill.good{border-color:#2e7650;color:#9ff0bf}.tag-pill.warn{border-color:#8a7332;color:#ffdf86}.tag-pill.bad{border-color:#874444;color:#ff9e9e}.tag-pill.info{border-color:#315f79;color:#9ed1ff}.shop-note{color:#999;font-size:12px;line-height:1.4;margin-top:6px}.shop-status{margin:10px 0;padding:10px;border-radius:8px;background:#171717;border:1px solid #333;color:#bbb;text-align:center}.shop-layout{display:grid;grid-template-columns:320px minmax(0,1fr);gap:16px}.shop-side,.shop-main{background:#1b1b1b;border:1px solid #333;border-radius:12px;padding:14px}.shop-side h3,.shop-main h3{font-family:'Uncial Antiqua';color:var(--accent);margin:0 0 10px;text-align:left}.shop-group-title{font-family:'Uncial Antiqua';color:#fff;background:#111;border:1px solid #333;border-left:4px solid var(--accent);border-radius:8px;padding:9px 10px;margin:12px 0 8px}.category-button-grid{display:grid;grid-template-columns:1fr;gap:7px}.category-btn{background:#222;border:1px solid #444;color:#ddd;border-radius:9px;padding:9px 10px;text-align:left;font-weight:bold;cursor:pointer}.category-btn.active{background:var(--accent);color:#000;border-color:var(--accent)}.builder-row{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:10px}.builder-row .field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:160px}.builder-row label,.filter-group-title{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#aaa;font-weight:bold}.filter-box{background:#131313;border:1px solid #333;border-radius:10px;padding:10px;margin:10px 0}.filter-groups{display:flex;flex-direction:column;gap:10px}.filter-group{background:#101010;border:1px solid #2e2e2e;border-radius:10px;padding:9px}.filter-chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.filter-chip{background:#222;border:1px solid #444;color:#ddd;border-radius:999px;padding:5px 10px;font-size:12px;cursor:pointer}.filter-chip.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:bold}.filter-chip:hover{border-color:#888}.item-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:10px 0}.item-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}.shop-item-card{background:#222;border:1px solid #3a3a3a;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:150px}.shop-item-card:hover{border-color:#777}.shop-item-card.selected{border-color:var(--accent);box-shadow:0 0 0 1px rgba(255,204,102,.25)}.item-card-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.item-name{color:var(--accent);font-weight:bold;font-size:15px}.price-badge{background:#000;border:1px solid var(--accent);border-radius:999px;color:var(--accent);padding:3px 8px;font-size:12px;font-weight:bold;white-space:nowrap}.item-summary{color:#ddd;font-size:13px;line-height:1.35;white-space:pre-wrap}.item-meta{display:flex;gap:6px;flex-wrap:wrap}.item-actions{display:flex;gap:8px;margin-top:auto}.item-actions a{color:#9ed1ff;text-decoration:none;font-size:12px}.shop-list{display:flex;flex-direction:column;gap:18px}.shop-card{background:#1b1b1b;border:1px solid #444;border-radius:14px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.35)}.shop-card-head{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;padding:15px;background:#141414;border-bottom:1px solid #333}.shop-title{font-family:'Uncial Antiqua';color:var(--accent);font-size:19px;margin:0 0 5px}.shop-desc{color:#ccc;font-size:13px;line-height:1.45}.shop-head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.shop-body{padding:15px}.character-pick{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-bottom:12px}.shop-control{background:#1b1b1b;border:1px solid #333;border-radius:10px;padding:12px}.shop-control label{display:block;color:#aaa;font-size:12px;font-weight:bold;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}.copy-output{font-size:12px;color:#9ed1ff;word-break:break-all;margin-top:6px}.upload-box{border:1px dashed #665533;border-radius:10px;padding:12px;margin-bottom:12px;background:#18120a}.hidden{display:none!important}
-@media(max-width:900px){.shop-layout{grid-template-columns:1fr}.character-pick{grid-template-columns:1fr}.shop-card-head{flex-direction:column}.shop-head-actions{justify-content:flex-start}}
-@media(max-width:768px){.nav-links{display:none}#hamburgerBtn{display:block}.url-grid{gap:10px}.url-card{width:45%;height:130px}.tab-buttons{width:100%;gap:5px;padding:0 10px}.tab-buttons button{padding:8px 0;font-size:14px;width:31%;max-width:none;flex:initial}.item-list{grid-template-columns:1fr}.builder-row{flex-direction:column;align-items:stretch}.builder-row .field{width:100%}}
+<link rel="stylesheet" href="tools-parts/tools.css">
+<!-- CSS moved to tools-parts/tools.css; block 002 -->
 
-/* --- Clean shop UI patch --- */
-.shop-top-clean{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.gil-line{font-size:18px;color:var(--accent);font-weight:bold;margin-top:10px}.shop-select{width:100%;min-width:0}.shop-select-row{display:flex;gap:8px;align-items:center}.shop-select-row select{flex:1}.admin-shop-manager{display:flex;gap:12px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap}.admin-shop-manager .grow{flex:1;min-width:280px}.admin-builder{overflow:hidden;transition:max-height .25s ease,opacity .2s ease;max-height:5000px;opacity:1}.admin-builder.collapsed{max-height:0;opacity:0;padding:0!important;border:0!important;margin:0!important}.edit-notice{background:#142018;border:1px solid #2d7a49;color:#9ff0bf;border-radius:10px;padding:10px;margin-bottom:10px}.clean-builder-layout{grid-template-columns:260px minmax(0,1fr)}.clean-shop-card{background:#1b1b1b;border:1px solid #444;border-radius:14px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.35)}.clean-shop-head{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 15px;background:#141414;border-bottom:1px solid #333}.clean-shop-body{padding:12px}.shop-category{border:1px solid #333;border-radius:12px;margin-bottom:10px;overflow:hidden;background:#181818}.shop-category-head{width:100%;background:#111;color:#fff;border:0;border-left:4px solid var(--accent);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;font-weight:bold;font-family:'Uncial Antiqua';cursor:pointer}.shop-category-body{padding:10px}.category-filter-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:10px}.category-filter-row label{display:flex;flex-direction:column;gap:4px;color:#aaa;font-size:11px;text-transform:uppercase;font-weight:bold}.category-filter-row select{background:#111;border:1px solid #444;color:#fff;padding:8px;border-radius:8px}.compact-list{display:flex;flex-direction:column;gap:6px}.compact-item-row{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#222;border:1px solid #333;border-radius:10px;padding:9px 10px}.compact-item-row:hover{border-color:#666}.compact-item-row.selected{border-color:var(--accent);box-shadow:0 0 0 1px rgba(255,204,102,.25)}.compact-item-row label{display:flex;align-items:center;gap:8px;min-width:0;flex:1;margin:0}.item-name-link{background:none;border:0;color:var(--accent);font-weight:bold;text-align:left;cursor:pointer;padding:0;font-size:14px;white-space:normal}.item-name-link:hover{text-decoration:underline}.compact-price{white-space:nowrap;color:var(--accent);font-weight:bold;font-size:13px}.builder-row-item{min-height:42px}.item-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.84);z-index:4000;align-items:center;justify-content:center;padding:16px}.item-modal-card{width:min(680px,96vw);max-height:88vh;overflow:hidden;background:#202020;border:1px solid var(--accent);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.55)}.item-modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;background:#111;border-bottom:1px solid #333}.item-modal-head h3{margin:0;color:var(--accent);font-family:'Uncial Antiqua';text-align:left}.modal-close{background:none;border:0;color:#fff;font-size:28px;cursor:pointer;line-height:1}.item-modal-body{padding:16px;overflow-y:auto;max-height:calc(88vh - 64px);line-height:1.5}.item-modal-body h4{color:var(--accent);font-family:'Uncial Antiqua';margin:15px 0 6px;text-align:left}.item-modal-body p{white-space:pre-wrap;color:#ddd;margin:0 0 8px}.modal-price{display:inline-flex;margin-bottom:10px}.modal-meta{margin-bottom:8px}.source-link{color:#9ed1ff;font-weight:bold}.hidden{display:none!important}
-@media(max-width:768px){.shop-top-clean{grid-template-columns:1fr}.shop-shell{padding:14px}.admin-shop-manager{align-items:stretch}.shop-select-row{flex-direction:column;align-items:stretch}.clean-builder-layout{grid-template-columns:1fr}.shop-layout{grid-template-columns:1fr!important}.shop-side,.shop-main{padding:10px}.category-button-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.clean-shop-head{align-items:flex-start;flex-direction:column}.shop-head-actions{width:100%;justify-content:flex-start}.compact-item-row{padding:10px}.compact-price{font-size:12px}.item-name-link{font-size:15px}.category-filter-row{grid-template-columns:1fr 1fr}.admin-shop-panel{padding:10px}.builder-row{flex-direction:column;align-items:stretch}.builder-row .field{min-width:0;width:100%}}
-@media(max-width:480px){.category-filter-row{grid-template-columns:1fr}.category-button-grid{grid-template-columns:1fr}.shop-category-head{font-size:14px}.compact-item-row{gap:8px}.compact-price{font-size:12px}.item-modal-card{width:100%;max-height:90vh}}
+<!-- CSS moved to tools-parts/tools.css; block 003 -->
+
+<!-- CSS moved to tools-parts/tools.css; block 004 -->
+<!-- CSS moved to tools-parts/tools.css; block 005 -->
 
 
-/* --- Information Links patch --- */
-.info-links-wrap{margin:22px auto 0;max-width:980px;padding:0 10px;}
-.info-links-title{font-family:'Uncial Antiqua',serif;color:var(--accent);text-align:center;margin:10px 0 16px;font-size:24px;}
-.info-links-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;}
-.info-link-card{background:#1b1b1b;border:1px solid #3a3a3a;border-radius:14px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.28);text-align:left;}
-.info-link-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#111;border-bottom:1px solid #333;padding:11px 12px;}
-.info-link-card-title{font-family:'Uncial Antiqua',serif;color:var(--accent);font-size:16px;font-weight:bold;line-height:1.15;word-break:break-word;}
-.info-link-card-actions{display:none;gap:5px;flex-wrap:wrap;justify-content:flex-end;}
-body.info-admin .info-link-card-actions{display:flex;}
-.info-link-mini-btn{background:#333;border:1px solid #555;color:#eee;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:bold;cursor:pointer;}
-.info-link-mini-btn:hover{background:var(--accent);color:#000;border-color:var(--accent);}
-.info-link-list{display:flex;flex-direction:column;gap:7px;padding:11px 12px;min-height:78px;}
-.info-link-item{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#222;border:1px solid #333;border-radius:10px;padding:8px 9px;}
-.info-link-item a{color:#f2f2f2;text-decoration:none;font-weight:bold;font-size:13px;line-height:1.25;word-break:break-word;}
-.info-link-item a:hover{color:var(--accent);text-decoration:underline;}
-.info-link-actions{display:none;gap:5px;flex-shrink:0;}
-body.info-admin .info-link-actions{display:flex;}
-.info-link-empty{color:#777;font-size:12px;text-align:center;padding:12px 5px;font-style:italic;}
-@media(max-width:900px){.info-links-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
-@media(max-width:520px){.info-links-grid{grid-template-columns:1fr}.info-link-card-head{align-items:flex-start;flex-direction:column}.info-link-card-actions{justify-content:flex-start}.info-link-item{align-items:flex-start;flex-direction:column}.info-link-actions{justify-content:flex-start}}
+<!-- CSS moved to tools-parts/tools.css; block 006 -->
 
-/* --- Buy system patch --- */
-.custom-modal{z-index:6500!important;}
-.shop-price-buy{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-.shop-buy-btn{background:var(--accent);color:#000;border:none;border-radius:999px;padding:6px 12px;font-weight:800;cursor:pointer;white-space:nowrap;}
-.shop-buy-btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
-.shop-buy-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;}
-.buy-modal-btn{width:100%;margin-top:12px;padding:11px 14px;font-size:15px;}
-.item-modal-title-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.item-modal-title-row .buy-modal-btn{width:auto;margin-top:0;padding:7px 12px;font-size:13px;border-radius:999px;}
-.admin-buyer-box{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px;background:#211818;border:1px solid #5b3939;}
-.item-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 14px;}
-.item-detail-cell{background:#151515;border:1px solid #333;border-radius:9px;padding:8px 10px;min-width:0;}
-.item-detail-cell small{display:block;color:#999;text-transform:uppercase;letter-spacing:.04em;font-size:10px;margin-bottom:3px;}
-.item-detail-cell span{color:#eee;font-weight:700;word-break:break-word;white-space:pre-wrap;}
-@media(max-width:768px){.item-detail-grid{grid-template-columns:1fr}.item-modal-title-row .buy-modal-btn{padding:6px 11px;font-size:12px}}
-.purchase-toast{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:7000;pointer-events:none;}
-.purchase-toast-card{min-width:min(340px,90vw);max-width:min(440px,92vw);background:rgba(8,8,8,.82);border:1px solid rgba(255,204,102,.9);border-radius:24px;padding:18px 20px;box-shadow:0 22px 55px rgba(0,0,0,.55),0 0 34px rgba(255,204,102,.18);display:flex;flex-direction:column;align-items:center;gap:10px;animation:purchaseToastPop .9s cubic-bezier(.2,.85,.2,1);}
-.purchase-toast-title{font-family:'Uncial Antiqua',serif;color:var(--accent);font-size:20px;text-align:center;}
-.purchase-toast-lines{display:flex;flex-direction:column;gap:6px;text-align:center;font-weight:800;}
-.purchase-toast-lines .lost{color:#ff9e9e;}
-.purchase-toast-lines .gain{color:#9ff0bf;}
-.purchase-qty-input{display:block;width:150px;max-width:100%;margin:10px auto 0;background:#111;border:1px solid var(--accent);color:#fff;border-radius:8px;padding:10px;text-align:center;font-size:18px;font-weight:800;}
-@keyframes purchaseToastPop{0%{opacity:0;transform:translateY(18px) scale(.72) rotate(-8deg);filter:blur(2px)}55%{opacity:1;transform:translateY(-6px) scale(1.06) rotate(2deg);filter:blur(0)}100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
-@media(max-width:768px){.compact-item-row .shop-buy-btn{display:none}.shop-price-buy{margin-left:auto}.buy-modal-btn{display:block}.compact-item-row{align-items:flex-start}.compact-price{white-space:normal;text-align:right}}
+<script src="tools-parts/scripts/tools-js-001-shop-theme-sync-patch.js"></script>
 
 
-/* --- Admin shop builder scroll + sort/upsert patch --- */
-.admin-builder:not(.collapsed){
-  max-height:calc(100vh - 115px);
-  overflow-y:auto;
-  overscroll-behavior:contain;
-  padding-right:4px;
-}
-.admin-builder:not(.collapsed) .shop-layout.clean-builder-layout{
-  min-height:0;
-}
-.admin-builder:not(.collapsed) .shop-side,
-.admin-builder:not(.collapsed) .shop-main{
-  max-height:calc(100vh - 270px);
-  overflow-y:auto;
-  overscroll-behavior:contain;
-}
-.builder-sort-wrap{
-  display:flex;
-  gap:6px;
-  align-items:center;
-  flex-wrap:wrap;
-}
-.builder-sort-wrap label{
-  color:#aaa;
-  font-size:11px;
-  font-weight:bold;
-  text-transform:uppercase;
-  letter-spacing:.04em;
-}
-.builder-sort-wrap select{
-  min-width:150px;
-}
-@media(max-width:768px){
-  .admin-builder:not(.collapsed){
-    max-height:calc(100vh - 95px);
-  }
-  .admin-builder:not(.collapsed) .shop-side,
-  .admin-builder:not(.collapsed) .shop-main{
-    max-height:none;
-    overflow:visible;
-  }
-}
-
-</style>
-<style>
-/* --- Shops moved to Character Sheet / admin tools visibility --- */
-#toolsTabs{display:none;}
-body.tools-admin #toolsTabs{display:flex;}
-body.tools-player #shop{display:none !important;}
-body.tools-player #links{display:block !important;}
-body.tools-player .info-links-wrap{margin-top:8px;}
-body.embed-shop{padding:10px 0 14px;background:var(--bg);}
-body.embed-shop .top-nav,body.embed-shop #mobileMenu,body.embed-shop > h1,body.embed-shop #toolsTabs,body.embed-shop #links{display:none !important;}
-body.embed-shop #shop{display:block !important;margin:0 auto;padding:0 8px;}
-body.embed-shop .shop-shell{border-radius:12px;min-height:0;}
-body.embed-shop #adminShopPanel{display:none !important;}
-body.embed-shop #playerShopTop{display:grid;}
-@media(max-width:768px){body.embed-shop{padding:4px 0 10px;}body.embed-shop #shop{padding:0 4px;}body.embed-shop .shop-shell{padding:12px;}}
-
-/* --- v15 Shop Access Bundles --- */
-.shop-access-bundles{background:#151515;border:1px solid #3e3e3e;border-radius:12px;padding:13px;margin:0 0 14px;}
-.shop-access-bundles h3{font-family:'Uncial Antiqua';color:var(--accent);margin:0 0 10px;text-align:left;}
-.shop-bundle-form{display:grid;grid-template-columns:minmax(150px,1fr) minmax(170px,1fr);gap:9px;margin-bottom:10px;}
-.shop-bundle-form label{display:flex;flex-direction:column;gap:5px;color:#aaa;font-size:11px;text-transform:uppercase;font-weight:bold;}
-.shop-bundle-shop-picks{display:flex;flex-wrap:wrap;gap:7px;padding:9px;border:1px solid #303030;border-radius:9px;background:#101010;grid-column:1/-1;}
-.shop-bundle-shop-picks label{flex-direction:row;align-items:center;text-transform:none;font-size:12px;color:#ddd;background:#222;border:1px solid #3d3d3d;padding:6px 9px;border-radius:999px;cursor:pointer;}
-.shop-bundle-shop-picks input{min-width:0;width:auto;}
-.shop-bundle-actions{display:flex;gap:8px;grid-column:1/-1;}
-.shop-bundle-list{display:flex;flex-direction:column;gap:7px;}.shop-bundle-card{display:flex;align-items:center;justify-content:space-between;gap:9px;background:#202020;border:1px solid #373737;border-radius:9px;padding:9px 10px;}.shop-bundle-card strong{color:var(--accent);}.shop-bundle-meta{font-size:12px;color:#aaa;}.shop-bundle-card-actions{display:flex;gap:5px;}.shop-bundle-card-actions button{font-size:11px;padding:5px 8px;}
-@media(max-width:768px){.shop-bundle-form{grid-template-columns:1fr;}.shop-bundle-card{align-items:flex-start;flex-direction:column;}}
-
-</style>
-
-<style>
-/* --- v16 embedded character shop groups + admin preview --- */
-body.embed-shop #playerShopTop{grid-template-columns:1fr 1fr;}
-.embed-character-summary strong{display:block;color:#fff;font-size:15px;margin-top:3px;}
-.shop-bundle-shop-accordion{display:flex;flex-direction:column;gap:10px;}
-.bundle-shop-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;background:#141414;border:1px solid #3b3b3b;border-left:4px solid var(--accent);border-radius:14px;color:var(--accent);padding:16px 17px;min-height:56px;cursor:pointer;font-family:'Uncial Antiqua',serif;font-size:17px;font-weight:800;text-align:left;}
-.bundle-shop-toggle:hover{border-color:var(--accent);}
-.bundle-shop-content{margin:7px 0 3px;}
-.admin-bundle-preview-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:10px 0;padding:10px 12px;background:#171717;border:1px solid var(--accent);border-radius:10px;}
-@media(max-width:768px){body.embed-shop #playerShopTop{grid-template-columns:1fr;}}
-</style>
-
-<style>
-/* --- v19 Hide the nested Shop iframe scrollbar while preserving scrolling --- */
-body.embed-shop,
-body.embed-shop .tab-content,
-body.embed-shop .shop-shell,
-body.embed-shop .clean-shop-body,
-body.embed-shop #shopView {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-body.embed-shop::-webkit-scrollbar,
-body.embed-shop .tab-content::-webkit-scrollbar,
-body.embed-shop .shop-shell::-webkit-scrollbar,
-body.embed-shop .clean-shop-body::-webkit-scrollbar,
-body.embed-shop #shopView::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none;
-}
-</style>
-<style>
-
-/* --- v20 Shop Group Storefront UI --- */
-body.embed-shop .shop-shell{background:transparent;border:none;padding:0;box-shadow:none;}
-body.embed-shop .shop-shell>h2{display:none;}
-body.embed-shop #playerShopTop{
-  position:relative;overflow:hidden;grid-template-columns:minmax(180px,.85fr) minmax(210px,1.15fr);
-  gap:12px;margin:0 0 14px;padding:14px;border:1px solid rgba(255,204,102,.34);border-radius:18px;
-  background:radial-gradient(circle at top right,rgba(255,204,102,.14),transparent 46%),linear-gradient(135deg,#1c1b18,#111);
-  box-shadow:0 14px 34px rgba(0,0,0,.22);
-}
-body.embed-shop #playerShopTop:before{content:'';position:absolute;inset:0 0 auto;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.9;}
-body.embed-shop #playerShopTop .shop-control{position:relative;background:rgba(7,7,7,.35);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:11px 12px;}
-body.embed-shop #playerShopTop label{font-size:10px;letter-spacing:.1em;color:#8f8f8f;margin-bottom:7px;}
-body.embed-shop .embed-character-summary strong{display:block;font-family:'Uncial Antiqua',serif;font-size:17px;color:#f6ead0;line-height:1.2;}
-body.embed-shop .gil-line{display:inline-flex;align-items:center;gap:5px;margin-top:9px;background:rgba(255,204,102,.1);border:1px solid rgba(255,204,102,.38);border-radius:999px;padding:5px 10px;font-size:14px;}
-body.embed-shop #shopSelect{height:42px;border-radius:11px;border-color:rgba(255,204,102,.45);background:#121212;color:#fff;font-weight:700;}
-body.embed-shop #shopStatus{display:none;}
-.shop-group-showcase{display:flex;flex-direction:column;gap:12px;}
-.shop-group-hero{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:15px 16px;border-radius:17px;border:1px solid rgba(255,204,102,.4);background:linear-gradient(120deg,#141414,#1e1b14);box-shadow:0 10px 26px rgba(0,0,0,.21);}
-.shop-group-hero-text{min-width:0;display:flex;flex-direction:column;gap:4px;}
-.shop-group-eyebrow{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#989898;font-weight:800;}
-.shop-group-hero-title{font-family:'Uncial Antiqua',serif;color:var(--accent);font-size:22px;line-height:1.1;margin:0;word-break:break-word;}
-.shop-group-hero-metrics{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
-.shop-group-metric{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:66px;min-height:51px;background:#101010;border:1px solid #36322a;border-radius:12px;padding:6px 10px;}
-.shop-group-metric strong{color:#fff;font-size:17px;line-height:1;}
-.shop-group-metric small{color:#9c9c9c;font-size:10px;text-transform:uppercase;font-weight:800;letter-spacing:.06em;margin-top:4px;}
-.shop-group-close{border-radius:999px!important;padding:8px 13px!important;}
-.shop-bundle-shop-accordion{display:flex;flex-direction:column;gap:10px;}
-.bundle-shop-wrap{background:#161616;border:1px solid #343434;border-radius:17px;overflow:hidden;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;}
-.bundle-shop-wrap:hover{border-color:#504533;}
-.bundle-shop-wrap.open{border-color:rgba(255,204,102,.55);box-shadow:0 13px 32px rgba(0,0,0,.2);}
-.bundle-shop-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(125deg,#1d1d1d,#141414);border:0;border-left:0;border-radius:0;color:#fff;padding:15px 15px 15px 14px;min-height:68px;cursor:pointer;text-align:left;font-family:Arial,sans-serif;}
-.bundle-shop-toggle:hover{background:linear-gradient(125deg,#24211a,#181818);}
-.bundle-shop-main{display:grid;grid-template-columns:28px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:10px;min-width:0;}
-.bundle-shop-chevron{grid-row:1 / 3;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;background:rgba(255,204,102,.09);border:1px solid rgba(255,204,102,.32);color:var(--accent);font-size:18px;font-weight:900;}
-.bundle-shop-title{grid-column:2;color:var(--accent);font-family:'Uncial Antiqua',serif;font-size:17px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.bundle-shop-category-preview{grid-column:2;color:#909090;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;}
-.bundle-shop-count{display:flex;align-items:center;gap:6px;flex:0 0 auto;border-radius:999px;background:#101010;border:1px solid #383838;padding:7px 11px;color:#f0f0f0;font-size:14px;font-weight:800;}
-.bundle-shop-count small{color:#939393;font-size:10px;text-transform:uppercase;letter-spacing:.05em;}
-.bundle-shop-content{padding:0 11px 11px;background:linear-gradient(180deg,#171717,#121212);}
-.bundle-shop-content .clean-shop-body{padding:11px 0 0;}
-.bundle-shop-content .shop-category{border-radius:13px;border-color:#303030;background:#121212;margin-bottom:8px;}
-.bundle-shop-content .shop-category-head{border-left:0;padding:11px 12px;background:#171717;font-size:14px;}
-.bundle-shop-content .shop-category-head:hover{background:#211e18;}
-.bundle-shop-content .shop-category-body{padding:9px;}
-.bundle-shop-content .compact-list{gap:7px;}
-.bundle-shop-content .compact-item-row{min-height:50px;padding:10px 11px;border-radius:12px;background:#191919;border-color:#303030;}
-.bundle-shop-content .compact-item-row:hover{border-color:rgba(255,204,102,.45);background:#211e19;}
-.bundle-shop-content .item-name-link{font-size:14px;line-height:1.3;}
-.bundle-shop-content .compact-price{color:#ffdc87;background:rgba(255,204,102,.06);border-radius:999px;padding:4px 8px;}
-.bundle-shop-content .shop-buy-btn{padding:7px 13px;box-shadow:0 3px 12px rgba(255,204,102,.1);}
-.admin-bundle-preview-head{display:none;}
-@media(max-width:768px){
- body.embed-shop #playerShopTop{grid-template-columns:1fr;padding:11px;gap:9px;border-radius:14px;}
- .shop-group-hero{padding:13px;border-radius:14px;}
- .shop-group-hero-title{font-size:19px;}
- .shop-group-hero-metrics{width:100%;}
- .shop-group-metric{flex:1;min-width:0;}
- .bundle-shop-toggle{min-height:62px;padding:12px 11px;}
- .bundle-shop-title{font-size:15px;}
- .bundle-shop-category-preview{font-size:10px;}
- .bundle-shop-count{padding:6px 9px;}
- .bundle-shop-content{padding:0 7px 8px;}
- .bundle-shop-content .compact-item-row{align-items:center;}
-}
-
-/* --- Restaurant-style Food menu v21 --- */
-.restaurant-menu-card{background:linear-gradient(150deg,#17130e,#111);border:1px solid rgba(255,204,102,.34);border-radius:16px;overflow:hidden;padding:0 12px 14px;margin-top:2px;}
-.restaurant-menu-title{font-family:'Uncial Antiqua',serif;color:var(--accent);font-size:20px;text-align:center;padding:15px 6px 5px;letter-spacing:.03em;}
-.restaurant-menu-rule{height:1px;background:linear-gradient(90deg,transparent,rgba(255,204,102,.62),transparent);margin:3px 0 12px;}
-.restaurant-menu-course{margin:0 0 15px;}
-.restaurant-menu-course:last-child{margin-bottom:0;}
-.restaurant-menu-course-title{display:flex;align-items:center;gap:9px;margin:0 0 8px;color:#f0d59a;font-family:'Uncial Antiqua',serif;font-size:15px;letter-spacing:.02em;}
-.restaurant-menu-course-title:before,.restaurant-menu-course-title:after{content:'';height:1px;flex:1;background:rgba(255,204,102,.2);}
-.restaurant-menu-rows{display:flex;flex-direction:column;gap:3px;}
-.restaurant-menu-row{display:flex;align-items:baseline;gap:8px;padding:7px 7px;border-radius:8px;transition:background .16s ease;}
-.restaurant-menu-row:hover{background:rgba(255,204,102,.06);}
-.restaurant-menu-name{width:auto;max-width:calc(100% - 74px);border:0;background:transparent;padding:0;color:#f2f2f2;font-size:14px;font-weight:700;text-align:left;cursor:pointer;font-family:inherit;}
-.restaurant-menu-name:hover{color:var(--accent);text-shadow:0 0 8px rgba(255,204,102,.28);}
-.restaurant-menu-dots{flex:1;border-bottom:1px dotted rgba(220,206,174,.3);transform:translateY(-3px);min-width:16px;}
-.restaurant-menu-price{white-space:nowrap;color:#ffe0a0;font-size:14px;font-weight:800;}
-.restaurant-menu-empty{color:#777;font-size:12px;text-align:center;font-style:italic;padding:4px 0 2px;}
-.bundle-shop-content .restaurant-menu-card{margin-top:3px;}
-@media(max-width:768px){.restaurant-menu-card{padding:0 9px 12px;border-radius:13px}.restaurant-menu-title{font-size:18px;padding-top:12px}.restaurant-menu-row{padding:8px 5px}.restaurant-menu-name,.restaurant-menu-price{font-size:13px}}
-
-
-/* --- Gold Tabbed Shop Group + Grand Menu v22 --- */
-.shop-group-showcase{--shop-gold:var(--accent);--shop-gold-hi:var(--accent);--shop-gold-soft:var(--accent-soft);gap:14px;}
-body.embed-shop #playerShopTop{border-color:rgba(242,207,99,.46);background:radial-gradient(circle at top right,rgba(242,207,99,.13),transparent 45%),linear-gradient(135deg,#171717,#0f0f0f);box-shadow:0 0 0 1px rgba(242,207,99,.06),0 15px 36px rgba(0,0,0,.3),0 0 26px rgba(242,207,99,.07);}
-body.embed-shop #playerShopTop:before{background:linear-gradient(90deg,transparent,var(--shop-gold-hi,#fff0ad),transparent);box-shadow:0 0 16px rgba(242,207,99,.52);}
-body.embed-shop .gil-line{color:var(--shop-gold-hi,#fff0ad);border-color:rgba(242,207,99,.46);background:rgba(242,207,99,.08);box-shadow:0 0 14px rgba(242,207,99,.1);}
-body.embed-shop #shopSelect{border-color:rgba(242,207,99,.54);box-shadow:0 0 0 1px rgba(242,207,99,.04),0 0 16px rgba(242,207,99,.08);}
-.shop-group-hero{border-color:rgba(242,207,99,.5);background:linear-gradient(120deg,#131313,#171717);box-shadow:0 0 0 1px rgba(242,207,99,.06),0 11px 28px rgba(0,0,0,.28),0 0 28px rgba(242,207,99,.08);}
-.shop-group-hero-title,.shop-tab-v22.active .shop-tab-name-v22{color:var(--shop-gold-hi,#fff0ad);text-shadow:0 0 12px rgba(242,207,99,.32);}
-.shop-group-metric{border-color:rgba(242,207,99,.25);}
-.shop-group-store-layout-v22{display:grid;grid-template-columns:minmax(180px,235px) minmax(0,1fr);gap:13px;align-items:start;}
-.shop-tabs-v22{display:flex;flex-direction:column;gap:8px;position:sticky;top:12px;}
-.shop-tabs-label-v22{padding:2px 8px 5px;color:#909090;font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;}
-.shop-tab-v22{width:100%;display:flex;align-items:center;justify-content:space-between;gap:9px;text-align:left;cursor:pointer;background:#151515;border:1px solid #303030;border-radius:13px;padding:13px 11px;transition:border-color .18s ease,background .18s ease,box-shadow .18s ease,transform .18s ease;color:#e6e6e6;}
-.shop-tab-v22:hover{border-color:rgba(242,207,99,.52);background:#1b1b1b;box-shadow:0 0 18px rgba(242,207,99,.09);transform:translateX(2px);}
-.shop-tab-v22.active{border-color:rgba(242,207,99,.82);background:linear-gradient(130deg,#1b1b1b,#101010);box-shadow:inset 3px 0 0 var(--shop-gold,#f2cf63),0 0 20px rgba(242,207,99,.14);}
-.shop-tab-name-v22{font-family:'Uncial Antiqua',serif;font-weight:800;color:#ededed;font-size:15px;line-height:1.25;min-width:0;word-break:break-word;}
-.shop-tab-count-v22{display:inline-flex;align-items:center;justify-content:center;min-width:37px;padding:5px 7px;border-radius:999px;background:#0e0e0e;border:1px solid #333;color:var(--shop-gold-hi,#fff0ad);font-size:12px;font-weight:900;flex:0 0 auto;}
-.shop-stage-v22{background:linear-gradient(180deg,#151515,#101010);border:1px solid rgba(242,207,99,.28);border-radius:17px;padding:12px;min-width:0;box-shadow:0 12px 28px rgba(0,0,0,.18);}
-.shop-stage-summary-v22{display:flex;align-items:center;justify-content:flex-end;gap:7px;margin:0 1px 10px;}
-.shop-stage-count-v22{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:#a9a9a9;font-weight:800;border:1px solid #333;background:#111;border-radius:999px;padding:5px 9px;}
-.shop-stage-v22 .clean-shop-body{padding:0;}
-.shop-stage-v22 .shop-category{border-color:#303030;background:#111;border-radius:13px;}
-.shop-stage-v22 .shop-category-head{border-left:0;background:#151515;padding:13px 14px;font-size:15px;}
-.shop-stage-v22 .shop-category-head:hover{background:#191919;color:var(--shop-gold-hi,#fff0ad);box-shadow:inset 0 0 0 1px rgba(242,207,99,.18);}
-.shop-stage-v22 .compact-item-row:hover{border-color:rgba(242,207,99,.52);background:#191919;box-shadow:0 0 18px rgba(242,207,99,.07);}
-.shop-stage-v22 .item-name-link:hover{color:var(--shop-gold-hi,#fff0ad);text-shadow:0 0 10px rgba(242,207,99,.34);}
-.shop-stage-v22 .compact-price{color:var(--shop-gold-hi,#fff0ad);background:rgba(242,207,99,.06);}
-.shop-stage-v22 .shop-buy-btn{background:var(--shop-gold,#f2cf63);box-shadow:0 0 13px rgba(242,207,99,.17);}
-.restaurant-menu-card{border-color:rgba(242,207,99,.46);background:linear-gradient(150deg,#131313,#0d0d0d);box-shadow:0 0 25px rgba(242,207,99,.06);padding:0 17px 20px;}
-.restaurant-menu-title{color:var(--shop-gold-hi,#fff0ad);font-size:25px;padding-top:20px;text-shadow:0 0 14px rgba(242,207,99,.26);}
-.restaurant-menu-rule{background:linear-gradient(90deg,transparent,rgba(242,207,99,.82),transparent);box-shadow:0 0 10px rgba(242,207,99,.3);margin:7px 0 20px;}
-.restaurant-menu-course{margin:0 0 26px;}
-.restaurant-menu-course-title{gap:14px;margin:0 0 15px;color:var(--shop-gold-hi,#fff0ad);font-size:34px;line-height:1.12;letter-spacing:.035em;text-shadow:0 0 15px rgba(242,207,99,.23);}
-.restaurant-menu-course-title:before,.restaurant-menu-course-title:after{background:rgba(242,207,99,.46);box-shadow:0 0 9px rgba(242,207,99,.2);}
-.restaurant-menu-row{padding:9px 9px;border-radius:10px;}
-.restaurant-menu-row:hover{background:rgba(242,207,99,.07);}
-.restaurant-menu-name:hover{color:var(--shop-gold-hi,#fff0ad);text-shadow:0 0 12px rgba(242,207,99,.32);}
-.restaurant-menu-price{color:var(--shop-gold-hi,#fff0ad);}
-@media(max-width:768px){
- .shop-group-store-layout-v22{grid-template-columns:1fr;gap:10px;}
- .shop-tabs-v22{position:static;display:flex;flex-direction:row;overflow-x:auto;padding-bottom:3px;scrollbar-width:none;}
- .shop-tabs-v22::-webkit-scrollbar{display:none;}
- .shop-tabs-label-v22{display:none;}
- .shop-tab-v22{min-width:148px;padding:11px 10px;}
- .shop-tab-v22:hover{transform:none;}
- .shop-stage-v22{padding:8px;border-radius:14px;}
- .restaurant-menu-card{padding:0 11px 15px;}
- .restaurant-menu-title{font-size:22px;padding-top:15px;}
- .restaurant-menu-course{margin-bottom:20px;}
- .restaurant-menu-course-title{font-size:25px;gap:9px;margin-bottom:11px;}
-}
-
-</style>
-
-
-<style>
-/* SHOP_THEME_SYNC_PATCH */
-:root{
-  --accent-rgb:255,204,102;
-  --accent-contrast:#090604;
-  --accent-soft:rgba(var(--accent-rgb),.12);
-  --accent-mid:rgba(var(--accent-rgb),.32);
-  --accent-glow:rgba(var(--accent-rgb),.42);
-  --accent-strong:rgba(var(--accent-rgb),.68);
-  --shop-gold:var(--accent);
-  --shop-gold-hi:var(--accent);
-  --shop-gold-soft:var(--accent-soft);
-}
-
-.shop-group-showcase,
-body.embed-shop .shop-group-showcase{
-  --shop-gold:var(--accent) !important;
-  --shop-gold-hi:var(--accent) !important;
-  --shop-gold-soft:var(--accent-soft) !important;
-}
-
-.nav-brand,
-h1,
-.shop-shell h2,
-.shop-side h3,
-.shop-main h3,
-.shop-title,
-.item-name,
-.item-name-link,
-.price-badge,
-.compact-price,
-body.embed-shop .gil-line,
-.shop-group-hero-title,
-.shop-tab-v22.active .shop-tab-name-v22,
-.shop-tab-count-v22,
-.shop-stage-v22 .item-name-link:hover,
-.shop-stage-v22 .compact-price,
-.restaurant-menu-title,
-.restaurant-menu-course-title,
-.restaurant-menu-name:hover,
-.restaurant-menu-price{
-  color:var(--accent) !important;
-  text-shadow:0 0 12px var(--accent-glow) !important;
-}
-
-body.embed-shop #playerShopTop,
-.shop-group-hero,
-.shop-stage-v22,
-.restaurant-menu-card,
-#shopSelect,
-body.embed-shop .gil-line,
-.shop-group-metric,
-.shop-stage-v22 .shop-category,
-.shop-stage-v22 .compact-item-row:hover,
-.custom-modal-content,
-.item-modal-card{
-  border-color:var(--accent-mid) !important;
-}
-
-.shop-tab-v22:hover,
-.shop-tab-v22.active,
-.shop-stage-v22 .compact-item-row:hover,
-.compact-item-row.selected,
-.shop-item-card.selected{
-  border-color:var(--accent) !important;
-  box-shadow:0 0 18px var(--accent-soft) !important;
-}
-
-body.embed-shop #playerShopTop,
-.shop-group-hero,
-.restaurant-menu-card{
-  background:
-    radial-gradient(circle at top right,var(--accent-soft),transparent 45%),
-    linear-gradient(135deg,#171717,#0f0f0f) !important;
-}
-
-body.embed-shop #playerShopTop:before,
-.restaurant-menu-rule{
-  background:linear-gradient(90deg,transparent,var(--accent),transparent) !important;
-  box-shadow:0 0 16px var(--accent-glow) !important;
-}
-
-.shop-btn,
-.modal-btn.confirm,
-.tab-buttons button.active,
-.category-btn.active,
-.filter-chip.active,
-.shop-stage-v22 .shop-buy-btn{
-  background:var(--accent) !important;
-  border-color:var(--accent) !important;
-  color:var(--accent-contrast) !important;
-}
-</style>
-
-<script>
-/* SHOP_THEME_SYNC_PATCH */
-(function(){
-  const KEY = 'mountAetheriaThemeAccentV25';
-
-  const THEMES = {
-    gold:    ['#ffcc66','255,204,102','#090604'],
-    ruby:    ['#ff5f6d','255,95,109','#100306'],
-    ember:   ['#ff8a3d','255,138,61','#120703'],
-    rose:    ['#ff7ab6','255,122,182','#12040b'],
-    violet:  ['#b48cff','180,140,255','#090512'],
-    blue:    ['#66a6ff','102,166,255','#030914'],
-    cyan:    ['#5ee7df','94,231,223','#021110'],
-    emerald: ['#4ee28a','78,226,138','#031006'],
-    lime:    ['#b8f56d','184,245,109','#071003'],
-    moon:    ['#d7dcff','215,220,255','#060711']
-  };
-
-  function getThemeId(){
-    try { return localStorage.getItem(KEY) || 'gold'; }
-    catch(e) { return 'gold'; }
-  }
-
-  function applyTheme(){
-    const t = THEMES[getThemeId()] || THEMES.gold;
-    const root = document.documentElement;
-
-    root.style.setProperty('--accent', t[0]);
-    root.style.setProperty('--accent-rgb', t[1]);
-    root.style.setProperty('--accent-contrast', t[2]);
-    root.style.setProperty('--accent-soft', 'rgba(' + t[1] + ',.12)');
-    root.style.setProperty('--accent-mid', 'rgba(' + t[1] + ',.32)');
-    root.style.setProperty('--accent-glow', 'rgba(' + t[1] + ',.42)');
-    root.style.setProperty('--accent-strong', 'rgba(' + t[1] + ',.68)');
-    root.style.setProperty('--shop-gold', t[0]);
-    root.style.setProperty('--shop-gold-hi', t[0]);
-    root.style.setProperty('--shop-gold-soft', 'rgba(' + t[1] + ',.12)');
-  }
-
-  applyTheme();
-  document.addEventListener('DOMContentLoaded', applyTheme);
-  window.addEventListener('storage', function(e){
-    if(e.key === KEY) applyTheme();
-  });
-
-  // Force it to win if older shop scripts repaint gold after load.
-  setInterval(applyTheme, 1000);
-})();
-</script>
+<!-- CSS moved to tools-parts/tools.css; block 007 -->
 
 </head>
 <body>
@@ -471,36 +37,130 @@ body.embed-shop #playerShopTop:before,
 <div class="tab-content" id="shop"><div class="shop-shell"><h2>Shop</h2>
   <div id="playerShopTop" class="shop-top-clean">
     <div class="shop-control embed-character-summary"><label>Current Character</label><strong id="embeddedCharacterName">Character</strong><select id="shopCharacterSelect" class="shop-select hidden" aria-hidden="true"></select><div id="characterGil" class="gil-line">Gil: 0</div></div>
-    <div class="shop-control"><label>Shop Group Access</label><select id="shopSelect" class="shop-select" onchange="renderSelectedShop()"></select></div>
+    <div class="shop-control"><label>Region</label><select id="shopSelect" class="shop-select" onchange="renderSelectedShop()"></select></div>
   </div>
 
-  <div id="adminShopPanel" class="admin-shop-panel">
-    <div id="adminBuyerBox" class="shop-control admin-buyer-box"><label>Buy For Character</label><select id="adminBuyerCharacterSelect" class="shop-select"></select><div id="adminBuyerGil" class="gil-line">Gil: 0</div><div class="shop-note">Admin can buy items for any character from any user.</div></div>
-    <section id="shopAccessBundlePanel" class="shop-access-bundles">
-      <h3>Shop Groups / Group Access</h3>
-      <div class="shop-note">Combine existing shops into one access group, then grant access using a Character Group tag.</div>
-      <div class="shop-bundle-form">
-        <label>Shop Group Name<input id="shopBundleName" class="shop-input" placeholder="Town Market, Dungeon Rewards"></label>
-        <label>Character Group Access<select id="shopBundleCharacterGroup" class="shop-select"><option value="">Select a group</option></select></label>
-        <div id="shopBundleShopPicks" class="shop-bundle-shop-picks"><span class="shop-note">Create shops first.</span></div>
-        <div class="shop-bundle-actions"><button id="shopBundleSaveBtn" class="shop-btn" type="button" onclick="saveShopAccessBundle()">Create Shop Group</button><button class="shop-btn secondary" type="button" onclick="cancelShopAccessBundleEdit()">Clear</button></div>
+  <div id="adminShopPanel" class="admin-shop-panel gm-shop-admin-clean">
+    <div id="adminIdentityStatus" class="hidden"></div>
+
+    <div id="adminBuyerBox" class="gm-character-bar">
+      <label>
+        <span>Character</span>
+        <select id="adminBuyerCharacterSelect" class="shop-select"></select>
+      </label>
+      <div id="adminBuyerGil" class="gm-character-gil">Gil: 0</div>
+    </div>
+
+    <div class="gm-shop-tabs" role="tablist" aria-label="Shop manager">
+      <button id="gmIndividualTabBtn" class="gm-shop-tab active" type="button" onclick="setGmShopTab('individual')">Individual Shop</button>
+      <button id="gmGroupTabBtn" class="gm-shop-tab" type="button" onclick="setGmShopTab('region')">Region</button>
+    </div>
+
+    <section id="gmIndividualShopPanel" class="gm-tab-panel active">
+      <div class="gm-shop-toolbar">
+        <select id="adminShopSelect" class="shop-select" aria-label="Individual shop" onchange="clearRegionPreview();renderSelectedShop()"></select>
+        <div class="gm-action-row">
+          <button class="shop-btn secondary" type="button" onclick="previewSelectedShopGm()">Preview</button>
+          <button class="shop-btn secondary" type="button" onclick="startEditSelectedShop()">Edit</button>
+          <button class="shop-btn" type="button" onclick="startCreateShop()">New</button>
+          <button class="shop-btn danger" type="button" onclick="deleteSelectedShop()">Delete</button>
+        </div>
       </div>
-      <div id="shopBundleList" class="shop-bundle-list"></div>
+
+      <div id="adminBuilderBody" class="admin-builder collapsed gm-builder-shell">
+        <div id="editShopNotice" class="edit-notice hidden"></div>
+
+        <div class="gm-shop-settings">
+          <label>
+            <span>Shop Name</span>
+            <input id="shopNameInput" class="shop-input" placeholder="Shop name">
+          </label>
+          <div id="shopTagPreview" class="shop-note"></div>
+        </div>
+
+        <div class="shop-layout clean-builder-layout gm-builder-layout">
+          <aside class="shop-side">
+            <h3>Categories</h3>
+            <div id="categoryNav"></div>
+            <div class="filter-box">
+              <div id="activeFilterPills" class="tag-row"></div>
+              <button class="shop-btn secondary small" type="button" onclick="clearAllFilters()">Clear Filters</button>
+            </div>
+          </aside>
+
+          <main class="shop-main">
+            <div class="gm-catalog-toolbar">
+              <input id="itemSearchInput" class="shop-input" placeholder="Search items" oninput="renderBuilderItems()">
+              <select id="builderSortInput" class="shop-select" aria-label="Sort items" onchange="setBuilderSort(this.value)">
+                <option value="nameAsc">Name A-Z</option>
+                <option value="gilAsc">Gil Low-High</option>
+                <option value="gilDesc">Gil High-Low</option>
+              </select>
+            </div>
+
+            <div class="gm-view-row">
+              <div>
+                <button id="builderViewAllBtn" class="shop-btn small" type="button" onclick="setBuilderViewMode('all')">All Items</button>
+                <button id="builderViewSelectedBtn" class="shop-btn secondary small" type="button" onclick="setBuilderViewMode('selected')">Selected Only</button>
+              </div>
+              <div>
+                <button class="shop-btn secondary small" type="button" onclick="selectVisibleItems()">Select Visible</button>
+                <button class="shop-btn secondary small" type="button" onclick="unselectVisibleItems()">Unselect Visible</button>
+              </div>
+            </div>
+
+            <h3 id="builderTitle" class="hidden">Gear</h3>
+            <div id="filterGroups" class="filter-groups"></div>
+            <div id="builderCount" class="shop-note"></div>
+            <div id="builderItemList" class="compact-list"></div>
+          </main>
+        </div>
+
+        <div class="gm-sticky-save">
+          <strong id="gmSelectedItemCount">0 items selected</strong>
+          <div class="gm-action-row">
+            <button type="button" class="shop-btn secondary" onclick="cancelEditShop()">Cancel</button>
+            <button id="saveShopBtn" type="button" class="shop-btn" onclick="saveShopSession()">Save Shop</button>
+          </div>
+        </div>
+      </div>
     </section>
-    <div class="admin-shop-manager">
-      <div class="shop-control grow"><label>Shop Access</label><div class="shop-select-row"><select id="adminShopSelect" class="shop-select" onchange="clearShopGroupPreviewV16();renderSelectedShop()"></select><button class="shop-btn secondary" type="button" onclick="startEditSelectedShop()">Edit</button><button class="shop-btn danger" type="button" onclick="deleteSelectedShop()">Delete</button></div></div>
-      <button id="builderToggleBtn" class="shop-btn" type="button" onclick="toggleAdminBuilder()">Show Shop Builder</button>
-    </div>
-    <div id="adminBuilderBody" class="admin-builder collapsed">
-      <div class="upload-box"><strong>Master Database Update / Import</strong><div class="shop-note">Import adds new item IDs and updates matching existing IDs. It does <strong>not</strong> delete master items that are missing from the JSON. If a row includes <code>oldId</code>, <code>previousId</code>, or <code>legacyId</code>, the importer can migrate that old document to the new ID. Character sheets, gil, inventory, calendar events, and information links are not deleted.</div><div class="builder-row" style="margin-top:8px"><input type="file" id="shopImportFile" accept=".json,application/json" class="shop-input"><button type="button" class="shop-btn" onclick="importShopJson()">Import / Update JSON</button><button type="button" class="shop-btn secondary" onclick="importBundledJson()">Import / Update Bundled JSON</button><button type="button" class="shop-btn danger" onclick="clearMasterItemsOnly()">Optional: Clear Master Items</button></div><div id="importResult" class="shop-note"></div><div id="adminIdentityStatus" class="shop-note"></div></div>
-      <div id="editShopNotice" class="edit-notice hidden"></div>
-      <div class="builder-row"><div class="field"><label>Shop Name / Access Tag</label><input id="shopNameInput" class="shop-input" placeholder="Black Market, Potion Shop, Starter Gear"></div><button id="saveShopBtn" type="button" class="shop-btn" onclick="saveShopSession()">Create Shop</button><button type="button" class="shop-btn secondary" onclick="cancelEditShop()">Cancel Edit</button><button type="button" class="shop-btn secondary" onclick="clearSelection()">Clear Selected</button></div>
-      <div id="shopTagPreview" class="shop-note"></div>
-      <div class="shop-layout clean-builder-layout">
-        <aside class="shop-side"><h3>Categories</h3><div id="categoryNav"></div><div class="filter-box"><div class="filter-group-title">Active Filters</div><div id="activeFilterPills" class="tag-row"></div><button class="shop-btn secondary small" style="margin-top:8px" onclick="clearAllFilters()">Clear Filters</button></div></aside>
-        <main class="shop-main"><h3 id="builderTitle">Gear</h3><div class="filter-box"><div class="builder-row"><div class="field"><label>Search Items</label><input id="itemSearchInput" class="shop-input" placeholder="Search name, desc, special..." oninput="renderBuilderItems()"></div></div><div id="filterGroups" class="filter-groups"></div></div><div class="item-toolbar"><div id="builderCount" class="shop-note">Loading...</div><div class="builder-sort-wrap"><label for="builderSortInput">Sort</label><select id="builderSortInput" class="shop-select" onchange="setBuilderSort(this.value)"><option value="nameAsc">Name A-Z</option><option value="gilAsc">Gil Low-High</option><option value="gilDesc">Gil High-Low</option></select><button class="shop-btn secondary small" onclick="selectVisibleItems()">Select Visible</button><button class="shop-btn secondary small" onclick="unselectVisibleItems()">Unselect Visible</button></div></div><div id="builderItemList" class="compact-list"></div></main>
+
+    <section id="gmGroupShopPanel" class="gm-tab-panel">
+      <div class="gm-shop-toolbar">
+        <select id="adminRegionSelect" class="shop-select" aria-label="Region"></select>
+        <div class="gm-action-row">
+          <button class="shop-btn secondary" type="button" onclick="previewSelectedRegion()">Preview</button>
+          <button class="shop-btn secondary" type="button" onclick="editSelectedRegion()">Edit</button>
+          <button class="shop-btn" type="button" onclick="startCreateRegion()">New</button>
+          <button class="shop-btn danger" type="button" onclick="deleteSelectedRegion()">Delete</button>
+        </div>
       </div>
-    </div>
+
+      <section id="regionEditorPanel" class="shop-access-bundles gm-group-editor collapsed">
+        <div class="gm-group-fields">
+          <label>
+            <span>Region Name</span>
+            <input id="regionNameInput" class="shop-input" placeholder="Region name">
+          </label>
+          <label>
+            <span>Party</span>
+            <select id="regionPartySelect" class="shop-select" onchange="changeRegionParty(this.value)">
+              <option value="">Select a party</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="regionShopPicks" class="shop-bundle-shop-picks">
+          <span class="shop-note">Select a party.</span>
+        </div>
+
+        <div class="gm-action-row gm-group-save-row">
+          <button id="regionSaveBtn" class="shop-btn" type="button" onclick="saveRegion()">Save Region</button>
+          <button class="shop-btn secondary" type="button" onclick="cancelRegionEdit()">Cancel</button>
+        </div>
+      </section>
+    </section>
   </div>
 
   <div id="shopStatus" class="shop-status">Loading shops...</div>
@@ -508,586 +168,6 @@ body.embed-shop #playerShopTop:before,
 </div></div>
 
 <div id="itemModal" class="item-modal" onclick="closeItemModal(event)"><div class="item-modal-card"><div class="item-modal-head"><h3 id="itemModalTitle">Item</h3><button class="modal-close" onclick="closeItemModal(event,true)">&times;</button></div><div id="itemModalBody" class="item-modal-body"></div></div></div>
-<script type="module">
-const TOOLS_EMBED_SHOP = new URLSearchParams(window.location.search).get('embed') === 'shop';
-document.body.classList.toggle('embed-shop', TOOLS_EMBED_SHOP);
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, getDoc, deleteDoc, doc, updateDoc, setDoc, writeBatch, deleteField } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-const firebaseConfig={apiKey:"AIzaSyBpoi5qvqUehnhcyhfB7d0gtelNUICIthw",authDomain:"mount-aetheria.firebaseapp.com",projectId:"mount-aetheria",storageBucket:"mount-aetheria.firebasestorage.app",messagingSenderId:"492855693446",appId:"1:492855693446:web:f9948569254a7220c38107",measurementId:"G-0PF84KDN7L"};
-const ADMIN_EMAIL="phoeaung2076@gmail.com";
-const ADMIN_UID="U7uyfcMtULSLJvXD0HzJaiMIeGE3";
-function currentUserIsAdmin(user){return !!user && ((user.email||"").toLowerCase()===ADMIN_EMAIL || user.uid===ADMIN_UID);}
-const app=initializeApp(firebaseConfig); const auth=getAuth(app); const db=getFirestore(app);
-const SHOP_GROUPS={Tools:["Gear","Food","Weapon","Ranged Weapon","Ammunition","Armor","Enchantment","Machine"],Magic:["Alchemical Items","Artifacts","Magic Items"]};
-const CATEGORY_ORDER=[...SHOP_GROUPS.Tools,...SHOP_GROUPS.Magic];
-const FILTER_LABELS={type:"Type",secondaryType:"Secondary Type",filterTag:"Secondary Type",proficiency:"Proficiency",usageType:"Usage",tier:"Tier",sourceSystem:"Source System",lvl:"Recommended Lvl",rarity:"Rarity"};
-const FILTERS_BY_CATEGORY={
-  "Gear":["type","secondaryType","proficiency","usageType","sourceSystem","lvl","rarity"],
-  "Weapon":["type","proficiency","usageType","sourceSystem","lvl","rarity"],
-  "Ranged Weapon":["type","proficiency","usageType","sourceSystem","lvl","rarity"],
-  "Ammunition":["type","sourceSystem","lvl","rarity"],
-  "Armor":["type","sourceSystem","lvl","rarity"],
-  "Enchantment":["type","secondaryType","sourceSystem","lvl","rarity"],
-  "Machine":["type","sourceSystem","lvl","rarity"],
-  "Alchemical Items":["type","secondaryType","tier","sourceSystem","lvl","rarity"],
-  "Artifacts":["type","sourceSystem","lvl","rarity"],
-  "Magic Items":["type","secondaryType","sourceSystem","lvl","rarity"],
-  "Food":["type","secondaryType","sourceSystem","lvl","rarity"]
-};
-const TAGS_BY_CATEGORY=FILTERS_BY_CATEGORY;
-const DETAIL_FIELDS_BY_CATEGORY={
-  "Gear":[["Slot amount",["slotAmount","slot amount","slot_amount","slotsUsed","slots_used","slot"]],["Dmg",["dmg","damage","damageDice","damage_dice","dmgM","dmgS","attackDmg"]],["Crit",["crit","critical"]],["Range",["range","rangeIncrement","range_increment"]]],
-  "Weapon":[["Slot amount",["slotAmount","slot amount","slot_amount","slotsUsed","slots_used","slot"]],["Dmg",["dmg","damage","damageDice","damage_dice","dmgM","dmgS","attackDmg"]],["Crit",["crit","critical"]],["Range",["range","rangeIncrement","range_increment"]]],
-  "Ranged Weapon":[["Slot amount",["slotAmount","slot amount","slot_amount","slotsUsed","slots_used","slot"]],["Dmg",["dmg","damage","damageDice","damage_dice","dmgM","dmgS","attackDmg"]],["Crit",["crit","critical"]],["Range",["range","rangeIncrement","range_increment"]]],
-  "Ammunition":[["Slot amount",["slotAmount","slot amount","slot_amount","slotsUsed","slots_used","slot"]]],
-  "Armor":[["Slot amount",["slotAmount","slot amount","slot_amount","slotsUsed","slots_used","slot"]],["AC bonus",["acBonus","ac bonus","armorBonus","armor bonus","shieldBonus"]],["Max Dex",["maxDex","max dex","maxDexBonus"]],["Check penalty",["checkPenalty","check penalty","armorCheckPenalty"]],["Spell failure",["spellFailure","spell failure","arcaneSpellFailure"]],["Speed",["speed","speedPenalty","speed penalty","speed30Ft","speed20Ft"]]],
-  "Enchantment":[["Slot amount",["slotAmount","slot amount","slot_amount","slotsUsed","slots_used","slot"]],["CL",["cl","casterLevel","caster level"]]],
-  "Machine":[["Slot amount",["slotAmount","slot amount","slot_amount","slotsUsed","slots_used","slot"]],["CL",["cl","casterLevel","caster level"]],["Speed",["speed"]],["Full speed",["fullSpeed","full speed"]],["Passengers/Crew",["passengersCrew","passengers/crew","passengers","crew"]],["Fuel",["fuel"]],["Mileage",["mileage"]],["AC/CMD",["acCmd","ac/cmd","ac cmd"]],["HP",["hp"]],["Hardness",["hardness"]]],
-  "Alchemical Items":[["Slot amount",["slotAmount","slot amount","slot_amount","slotsUsed","slots_used","slot"]],["CL",["cl","casterLevel","caster level"]],["Range",["range"]],["DC Saves",["dcSave","dc saves","dcSaves","saveDc","save DC"]],["Spell Needed",["spellNeeded","spell needed","spell"]]],
-  "Artifacts":[["Slot amount",["slotAmount","slot amount","slot_amount","slotsUsed","slots_used","slot"]],["CL",["cl","casterLevel","caster level"]]],
-  "Magic Items":[["Slot amount",["slotAmount","slot amount","slot_amount","slotsUsed","slots_used","slot"]],["CL",["cl","casterLevel","caster level"]]],
-  "Food":[["Slot amount",["slotAmount","slot amount","slot_amount","slotsUsed","slots_used","slot"]]]
-};
-let isAdmin=false,currentUser=null,allShopItems=[],allShopItemsById=new Map(),allShops=[],allShopAccessBundles=[],allCharacterGroups=[],editingShopBundleId=null,userCharacters=[],selectedCharacterId=null,selectedCategory="Gear",selectedItemIds=new Set(),activeFilters={},visibleBuilderIds=[],editingShopId=null,viewFilters={},openCategoryState={},builderSort="nameAsc";
-const modal=document.getElementById('customModal'), modalTitle=document.getElementById('modalTitle'), modalMsg=document.getElementById('modalMsg'), modalYes=document.getElementById('modalYesBtn'), modalNo=document.getElementById('modalNoBtn');
-function clearModalExtras(){modal.querySelectorAll('.purchase-qty-input,.modal-extra-note').forEach(el=>el.remove());}
-function resetModalButtons(){modalYes.style.display='';modalYes.textContent='Yes';modalNo.textContent='No';modalNo.style.width='';}
-function showConfirm(title,msg,onYes){clearModalExtras();resetModalButtons();modalTitle.textContent=title;modalMsg.textContent=msg;modal.style.display='flex';modalYes.onclick=()=>{modal.style.display='none';onYes();};modalNo.onclick=()=>{modal.style.display='none';};}
-function showAlert(title,msg){clearModalExtras();resetModalButtons();modalTitle.textContent=title;modalMsg.textContent=msg;modalYes.style.display='none';modalNo.textContent='OK';modalNo.style.width='100%';modal.style.display='flex';modalNo.onclick=()=>{modal.style.display='none';resetModalButtons();};}
-function askPurchaseQuantity(item,unitPrice){const isAmmo=isAmmunitionItem(item); if(!isAmmo)return Promise.resolve(1); return new Promise(resolve=>{clearModalExtras();resetModalButtons();modalTitle.textContent='Buy Ammunition';modalMsg.textContent=`How many ${item.name||'ammo'} do you want to buy? Unit price: ${unitPrice.toLocaleString()} gil.`;let input=document.createElement('input');input.className='purchase-qty-input';input.type='number';input.min='1';input.step='1';input.value='1';modalMsg.insertAdjacentElement('afterend',input);setTimeout(()=>input?.focus(),0);modalYes.textContent='Buy';modal.style.display='flex';modalYes.onclick=()=>{const qty=Math.max(1,Math.floor(Number(input?.value)||1));clearModalExtras();modal.style.display='none';resetModalButtons();resolve(qty);};modalNo.onclick=()=>{clearModalExtras();modal.style.display='none';resetModalButtons();resolve(0);};});}
-function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
-function normalizeTags(input){if(Array.isArray(input))return input.flatMap(normalizeTags);return String(input||'').split(/[,|\n]+/).map(t=>t.trim().toLowerCase()).filter(Boolean).filter((t,i,a)=>a.indexOf(t)===i);}
-function normalizeShopTag(v){return String(v||'').trim().toLowerCase().replace(/\s+/g,' ');}
-function getCharTags(c){return normalizeTags(c?.shopTags?.length?c.shopTags:c?.shop_tags);}
-function getCharacterGroupTags(c){return normalizeTags(c?.group_tags);}
-function isShopBuilderMode(){return isAdmin && !TOOLS_EMBED_SHOP;}
-function getGil(c){return Number(c?.currency_gil ?? c?.gil ?? 0)||0;}
-function getPrice(item){return Number(item?.priceGil ?? item?.price ?? String(item?.cost||'').replace(/[^0-9.]/g,''))||0;}
-function getDisplayCost(item){return item?.cost || (getPrice(item)?`${getPrice(item).toLocaleString()} gil`:'—');}
-function lookupField(item,keys){for(const key of keys){if(!key)continue; const variants=[key,key.replace(/\s+/g,''),key.replace(/\s+/g,'_'),key.replace(/\s+/g,'-')]; for(const vKey of variants){if(item&&Object.prototype.hasOwnProperty.call(item,vKey)&&String(item[vKey]??'').trim())return item[vKey]; if(item?.raw&&Object.prototype.hasOwnProperty.call(item.raw,vKey)&&String(item.raw[vKey]??'').trim())return item.raw[vKey];}} return '';}
-function fieldAliases(field){const map={secondaryType:["secondaryType","secondary type","filterTag","filter tag","subcategory","subtype"],usageType:["usageType","usage type","usage"],sourceSystem:["sourceSystem","source system"],lvl:["lvl","level","recommendedLvl","recommended lvl","recommendedLevel","recommended level"],rarity:["rarity"],proficiency:["proficiency"],tier:["tier"],type:["type"]}; return map[field]||[field];}
-function itemField(item,field){const v=lookupField(item,fieldAliases(field)); return v===null||v===undefined?'':String(v).trim();}
-function itemFilterValue(item,field){const v=itemField(item,field); return field==='lvl'&&v?String(parseInt(v,10)||v):v.toLowerCase();}
-function safeText(v){if(v===undefined||v===null)return ''; if(Array.isArray(v))return v.map(safeText).join(' '); if(typeof v==='object')return Object.values(v).map(safeText).join(' '); return String(v);}
-function cleanCategoryKey(v){return String(v||'').trim().toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ');}
-function directCategoryAlias(v){const c=cleanCategoryKey(v); if(!c)return ''; if(['weapon','weapons','melee weapon','melee weapons'].includes(c))return 'Weapon'; if(['ranged weapon','ranged weapons','firearm','firearms','gun arm','gun arms','gunarm','gunarms','power weapon','power weapons'].includes(c))return 'Ranged Weapon'; if(['ammunition','ammo','arrows','arrow','bullet','bullets','cartridge','cartridges'].includes(c))return 'Ammunition'; if(['armor','armour','shield','shields'].includes(c))return 'Armor'; if(['gear','equipment','adventuring gear','general gear'].includes(c))return 'Gear'; if(['religious gear','religious','channel foci','channel focus'].includes(c))return 'Gear'; if(['machine','machines','technological item','technological items'].includes(c))return 'Machine'; if(['alchemical item','alchemical items','alchemical','alchemy'].includes(c))return 'Alchemical Items'; if(['artifact','artifacts'].includes(c))return 'Artifacts'; if(['rod','rods','staff','staves','magic rod','magic rods','magic staff','magic staves'].includes(c))return 'Ranged Weapon'; if(['magic item','magic items','wondrous item','wondrous items','wand','wands','ring','rings','materia'].includes(c))return 'Magic Items'; if(['enchantment','enchantments','weapon enchantment','armor enchantment','armour enchantment'].includes(c))return 'Enchantment'; if(['consumable','consumables','food','foods','chocobo food','drink','drinks','alcohol','alcoholic','alchoal','dessert','desserts','desert','deserts'].includes(c))return 'Food'; if(['collection','collections'].includes(c))return 'Collections'; if(['misc','miscellaneous','other'].includes(c))return 'Misc'; return '';} 
-function compactBlob(raw){
-  const r=raw?.raw||{};
-  return [
-    raw?.category,raw?.shopGroup,raw?.type,raw?.subtype,raw?.kind,raw?.tags,raw?.tagList,
-    raw?.id,raw?.itemId,raw?.name,raw?.sourceUrl,raw?.source,raw?.url,raw?.href,raw?.link,raw?.page,
-    raw?.desc,raw?.description,raw?.special,raw?.basePrice,raw?.priceMod,raw?.['base price'],raw?.['price mod'],
-    r.category,r.shopGroup,r.type,r.subtype,r.kind,r.tags,r.tagList,r.id,r.itemId,r.name,
-    r.sourceUrl,r.source,r.url,r.href,r.link,r.page,r.desc,r.description,r.special,r.basePrice,r.priceMod,r['base price'],r['price mod'],
-    safeText(raw),safeText(r)
-  ].map(safeText).join(' ').toLowerCase().replace(/[_-]+/g,' ');
-}
-function categoryDebugText(){
-  if(!allShopItems.length)return 'No master items loaded. Use Import JSON, or add items.json to the repo as data/items.json.';
-  const counts={};
-  allShopItems.forEach(i=>{const cat=i.category||'Blank';counts[cat]=(counts[cat]||0)+1;});
-  return Object.entries(counts).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(([k,v])=>`${k}: ${v}`).join(' • ');
-}
-function inferCategoryName(raw){const direct=directCategoryAlias(raw?.category)||directCategoryAlias(raw?.raw?.category); const typeDirect=directCategoryAlias(raw?.type)||directCategoryAlias(raw?.raw?.type)||directCategoryAlias(raw?.kind)||directCategoryAlias(raw?.raw?.kind); const blob=compactBlob(raw); const strong=(patterns)=>patterns.some(rx=>rx.test(blob));
-  if(typeDirect==='Food')return 'Food';
-  if(direct && direct!=='Gear' && direct!=='Misc')return direct;
-  if(strong([/\bmagic rods?\b/,/\bmagic staves\b/,/\brods?\b/,/\bstaves\b/,/\bstaff\b/,/MagicRods\.aspx/i,/MagicStaves\.aspx/i]))return 'Ranged Weapon';
-  if(strong([/\bmachines?\b/,/\/machines?\//,/\bmagitek\b/,/\bvehicle\b/]))return 'Machine';
-  if(strong([/\bartifacts?\b/,/\/artifacts?\//]))return 'Artifacts';
-  if(strong([/\balchemical items?\b/,/\balchemical\b/,/\balchemy\b/,/\/alchemical[-_ ]?items?\//]))return 'Alchemical Items';
-  if(strong([/\bmagic items?\b/,/\bwondrous items?\b/,/\/magic[-_ ]?items?\//,/\bwands?\b/,/\brings?\b/,/\bmateria\b/]))return 'Magic Items';
-  if(strong([/\benchantments?\b/,/\/enchantments?\//,/\bprice mod\b/,/\bbase price\b/]))return 'Enchantment';
-  if(cleanCategoryKey(raw?.shopGroup||raw?.raw?.shopGroup)==='magic')return 'Magic Items';
-  if(strong([/\bammunition\b/,/\bammo\b/,/\barrows?\b/,/\bbullets?\b/,/\bcartridges?\b/]))return 'Ammunition';
-  if(strong([/\branged weapons?\b/,/\bfirearms?\b/,/\bgun arms?\b/,/\bguns?\b/,/\bcrossbows?\b/,/\bbows?\b/,/\/firearms?\//,/\/gun[-_ ]?arms?\//]))return 'Ranged Weapon';
-  if(strong([/\barmou?r\b/,/\bshields?\b/,/\/armor\//]))return 'Armor';
-  if(strong([/\bweapons?\b/,/\/weapons?\//]))return 'Weapon';
-  if(direct)return direct;
-  return 'Gear';}
-function normalizeCategoryName(category){return directCategoryAlias(category)||String(category||'').trim()||'Gear';}
-function categoryGroup(category){return Object.entries(SHOP_GROUPS).find(([,cats])=>cats.includes(category))?.[0]||'Other';}
-function rawHasValue(raw,...keys){return keys.some(k=>raw&&Object.prototype.hasOwnProperty.call(raw,k)&&String(raw[k]??'').trim());}
-function importedProficiencyValue(raw){return String(raw?.proficiency||raw?.raw?.proficiency||raw?.Proficiency||raw?.raw?.Proficiency||'').trim().toLowerCase();}
-function incomingHasProficiency(raw){return rawHasValue(raw,'proficiency','Proficiency')||rawHasValue(raw?.raw,'proficiency','Proficiency');}
-function applyPreservedProficiency(item,existing){
-  const oldProf=String(existing?.proficiency||existing?.raw?.proficiency||existing?.Proficiency||existing?.raw?.Proficiency||'').trim().toLowerCase();
-  if(!String(item?.proficiency||'').trim()&&oldProf){
-    item.proficiency=oldProf;
-    item.tags=normalizeTags([item.tags,oldProf]);
-  }
-  return item;
-}
-function normalizeImportedItem(raw){const id=String(raw.id||raw.itemId||raw.name||('item_'+Date.now())).trim(); const category=inferCategoryName(raw); const type=String(lookupField(raw,["type","Type"])||'').trim().toLowerCase(); const secondaryType=String(lookupField(raw,["secondaryType","Secondary Type","secondary type","filterTag","Filter Tag","filter tag","subcategory","subtype"])||'').trim().toLowerCase(); const slot=String(lookupField(raw,["slot","Slot"])||'').trim().toLowerCase(); const slotAmount=String(lookupField(raw,["slotAmount","Slot Amount","slot amount","slot_amount","slotsUsed","slots used"])||'').trim(); const sourceSystem=String(lookupField(raw,["sourceSystem","Source System","source system"])||'custom').trim().toLowerCase(); const rawLvl=lookupField(raw,["lvl","level","Recommended Lvl","recommended lvl","recommendedLvl","recommendedLevel"]); const lvl=rawLvl===null||rawLvl===undefined||rawLvl===''?null:Number(rawLvl)||null; const rarity=String(lookupField(raw,["rarity","Rarity"])||'').trim(); const usageType=String(lookupField(raw,["usageType","Usage","usage type","usage"])||'').trim().toLowerCase(); const tier=String(lookupField(raw,["tier","Tier"])||'').trim(); const item={...raw,id,name:raw.name||raw.raw?.name||'Unnamed Item',category,shopGroup:categoryGroup(category),cost:raw.cost||raw.raw?.cost||'',priceGil:getPrice(raw),type,secondaryType,filterTag:secondaryType,slot,slotAmount,lvl,rarity,sourceSystem,sourceUrl:lookupField(raw,["sourceUrl","Source URL","source url","source"])||'',desc:raw.desc||raw.description||raw.raw?.desc||raw.raw?.description||'',special:raw.special||raw.raw?.special||'',proficiency:importedProficiencyValue(raw),usageType,tier}; item.tags=normalizeTags([raw.tags,raw.tagList,category,item.shopGroup,type,secondaryType,slot,rarity,sourceSystem,item.proficiency,item.usageType,tier,lvl?`lvl-${lvl}`:'']); return item;}
-function mergeItems(staticItems,firestoreItems){const map=new Map(); [...staticItems,...firestoreItems].forEach(raw=>{const item=normalizeImportedItem(raw); if(item.id)map.set(item.id,item);}); allShopItems=[...map.values()].sort((a,b)=>String(a.category).localeCompare(String(b.category))||String(a.name).localeCompare(String(b.name))); allShopItemsById=new Map(allShopItems.map(i=>[i.id,i])); console.info('[Shop] Master items loaded:',allShopItems.length,categoryDebugText());}
-async function loadStaticItems(){const paths=['data/items.json','items.json','/Mount-Aetheria/data/items.json','/Mount-Aetheria/items.json','/data/items.json','https://raw.githubusercontent.com/PhoeZAung/Mount-Aetheria/main/data/items.json','https://raw.githubusercontent.com/PhoeZAung/Mount-Aetheria/main/items.json']; for(const p of paths){try{const res=await fetch(p,{cache:'no-store'}); if(!res.ok)continue; const data=await res.json(); const items=Array.isArray(data)?data:(data.items||data.shopItems||[]); if(items.length)return items;}catch(e){}} return [];}
-async function loadShopItems(){const [staticItems,snap]=await Promise.all([loadStaticItems(),getDocs(collection(db,'shopItems'))]); const fireItems=snap.docs.map(d=>({id:d.id,...d.data()})); mergeItems(fireItems.length?[]:staticItems,fireItems);}
-async function loadShopSessions(){const snap=await getDocs(collection(db,'shopSessions')); allShops=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)||String(a.name||'').localeCompare(String(b.name||'')));}
-async function loadShopAccessBundles(){const [bundleSnap,groupSnap]=await Promise.all([getDocs(collection(db,'shopAccessGroups')),getDocs(collection(db,'adminCharacterGroups'))]); allShopAccessBundles=bundleSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),undefined,{sensitivity:'base'})); allCharacterGroups=groupSnap.docs.map(d=>({id:d.id,...d.data()})).filter(g=>String(g.name||'').trim()).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),undefined,{sensitivity:'base'}));}
-async function loadUserCharacters(){userCharacters=[]; if(!currentUser)return; if(isShopBuilderMode()){const usersSnap=await getDocs(collection(db,'users')); const rows=[]; for(const userDoc of usersSnap.docs){const uid=userDoc.id; const u=userDoc.data()||{}; try{const charsSnap=await getDocs(collection(db,'users',uid,'characters')); charsSnap.docs.forEach(d=>{const data=d.data()||{}; const ownerLabel=u.name||u.displayName||u.email||uid; rows.push({id:d.id,key:`${uid}::${d.id}`,ownerUid:uid,ownerLabel,ownerEmail:u.email||'',...data});});}catch(e){console.warn('Could not load characters for user',uid,e);}} userCharacters=rows.sort((a,b)=>String(a.ownerLabel||'').localeCompare(String(b.ownerLabel||''),undefined,{sensitivity:'base'})||String(a.charName||'').localeCompare(String(b.charName||''),undefined,{sensitivity:'base'})); if(!userCharacters.some(c=>c.key===selectedCharacterId)&&userCharacters[0])selectedCharacterId=userCharacters[0].key; return;} const snap=await getDocs(collection(db,'users',currentUser.uid,'characters')); userCharacters=snap.docs.map(d=>({id:d.id,key:`${currentUser.uid}::${d.id}`,ownerUid:currentUser.uid,ownerLabel:currentUser.displayName||currentUser.email||'You',ownerEmail:currentUser.email||'',...d.data()})).sort((a,b)=>String(a.charName||'').localeCompare(String(b.charName||''),undefined,{sensitivity:'base'})); if(!userCharacters.some(c=>c.key===selectedCharacterId||c.id===selectedCharacterId)&&userCharacters[0])selectedCharacterId=userCharacters[0].key;}
-async function removeLegacyShopExpiryFieldsV17(){if(!isShopBuilderMode())return; const legacy=allShops.filter(shop=>Object.prototype.hasOwnProperty.call(shop,'expiresAt')); if(!legacy.length)return; for(let i=0;i<legacy.length;i+=25){await Promise.all(legacy.slice(i,i+25).map(shop=>updateDoc(doc(db,'shopSessions',shop.id),{expiresAt:deleteField()})));} legacy.forEach(shop=>delete shop.expiresAt);}
-async function loadShopData(){try{await Promise.all([loadShopItems(),loadShopSessions(),loadShopAccessBundles(),loadUserCharacters()]); await removeLegacyShopExpiryFieldsV17(); renderShopShell(); renderAdminBuilder(); renderShopAccessBundles();}catch(e){console.error(e);document.getElementById('shopStatus').textContent='Shop error: '+e.message;}}
-function bundleAllowsShop(shop,character){const groupTags=getCharacterGroupTags(character); if(!groupTags.length)return false; return allShopAccessBundles.some(bundle=>Array.isArray(bundle.shopIds)&&bundle.shopIds.includes(shop.id)&&groupTags.includes(normalizeShopTag(bundle.characterGroupTag||bundle.groupTag||'')));}
-function canSeeShop(shop,character){if(isShopBuilderMode())return true; if(shop.active===false||!character)return false; const allowed=normalizeTags([shop.accessTag,shop.allowedCharacterTags]); const directAllowed=allowed.includes('all')||allowed.some(tag=>getCharTags(character).includes(tag)); return directAllowed||bundleAllowsShop(shop,character);}
-function shopItemsFor(shop){if(Array.isArray(shop?.itemIds)&&shop.itemIds.length)return shop.itemIds.map(id=>allShopItemsById.get(id)).filter(Boolean); return [];}
-function getVisibleShops(character){return allShops.filter(s=>canSeeShop(s,character));}
-function selectedShopId(){return isShopBuilderMode()?document.getElementById('adminShopSelect')?.value:document.getElementById('shopSelect')?.value;}
-function findShop(id){return allShops.find(s=>s.id===id)||null;}
-function renderShopShell(){document.getElementById('playerShopTop').style.display=isShopBuilderMode()?'none':'grid'; document.getElementById('adminShopPanel').style.display=isShopBuilderMode()?'block':'none'; const character=renderCharacterBox(); renderShopDropdowns(character); renderSelectedShop();}
-function characterOptionLabel(c){return isShopBuilderMode()?`${c.ownerLabel||c.ownerEmail||c.ownerUid||'User'} — ${c.charName||'Unnamed Character'}`:(c.charName||'Unnamed Character');}
-function renderCharacterBox(){const sel=document.getElementById(isShopBuilderMode()?'adminBuyerCharacterSelect':'shopCharacterSelect'); const gilEl=document.getElementById(isShopBuilderMode()?'adminBuyerGil':'characterGil'); const adminBox=document.getElementById('adminBuyerBox'); if(adminBox)adminBox.style.display=isShopBuilderMode()?'grid':'none'; if(!sel||!gilEl)return null; if(!currentUser){sel.innerHTML='<option>Please sign in</option>';gilEl.textContent='Gil: 0';return null;} if(!userCharacters.length){sel.innerHTML='<option>No characters found</option>';gilEl.textContent='Gil: 0';return null;} const selected=selectedCharacter()||userCharacters[0]; selectedCharacterId=selected?.key||selected?.id||null; sel.innerHTML=userCharacters.map(c=>`<option value="${esc(c.key||c.id)}" ${(c.key||c.id)===selectedCharacterId?'selected':''}>${esc(characterOptionLabel(c))}</option>`).join(''); gilEl.textContent=selected?`Gil: ${getGil(selected).toLocaleString()}`:'Gil: 0'; return selected;}
-document.getElementById('shopCharacterSelect').addEventListener('change',e=>{selectedCharacterId=e.target.value;renderShopShell();});
-const adminBuyerSelect=document.getElementById('adminBuyerCharacterSelect'); if(adminBuyerSelect)adminBuyerSelect.addEventListener('change',e=>{selectedCharacterId=e.target.value;renderShopShell();});
-function renderShopDropdowns(character){const focusId=(location.hash.match(/shop=([^&]+)/)||[])[1]; if(isShopBuilderMode()){const sel=document.getElementById('adminShopSelect'); const shops=allShops; sel.innerHTML=shops.length?shops.map(s=>`<option value="${esc(s.id)}">${esc(s.name||'Unnamed Shop')}</option>`).join(''):'<option value="">No shops yet</option>'; if(focusId&&shops.some(s=>s.id===focusId))sel.value=focusId; if(!sel.value&&shops[0])sel.value=shops[0].id; return;} const shops=getVisibleShops(character); const sel=document.getElementById('shopSelect'); sel.innerHTML=shops.length?shops.map(s=>`<option value="${esc(s.id)}">${esc(s.name||'Unnamed Shop')}</option>`).join(''):'<option value="">No shops available</option>'; if(focusId&&shops.some(s=>s.id===focusId))sel.value=focusId; if(!sel.value&&shops[0])sel.value=shops[0].id;}
-window.renderSelectedShop=()=>{const id=selectedShopId(); const shop=findShop(id); const view=document.getElementById('shopView'); if(!shop){document.getElementById('shopStatus').textContent=isAdmin?'No shop selected. Create one in the builder.':'No shop is available for this character.'; view.innerHTML=''; return;} const items=shopItemsFor(shop); document.getElementById('shopStatus').textContent=`${shop.name||'Unnamed Shop'} • ${items.length.toLocaleString()} item(s) • ${allShopItems.length.toLocaleString()} master item(s) loaded`; view.innerHTML=renderShopCard(shop,items);};
-function renderShopCategoriesOnly(shop,items){const byCat={}; items.forEach(item=>{const cat=item.category||'Misc'; if(!byCat[cat])byCat[cat]=[]; byCat[cat].push(item);}); const cats=Object.keys(byCat).sort((a,b)=>{const ai=CATEGORY_ORDER.indexOf(a),bi=CATEGORY_ORDER.indexOf(b);return (ai<0?999:ai)-(bi<0?999:bi)||String(a).localeCompare(String(b));}); return `<div class="clean-shop-body">${cats.length?cats.map((cat)=>renderCategoryAccordion(shop,cat,byCat[cat],false)).join(''):'<div class="empty-msg">This shop has no item IDs. Edit the shop and select items.</div>'}</div>`;}
-function renderShopCard(shop,items){return `<section class="clean-shop-card"><div class="clean-shop-head"><div><h3 class="shop-title">${esc(shop.name||'Unnamed Shop')}</h3></div></div>${renderShopCategoriesOnly(shop,items)}</section>`;}
-function filterKey(shopId,cat,field){return `${shopId}::${cat}::${field}`;}
-function catOpenKey(shopId,cat){return `${shopId}::${cat}`;}
-function categoryIsOpen(shopId,cat,defaultOpen){const key=catOpenKey(shopId,cat); if(openCategoryState[key]===undefined)openCategoryState[key]=!!defaultOpen; return openCategoryState[key];}
-window.toggleShopCategory=(shopId,cat)=>{const key=catOpenKey(shopId,cat); openCategoryState[key]=!openCategoryState[key]; renderSelectedShop();};
-function categoryFilterFields(cat){return FILTERS_BY_CATEGORY[cat]||["type","sourceSystem","lvl","rarity"];}
-function itemPassesViewFilters(shop,cat,item,skipField=''){return categoryFilterFields(cat).every(field=>{if(field===skipField)return true; const v=viewFilters[filterKey(shop.id,cat,field)]||''; return !v||itemFilterValue(item,field)===v;});}
-function formatFilterOption(field,value){if(field==='lvl')return 'Lvl '+value; return String(value).replace(/\b\w/g,c=>c.toUpperCase());}
-function renderCategoryFilters(shop,cat,items){return `<div class="category-filter-row">${categoryFilterFields(cat).map(field=>{const candidateItems=items.filter(item=>itemPassesViewFilters(shop,cat,item,field)); const vals=[...new Set(candidateItems.map(i=>itemFilterValue(i,field)).filter(Boolean))].sort((a,b)=>field==='lvl'?(Number(a)-Number(b)):String(a).localeCompare(String(b))); if(!vals.length)return ''; const key=filterKey(shop.id,cat,field); const current=viewFilters[key]||''; return `<label><span>${esc(FILTER_LABELS[field]||field)}</span><select onchange="setViewFilter('${shop.id}','${esc(cat).replace(/'/g,'&#39;')}','${field}',this.value)"><option value="">All</option>${vals.map(v=>`<option value="${esc(v)}" ${current===v?'selected':''}>${esc(formatFilterOption(field,v))}</option>`).join('')}</select></label>`;}).join('')}</div>`;}
-window.setViewFilter=(shopId,cat,field,value)=>{viewFilters[filterKey(shopId,cat,field)]=value; if(field==='type'&&!value){viewFilters[filterKey(shopId,cat,'secondaryType')]='';} renderSelectedShop();};
-function categoryFilteredItems(shop,cat,items){return items.filter(item=>itemPassesViewFilters(shop,cat,item));}
-function renderCategoryAccordion(shop,cat,items,defaultOpen){const open=categoryIsOpen(shop.id,cat,defaultOpen); const filtered=categoryFilteredItems(shop,cat,items); return `<div class="shop-category"><button class="shop-category-head" onclick="toggleShopCategory('${shop.id}','${esc(cat).replace(/'/g,'&#39;')}')"><span>${open?'▾':'▸'} ${esc(cat)}</span><span>${filtered.length}/${items.length}</span></button>${open?`<div class="shop-category-body">${renderCategoryFilters(shop,cat,items)}<div class="compact-list">${filtered.length?filtered.map(renderItemRow).join(''):'<div class="empty-msg">No items match these filters.</div>'}</div></div>`:''}</div>`;}
-function renderItemRow(item){const buyBtn=`<button class="shop-buy-btn" onclick="event.stopPropagation();buyShopItem('${item.id}')">Buy</button>`; return `<div class="compact-item-row"><button class="item-name-link" onclick="openItemModal('${item.id}')">${esc(item.name)}</button><div class="shop-price-buy"><span class="compact-price">${esc(getDisplayCost(item))}</span>${buyBtn}</div></div>`;}
-function isAmmunitionItem(item){return String(item?.category||'').toLowerCase()==='ammunition'||normalizeTags([item?.tags,item?.type]).includes('ammunition');}
-function inventoryTagForItem(item){const cat=normalizeCategoryName(item?.category||item?.tags||'Misc'); if(/^weapon$/i.test(cat))return 'Weapons'; if(/^consumables?$/i.test(cat))return 'Food'; if(/^magic item$/i.test(cat))return 'Magic Items'; if(['Weapons','Ranged Weapon','Ammunition','Armor','Gear','Machine','Enchantment','Alchemical Items','Artifacts','Magic Items','Food','Collections','Misc'].includes(cat))return cat; return cat||'Misc';}
-function inventorySlotForItem(item){const direct=Number(item?.slotAmount ?? item?.raw?.slotAmount ?? item?.raw?.['slot amount'] ?? item?.slot ?? item?.slots ?? item?.bulk); if(Number.isFinite(direct)&&direct>=0)return direct; return isAmmunitionItem(item)?0.05:1;}
-function selectedCharacter(){return userCharacters.find(c=>(c.key||c.id)===selectedCharacterId)||userCharacters.find(c=>c.id===selectedCharacterId)||userCharacters[0]||null;}
-function canBuyForSelectedCharacter(){return !!selectedCharacter()&&!!currentUser;}
-function displayLabelFromKey(key){return String(key||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());}
-function detailKeyNorm(k){return String(k||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'');}
-const DETAIL_SKIP_KEYS=new Set(['id','itemid','sourceitemid','sourceshopid','sourceshopname','name','raw','tag','tags','taglist','shoptags','filtertags','desc','description','descriptions','shortdescription','longdescription','special','text','notes','note','flavor','flavortext','url','href','link','page','source','sourceurl','sourceurls','source_url','source url','detailurl','detail_url','detail url','detailsurl','details_url','openurl','openlink','aonurl','pfsrdurl','ffdnurl','sourcesystem','sourcesystemname','system','category','shopgroup','filtertag','filtertags','type','subtype','kind','proficiency','usagetype','usage_type','usage type','lvl','level','rarity','cost','price','pricegil','unitpricegil','purchasedforgil','purchasedat','createdat','updatedat']);
-const DETAIL_USEFUL_KEYS=['damage','dmg','damageDice','damage_dice','dmgDice','dmg_dice','crit','critical','critRange','crit_range','critMultiplier','crit_multiplier','range','rangeIncrement','range_increment','range inc','reach','usage','activation','action','hands','handed','weight','weightLb','weight_lb','bulk','slotAmount','slot_amount','slotsUsed','slots_used','basePrice','base_price','base price','priceMod','price_mod','price mod','mod','bonus','enhancementBonus','enhancement_bonus','acBonus','ac_bonus','armorBonus','armor_bonus','shieldBonus','shield_bonus','maxDex','max_dex','checkPenalty','check_penalty','spellFailure','spell_failure','capacity','reload','ammo','ammunition','hardness','hp','health','breakDc','break_dc','dc','craftDc','craft_dc','saveDc','save_dc','duration','area','target','targets','effect','save','savingThrow','saving_throw','resistance','resist','charges','uses','usesPerDay','uses_per_day','cl','casterLevel','caster_level','aura','school','weightClass','weaponGroup','weapon_group','armorType','armor_type','speedPenalty','speed_penalty'];
-function isUsefulDetailKey(k){const n=detailKeyNorm(k); if(!n||DETAIL_SKIP_KEYS.has(n))return false; return DETAIL_USEFUL_KEYS.map(detailKeyNorm).includes(n)||/(damage|dmg|crit|range|reach|weight|bulk|slotamount|slotsused|hands|bonus|penalty|failure|capacity|reload|ammo|hardness|hp|dc|duration|area|target|save|resist|charges|uses|casterlevel|aura|school|armor|weapon|speed)/i.test(String(k));}
-function cleanDetailValue(v){if(v===undefined||v===null)return ''; if(Array.isArray(v))return v.filter(x=>x!==undefined&&x!==null&&String(x).trim()).join(', '); if(typeof v==='object')return ''; return String(v).trim();}
-function looksLikeUrl(v){return /^(https?:\/\/|www\.|\/)/i.test(String(v||'').trim());}
-function firstDetailValue(item,keys){for(const key of keys){const v=lookupField(item,[key]); const val=cleanDetailValue(v); if(val&&!looksLikeUrl(val)&&val!=='—'&&val.toLowerCase()!=='nan')return val;} return '';}
-function armorSpeedValue(item){const direct=firstDetailValue(item,["speed","speedPenalty","speed penalty"]); if(direct)return direct; const s30=firstDetailValue(item,["speed30Ft","speed 30 ft","speed30"]); const s20=firstDetailValue(item,["speed20Ft","speed 20 ft","speed20"]); return [s30?`30 ft: ${s30}`:'',s20?`20 ft: ${s20}`:''].filter(Boolean).join(' / ');}
-function collectDisplayFields(item){const rows=[]; const config=DETAIL_FIELDS_BY_CATEGORY[item?.category]||[]; const seen=new Set(); for(const [label,keys] of config){let val=label==='Speed'&&item?.category==='Armor'?armorSpeedValue(item):firstDetailValue(item,keys); if(!val)continue; const sig=`${label}:${val}`.toLowerCase(); if(seen.has(sig))continue; seen.add(sig); rows.push([label,val]);} return rows;}
-function itemDetailsHtml(item){const rows=collectDisplayFields(item); if(!rows.length)return ''; return `<h4>Details</h4><div class="item-detail-grid">${rows.map(([k,v])=>`<div class="item-detail-cell"><small>${esc(k)}</small><span>${esc(v)}</span></div>`).join('')}</div>`;}
-function buildPurchasedItem(item,qty,total,shop){const tag=inventoryTagForItem(item);const details=collectDisplayFields(item).map(([label,value])=>({label,value}));return {name:item.name||'Unnamed Item',tags:tag,tagList:[tag,item.category,item.shopGroup,item.secondaryType,item.type,item.slot,item.proficiency,item.usageType,item.rarity,item.sourceSystem,item.lvl?`Lvl ${item.lvl}`:''].filter(Boolean),amount:qty,slot:inventorySlotForItem(item),cost:getDisplayCost(item),unitPriceGil:getPrice(item),purchasedForGil:total,equipped:false,details,desc:[item.desc,item.special?`Special: ${item.special}`:''].filter(Boolean).join('\n\n'),link:item.sourceUrl||'',sourceItemId:item.id,sourceCategory:item.category||'',sourceShopId:shop?.id||'',sourceShopName:shop?.name||'',purchasedAt:new Date().toISOString()};}
-function mergePurchasedItem(items,purchased){const next=Array.isArray(items)?items.map(i=>({...i})):[];const existing=next.find(i=>!i.equipped&&i.sourceItemId&&i.sourceItemId===purchased.sourceItemId&&i.tags===purchased.tags);if(existing){existing.amount=(Number(existing.amount)||1)+(Number(purchased.amount)||1);existing.purchasedForGil=(Number(existing.purchasedForGil)||0)+(Number(purchased.purchasedForGil)||0);existing.purchasedAt=purchased.purchasedAt;}else next.push(purchased);return next;}
-function showPurchaseToast(itemName,total,qty){const old=document.querySelector('.purchase-toast'); if(old)old.remove(); const wrap=document.createElement('div');wrap.className='purchase-toast';wrap.innerHTML=`<div class="purchase-toast-card"><div class="purchase-toast-title">Purchase Complete</div><div class="purchase-toast-lines"><div class="lost">-${Number(total).toLocaleString()} Gil</div><div class="gain">+${qty} ${esc(itemName)}</div></div></div>`;document.body.appendChild(wrap);setTimeout(()=>wrap.remove(),1900);}
-window.buyShopItem=async(id)=>{try{if(!currentUser)return showAlert('Sign In Required','Sign in before buying items.'); const ch=selectedCharacter(); if(!ch)return showAlert('No Character','Choose a character before buying.'); const item=allShopItemsById.get(id); if(!item)return showAlert('Missing Item','This item could not be found in the master database.'); const unitPrice=getPrice(item); if(!unitPrice)return showAlert('Missing Price','This item has no gil price, so it cannot be bought automatically yet.'); const qty=await askPurchaseQuantity(item,unitPrice); if(!qty)return; const total=unitPrice*qty; const ownerUid=ch.ownerUid||currentUser.uid; const charRef=doc(db,'users',ownerUid,'characters',ch.id); const snap=await getDoc(charRef); if(!snap.exists())return showAlert('Character Missing','That character no longer exists.'); const latest={id:ch.id,key:ch.key||`${ownerUid}::${ch.id}`,ownerUid,ownerLabel:ch.ownerLabel,ownerEmail:ch.ownerEmail,...snap.data()}; const gil=getGil(latest); if(gil<total)return showAlert('Not Enough Gil',`${latest.charName||'This character'} has ${gil.toLocaleString()} gil, but this costs ${total.toLocaleString()} gil.`); const shop=findShop(selectedShopId()); const purchased=buildPurchasedItem(item,qty,total,shop); const nextItems=mergePurchasedItem(latest.items,purchased); const nextGil=gil-total; await updateDoc(charRef,{items:nextItems,currency_gil:nextGil,gil:nextGil,updatedAt:new Date()}); Object.assign(ch,{...latest,items:nextItems,currency_gil:nextGil,gil:nextGil}); renderCharacterBox(); showPurchaseToast(item.name||'Item',total,qty); if(document.getElementById('itemModal')?.style.display==='flex')openItemModal(id);}catch(e){console.error(e);showAlert('Purchase Failed',e.message||String(e));}};
-function addTagPill(list,label,value,cls=''){const val=String(value??'').trim(); if(!val)return; const text=label?`${label}: ${val}`:val; const sig=text.toLowerCase(); if(list.some(p=>p.sig===sig))return; list.push({text,value:val,cls,sig});}
-function tagValueForField(item,field){return itemField(item,field);}
-function itemTagPills(item){const list=[]; const fields=TAGS_BY_CATEGORY[item?.category]||["type","secondaryType","sourceSystem","lvl","rarity"]; fields.forEach(field=>{const label=FILTER_LABELS[field]||displayLabelFromKey(field); const val=tagValueForField(item,field); const cls=field==='sourceSystem'?'info':field==='lvl'?'good':field==='rarity'?'warn':''; addTagPill(list,label,val,cls);}); return list;}
-function cleanLongText(v){const s=String(v||'').trim(); if(!s)return ''; return s;}
-window.openItemModal=(id)=>{const item=allShopItemsById.get(id); if(!item)return; const buyAction=canBuyForSelectedCharacter()?`<button class="shop-btn buy-modal-btn" onclick="event.stopPropagation();buyShopItem('${item.id}')">Buy</button>`:''; document.getElementById('itemModalTitle').innerHTML=`<span>${esc(item.name||'Item')}</span>${buyAction}`; const title=document.getElementById('itemModalTitle'); if(title)title.className='item-modal-title-row'; const pills=itemTagPills(item); const desc=cleanLongText(item.desc); const special=cleanLongText(item.special); document.getElementById('itemModalBody').innerHTML=`<div class="price-badge modal-price">${esc(getDisplayCost(item))}</div><div class="item-meta modal-meta">${pills.map(p=>`<span class="tag-pill ${esc(p.cls)}">${esc(p.text)}</span>`).join('')}</div>${itemDetailsHtml(item)}${desc?`<h4>Description</h4><p>${esc(desc)}</p>`:''}${special&&special!==desc?`<h4>Special</h4><p>${esc(special)}</p>`:''}${item.sourceUrl?`<p><a href="${esc(item.sourceUrl)}" target="_blank" class="source-link">Open Source</a></p>`:''}`; document.getElementById('itemModal').style.display='flex';};
-window.closeItemModal=(event,force=false)=>{if(force||event.target.id==='itemModal'){document.getElementById('itemModal').style.display='none';}};
-function renderAdminBuilder(){if(!isAdmin)return; renderCategoryNav(); renderFilterGroups(); renderBuilderItems(); updateShopTagPreview();}
-function categoryItemCount(cat){return allShopItems.filter(i=>i.category===cat).length;}
-function renderCategoryNav(){const nav=document.getElementById('categoryNav'); if(!nav)return; nav.innerHTML=Object.entries(SHOP_GROUPS).map(([group,cats])=>`<div class="shop-group-title">${esc(group)}</div><div class="category-button-grid">${cats.map(cat=>`<button class="category-btn ${cat===selectedCategory?'active':''}" onclick="setBuilderCategory('${cat}')">${esc(cat)} <span class="cat-count">(${categoryItemCount(cat)})</span></button>`).join('')}</div>`).join('');}
-window.setBuilderCategory=(cat)=>{selectedCategory=cat; activeFilters={}; const s=document.getElementById('itemSearchInput'); if(s)s.value=''; renderAdminBuilder();};
-function builderCandidateForField(cat,field){return allShopItems.filter(i=>i.category===cat).filter(item=>Object.entries(activeFilters).every(([f,set])=>f===field||!set.size||set.has(itemFilterValue(item,f))));}
-function valuesForField(cat,field){const vals=new Set(); builderCandidateForField(cat,field).forEach(i=>{const v=itemFilterValue(i,field); if(v)vals.add(v);}); return [...vals].sort((a,b)=>field==='lvl'?(Number(a)-Number(b)):String(a).localeCompare(String(b)));}
-function renderFilterGroups(){const title=document.getElementById('builderTitle'); if(title)title.textContent=selectedCategory; const wrap=document.getElementById('filterGroups'); if(!wrap)return; const fields=FILTERS_BY_CATEGORY[selectedCategory]||['type','lvl','rarity','sourceSystem']; wrap.innerHTML=fields.map(field=>{const vals=valuesForField(selectedCategory,field); if(!vals.length)return ''; const active=activeFilters[field]||new Set(); return `<div class="filter-group"><div class="filter-group-title">${esc(FILTER_LABELS[field]||field)}</div><div class="filter-chip-row">${vals.map(v=>`<button class="filter-chip ${active.has(v)?'active':''}" onclick="toggleFilter('${field}', '${esc(String(v)).replace(/'/g,'&#39;')}')">${esc(field==='lvl'?'Lvl '+v:v)}</button>`).join('')}</div></div>`;}).join(''); updateActiveFilterPills();}
-window.toggleFilter=(field,value)=>{if(!activeFilters[field])activeFilters[field]=new Set(); activeFilters[field].has(value)?activeFilters[field].delete(value):activeFilters[field].add(value); renderFilterGroups(); renderBuilderItems();};
-window.clearAllFilters=()=>{activeFilters={}; const s=document.getElementById('itemSearchInput'); if(s)s.value=''; renderFilterGroups(); renderBuilderItems();};
-function updateActiveFilterPills(){const out=document.getElementById('activeFilterPills'); if(!out)return; const pills=[]; for(const [field,set] of Object.entries(activeFilters)){for(const v of set)pills.push(`<span class="tag-pill info">${esc(FILTER_LABELS[field]||field)}: ${esc(v)}</span>`);} out.innerHTML=pills.join('')||'<span class="shop-note">None</span>';}
-function itemMatchesFilters(item){if(item.category!==selectedCategory)return false; for(const [field,set] of Object.entries(activeFilters)){if(set.size&&!set.has(itemFilterValue(item,field)))return false;} const search=String(document.getElementById('itemSearchInput')?.value||'').trim().toLowerCase(); if(search){const blob=[item.name,item.desc,item.special,item.type,item.secondaryType,item.filterTag,item.slot,item.rarity,item.sourceSystem,item.proficiency,item.usageType,item.tier,item.category,item.shopGroup,item.sourceUrl,item.id].join(' ').toLowerCase(); if(!blob.includes(search))return false;} return true;}
-function compareBuilderItems(a,b){
-  if(builderSort==='gilAsc')return getPrice(a)-getPrice(b)||String(a.name||'').localeCompare(String(b.name||''),undefined,{sensitivity:'base'});
-  if(builderSort==='gilDesc')return getPrice(b)-getPrice(a)||String(a.name||'').localeCompare(String(b.name||''),undefined,{sensitivity:'base'});
-  return String(a.name||'').localeCompare(String(b.name||''),undefined,{sensitivity:'base'})||getPrice(a)-getPrice(b);
-}
-window.setBuilderSort=(value)=>{builderSort=value||'nameAsc';renderBuilderItems();};
-function syncBuilderSortControl(){const sortEl=document.getElementById('builderSortInput'); if(sortEl&&sortEl.value!==builderSort)sortEl.value=builderSort;}
-function renderBuilderItems(){const list=document.getElementById('builderItemList'); if(!list)return; syncBuilderSortControl(); const items=allShopItems.filter(itemMatchesFilters).sort(compareBuilderItems); visibleBuilderIds=items.map(i=>i.id); const count=document.getElementById('builderCount'); if(count)count.textContent=`${items.length.toLocaleString()} visible • ${selectedItemIds.size.toLocaleString()} selected • ${allShopItems.length.toLocaleString()} master`; if(!items.length){list.innerHTML=`<div class="empty-msg">No items match this category/filter.<br><br><strong>Loaded category counts:</strong><br>${esc(categoryDebugText())}</div>`;return;} list.innerHTML=items.slice(0,600).map(renderBuilderItemRow).join('')+(items.length>600?'<div class="empty-msg">Showing first 600. Use filters/search to narrow more.</div>':'');}
-function renderBuilderItemRow(item){const checked=selectedItemIds.has(item.id); return `<div class="compact-item-row builder-row-item ${checked?'selected':''}"><label><input type="checkbox" ${checked?'checked':''} onchange="toggleItemSelect('${item.id}',this.checked)"><button type="button" class="item-name-link" onclick="event.preventDefault();openItemModal('${item.id}')">${esc(item.name)}</button></label><span class="compact-price">${esc(getDisplayCost(item))}</span></div>`;}
-window.toggleItemSelect=(id,checked)=>{checked?selectedItemIds.add(id):selectedItemIds.delete(id); renderBuilderItems();};
-window.selectVisibleItems=()=>{visibleBuilderIds.forEach(id=>selectedItemIds.add(id)); renderBuilderItems();};
-window.unselectVisibleItems=()=>{visibleBuilderIds.forEach(id=>selectedItemIds.delete(id)); renderBuilderItems();};
-window.clearSelection=()=>{selectedItemIds.clear(); renderBuilderItems();};
-function updateShopTagPreview(){const input=document.getElementById('shopNameInput'); const tag=normalizeShopTag(input?.value||''); const el=document.getElementById('shopTagPreview'); if(el)el.textContent=tag?`Character shop tag needed: ${tag}`:'Type a shop name. The same name becomes the character shop tag.';}
-document.getElementById('shopNameInput').addEventListener('input',updateShopTagPreview);
-window.cancelEditShop=()=>{editingShopId=null; selectedItemIds.clear(); document.getElementById('shopNameInput').value=''; document.getElementById('saveShopBtn').textContent='Create Shop'; document.getElementById('editShopNotice').classList.add('hidden'); updateShopTagPreview(); renderBuilderItems();};
-window.saveShopSession=async()=>{if(!isAdmin)return; const name=document.getElementById('shopNameInput').value.trim(); if(!name)return showAlert('Missing Shop Name','Add a shop name first.'); if(!selectedItemIds.size)return showAlert('No Items Selected','Select at least one item for this shop.'); const accessTag=normalizeShopTag(name); const payload={name,accessTag,allowedCharacterTags:[accessTag],itemIds:[...selectedItemIds],active:true,updatedAt:new Date(),createdBy:currentUser?.email||''}; if(editingShopId){await updateDoc(doc(db,'shopSessions',editingShopId),{...payload,expiresAt:deleteField()});}else{await addDoc(collection(db,'shopSessions'),{...payload,createdAt:new Date()});} await loadShopData(); const msg=`${editingShopId?'Updated':'Created'} ${name}\nAccess tag: ${accessTag}\nItems: ${selectedItemIds.size}`; cancelEditShop(); showAlert('Shop Saved',msg);};
-window.deleteSelectedShop=()=>{const id=selectedShopId(); if(id)deleteShopSession(id);};
-window.deleteShopSession=(id)=>showConfirm('Delete Shop','Delete this shop? Master items will stay in the database.',async()=>{await deleteDoc(doc(db,'shopSessions',id));await loadShopData();});
-async function commitShopItemBatch(batchState,op){
-  if(!batchState.batch)batchState.batch=writeBatch(db);
-  op(batchState.batch);
-  batchState.count++;
-  if(batchState.count>=450){await batchState.batch.commit(); batchState.batch=writeBatch(db); batchState.count=0;}
-}
-async function deleteAllDocsInCollection(colName,statusPrefix='Clearing'){
-  const snap=await getDocs(collection(db,colName));
-  const batchState={batch:writeBatch(db),count:0};
-  let deleted=0;
-  for(const existing of snap.docs){
-    await commitShopItemBatch(batchState,b=>b.delete(existing.ref));
-    deleted++;
-    if(deleted%250===0)document.getElementById('importResult').textContent=`${statusPrefix} ${colName}: ${deleted.toLocaleString()} removed...`;
-  }
-  if(batchState.count>0)await batchState.batch.commit();
-  return deleted;
-}
-window.clearMasterItemsOnly=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); showConfirm('Clear Master Items','This deletes every document in Firestore shopItems only. It does not delete characters, gil, inventories, calendar events, or information links. Continue?',async()=>{try{const deleted=await deleteAllDocsInCollection('shopItems','Clearing'); allShopItems=[]; allShopItemsById=new Map(); selectedItemIds.clear(); document.getElementById('importResult').textContent=`Cleared master item database: ${deleted.toLocaleString()} item(s) removed. You can now import/update JSON if you want a fresh master set.`; await loadShopData();}catch(e){console.error(e);showAlert('Clear Failed',e.message||String(e));}});};
-function importAliasValue(raw,keys){
-  for(const key of keys){
-    const v=lookupField(raw,[key]);
-    if(String(v??'').trim())return String(v).trim();
-  }
-  return '';
-}
-function importCandidateIds(raw,item){
-  const keys=['id','itemId','itemID','newId','newID','oldId','oldID','previousId','previousID','legacyId','legacyID','originalId','originalID','sourceItemId','source_item_id'];
-  return keys.map(k=>importAliasValue(raw,[k])).concat(keys.map(k=>importAliasValue(raw?.raw||{},[k]))).map(v=>String(v||'').trim()).filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i);
-}
-async function upsertShopItemsFromJson(items,label){
-  const normalized=[];
-  const existingById=new Map(allShopItems.map(i=>[String(i.id||'').trim(),i]));
-  for(const raw of items){
-    let item=normalizeImportedItem(raw);
-    const matchIds=importCandidateIds(raw,item);
-    const matchedExisting=matchIds.map(id=>existingById.get(id)).find(Boolean)||existingById.get(String(item.id||'').trim());
-    item=applyPreservedProficiency(item,matchedExisting);
-    if(!item.id)continue;
-    normalized.push({item,matchIds});
-  }
-  if(!normalized.length)throw new Error('No items found in JSON.');
-  const batchState={batch:writeBatch(db),count:0};
-  let saved=0,migrated=0;
-  const migratedOldIds=new Set();
-  for(const row of normalized){
-    const {item,matchIds}=row;
-    const finalId=String(item.id||'').trim();
-    await commitShopItemBatch(batchState,b=>b.set(doc(db,'shopItems',finalId),item));
-    for(const oldId of matchIds){
-      if(oldId&&oldId!==finalId&&existingById.has(oldId)&&!migratedOldIds.has(oldId)){
-        await commitShopItemBatch(batchState,b=>b.delete(doc(db,'shopItems',oldId)));
-        migratedOldIds.add(oldId);
-        migrated++;
-      }
-    }
-    saved++;
-    if(saved%250===0)document.getElementById('importResult').textContent=`Importing ${label}: ${saved.toLocaleString()} / ${normalized.length.toLocaleString()} updated...`;
-  }
-  if(batchState.count>0)await batchState.batch.commit();
-  document.getElementById('importResult').textContent=`Imported/updated ${label}: ${saved.toLocaleString()} item(s) upserted. ${migrated.toLocaleString()} old ID document(s) migrated. Missing JSON IDs were left alone.`;
-  await loadShopData();
-}
-window.importShopJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); const file=document.getElementById('shopImportFile').files[0]; if(!file)return showAlert('Missing File','Choose items.json first.'); showConfirm('Import / Update Master Items','This will add new item IDs and update matching existing IDs. It will not delete master items that are missing from the JSON. If an item includes oldId, previousId, or legacyId, that old document can be migrated to the new ID. Continue?',async()=>{try{const data=JSON.parse(await file.text()); const items=Array.isArray(data)?data:(data.items||data.shopItems||[]); await upsertShopItemsFromJson(items,file.name||'uploaded JSON');}catch(e){console.error(e);showAlert('Import Failed',e.message||String(e));}});};
-window.importBundledJson=async()=>{if(!isAdmin)return showAlert('Admin Required',`You are signed in as ${currentUser?.email||'not signed in'} / ${currentUser?.uid||'no uid'}.`); showConfirm('Import / Update Master Items','This will add new bundled item IDs and update matching existing IDs. It will not delete master items that are missing from the bundled JSON. Continue?',async()=>{try{const items=await loadStaticItems(); if(!items.length)return showAlert('No Bundled JSON','Upload data/items.json or use the file picker.'); await upsertShopItemsFromJson(items,'bundled JSON');}catch(e){console.error(e);showAlert('Import Failed',e.message||String(e));}});};
-
-
-
-// --- Shop Access Groups / Character Group based access ---
-function selectedBundleShopIds(){return [...document.querySelectorAll('#shopBundleShopPicks input[type="checkbox"]:checked')].map(input=>input.value);}
-function renderShopAccessBundles(){
-  const panel=document.getElementById('shopAccessBundlePanel'); if(!panel)return;
-  panel.style.display=isShopBuilderMode()?'block':'none'; if(!isShopBuilderMode())return;
-  const groupSelect=document.getElementById('shopBundleCharacterGroup');
-  const selectedGroup=groupSelect?.value || '';
-  if(groupSelect) groupSelect.innerHTML='<option value="">Select a character group</option>'+allCharacterGroups.map(group=>`<option value="${esc(normalizeShopTag(group.name))}" ${normalizeShopTag(group.name)===selectedGroup?'selected':''}>${esc(group.name)}</option>`).join('');
-  const active=allShopAccessBundles.find(bundle=>bundle.id===editingShopBundleId);
-  if(active && groupSelect) groupSelect.value=normalizeShopTag(active.characterGroupTag||active.groupTag||'');
-  const selectedIds=new Set(active?.shopIds||[]);
-  const picks=document.getElementById('shopBundleShopPicks');
-  if(picks) picks.innerHTML=allShops.length?allShops.map(shop=>`<label><input type="checkbox" value="${esc(shop.id)}" ${selectedIds.has(shop.id)?'checked':''}> ${esc(shop.name||'Unnamed Shop')}</label>`).join(''):'<span class="shop-note">Create shops first.</span>';
-  const list=document.getElementById('shopBundleList');
-  if(list) list.innerHTML=allShopAccessBundles.length?allShopAccessBundles.map(bundle=>{const group=allCharacterGroups.find(g=>normalizeShopTag(g.name)===normalizeShopTag(bundle.characterGroupTag||bundle.groupTag||'')); const names=(bundle.shopIds||[]).map(id=>allShops.find(shop=>shop.id===id)?.name).filter(Boolean); return `<div class="shop-bundle-card"><div><strong>${esc(bundle.name||'Shop Group')}</strong><div class="shop-bundle-meta">Access: ${esc(group?.name||bundle.characterGroupTag||'No group')} • Shops: ${esc(names.join(', ')||'None')}</div></div><div class="shop-bundle-card-actions"><button class="shop-btn secondary" type="button" onclick="previewShopAccessBundleV16('${esc(bundle.id)}')">Preview</button><button class="shop-btn secondary" type="button" onclick="editShopAccessBundle('${esc(bundle.id)}')">Edit</button><button class="shop-btn danger" type="button" onclick="deleteShopAccessBundle('${esc(bundle.id)}')">Delete</button></div></div>`;}).join(''):'<div class="shop-note">No shop groups yet.</div>';
-}
-window.cancelShopAccessBundleEdit=()=>{editingShopBundleId=null; const n=document.getElementById('shopBundleName'); if(n)n.value=''; const b=document.getElementById('shopBundleSaveBtn'); if(b)b.textContent='Create Shop Group'; renderShopAccessBundles();};
-window.editShopAccessBundle=(id)=>{const bundle=allShopAccessBundles.find(item=>item.id===id);if(!bundle)return;editingShopBundleId=id;document.getElementById('shopBundleName').value=bundle.name||'';document.getElementById('shopBundleSaveBtn').textContent='Update Shop Group';renderShopAccessBundles();};
-window.saveShopAccessBundle=async()=>{if(!isShopBuilderMode())return;const name=String(document.getElementById('shopBundleName')?.value||'').trim();const characterGroupTag=normalizeShopTag(document.getElementById('shopBundleCharacterGroup')?.value||'');const shopIds=selectedBundleShopIds();if(!name)return showAlert('Missing Name','Enter a shop group name.');if(!characterGroupTag)return showAlert('Missing Character Group','Choose the character group that receives access.');if(!shopIds.length)return showAlert('No Shops','Select at least one shop.');const payload={name,characterGroupTag,shopIds,updatedAt:new Date(),updatedBy:currentUser?.email||''};if(editingShopBundleId)await setDoc(doc(db,'shopAccessGroups',editingShopBundleId),payload,{merge:true});else await addDoc(collection(db,'shopAccessGroups'),{...payload,createdAt:new Date()});await loadShopData();cancelShopAccessBundleEdit();showAlert('Shop Group Saved',`${name} now grants ${shopIds.length} shop(s) to ${characterGroupTag}.`);};
-window.deleteShopAccessBundle=(id)=>showConfirm('Delete Shop Group','Delete this shop access group? Individual shops and characters will remain.',async()=>{await deleteDoc(doc(db,'shopAccessGroups',id));if(editingShopBundleId===id)editingShopBundleId=null;await loadShopData();});
-
-// --- Information Links patch ---
-const INFO_LINKS_DOC_ID='config';
-const DEFAULT_INFO_LINK_GROUPS=[
-  {title:'Name 1',links:[]},
-  {title:'Name 2',links:[]},
-  {title:'Name 3',links:[]},
-  {title:'Name 4',links:[]}
-];
-let informationLinkGroups=DEFAULT_INFO_LINK_GROUPS.map(g=>({title:g.title,links:[]}));
-function normalizeInfoGroups(data){
-  const source=Array.isArray(data?.groups)?data.groups:[];
-  const groups=[];
-  for(let i=0;i<4;i++){
-    const g=source[i]||DEFAULT_INFO_LINK_GROUPS[i];
-    groups.push({title:String(g?.title||DEFAULT_INFO_LINK_GROUPS[i].title),links:Array.isArray(g?.links)?g.links.map(l=>({name:String(l?.name||'').trim(),url:String(l?.url||'').trim()})).filter(l=>l.name&&l.url):[]});
-  }
-  return groups;
-}
-function ensureInfoUrl(url){
-  const u=String(url||'').trim();
-  if(!u)return '';
-  if(/^https?:\/\//i.test(u))return u;
-  return 'https://'+u;
-}
-async function loadInformationLinks(){
-  try{
-    const snap=await getDoc(doc(db,'informationLinks',INFO_LINKS_DOC_ID));
-    informationLinkGroups=normalizeInfoGroups(snap.exists()?snap.data():null);
-  }catch(e){console.warn('Information links load failed',e);informationLinkGroups=normalizeInfoGroups(null);}
-  renderInformationLinks();
-}
-async function saveInformationLinks(){
-  if(!isAdmin)return;
-  await setDoc(doc(db,'informationLinks',INFO_LINKS_DOC_ID),{groups:informationLinkGroups,updatedAt:new Date(),updatedBy:currentUser?.email||''},{merge:true});
-  renderInformationLinks();
-}
-function renderInformationLinks(){
-  document.body.classList.toggle('info-admin',!!isAdmin);
-  const grid=document.getElementById('informationLinksGrid');
-  if(!grid)return;
-  grid.innerHTML=informationLinkGroups.map((group,groupIndex)=>`<article class="info-link-card"><div class="info-link-card-head"><div class="info-link-card-title">${esc(group.title||('Name '+(groupIndex+1)))}</div><div class="info-link-card-actions"><button class="info-link-mini-btn" type="button" onclick="renameInfoGroup(${groupIndex})">Rename</button><button class="info-link-mini-btn" type="button" onclick="addInfoLink(${groupIndex})">+ Link</button><button class="info-link-mini-btn" type="button" onclick="sortInfoLinks(${groupIndex})">A-Z</button></div></div><div class="info-link-list">${group.links.length?group.links.map((link,linkIndex)=>`<div class="info-link-item"><a href="${esc(ensureInfoUrl(link.url))}" target="_blank" rel="noopener">${esc(link.name)}</a><div class="info-link-actions"><button class="info-link-mini-btn" type="button" onclick="editInfoLink(${groupIndex},${linkIndex})">Edit</button><button class="info-link-mini-btn" type="button" onclick="deleteInfoLink(${groupIndex},${linkIndex})">Del</button></div></div>`).join(''):'<div class="info-link-empty">No links yet.</div>'}</div></article>`).join('');
-}
-window.renameInfoGroup=async(groupIndex)=>{
-  if(!isAdmin)return;
-  const current=informationLinkGroups[groupIndex]?.title||`Name ${groupIndex+1}`;
-  const next=prompt('Box name:',current);
-  if(next===null)return;
-  informationLinkGroups[groupIndex].title=String(next).trim()||current;
-  await saveInformationLinks();
-};
-window.addInfoLink=async(groupIndex)=>{
-  if(!isAdmin)return;
-  const name=prompt('Link display name:');
-  if(name===null||!String(name).trim())return;
-  const url=prompt('Link URL:');
-  if(url===null||!String(url).trim())return;
-  informationLinkGroups[groupIndex].links.push({name:String(name).trim(),url:ensureInfoUrl(url)});
-  await saveInformationLinks();
-};
-window.editInfoLink=async(groupIndex,linkIndex)=>{
-  if(!isAdmin)return;
-  const link=informationLinkGroups[groupIndex]?.links?.[linkIndex];
-  if(!link)return;
-  const name=prompt('Link display name:',link.name);
-  if(name===null||!String(name).trim())return;
-  const url=prompt('Link URL:',link.url);
-  if(url===null||!String(url).trim())return;
-  informationLinkGroups[groupIndex].links[linkIndex]={name:String(name).trim(),url:ensureInfoUrl(url)};
-  await saveInformationLinks();
-};
-window.deleteInfoLink=(groupIndex,linkIndex)=>{
-  if(!isAdmin)return;
-  const link=informationLinkGroups[groupIndex]?.links?.[linkIndex];
-  if(!link)return;
-  showConfirm('Delete Link',`Delete "${link.name}"?`,async()=>{informationLinkGroups[groupIndex].links.splice(linkIndex,1);await saveInformationLinks();});
-};
-window.sortInfoLinks=async(groupIndex)=>{
-  if(!isAdmin)return;
-  informationLinkGroups[groupIndex].links.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),undefined,{sensitivity:'base'}));
-  await saveInformationLinks();
-};
-
-
-onAuthStateChanged(auth,async user=>{currentUser=user||null; const link=document.getElementById('authLink'),mLink=document.getElementById('mobileAuthLink'); if(user){link.textContent='My Account';link.href='account.html';mLink.textContent='My Account';mLink.href='account.html';isAdmin=currentUserIsAdmin(user);document.getElementById('adminShopPanel').style.display=(!TOOLS_EMBED_SHOP&&isAdmin)?'block':'none';const ident=document.getElementById('adminIdentityStatus');if(ident)ident.textContent=`Signed in as ${user.email||'no email'} • UID ${user.uid} • Admin ${isAdmin?'yes':'no'}`;}else{link.textContent='Sign In';link.href='signin.html';mLink.textContent='Sign In';mLink.href='signin.html';isAdmin=false;document.getElementById('adminShopPanel').style.display='none';const ident=document.getElementById('adminIdentityStatus');if(ident)ident.textContent='Not signed in.';} document.body.classList.toggle('tools-admin',!TOOLS_EMBED_SHOP&&isAdmin);document.body.classList.toggle('tools-player',!TOOLS_EMBED_SHOP&&!isAdmin);await loadInformationLinks(); if(TOOLS_EMBED_SHOP||isAdmin){await loadShopData();} if(TOOLS_EMBED_SHOP||location.hash==='#shop'||location.hash.includes('shop='))activateTab('shop'); else activateTab('links');});
-function activateTab(id){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.tab-content').forEach(c=>c.classList.toggle('active',c.id===id)); if(id==='shop')loadShopData();}
-document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>activateTab(btn.dataset.tab)));
-
-
-
-// --- v18 restore admin builder controls removed during permanent-shop cleanup ---
-window.toggleAdminBuilder=()=>{
-  const body=document.getElementById('adminBuilderBody');
-  const btn=document.getElementById('builderToggleBtn');
-  if(!body || !btn) return;
-  body.classList.toggle('collapsed');
-  btn.textContent=body.classList.contains('collapsed')?'Show Shop Builder':'Hide Shop Builder';
-};
-function openAdminBuilder(){
-  const body=document.getElementById('adminBuilderBody');
-  const btn=document.getElementById('builderToggleBtn');
-  if(!body || !btn) return;
-  body.classList.remove('collapsed');
-  btn.textContent='Hide Shop Builder';
-}
-window.startEditSelectedShop=(id)=>{
-  if(!isShopBuilderMode()) return;
-  const shop=id ? findShop(id) : findShop(document.getElementById('adminShopSelect')?.value);
-  if(!shop) return showAlert('No Shop Selected','Choose a shop first.');
-  editingShopId=shop.id;
-  selectedItemIds=new Set(Array.isArray(shop.itemIds)?shop.itemIds:[]);
-  const name=document.getElementById('shopNameInput'); if(name) name.value=shop.name||'';
-  const save=document.getElementById('saveShopBtn'); if(save) save.textContent='Update Shop';
-  const notice=document.getElementById('editShopNotice'); if(notice){notice.classList.remove('hidden');notice.textContent=`Editing: ${shop.name||'Unnamed Shop'}`;}
-  openAdminBuilder(); renderAdminBuilder(); updateShopTagPreview();
-};
-
-// --- v16 embedded current-character Shop Groups and admin preview ---
-const EMBED_CHARACTER_ID_V16 = new URLSearchParams(window.location.search).get('character') || '';
-const EMBED_OWNER_UID_V18 = new URLSearchParams(window.location.search).get('owner') || '';
-let openBundleShopsV16 = {};
-let adminPreviewBundleIdV16 = '';
-let renderingBundleShopIdV16 = '';
-const loadUserCharactersV15 = loadUserCharacters;
-loadUserCharacters = async function() {
-  if(TOOLS_EMBED_SHOP && EMBED_OWNER_UID_V18 && EMBED_CHARACTER_ID_V16 && isAdmin) {
-    try {
-      const targetSnap = await getDoc(doc(db,'users',EMBED_OWNER_UID_V18,'characters',EMBED_CHARACTER_ID_V16));
-      if(targetSnap.exists()) {
-        const data=targetSnap.data()||{};
-        userCharacters=[{id:EMBED_CHARACTER_ID_V16,key:`${EMBED_OWNER_UID_V18}::${EMBED_CHARACTER_ID_V16}`,ownerUid:EMBED_OWNER_UID_V18,ownerLabel:'Selected Character',...data}];
-        selectedCharacterId=userCharacters[0].key;
-        return;
-      }
-    } catch(err) { console.warn('Could not load selected admin preview character',err); }
-  }
-  await loadUserCharactersV15();
-  if(TOOLS_EMBED_SHOP && EMBED_CHARACTER_ID_V16) {
-    const matched = userCharacters.find(c => c.id === EMBED_CHARACTER_ID_V16 || c.key === EMBED_CHARACTER_ID_V16 || c.key === `${currentUser?.uid}::${EMBED_CHARACTER_ID_V16}`);
-    if(matched) selectedCharacterId = matched.key || matched.id;
-  }
-};
-const renderCharacterBoxV15 = renderCharacterBox;
-renderCharacterBox = function() {
-  if(!TOOLS_EMBED_SHOP) return renderCharacterBoxV15();
-  const sel=document.getElementById('shopCharacterSelect'), gilEl=document.getElementById('characterGil'), nameEl=document.getElementById('embeddedCharacterName');
-  if(!currentUser || !userCharacters.length){ if(sel)sel.innerHTML='<option>No character available</option>'; if(gilEl)gilEl.textContent='Gil: 0'; if(nameEl)nameEl.textContent='No Character'; return null; }
-  const selected=selectedCharacter() || userCharacters[0]; selectedCharacterId=selected?.key || selected?.id || null;
-  if(sel) sel.innerHTML=`<option value="${esc(selectedCharacterId||'')}">${esc(selected?.charName||'Character')}</option>`;
-  if(nameEl) nameEl.textContent=selected?.charName || 'Character';
-  if(gilEl) gilEl.textContent=`Gil: ${getGil(selected).toLocaleString()}`;
-  return selected;
-};
-function bundleShopsV16(bundle) {
-  return (Array.isArray(bundle?.shopIds) ? bundle.shopIds : []).map(findShop).filter(shop => shop && shop.active !== false).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),undefined,{sensitivity:'base'}));
-}
-function visibleBundlesV16(character) {
-  const tags=getCharacterGroupTags(character);
-  return allShopAccessBundles.filter(bundle => tags.includes(normalizeShopTag(bundle.characterGroupTag||bundle.groupTag||'')) && bundleShopsV16(bundle).length).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),undefined,{sensitivity:'base'}));
-}
-const renderShopDropdownsV15=renderShopDropdowns;
-renderShopDropdowns=function(character){
-  if(!TOOLS_EMBED_SHOP) return renderShopDropdownsV15(character);
-  const sel=document.getElementById('shopSelect'), bundles=visibleBundlesV16(character); if(!sel)return;
-  const prior=String(sel.value||'').replace(/^bundle:/,'');
-  sel.innerHTML=bundles.length?bundles.map(bundle=>`<option value="bundle:${esc(bundle.id)}">${esc(bundle.name||'Shop Group')}</option>`).join(''):'<option value="">No shop groups available</option>';
-  if(prior && bundles.some(bundle=>bundle.id===prior)) sel.value=`bundle:${prior}`;
-  else if(bundles[0]) sel.value=`bundle:${bundles[0].id}`;
-};
-function bundleShopItemRowV16(item, shopId) {
-  const buyBtn=`<button class="shop-buy-btn" onclick="event.stopPropagation();buyShopItemFromGroupV16('${shopId}','${item.id}')">Buy</button>`;
-  return `<div class="compact-item-row"><button class="item-name-link" onclick="openBundleItemV16('${shopId}','${item.id}')">${esc(item.name)}</button><div class="shop-price-buy"><span class="compact-price">${esc(getDisplayCost(item))}</span>${buyBtn}</div></div>`;
-}
-const renderItemRowV15=renderItemRow;
-renderItemRow=function(item){ return renderingBundleShopIdV16 ? bundleShopItemRowV16(item,renderingBundleShopIdV16) : renderItemRowV15(item); };
-function renderOneBundledShopV16(shop) {
-  const open=!!openBundleShopsV16[shop.id];
-  const items=shopItemsFor(shop);
-  const categories=[...new Set(items.map(item=>item.category||'Misc'))].sort((a,b)=>String(a).localeCompare(String(b),undefined,{sensitivity:'base'}));
-  const categoryPreview=categories.length ? categories.slice(0,3).join(' • ')+(categories.length>3?' • +more':'') : 'No items added yet';
-  let body='';
-  if(open) { renderingBundleShopIdV16=shop.id; body=renderShopCategoriesOnly(shop,items); renderingBundleShopIdV16=''; }
-  return `<section class="bundle-shop-wrap ${open?'open':''}"><button class="bundle-shop-toggle" type="button" onclick="toggleBundledShopV16('${shop.id}')" aria-expanded="${open?'true':'false'}"><span class="bundle-shop-main"><span class="bundle-shop-chevron">${open?'−':'+'}</span><span class="bundle-shop-title">${esc(shop.name||'Unnamed Shop')}</span><span class="bundle-shop-category-preview">${esc(categoryPreview)}</span></span><span class="bundle-shop-count">${items.length}<small>Items</small></span></button>${open?`<div class="bundle-shop-content">${body}</div>`:''}</section>`;
-}
-function renderBundlePreviewV16(bundle, adminView=false) {
-  const shops=bundleShopsV16(bundle);
-  const itemTotal=shops.reduce((sum,shop)=>sum+shopItemsFor(shop).length,0);
-  return `<section class="shop-group-showcase"><div class="shop-group-hero"><div class="shop-group-hero-text"><span class="shop-group-eyebrow">${adminView?'Admin Preview':'Available Shop Group'}</span><h3 class="shop-group-hero-title">${esc(bundle.name||'Shop Group')}</h3></div><div class="shop-group-hero-metrics"><span class="shop-group-metric"><strong>${shops.length}</strong><small>Shops</small></span><span class="shop-group-metric"><strong>${itemTotal}</strong><small>Items</small></span>${adminView?'<button class="shop-btn secondary shop-group-close" type="button" onclick="clearShopGroupPreviewV16()">Close</button>':''}</div></div><div class="shop-bundle-shop-accordion">${shops.length?shops.map(renderOneBundledShopV16).join(''):'<div class="empty-msg">This Shop Group has no available shops.</div>'}</div></section>`;
-}
-window.toggleBundledShopV16=shopId=>{openBundleShopsV16[shopId]=!openBundleShopsV16[shopId];window.renderSelectedShop();};
-window.previewShopAccessBundleV16=id=>{adminPreviewBundleIdV16=id;window.renderSelectedShop();document.getElementById('shopView')?.scrollIntoView({behavior:'smooth',block:'start'});};
-window.clearShopGroupPreviewV16=()=>{adminPreviewBundleIdV16='';window.renderSelectedShop();};
-const renderSelectedShopV15=window.renderSelectedShop;
-window.renderSelectedShop=()=>{
-  const view=document.getElementById('shopView'),status=document.getElementById('shopStatus');
-  if(TOOLS_EMBED_SHOP){ const raw=document.getElementById('shopSelect')?.value||''; const id=raw.replace(/^bundle:/,''); const bundle=allShopAccessBundles.find(item=>item.id===id); if(!bundle){if(status)status.textContent='No shop group is available for this character.';if(view)view.innerHTML='';return;} const shops=bundleShopsV16(bundle); if(status)status.textContent=`${bundle.name||'Shop Group'} • ${shops.length} shop(s)`; if(view)view.innerHTML=renderBundlePreviewV16(bundle,false); return; }
-  if(isShopBuilderMode() && adminPreviewBundleIdV16){ const bundle=allShopAccessBundles.find(item=>item.id===adminPreviewBundleIdV16); if(bundle){if(status)status.textContent=`Admin Preview • ${bundle.name||'Shop Group'} • ${bundleShopsV16(bundle).length} shop(s)`;if(view)view.innerHTML=renderBundlePreviewV16(bundle,true);return;} adminPreviewBundleIdV16=''; }
-  return renderSelectedShopV15();
-};
-const buyShopItemV15=window.buyShopItem;
-window.buyShopItemFromGroupV16=async (shopId,itemId)=>{
-  const sel=document.getElementById(TOOLS_EMBED_SHOP?'shopSelect':'adminShopSelect'); const saved=sel?.value||''; let option=null;
-  if(sel){option=document.createElement('option'); option.value=shopId; option.hidden=true; option.textContent='Selected shop'; sel.appendChild(option); sel.value=shopId;}
-  try { await buyShopItemV15(itemId); } finally { if(option) option.remove(); if(sel) sel.value=saved; window.renderSelectedShop(); }
-};
-const openItemModalV15=window.openItemModal;
-window.openBundleItemV16=(shopId,itemId)=>{ openItemModalV15(itemId); const btn=document.querySelector('#itemModalTitle .buy-modal-btn'); if(btn) btn.setAttribute('onclick',`event.stopPropagation();buyShopItemFromGroupV16('${shopId}','${itemId}')`); };
-
-
-
-/* --- Restaurant-style Food storefront v21 --- */
-const renderShopCategoriesOnlyV20 = renderShopCategoriesOnly;
-function foodCourseLabelV21(item) {
-  const raw = String(itemField(item,'secondaryType') || item?.secondaryType || item?.filterTag || '').trim().toLowerCase().replace(/[–—_]+/g,' ').replace(/\s+/g,' ');
-  if (/appeti[sz]er|starter|small plate/.test(raw)) return 'Appetizer';
-  if (/dessert|sweet|pastr|cake|confection/.test(raw)) return 'Dessert';
-  if (/non\s*[- ]?al(?:co|cho)hol|nonal(?:co|cho)hol|soft drink|juice|coffee|tea|water/.test(raw)) return 'Non-Alcohol';
-  if (/al(?:co|cho)hol|beer|wine|liquor|cocktail|spirits?|ale|mead/.test(raw)) return 'Alcohol';
-  if (/meal|food|entr[eé]e|main|dish/.test(raw)) return 'Entree';
-  return 'Entree';
-}
-function restaurantItemOpenActionV21(shopId,itemId) {
-  if (renderingBundleShopIdV16) return `openBundleItemV16('${shopId}','${itemId}')`;
-  return `openItemModal('${itemId}')`;
-}
-function renderRestaurantFoodMenuV21(shop,items) {
-  const order = ['Appetizer','Entree','Dessert','Non-Alcohol','Alcohol'];
-  const buckets = Object.fromEntries(order.map(name => [name, []]));
-  items.forEach(item => buckets[foodCourseLabelV21(item)].push(item));
-  order.forEach(name => buckets[name].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),undefined,{sensitivity:'base'})));
-  const shopId = String(shop?.id || '').replace(/'/g, "\\'");
-  const courseHtml = order.map(course => {
-    const rows = buckets[course].map(item => {
-      const itemId = String(item.id || '').replace(/'/g, "\\'");
-      return `<div class="restaurant-menu-row"><button class="restaurant-menu-name" type="button" onclick="${restaurantItemOpenActionV21(shopId,itemId)}">${esc(item.name||'Unnamed Item')}</button><span class="restaurant-menu-dots" aria-hidden="true"></span><span class="restaurant-menu-price">${esc(getDisplayCost(item))}</span></div>`;
-    }).join('');
-    return `<section class="restaurant-menu-course"><h4 class="restaurant-menu-course-title">${course}</h4><div class="restaurant-menu-rows">${rows || '<div class="restaurant-menu-empty">No selections available</div>'}</div></section>`;
-  }).join('');
-  return `<div class="restaurant-menu-card"><div class="restaurant-menu-title">Menu</div><div class="restaurant-menu-rule"></div>${courseHtml}</div>`;
-}
-renderShopCategoriesOnly = function(shop,items) {
-  const byCat = {};
-  items.forEach(item => { const cat=item.category || 'Misc'; if(!byCat[cat]) byCat[cat]=[]; byCat[cat].push(item); });
-  const cats = Object.keys(byCat).sort((a,b)=>{ const ai=CATEGORY_ORDER.indexOf(a), bi=CATEGORY_ORDER.indexOf(b); return (ai<0?999:ai)-(bi<0?999:bi)||String(a).localeCompare(String(b)); });
-  const sections = cats.map(cat => {
-    if (String(cat).toLowerCase() === 'food') {
-      const open = categoryIsOpen(shop.id,cat,false);
-      const foodItems = byCat[cat];
-      return `<div class="shop-category restaurant-food-category"><button class="shop-category-head" onclick="toggleShopCategory('${shop.id}','${esc(cat).replace(/'/g,'&#39;')}')"><span>${open?'▾':'▸'} Food Menu</span><span>${foodItems.length}</span></button>${open?`<div class="shop-category-body">${renderRestaurantFoodMenuV21(shop,foodItems)}</div>`:''}</div>`;
-    }
-    return renderCategoryAccordion(shop,cat,byCat[cat],false);
-  }).join('');
-  return `<div class="clean-shop-body">${sections || '<div class="empty-msg">This shop has no item IDs. Edit the shop and select items.</div>'}</div>`;
-};
-
-
-/* --- Gold tabbed Shop Group layout v22 --- */
-let selectedBundleShopV22 = {};
-function selectedShopForBundleV22(bundle, shops) {
-  if (!shops.length) return null;
-  const current = selectedBundleShopV22[bundle.id];
-  const selected = shops.find(shop => shop.id === current) || shops[0];
-  selectedBundleShopV22[bundle.id] = selected.id;
-  return selected;
-}
-window.selectBundleShopV22 = (bundleId, shopId) => {
-  selectedBundleShopV22[bundleId] = shopId;
-  window.renderSelectedShop();
-};
-renderBundlePreviewV16 = function(bundle, adminView=false) {
-  const shops = bundleShopsV16(bundle);
-  const itemTotal = shops.reduce((sum, shop) => sum + shopItemsFor(shop).length, 0);
-  const selectedShop = selectedShopForBundleV22(bundle, shops);
-  const tabs = shops.map(shop => {
-    const active = selectedShop && selectedShop.id === shop.id;
-    const count = shopItemsFor(shop).length;
-    return `<button class="shop-tab-v22 ${active ? 'active' : ''}" type="button" onclick="selectBundleShopV22('${esc(bundle.id)}','${esc(shop.id)}')"><span class="shop-tab-name-v22">${esc(shop.name || 'Unnamed Shop')}</span><span class="shop-tab-count-v22">${count}</span></button>`;
-  }).join('');
-  let content = '<div class="empty-msg">This Shop Group has no available shops.</div>';
-  if (selectedShop) {
-    const selectedItems = shopItemsFor(selectedShop);
-    renderingBundleShopIdV16 = selectedShop.id;
-    const categories = renderShopCategoriesOnly(selectedShop, selectedItems);
-    renderingBundleShopIdV16 = '';
-    content = `<div class="shop-stage-summary-v22"><span class="shop-stage-count-v22">${selectedItems.length} item${selectedItems.length === 1 ? '' : 's'}</span></div>${categories}`;
-  }
-  return `<section class="shop-group-showcase"><div class="shop-group-hero"><div class="shop-group-hero-text"><span class="shop-group-eyebrow">${adminView ? 'Admin Preview' : 'Available Shop Group'}</span><h3 class="shop-group-hero-title">${esc(bundle.name || 'Shop Group')}</h3></div><div class="shop-group-hero-metrics"><span class="shop-group-metric"><strong>${shops.length}</strong><small>Shops</small></span><span class="shop-group-metric"><strong>${itemTotal}</strong><small>Items</small></span>${adminView ? '<button class="shop-btn secondary shop-group-close" type="button" onclick="clearShopGroupPreviewV16()">Close</button>' : ''}</div></div><div class="shop-group-store-layout-v22"><nav class="shop-tabs-v22" aria-label="Shops in this group"><div class="shop-tabs-label-v22">Shops</div>${tabs || '<div class="empty-msg">No shops available.</div>'}</nav><section class="shop-stage-v22">${content}</section></div></section>`;
-};
-
-</script>
+<script type="module" src="tools-parts/scripts/tools-js-002-firebase-tools-module.mjs"></script>
 </body>
 </html>
