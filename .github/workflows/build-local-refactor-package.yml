@@ -148,3 +148,5 @@ Do not upload this package to production until testing is complete.
           name: Mount-Aetheria-local-refactor
           path: Mount-Aetheria-local-refactor.zip
           if-no-files-found: error
+
+# Triggered after workflow was enabled on main.
