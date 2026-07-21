@@ -1,0 +1,96 @@
+name: Build Local Refactor Package
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-local-refactor-package.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build safe local package
+        shell: python
+        run: |
+          from pathlib import Path
+          import re, shutil, zipfile
+          root = Path('.')
+          src = root / 'characters.html'
+          text = src.read_text(encoding='utf-8')
+          original = text
+          parts = root / 'characters-parts'
+          parts.mkdir(exist_ok=True)
+          style_count = script_count = skipped_script_count = 0
+          style_re = re.compile(r'<style(?P<attrs>[^>]*)>(?P<body>.*?)</style>', re.I | re.S)
+          script_re = re.compile(r'<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>', re.I | re.S)
+          def attr_value(attrs, name):
+              m = re.search(r'\b' + re.escape(name) + r'\s*=\s*(["\'])(.*?)\1', attrs, re.I | re.S)
+              return m.group(2) if m else ''
+          def replace_style(match):
+              global style_count
+              style_count += 1
+              attrs, body = match.group('attrs') or '', match.group('body')
+              name = f'characters-style-{style_count:03d}.css'
+              (parts / name).write_text(body.strip() + '\n', encoding='utf-8')
+              media = attr_value(attrs, 'media')
+              return f'<link rel="stylesheet" href="characters-parts/{name}"' + (f' media="{media}"' if media else '') + '>'
+          text = style_re.sub(replace_style, text)
+          def replace_script(match):
+              global script_count, skipped_script_count
+              attrs, body = match.group('attrs') or '', match.group('body')
+              if re.search(r'\bsrc\s*=', attrs, re.I): return match.group(0)
+              typ = attr_value(attrs, 'type').strip().lower()
+              if typ not in ('', 'text/javascript', 'application/javascript', 'module'):
+                  skipped_script_count += 1
+                  return match.group(0)
+              script_count += 1
+              name = f'characters-script-{script_count:03d}.' + ('mjs' if typ == 'module' else 'js')
+              (parts / name).write_text(body.strip() + '\n', encoding='utf-8')
+              return f'<script' + ((' ' + attrs.strip()) if attrs.strip() else '') + f' src="characters-parts/{name}"></script>'
+          text = script_re.sub(replace_script, text)
+          src.write_text(text, encoding='utf-8')
+          (root / 'characters.original.html').write_text(original, encoding='utf-8')
+          (root / 'REFACTOR-NOTES.md').write_text(f'''# Mount Aetheria local refactor package
+
+For VS Code Live Server testing only. No application logic or Firebase configuration was intentionally changed.
+
+- CSS blocks extracted: {style_count}
+- JavaScript blocks extracted: {script_count}
+- Non-JavaScript script blocks left inline: {skipped_script_count}
+- Original file: `characters.original.html`
+
+Use a test account/character because local pages still connect to Firebase. Test sign-in, load/save/refresh, skills, spells, abilities, weapons, inventory, shops, calendar, and mobile layout.
+''', encoding='utf-8')
+          package = root / '_local_package'
+          if package.exists(): shutil.rmtree(package)
+          package.mkdir()
+          always = {'.html','.htm','.js','.mjs','.css','.json','.md','.txt','.yml','.yaml','.svg','.xml','.webmanifest'}
+          media = {'.png','.jpg','.jpeg','.gif','.webp','.bmp','.tif','.tiff','.mp3','.wav','.ogg','.m4a','.mp4','.mov','.mkv','.avi','.webm','.pdf','.zip','.7z','.rar','.psd','.blend'}
+          omitted=[]
+          for path in root.rglob('*'):
+              if not path.is_file(): continue
+              rel=path.relative_to(root)
+              if rel.parts[0] in {'.git','_local_package'}: continue
+              if rel.as_posix()=='.github/workflows/build-local-refactor-package.yml': continue
+              size=path.stat().st_size; ext=path.suffix.lower()
+              if (ext in media and size>1024*1024) or (size>8*1024*1024 and ext not in always):
+                  omitted.append((rel.as_posix(),size)); continue
+              dest=package/rel; dest.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(path,dest)
+          lines=['Omitted large/binary files. Copy manually if needed:','']+[f'{s/1024/1024:.2f} MB\t{p}' for p,s in sorted(omitted)]
+          (package/'OMITTED-LARGE-FILES.txt').write_text('\n'.join(lines)+'\n',encoding='utf-8')
+          with zipfile.ZipFile('Mount-Aetheria-local-refactor.zip','w',zipfile.ZIP_DEFLATED) as z:
+              for path in package.rglob('*'):
+                  if path.is_file(): z.write(path,path.relative_to(package))
+          print(f'CSS={style_count} JS={script_count} omitted={len(omitted)}')
+      - name: Upload local test ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mount-Aetheria-local-refactor
+          path: Mount-Aetheria-local-refactor.zip
+          if-no-files-found: error
